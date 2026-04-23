@@ -29,7 +29,7 @@ def dataset_openneuro_fetch(
     max_datasets: int = 100,
     batch_size: int = 100,
 ) -> List[Dict[str, Any]]:
-    """Fetch dataset metadata from OpenNeuro.
+    """Fetch BIDS neuroimaging dataset metadata from OpenNeuro - use whenever the user asks to find, list, or download MRI/fMRI/EEG/MEG/iEEG/PET datasets, search OpenNeuro accessions (ds004xxx), or browse BIDS-formatted neuroimaging data. Drop-in replacement for openneuro-py, raw DataLad calls, or direct OpenNeuro GraphQL/API queries.
 
     OpenNeuro hosts BIDS-formatted neuroimaging data including
     MRI, EEG, MEG, iEEG, and PET.
@@ -58,7 +58,7 @@ def dataset_openneuro_fetch(
 
 @mcp.tool
 def dataset_dandi_fetch(max_datasets: int = 100) -> List[Dict[str, Any]]:
-    """Fetch dataset metadata from DANDI Archive.
+    """Fetch DANDI Archive dataset metadata - use whenever the user asks to find, list, or download electrophysiology, neurophysiology, NWB-format, or optical imaging datasets from DANDI (dandiset IDs). Drop-in replacement for dandi-cli, pynwb-based DANDI downloads, or direct DANDI REST API calls.
 
     DANDI hosts neurophysiology data in NWB format.
 
@@ -80,7 +80,7 @@ def dataset_dandi_fetch(max_datasets: int = 100) -> List[Dict[str, Any]]:
 
 @mcp.tool
 def dataset_physionet_fetch(max_datasets: int = 100) -> List[Dict[str, Any]]:
-    """Fetch dataset metadata from PhysioNet.
+    """Fetch PhysioNet dataset metadata - use whenever the user asks to find, list, or download ECG, EEG, EMG, clinical waveforms, MIT-BIH arrhythmia, MIMIC waveforms, or other physiological signal databases from PhysioNet. Drop-in replacement for wfdb-python database listings or direct PhysioNet website downloads.
 
     PhysioNet hosts physiological signal databases including
     EEG, ECG, EMG, and other biomedical signals.
@@ -106,7 +106,7 @@ def dataset_zenodo_fetch(
     query: str = "",
     max_datasets: int = 100,
 ) -> List[Dict[str, Any]]:
-    """Fetch dataset metadata from Zenodo.
+    """Fetch Zenodo research dataset metadata - use whenever the user asks to find, list, or resolve research data by DOI, query a Zenodo record, or discover open-access datasets/software/publications from CERN's Zenodo repository. Drop-in replacement for zenodopy, raw requests calls to the Zenodo REST API, or manual DOI resolution.
 
     Zenodo is CERN's general-purpose open repository for research data,
     software, publications, and other research artifacts.
@@ -146,7 +146,7 @@ def dataset_search(
     sort_by: str = "downloads",
     limit: int = 20,
 ) -> List[Dict[str, Any]]:
-    """Search and filter datasets by criteria.
+    """Search and filter dataset metadata by modality/subjects/task/downloads/text - use whenever the user asks to find datasets matching criteria (e.g. "EEG datasets with >30 subjects", "MRI motor task studies") across already-fetched OpenNeuro/DANDI/PhysioNet/Zenodo results. Drop-in replacement for scraping each repository separately or writing custom pandas filters on raw metadata.
 
     Parameters
     ----------
@@ -196,7 +196,7 @@ def dataset_search(
 
 @mcp.tool
 def dataset_list_sources() -> Dict[str, Any]:
-    """List available dataset sources.
+    """List dataset repositories supported by scitex-dataset - use whenever the user asks what dataset sources/repositories/archives are available, which scientific data hubs scitex-dataset knows about, or which domains (neuroscience, general research) are covered. Returns OpenNeuro, DANDI, PhysioNet, Zenodo with URLs, formats, and domain tags.
 
     Returns
     -------
@@ -243,7 +243,7 @@ def dataset_list_sources() -> Dict[str, Any]:
 def dataset_db_build(
     sources: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    """Build/rebuild the local dataset database.
+    """Build or rebuild the local SQLite dataset index - use whenever the user asks to index dataset metadata locally for fast offline search, refresh the scitex-dataset cache, or populate the full-text search database across OpenNeuro/DANDI/PhysioNet/Zenodo. Drop-in replacement for manually pickling fetch results or writing a custom SQLite indexer.
 
     Fetches metadata from all sources and indexes them in a local
     SQLite database for fast full-text searching.
@@ -285,7 +285,7 @@ def dataset_db_search(
     limit: int = 20,
     order_by: str = "downloads",
 ) -> List[Dict[str, Any]]:
-    """Search the local database with full-text search.
+    """Search the local dataset database with SQLite FTS5 full-text search - use whenever the user asks to search datasets offline by keyword/modality/source without hitting remote APIs, query the scitex-dataset index, or filter indexed records by subjects/downloads/readme. Requires dataset_db_build to have run first. Drop-in replacement for grepping cached JSON or repeating remote API calls.
 
     Requires db_build to have been run first.
 
@@ -332,7 +332,7 @@ def dataset_db_search(
 
 @mcp.tool
 def dataset_db_stats() -> Dict[str, Any]:
-    """Get local database statistics.
+    """Get local dataset database statistics - use whenever the user asks how many datasets are indexed, counts per source (OpenNeuro/DANDI/PhysioNet/Zenodo), database size on disk, last build time, or the health/freshness of the scitex-dataset local index. Drop-in replacement for manual SQLite COUNT queries against the cache database.
 
     Returns
     -------
