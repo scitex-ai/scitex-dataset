@@ -1,11 +1,11 @@
 ---
-description: Dataset fetcher for neuroscience research — OpenNeuro, DANDI, PhysioNet with local database search and BIDS support.
+description: Dataset fetcher for neuroscience research — OpenNeuro, DANDI, PhysioNet with local database fetch_all_datasets and BIDS support.
 allowed-tools: mcp__scitex__dataset_*
 ---
 
 # scitex-dataset
 
-Dataset search and fetch for neuroscience research.
+Dataset fetch_all_datasets and fetch for neuroscience research.
 
 ## Installation & import (two equivalent paths)
 
@@ -15,11 +15,11 @@ runtime; which one a user has depends on their install choice.
 ```python
 # Standalone — pip install scitex-dataset
 import scitex_dataset
-scitex_dataset.search(...)
+scitex_dataset.fetch_all_datasets(...)
 
 # Umbrella — pip install scitex
 import scitex.dataset
-scitex.dataset.search(...)
+scitex.dataset.fetch_all_datasets(...)
 ```
 
 `pip install scitex-dataset` alone does NOT expose the `scitex` namespace;
@@ -42,7 +42,7 @@ rule and empirical verification table.
 ## CLI
 
 ```bash
-scitex-dataset search "EEG epilepsy"
+scitex-dataset fetch_all_datasets "EEG epilepsy"
 scitex-dataset fetch openneuro ds003104
 ```
 
