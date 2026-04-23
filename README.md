@@ -21,6 +21,14 @@
 
 ---
 
+## Problem and Solution
+
+
+| # | Problem | Solution |
+|---|---------|----------|
+| 1 | **Public dataset repositories balkanized** -- OpenNeuro (BIDS) + DANDI (NWB) + PhysioNet (WFDB) + Zenodo (generic) + GEO / ChEMBL / ClinicalTrials — different APIs, auth, download tools | **Unified fetcher** -- `stx.dataset.neuroscience.openneuro.fetch_all_datasets()` same call shape across all; local FTS5 search across metadata |
+| 2 | **"Download this BIDS dataset" means reading DataLad docs first** -- the barrier is tooling, not knowledge | **One-line fetch** -- no DataLad setup; the module handles auth, resumption, checksums transparently |
+
 ## Problem
 
 Neuroscience datasets are scattered across multiple repositories -- OpenNeuro, DANDI Archive, PhysioNet, Zenodo -- each with its own API, data format, and query interface. Researchers waste time navigating incompatible APIs to discover relevant data. AI agents lack a unified way to search and evaluate datasets programmatically.
