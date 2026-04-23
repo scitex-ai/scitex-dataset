@@ -7,12 +7,37 @@ allowed-tools: mcp__scitex__dataset_*
 
 Dataset search and fetch for neuroscience research.
 
+## Installation & import (two equivalent paths)
+
+The same module is reachable via two install paths. Both forms work at
+runtime; which one a user has depends on their install choice.
+
+```python
+# Standalone — pip install scitex-dataset
+import scitex_dataset
+scitex_dataset.search(...)
+
+# Umbrella — pip install scitex
+import scitex.dataset
+scitex.dataset.search(...)
+```
+
+`pip install scitex-dataset` alone does NOT expose the `scitex` namespace;
+`import scitex.dataset` raises `ModuleNotFoundError`. To use the
+`scitex.dataset` form, also `pip install scitex`.
+
+See [../../general/02_interface-python-api.md] for the ecosystem-wide
+rule and empirical verification table.
+
 ## Sub-skills
 
-- [quick-start.md](quick-start.md) — Basic usage
-- [data-sources.md](data-sources.md) — OpenNeuro, DANDI, PhysioNet
-- [cli-reference.md](cli-reference.md) — CLI commands
-- [mcp-tools.md](mcp-tools.md) — MCP tools for AI agents
+### Core
+- [01_quick-start.md](01_quick-start.md) — Basic usage
+- [02_data-sources.md](02_data-sources.md) — OpenNeuro, DANDI, PhysioNet
+
+### Workflows
+- [10_cli-reference.md](10_cli-reference.md) — CLI commands
+- [11_mcp-tools.md](11_mcp-tools.md) — MCP tools for AI agents
 
 ## CLI
 
