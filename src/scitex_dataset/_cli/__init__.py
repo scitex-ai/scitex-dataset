@@ -67,8 +67,44 @@ except ImportError:
     pass
 
 
+# Hidden deprecation redirects: bare `<source>` → `fetch-<source>` compound leaf
+def _dataset_deprecated(name: str):
+    """Hidden top-level redirect: `<name>` → `fetch-<name>`."""
+
+    @click.pass_context
+    def _impl(ctx, **_):
+        click.echo(
+            f"error: `scitex-dataset {name}` was renamed to "
+            f"`scitex-dataset fetch-{name}`.\n"
+            f"Re-run with: scitex-dataset fetch-{name} [...]",
+            err=True,
+        )
+        ctx.exit(2)
+
+    return click.command(
+        name,
+        hidden=True,
+        context_settings={"ignore_unknown_options": True, "allow_extra_args": True},
+    )(_impl)
+
+
+for _src in [
+    "openneuro",
+    "dandi",
+    "physionet",
+    "zenodo",
+    "figshare",
+    "openml",
+    "moleculenet",
+    "chembl",
+    "clinicaltrials",
+    "geo",
+]:
+    main.add_command(_dataset_deprecated(_src))
+
+
 # OpenNeuro command
-@main.command()
+@main.command("fetch-openneuro")
 @click.option("-n", "--max-datasets", default=0, help="Max datasets (0=all).")
 @click.option("-b", "--batch-size", default=100, help="Datasets per request.")
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
@@ -102,7 +138,7 @@ def openneuro(max_datasets: int, batch_size: int, output: str, verbose: bool) ->
 
 
 # DANDI command
-@main.command()
+@main.command("fetch-dandi")
 @click.option("-n", "--max-datasets", default=0, help="Max datasets (0=all).")
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
@@ -134,7 +170,7 @@ def dandi(max_datasets: int, output: str, verbose: bool) -> None:
 
 
 # PhysioNet command
-@main.command()
+@main.command("fetch-physionet")
 @click.option("-n", "--max-datasets", default=0, help="Max datasets (0=all).")
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
@@ -166,7 +202,7 @@ def physionet(max_datasets: int, output: str, verbose: bool) -> None:
 
 
 # Zenodo command
-@main.command()
+@main.command("fetch-zenodo")
 @click.option("-q", "--query", default="", help="Search query.")
 @click.option("-n", "--max-datasets", default=0, help="Max datasets (0=all).")
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
@@ -202,7 +238,7 @@ def zenodo(query: str, max_datasets: int, output: str, verbose: bool) -> None:
 
 
 # Figshare command
-@main.command()
+@main.command("fetch-figshare")
 @click.option("-q", "--query", default="", help="Search query.")
 @click.option("-n", "--max-datasets", default=0, help="Max datasets (0=all).")
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
@@ -236,7 +272,7 @@ def figshare(query: str, max_datasets: int, output: str, verbose: bool) -> None:
 
 
 # OpenML command
-@main.command()
+@main.command("fetch-openml")
 @click.option("-n", "--max-datasets", default=0, help="Max datasets (0=all).")
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
@@ -268,7 +304,7 @@ def openml(max_datasets: int, output: str, verbose: bool) -> None:
 
 
 # MoleculeNet command
-@main.command()
+@main.command("fetch-moleculenet")
 @click.option("-n", "--max-datasets", default=0, help="Max datasets (0=all).")
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
@@ -295,12 +331,14 @@ def moleculenet(max_datasets: int, output: str, verbose: bool) -> None:
     else:
         if verbose:
             for ds in formatted[:10]:
-                click.echo(f"  {ds['id']}: {ds['name']} ({ds.get('n_compounds', '?')} compounds)")
+                click.echo(
+                    f"  {ds['id']}: {ds['name']} ({ds.get('n_compounds', '?')} compounds)"
+                )
         click.echo(f"Fetched {len(formatted)} datasets")
 
 
 # GEO command
-@main.command()
+@main.command("fetch-geo")
 @click.option("-n", "--max-datasets", default=0, help="Max datasets (0=all).")
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
@@ -332,7 +370,7 @@ def geo(max_datasets: int, output: str, verbose: bool) -> None:
 
 
 # ChEMBL command
-@main.command()
+@main.command("fetch-chembl")
 @click.option("-n", "--max-datasets", default=0, help="Max datasets (0=all).")
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
@@ -364,7 +402,7 @@ def chembl(max_datasets: int, output: str, verbose: bool) -> None:
 
 
 # ClinicalTrials command
-@main.command()
+@main.command("fetch-clinicaltrials")
 @click.option("-n", "--max-datasets", default=0, help="Max datasets (0=all).")
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
@@ -417,7 +455,18 @@ def db(ctx: click.Context, help_recursive: bool):
     "--sources",
     multiple=True,
     type=click.Choice(
-        ["openneuro", "dandi", "physionet", "zenodo", "figshare", "openml", "geo", "chembl", "moleculenet", "clinicaltrials"]
+        [
+            "openneuro",
+            "dandi",
+            "physionet",
+            "zenodo",
+            "figshare",
+            "openml",
+            "geo",
+            "chembl",
+            "moleculenet",
+            "clinicaltrials",
+        ]
     ),
     help="Sources to index (default: all).",
 )
@@ -446,7 +495,18 @@ def db_build(sources: tuple, verbose: bool) -> None:
     "-s",
     "--source",
     type=click.Choice(
-        ["openneuro", "dandi", "physionet", "zenodo", "figshare", "openml", "geo", "chembl", "moleculenet", "clinicaltrials"]
+        [
+            "openneuro",
+            "dandi",
+            "physionet",
+            "zenodo",
+            "figshare",
+            "openml",
+            "geo",
+            "chembl",
+            "moleculenet",
+            "clinicaltrials",
+        ]
     ),
 )
 @click.option("-m", "--modality", help="Filter by modality (mri, eeg, etc.).")
@@ -497,8 +557,21 @@ def db_search(
         click.echo(f"\nFound {len(results)} datasets")
 
 
-@db.command("stats")
-def db_stats() -> None:
+@db.command("stats", hidden=True, context_settings={"ignore_unknown_options": True})
+@click.pass_context
+def db_stats_deprecated(ctx):
+    """(deprecated) Renamed to `show-stats`."""
+    click.echo(
+        "error: `scitex-dataset db stats` was renamed to "
+        "`scitex-dataset db show-stats`.\n"
+        "Re-run with: scitex-dataset db show-stats",
+        err=True,
+    )
+    ctx.exit(2)
+
+
+@db.command("show-stats")
+def db_show_stats() -> None:
     """Show database statistics."""
     from .. import database
 
@@ -530,16 +603,37 @@ def db_clear() -> None:
         click.echo("Database not found.")
 
 
-# Shell completion
-@main.command()
-@click.argument("shell", type=click.Choice(["bash", "zsh", "fish"]))
-def completion(shell: str) -> None:
-    """Generate shell completion script.
+# Shell tab-completion
+@main.command(
+    "completion",
+    hidden=True,
+    context_settings={"ignore_unknown_options": True, "allow_extra_args": True},
+)
+@click.pass_context
+def completion_deprecated(ctx):
+    """(deprecated) Renamed to `print-tab-completion`."""
+    click.echo(
+        "error: `scitex-dataset completion` was renamed to "
+        "`scitex-dataset print-tab-completion`.\n"
+        "Re-run with: scitex-dataset print-tab-completion --shell bash|zsh|fish",
+        err=True,
+    )
+    ctx.exit(2)
+
+
+@main.command("print-tab-completion")
+@click.option(
+    "--shell",
+    type=click.Choice(["bash", "zsh", "fish"]),
+    default="bash",
+    help="Target shell. Default: bash.",
+)
+def print_tab_completion(shell: str) -> None:
+    """Print tab-completion script to stdout.
 
     \b
     Usage:
-      eval "$(scitex-dataset completion bash)"   # Bash
-      eval "$(scitex-dataset completion zsh)"    # Zsh
+      eval "$(scitex-dataset print-tab-completion --shell bash)"
     """
     import os
     import subprocess
