@@ -8,23 +8,16 @@ General scientific dataset sources.
 
 Platforms:
 - zenodo: CERN's general scientific repository
-- figshare: Research data sharing (future)
+- figshare: Research data sharing
+- openml: Machine learning dataset repository
 """
 
-from . import zenodo
-from .zenodo import (
-    ZENODO_API,
-    fetch_all_datasets,
-    fetch_datasets,
-    format_dataset,
-)
+from . import figshare, openml, zenodo
 
 __all__ = [
     "zenodo",
-    "ZENODO_API",
-    "fetch_datasets",
-    "fetch_all_datasets",
-    "format_dataset",
+    "figshare",
+    "openml",
 ]
 
 # EOF

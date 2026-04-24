@@ -173,7 +173,18 @@ def build(
         Count of datasets indexed per source.
     """
     if sources is None:
-        sources = ["openneuro", "dandi", "physionet", "zenodo"]
+        sources = [
+            "openneuro",
+            "dandi",
+            "physionet",
+            "zenodo",
+            "figshare",
+            "openml",
+            "geo",
+            "chembl",
+            "moleculenet",
+            "clinicaltrials",
+        ]
 
     conn = _get_connection(db_path)
     counts = {}
@@ -191,6 +202,18 @@ def build(
                 from .neuroscience.physionet import fetch_all_datasets, format_dataset
             elif source == "zenodo":
                 from .general.zenodo import fetch_all_datasets, format_dataset
+            elif source == "figshare":
+                from .general.figshare import fetch_all_datasets, format_dataset
+            elif source == "openml":
+                from .general.openml import fetch_all_datasets, format_dataset
+            elif source == "geo":
+                from .biology.geo import fetch_all_datasets, format_dataset
+            elif source == "chembl":
+                from .pharmacology.chembl import fetch_all_datasets, format_dataset
+            elif source == "moleculenet":
+                from .pharmacology.moleculenet import fetch_all_datasets, format_dataset
+            elif source == "clinicaltrials":
+                from .medical.clinicaltrials import fetch_all_datasets, format_dataset
             else:
                 if logger:
                     logger.warning(f"Unknown source: {source}")

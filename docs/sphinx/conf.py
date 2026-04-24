@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.abspath("../../src"))
 project = "scitex-dataset"
 copyright = "2025, Yusuke Watanabe"
 author = "Yusuke Watanabe"
-release = "0.1.4"
+release = "0.3.1"
 
 # -- General configuration ---------------------------------------------------
 

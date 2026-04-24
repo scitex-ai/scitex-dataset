@@ -21,6 +21,16 @@
 
 ---
 
+> **Interfaces:** Python ⭐⭐⭐ (primary) · CLI ⭐ · MCP ⭐⭐ · Skills ⭐⭐ · Hook — · HTTP —
+
+## Problem and Solution
+
+
+| # | Problem | Solution |
+|---|---------|----------|
+| 1 | **Public dataset repositories balkanized** -- OpenNeuro (BIDS) + DANDI (NWB) + PhysioNet (WFDB) + Zenodo (generic) + GEO / ChEMBL / ClinicalTrials — different APIs, auth, download tools | **Unified fetcher** -- `stx.dataset.neuroscience.openneuro.fetch_all_datasets()` same call shape across all; local FTS5 search across metadata |
+| 2 | **"Download this BIDS dataset" means reading DataLad docs first** -- the barrier is tooling, not knowledge | **One-line fetch** -- no DataLad setup; the module handles auth, resumption, checksums transparently |
+
 ## Problem
 
 Neuroscience datasets are scattered across multiple repositories -- OpenNeuro, DANDI Archive, PhysioNet, Zenodo -- each with its own API, data format, and query interface. Researchers waste time navigating incompatible APIs to discover relevant data. AI agents lack a unified way to search and evaluate datasets programmatically.
@@ -62,7 +72,7 @@ for ds in datasets:
     print(f"{formatted['id']}: {formatted['name']} ({formatted['n_subjects']} subjects)")
 ```
 
-## Three Interfaces
+## Four Interfaces
 
 <details>
 <summary><strong>Python API</strong></summary>
@@ -145,6 +155,28 @@ scitex-dataset mcp start
 ```
 
 > **[Full MCP specification](https://scitex-dataset.readthedocs.io/)**
+
+</details>
+
+<details>
+<summary><strong>Skills — for AI Agent Discovery</strong></summary>
+
+<br>
+
+Skills provide workflow-oriented guides that AI agents query to discover capabilities and usage patterns.
+
+```bash
+scitex-dataset skills list              # List available skill pages
+scitex-dataset skills get SKILL         # Show main skill page
+scitex-dev skills export --package scitex-dataset  # Export to Claude Code
+```
+
+| Skill | Content |
+|-------|---------|
+| `quick-start` | Basic usage |
+| `data-sources` | OpenNeuro, DANDI, PhysioNet |
+| `cli-reference` | CLI commands |
+| `mcp-tools` | MCP tools for AI agents |
 
 </details>
 

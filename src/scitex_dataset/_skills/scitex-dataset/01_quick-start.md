@@ -1,5 +1,4 @@
 ---
-name: quick-start
 description: Basic dataset search and fetch — OpenNeuro, DANDI, PhysioNet.
 ---
 

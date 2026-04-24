@@ -1,5 +1,4 @@
 ---
-name: data-sources
 description: Supported data sources — OpenNeuro, DANDI, PhysioNet, local database.
 ---
 

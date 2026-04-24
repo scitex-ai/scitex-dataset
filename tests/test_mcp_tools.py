@@ -61,7 +61,10 @@ def test_dataset_list_sources():
     assert "dandi" in result["sources"]
     assert "physionet" in result["sources"]
     assert "zenodo" in result["sources"]
-    assert result["count"] == 4
+    assert "geo" in result["sources"]
+    assert "chembl" in result["sources"]
+    assert "clinicaltrials" in result["sources"]
+    assert result["count"] == 7
 
 
 @patch("scitex_dataset.neuroscience.openneuro.fetch_all_datasets")

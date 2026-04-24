@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-dataset"
-version = "0.1.5"
-description = "Dataset fetcher for neuroscience research (OpenNeuro, BIDS, etc.)"
+version = "0.3.2"
+description = "Multi-domain scientific dataset fetcher — neuroscience, biology, pharmacology, medical (OpenNeuro, DANDI, PhysioNet, GEO, ChEMBL, ClinicalTrials.gov)"
 readme = "README.md"
 license = "AGPL-3.0-only"
 requires-python = ">=3.10"
@@ -82,9 +82,6 @@ Issues = "https://github.com/ywatanabe1989/scitex-dataset/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/scitex_dataset"]
-
-[tool.hatch.build.targets.wheel.force-include]
-"src/scitex_dataset/skills" = "scitex_dataset/skills"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
