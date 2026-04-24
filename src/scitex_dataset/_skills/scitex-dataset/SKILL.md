@@ -68,3 +68,8 @@ scitex-dataset fetch openneuro ds003104
 | `dataset_db_build` | Build local database |
 | `dataset_db_stats` | Database statistics |
 | `dataset_list_sources` | List available sources |
+
+
+## Environment
+
+- [12_env-vars.md](12_env-vars.md) — SCITEX_* env vars read by scitex-dataset at runtime
