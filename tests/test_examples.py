@@ -1,0 +1,22 @@
+"""Smoke tests: quickstart example must run to completion (offline-safe)."""
+
+import subprocess
+import sys
+from pathlib import Path
+
+EXAMPLES_DIR = Path(__file__).parent.parent / "examples"
+QUICKSTART = EXAMPLES_DIR / "quickstart.py"
+
+
+def test_quickstart_smoke(tmp_path):
+    assert QUICKSTART.exists(), f"missing example: {QUICKSTART}"
+    result = subprocess.run(
+        [sys.executable, str(QUICKSTART)],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        timeout=180,
+    )
+    assert result.returncode == 0, (
+        f"{QUICKSTART.name} failed:\nSTDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
+    )
