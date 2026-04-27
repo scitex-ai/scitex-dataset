@@ -38,7 +38,7 @@ classifiers = [
 dependencies = [
     "httpx>=0.24.0",
     "click>=8.0.0",
-    "scitex-dev",
+    "scitex-dev>=0.1.0",
 ]
 
 [project.optional-dependencies]
