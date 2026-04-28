@@ -5,15 +5,16 @@
 
 """Tests for local SQLite database module."""
 
-
-
 from scitex_dataset import database
 
 
 def test_get_db_path():
-    """Test default database path."""
+    """Test default database path lives under the canonical local-state layout
+    (`<scitex_dir>/dataset/runtime/...`) introduced by the 2026-04-28
+    local_state migration."""
     path = database.get_db_path()
-    assert "scitex-dataset" in str(path)
+    s = str(path)
+    assert "dataset" in s and "runtime" in s
     assert path.name == "datasets.db"
 
 
