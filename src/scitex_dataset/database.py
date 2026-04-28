@@ -15,6 +15,7 @@ Usage:
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
@@ -22,8 +23,16 @@ from typing import Any, Dict, List, Optional
 
 from scitex_dev.decorators import supports_return_as
 
-# Default database location
-DEFAULT_DB_PATH = Path.home() / ".cache" / "scitex-dataset" / "datasets.db"
+# Default database location.
+# Honours $SCITEX_DIR (defaults to ~/.scitex). The legacy location
+# ~/.cache/scitex-dataset/datasets.db is no longer written; users with an
+# existing legacy DB can move it manually.
+DEFAULT_DB_PATH = (
+    Path(os.environ.get("SCITEX_DIR", Path.home() / ".scitex"))
+    / "dataset"
+    / "runtime"
+    / "datasets.db"
+)
 
 __all__ = [
     "build",
@@ -163,7 +172,8 @@ def build(
         Sources to fetch: ["openneuro", "dandi", "physionet"].
         Default: all sources.
     db_path : Path, optional
-        Database file path. Default: ~/.cache/scitex-dataset/datasets.db
+        Database file path. Default: $SCITEX_DIR/dataset/runtime/datasets.db
+        (~/.scitex/dataset/runtime/datasets.db when SCITEX_DIR is unset).
     logger : optional
         Logger for progress messages.
 
