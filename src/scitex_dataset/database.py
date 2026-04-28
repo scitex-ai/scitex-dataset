@@ -19,6 +19,7 @@ import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+from scitex_config._ecosystem import local_state
 from typing import Any, Dict, List, Optional
 
 from scitex_dev.decorators import supports_return_as
