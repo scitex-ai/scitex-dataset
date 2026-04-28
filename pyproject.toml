@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-dataset"
-version = "0.3.5"
+version = "0.3.6"
 description = "Multi-domain scientific dataset fetcher — neuroscience, biology, pharmacology, medical (OpenNeuro, DANDI, PhysioNet, GEO, ChEMBL, ClinicalTrials.gov)"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -27,7 +27,6 @@ keywords = [
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: GNU Affero General Public License v3",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
