@@ -45,8 +45,8 @@ def test_no_args_shows_help(cli_runner):
 
 
 def test_openneuro_help(cli_runner):
-    """Test openneuro --help."""
-    result = cli_runner.invoke(main, ["openneuro", "--help"])
+    """Test fetch-openneuro --help."""
+    result = cli_runner.invoke(main, ["fetch-openneuro", "--help"])
     assert result.exit_code == 0
     assert "max-datasets" in result.output
     assert "output" in result.output
@@ -55,11 +55,11 @@ def test_openneuro_help(cli_runner):
 @patch("scitex_dataset.neuroscience.openneuro.fetch_all_datasets")
 @patch("scitex_dataset.neuroscience.openneuro.format_dataset")
 def test_openneuro_fetch(mock_format, mock_fetch, cli_runner, tmp_path):
-    """Test openneuro command fetches datasets."""
+    """Test fetch-openneuro command fetches datasets."""
     mock_fetch.return_value = [{"id": "ds001"}, {"id": "ds002"}]
     mock_format.side_effect = lambda x: {"id": x["id"], "name": f"Dataset {x['id']}"}
 
-    result = cli_runner.invoke(main, ["openneuro", "-n", "2"])
+    result = cli_runner.invoke(main, ["fetch-openneuro", "-n", "2"])
 
     assert result.exit_code == 0
     assert "2 datasets" in result.output
@@ -69,12 +69,14 @@ def test_openneuro_fetch(mock_format, mock_fetch, cli_runner, tmp_path):
 @patch("scitex_dataset.neuroscience.openneuro.fetch_all_datasets")
 @patch("scitex_dataset.neuroscience.openneuro.format_dataset")
 def test_openneuro_output_file(mock_format, mock_fetch, cli_runner, tmp_path):
-    """Test openneuro command writes to file."""
+    """Test fetch-openneuro command writes to file."""
     output_file = tmp_path / "datasets.json"
     mock_fetch.return_value = [{"id": "ds001"}]
     mock_format.return_value = {"id": "ds001", "name": "Test"}
 
-    result = cli_runner.invoke(main, ["openneuro", "-n", "1", "-o", str(output_file)])
+    result = cli_runner.invoke(
+        main, ["fetch-openneuro", "-n", "1", "-o", str(output_file)]
+    )
 
     assert result.exit_code == 0
     assert output_file.exists()
@@ -82,15 +84,15 @@ def test_openneuro_output_file(mock_format, mock_fetch, cli_runner, tmp_path):
 
 
 def test_dandi_help(cli_runner):
-    """Test dandi --help."""
-    result = cli_runner.invoke(main, ["dandi", "--help"])
+    """Test fetch-dandi --help."""
+    result = cli_runner.invoke(main, ["fetch-dandi", "--help"])
     assert result.exit_code == 0
     assert "NWB" in result.output or "DANDI" in result.output
 
 
 def test_physionet_help(cli_runner):
-    """Test physionet --help."""
-    result = cli_runner.invoke(main, ["physionet", "--help"])
+    """Test fetch-physionet --help."""
+    result = cli_runner.invoke(main, ["fetch-physionet", "--help"])
     assert result.exit_code == 0
     assert "PhysioNet" in result.output or "physionet" in result.output
 
@@ -101,7 +103,7 @@ def test_db_help(cli_runner):
     assert result.exit_code == 0
     assert "build" in result.output
     assert "search" in result.output
-    assert "stats" in result.output
+    assert "show-stats" in result.output
 
 
 def test_db_help_recursive(cli_runner):
@@ -113,14 +115,14 @@ def test_db_help_recursive(cli_runner):
 
 
 def test_db_stats_no_db(cli_runner, tmp_path, monkeypatch):
-    """Test db stats when no database exists."""
+    """Test db show-stats when no database exists."""
     # Point to non-existent database
     monkeypatch.setattr(
         "scitex_dataset.database.DEFAULT_DB_PATH",
         tmp_path / "nonexistent.db",
     )
 
-    result = cli_runner.invoke(main, ["db", "stats"])
+    result = cli_runner.invoke(main, ["db", "show-stats"])
 
     assert result.exit_code == 0
     assert "not found" in result.output.lower() or "not built" in result.output.lower()
@@ -197,16 +199,16 @@ def test_mcp_doctor_no_fastmcp(cli_runner, monkeypatch):
 
 
 def test_completion_help(cli_runner):
-    """Test completion --help."""
-    result = cli_runner.invoke(main, ["completion", "--help"])
+    """Test print-tab-completion --help."""
+    result = cli_runner.invoke(main, ["print-tab-completion", "--help"])
     assert result.exit_code == 0
     assert "bash" in result.output
     assert "zsh" in result.output
 
 
 def test_completion_bash(cli_runner):
-    """Test completion bash generates script."""
-    result = cli_runner.invoke(main, ["completion", "bash"])
+    """Test print-tab-completion --shell bash generates script."""
+    result = cli_runner.invoke(main, ["print-tab-completion", "--shell", "bash"])
     # Should produce some output (completion script or error)
     assert result.exit_code == 0
 
