@@ -26,6 +26,8 @@ Usage:
     >>> results = db.search("alzheimer EEG", min_subjects=20)
 """
 
+from __future__ import annotations
+
 try:
     from importlib.metadata import version as _v, PackageNotFoundError
     try:
