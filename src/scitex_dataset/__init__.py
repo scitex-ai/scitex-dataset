@@ -26,8 +26,17 @@ Usage:
     >>> results = db.search("alzheimer EEG", min_subjects=20)
 """
 
-__version__ = "0.3.1"
+from __future__ import annotations
 
+try:
+    from importlib.metadata import version as _v, PackageNotFoundError
+    try:
+        __version__ = _v("scitex-dataset")
+    except PackageNotFoundError:
+        __version__ = "0.0.0+local"
+    del _v, PackageNotFoundError
+except ImportError:  # pragma: no cover — only on ancient Pythons
+    __version__ = "0.0.0+local"
 # Domain submodules
 from . import biology, database, general, medical, neuroscience, pharmacology
 
