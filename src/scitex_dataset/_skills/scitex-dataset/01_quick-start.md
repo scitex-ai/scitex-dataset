@@ -1,5 +1,7 @@
 ---
 description: Basic dataset search and fetch — OpenNeuro, DANDI, PhysioNet.
+name: quick-start
+tags: [scitex-dataset, scitex-package]
 ---
 
 # Quick Start

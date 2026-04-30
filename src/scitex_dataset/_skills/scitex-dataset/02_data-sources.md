@@ -1,5 +1,7 @@
 ---
 description: Supported data sources — OpenNeuro, DANDI, PhysioNet, local database.
+name: data-sources
+tags: [scitex-dataset, scitex-package]
 ---
 
 # Data Sources

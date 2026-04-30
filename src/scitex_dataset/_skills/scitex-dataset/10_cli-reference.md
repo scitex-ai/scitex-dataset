@@ -1,5 +1,7 @@
 ---
 description: CLI commands for scitex-dataset.
+name: cli-reference
+tags: [scitex-dataset, scitex-package]
 ---
 
 # CLI Reference
