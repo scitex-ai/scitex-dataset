@@ -10,7 +10,6 @@
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 <!-- scitex-badges:end -->
 
-
 <p align="center">
   <a href="https://scitex.ai">
     <img src="docs/scitex-logo-blue-cropped.png" alt="SciTeX" width="400">
@@ -20,35 +19,19 @@
 <p align="center"><b>Unified access to neuroscience and scientific datasets</b></p>
 
 <p align="center">
-  <a href="https://badge.fury.io/py/scitex-dataset"><img src="https://badge.fury.io/py/scitex-dataset.svg" alt="PyPI version"></a>
-  <a href="https://scitex-dataset.readthedocs.io/"><img src="https://readthedocs.org/projects/scitex-dataset/badge/?version=latest" alt="Documentation"></a>
-  <a href="https://github.com/ywatanabe1989/scitex-dataset/actions/workflows/test.yml"><img src="https://github.com/ywatanabe1989/scitex-dataset/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
-  <a href="https://www.gnu.org/licenses/agpl-3.0"><img src="https://img.shields.io/badge/License-AGPL--3.0-blue.svg" alt="License: AGPL-3.0"></a>
-</p>
-
-<p align="center">
   <a href="https://scitex-dataset.readthedocs.io/">Full Documentation</a> · <code>pip install scitex-dataset</code>
 </p>
 
 ---
 
-> **Interfaces:** Python ⭐⭐⭐ (primary) · CLI ⭐ · MCP ⭐⭐ · Skills ⭐⭐ · Hook — · HTTP —
-
 ## Problem and Solution
-
 
 | # | Problem | Solution |
 |---|---------|----------|
 | 1 | **Public dataset repositories balkanized** -- OpenNeuro (BIDS) + DANDI (NWB) + PhysioNet (WFDB) + Zenodo (generic) + GEO / ChEMBL / ClinicalTrials — different APIs, auth, download tools | **Unified fetcher** -- `stx.dataset.neuroscience.openneuro.fetch_all_datasets()` same call shape across all; local FTS5 search across metadata |
 | 2 | **"Download this BIDS dataset" means reading DataLad docs first** -- the barrier is tooling, not knowledge | **One-line fetch** -- no DataLad setup; the module handles auth, resumption, checksums transparently |
 
-## Problem
-
-Neuroscience datasets are scattered across multiple repositories -- OpenNeuro, DANDI Archive, PhysioNet, Zenodo -- each with its own API, data format, and query interface. Researchers waste time navigating incompatible APIs to discover relevant data. AI agents lack a unified way to search and evaluate datasets programmatically.
-
-## Solution
-
-SciTeX Dataset provides a **single Python API, CLI, and MCP (Model Context Protocol) server** to discover and query metadata from major scientific data repositories. It focuses on fast metadata retrieval without downloading full datasets.
+## Supported repositories
 
 | Repository | Description | Data Types |
 |------------|-------------|------------|
@@ -141,7 +124,7 @@ scitex-dataset mcp list-tools -v            # list MCP tools
 </details>
 
 <details>
-<summary><strong>MCP Server -- for AI Agents</strong></summary>
+<summary><strong>MCP Server</strong></summary>
 
 <br>
 
@@ -170,7 +153,7 @@ scitex-dataset mcp start
 </details>
 
 <details>
-<summary><strong>Skills — for AI Agent Discovery</strong></summary>
+<summary><strong>Skills</strong></summary>
 
 <br>
 
