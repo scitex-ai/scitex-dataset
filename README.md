@@ -91,7 +91,7 @@ database.build()                                        # index all sources
 results = database.search("alzheimer EEG", min_subjects=20)
 ```
 
-> **[Full API reference](https://scitex-dataset.readthedocs.io/)**
+> **[Full API reference](https://scitex-dataset.readthedocs.io/en/latest/api/scitex_dataset.html)**
 
 </details>
 
@@ -119,7 +119,7 @@ scitex-dataset list-python-apis -v          # list Python API tree
 scitex-dataset mcp list-tools -v            # list MCP tools
 ```
 
-> **[Full CLI reference](https://scitex-dataset.readthedocs.io/)**
+> **[Full CLI reference](https://scitex-dataset.readthedocs.io/en/latest/quickstart.html)**
 
 </details>
 
@@ -148,7 +148,7 @@ AI agents can discover and query neuroscience datasets autonomously.
 scitex-dataset mcp start
 ```
 
-> **[Full MCP specification](https://scitex-dataset.readthedocs.io/)**
+> **[Full MCP specification](https://scitex-dataset.readthedocs.io/en/latest/api/scitex_dataset._mcp.html)**
 
 </details>
 
