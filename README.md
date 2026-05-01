@@ -176,7 +176,9 @@ scitex-dev skills export --package scitex-dataset  # Export to Claude Code
 
 ## Part of SciTeX
 
-SciTeX Dataset is part of [**SciTeX**](https://scitex.ai). When used inside the SciTeX framework, dataset discovery integrates with reproducible research sessions:
+`scitex-dataset` is part of [**SciTeX**](https://scitex.ai). Install via
+the umbrella with `pip install scitex[dataset]` to use as
+`scitex.dataset` (Python) or `scitex dataset ...` (CLI).
 
 ```python
 import scitex
