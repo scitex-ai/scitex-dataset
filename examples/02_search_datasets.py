@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2026-01-29 22:27:00 (ywatanabe)"
-# File: /home/ywatanabe/proj/scitex-dataset/examples/02_search_datasets.py
+"""Example 02: Search and filter datasets.
 
-"""
-Example: Search and filter datasets
+Demonstrates `search_datasets` and `sort_datasets` with several criteria,
+writing the filtered output to the @stx.session output directory.
 
-This example demonstrates how to search and filter datasets
-using various criteria.
+Usage:
+    python 02_search_datasets.py
 """
 
 import json
 from pathlib import Path
+
+import scitex as stx
 
 from scitex_dataset import (
     fetch_all_datasets,
@@ -20,45 +21,44 @@ from scitex_dataset import (
     sort_datasets,
 )
 
-OUTPUT_DIR = Path(__file__).parent / "02_search_datasets_out"
 
+@stx.session
+def main(
+    CONFIG=stx.session.INJECTED,
+    logger=stx.session.INJECTED,
+):
+    """Fetch, search, sort, and write a filtered dataset list as JSON."""
+    OUT = Path(CONFIG.SDIR_OUT)
 
-def main():
-    OUTPUT_DIR.mkdir(exist_ok=True)
-
-    print("Fetching datasets from OpenNeuro...")
+    logger.info("Fetching datasets from OpenNeuro...")
     raw_datasets = fetch_all_datasets(max_datasets=100)
     datasets = [format_dataset(d) for d in raw_datasets]
-    print(f"Total: {len(datasets)} datasets\n")
+    logger.info(f"Total: {len(datasets)} datasets")
 
-    # Search by modality
     mri_datasets = search_datasets(datasets, modality="mri")
-    print(f"MRI datasets: {len(mri_datasets)}")
+    logger.info(f"MRI datasets: {len(mri_datasets)}")
 
-    # Search with multiple criteria
     large_mri = search_datasets(
         datasets,
         modality="mri",
         min_subjects=20,
         has_readme=True,
     )
-    print(f"MRI with 20+ subjects and readme: {len(large_mri)}")
+    logger.info(f"MRI with 20+ subjects and readme: {len(large_mri)}")
 
-    # Text search
     memory_datasets = search_datasets(datasets, text_query="memory")
-    print(f"Datasets mentioning 'memory': {len(memory_datasets)}")
+    logger.info(f"Datasets mentioning 'memory': {len(memory_datasets)}")
 
-    # Sort by popularity
     popular = sort_datasets(datasets, by="downloads", descending=True)[:10]
-    print("\nTop 10 most downloaded:")
+    logger.info("Top 10 most downloaded:")
     for ds in popular:
-        print(f"  {ds['id']}: {ds['downloads']} downloads - {ds['name']}")
+        logger.info(f"  {ds['id']}: {ds['downloads']} downloads - {ds['name']}")
 
-    # Save results
-    output_path = OUTPUT_DIR / "mri_large_datasets.json"
+    output_path = OUT / "mri_large_datasets.json"
     with open(output_path, "w") as f:
         json.dump(large_mri, f, indent=2)
-    print(f"\nSaved large MRI datasets to {output_path}")
+    logger.info(f"Saved large MRI datasets to {output_path}")
+    return 0
 
 
 if __name__ == "__main__":
