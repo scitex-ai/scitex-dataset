@@ -41,8 +41,22 @@ def mcp(ctx: click.Context, help_recursive: bool):
 
 
 @mcp.command("start")
-def mcp_start() -> None:
-    """Start the scitex-dataset MCP server."""
+@click.option("--dry-run", is_flag=True, help="Print launch plan without starting.")
+@click.option(
+    "-y", "--yes", is_flag=True, help="Suppress interactive confirmation (assume yes)."
+)
+def mcp_start(dry_run: bool, yes: bool) -> None:
+    """Start the scitex-dataset MCP server.
+
+    \b
+    Example:
+      $ scitex-dataset mcp start
+      $ scitex-dataset mcp start --dry-run
+    """
+    if dry_run:
+        click.echo("DRY RUN — would start scitex-dataset MCP server (stdio transport)")
+        return
+
     try:
         from .._mcp.server import mcp as mcp_server
     except ImportError as e:
@@ -172,6 +186,12 @@ def mcp_list_tools(
 
     Verbosity: (none) names, -v signatures, -vv +description, -vvv full.
     Signatures are expanded by default; use -c/--compact for single line.
+
+    \b
+    Example:
+      $ scitex-dataset mcp list-tools
+      $ scitex-dataset mcp list-tools -vv
+      $ scitex-dataset mcp list-tools --json
     """
     try:
         from .._mcp.server import mcp as mcp_server
@@ -285,7 +305,12 @@ def mcp_list_tools(
 
 @mcp.command("doctor")
 def mcp_doctor() -> None:
-    """Check MCP server dependencies."""
+    """Check MCP server dependencies.
+
+    \b
+    Example:
+      $ scitex-dataset mcp doctor
+    """
     click.secho("Checking MCP dependencies...", fg="cyan")
 
     try:
@@ -317,8 +342,25 @@ def mcp_doctor() -> None:
 
 @mcp.command("install")
 @click.option("--claude-code", is_flag=True, help="Show Claude Code config.")
-def mcp_install(claude_code: bool) -> None:
-    """Show MCP installation instructions."""
+@click.option("--dry-run", is_flag=True, help="Print install plan without executing.")
+@click.option(
+    "-y", "--yes", is_flag=True, help="Suppress interactive confirmation (assume yes)."
+)
+def mcp_install(claude_code: bool, dry_run: bool, yes: bool) -> None:
+    """Show MCP installation instructions.
+
+    \b
+    Example:
+      $ scitex-dataset mcp install
+      $ scitex-dataset mcp install --claude-code
+    """
+    if dry_run:
+        click.echo(
+            "DRY RUN — would print MCP install instructions "
+            f"(claude_code={claude_code})"
+        )
+        return
+
     if claude_code:
         click.secho("Add to Claude Code MCP config:", fg="cyan")
         click.echo()

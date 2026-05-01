@@ -31,18 +31,29 @@ def _print_command_help(cmd, prefix: str, parent_ctx) -> None:
 
 
 @click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
-@click.option("--version", "-V", is_flag=True, help="Show version and exit.")
+@click.version_option(
+    version=__version__, prog_name="scitex-dataset", message="%(prog)s %(version)s"
+)
 @click.option("--help-recursive", is_flag=True, help="Show help for all commands.")
+@click.option(
+    "--json",
+    "as_json",
+    is_flag=True,
+    help="Emit structured JSON output (propagates to subcommands that honour it).",
+)
 @click.pass_context
-def main(ctx: click.Context, version: bool, help_recursive: bool) -> None:
+def main(ctx: click.Context, help_recursive: bool, as_json: bool) -> None:
     """scitex-dataset - Unified interface for scientific dataset discovery.
 
     Fetch and search datasets from neuroscience repositories:
     OpenNeuro, DANDI, PhysioNet, and more.
+
+    \b
+    Config is loaded with the SciTeX precedence chain:
+      config.yaml -> $SCITEX_DATASET_CONFIG -> ~/.scitex/dataset/config.yaml -> defaults
     """
-    if version:
-        click.echo(f"scitex-dataset {__version__}")
-        ctx.exit(0)
+    ctx.ensure_object(dict)
+    ctx.obj["as_json"] = as_json
 
     if help_recursive:
         click.echo(f"scitex-dataset {__version__}")
@@ -110,7 +121,13 @@ for _src in [
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
 def openneuro(max_datasets: int, batch_size: int, output: str, verbose: bool) -> None:
-    """Fetch datasets from OpenNeuro (BIDS neuroimaging)."""
+    """Fetch datasets from OpenNeuro (BIDS neuroimaging).
+
+    \b
+    Example:
+      $ scitex-dataset fetch-openneuro
+      $ scitex-dataset fetch-openneuro -n 10 -o openneuro.json
+    """
     from ..neuroscience.openneuro import fetch_all_datasets, format_dataset
 
     if verbose:
@@ -143,7 +160,13 @@ def openneuro(max_datasets: int, batch_size: int, output: str, verbose: bool) ->
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
 def dandi(max_datasets: int, output: str, verbose: bool) -> None:
-    """Fetch datasets from DANDI Archive (NWB neurophysiology)."""
+    """Fetch datasets from DANDI Archive (NWB neurophysiology).
+
+    \b
+    Example:
+      $ scitex-dataset fetch-dandi
+      $ scitex-dataset fetch-dandi -n 10 -o dandi.json
+    """
     from ..neuroscience.dandi import fetch_all_datasets, format_dataset
 
     if verbose:
@@ -175,7 +198,13 @@ def dandi(max_datasets: int, output: str, verbose: bool) -> None:
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
 def physionet(max_datasets: int, output: str, verbose: bool) -> None:
-    """Fetch datasets from PhysioNet (EEG/ECG/physiology)."""
+    """Fetch datasets from PhysioNet (EEG/ECG/physiology).
+
+    \b
+    Example:
+      $ scitex-dataset fetch-physionet
+      $ scitex-dataset fetch-physionet -n 10 -o physionet.json
+    """
     from ..neuroscience.physionet import fetch_all_datasets, format_dataset
 
     if verbose:
@@ -208,7 +237,13 @@ def physionet(max_datasets: int, output: str, verbose: bool) -> None:
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
 def zenodo(query: str, max_datasets: int, output: str, verbose: bool) -> None:
-    """Fetch datasets from Zenodo (general scientific repository)."""
+    """Fetch datasets from Zenodo (general scientific repository).
+
+    \b
+    Example:
+      $ scitex-dataset fetch-zenodo -q "neural network"
+      $ scitex-dataset fetch-zenodo -n 10 -o zenodo.json
+    """
     from ..general.zenodo import fetch_all_datasets, format_dataset
 
     if verbose:
@@ -244,7 +279,13 @@ def zenodo(query: str, max_datasets: int, output: str, verbose: bool) -> None:
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
 def figshare(query: str, max_datasets: int, output: str, verbose: bool) -> None:
-    """Fetch datasets from Figshare (research data sharing)."""
+    """Fetch datasets from Figshare (research data sharing).
+
+    \b
+    Example:
+      $ scitex-dataset fetch-figshare -q "biology"
+      $ scitex-dataset fetch-figshare -n 10 -o figshare.json
+    """
     from ..general.figshare import fetch_all_datasets, format_dataset
 
     if verbose:
@@ -277,7 +318,13 @@ def figshare(query: str, max_datasets: int, output: str, verbose: bool) -> None:
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
 def openml(max_datasets: int, output: str, verbose: bool) -> None:
-    """Fetch datasets from OpenML (machine learning datasets)."""
+    """Fetch datasets from OpenML (machine learning datasets).
+
+    \b
+    Example:
+      $ scitex-dataset fetch-openml
+      $ scitex-dataset fetch-openml -n 10 -o openml.json
+    """
     from ..general.openml import fetch_all_datasets, format_dataset
 
     if verbose:
@@ -309,7 +356,13 @@ def openml(max_datasets: int, output: str, verbose: bool) -> None:
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
 def moleculenet(max_datasets: int, output: str, verbose: bool) -> None:
-    """Fetch datasets from MoleculeNet (molecular ML benchmarks)."""
+    """Fetch datasets from MoleculeNet (molecular ML benchmarks).
+
+    \b
+    Example:
+      $ scitex-dataset fetch-moleculenet
+      $ scitex-dataset fetch-moleculenet -n 10 -o moleculenet.json
+    """
     from ..pharmacology.moleculenet import fetch_all_datasets, format_dataset
 
     if verbose:
@@ -343,7 +396,13 @@ def moleculenet(max_datasets: int, output: str, verbose: bool) -> None:
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
 def geo(max_datasets: int, output: str, verbose: bool) -> None:
-    """Fetch datasets from GEO (Gene Expression Omnibus)."""
+    """Fetch datasets from GEO (Gene Expression Omnibus).
+
+    \b
+    Example:
+      $ scitex-dataset fetch-geo
+      $ scitex-dataset fetch-geo -n 10 -o geo.json
+    """
     from ..biology.geo import fetch_all_datasets, format_dataset
 
     if verbose:
@@ -375,7 +434,13 @@ def geo(max_datasets: int, output: str, verbose: bool) -> None:
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
 def chembl(max_datasets: int, output: str, verbose: bool) -> None:
-    """Fetch assays from ChEMBL (bioactivity database)."""
+    """Fetch assays from ChEMBL (bioactivity database).
+
+    \b
+    Example:
+      $ scitex-dataset fetch-chembl
+      $ scitex-dataset fetch-chembl -n 10 -o chembl.json
+    """
     from ..pharmacology.chembl import fetch_all_datasets, format_dataset
 
     if verbose:
@@ -407,7 +472,13 @@ def chembl(max_datasets: int, output: str, verbose: bool) -> None:
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
 def clinicaltrials(max_datasets: int, output: str, verbose: bool) -> None:
-    """Fetch studies from ClinicalTrials.gov."""
+    """Fetch studies from ClinicalTrials.gov.
+
+    \b
+    Example:
+      $ scitex-dataset fetch-clinicaltrials
+      $ scitex-dataset fetch-clinicaltrials -n 10 -o clinicaltrials.json
+    """
     from ..medical.clinicaltrials import fetch_all_datasets, format_dataset
 
     if verbose:
@@ -471,11 +542,29 @@ def db(ctx: click.Context, help_recursive: bool):
     help="Sources to index (default: all).",
 )
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
-def db_build(sources: tuple, verbose: bool) -> None:
-    """Build/rebuild the local dataset database."""
+@click.option("--dry-run", is_flag=True, help="Print build plan without writing.")
+@click.option(
+    "-y", "--yes", is_flag=True, help="Suppress interactive confirmation (assume yes)."
+)
+def db_build(sources: tuple, verbose: bool, dry_run: bool, yes: bool) -> None:
+    """Build/rebuild the local dataset database.
+
+    \b
+    Example:
+      $ scitex-dataset db build
+      $ scitex-dataset db build -s openneuro -s dandi
+      $ scitex-dataset db build --dry-run
+    """
     from .. import database
 
     source_list = list(sources) if sources else None
+
+    if dry_run:
+        click.echo(
+            f"DRY RUN — would build database at {database.get_db_path()} "
+            f"(sources={source_list or 'all'})"
+        )
+        return
 
     if verbose:
         click.echo(f"Building database at {database.get_db_path()}")
@@ -516,6 +605,7 @@ def db_build(sources: tuple, verbose: bool) -> None:
 @click.option("-n", "--limit", default=20, help="Max results (default: 20).")
 @click.option("--order-by", default="downloads", help="Order by field.")
 @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
+@click.option("--json", "as_json", is_flag=True, help="Emit results as JSON to stdout.")
 def db_search(
     query: str,
     source: str,
@@ -526,8 +616,16 @@ def db_search(
     limit: int,
     order_by: str,
     output: str,
+    as_json: bool,
 ) -> None:
-    """Search the local database."""
+    """Search the local database.
+
+    \b
+    Example:
+      $ scitex-dataset db search "EEG"
+      $ scitex-dataset db search "MRI" -s openneuro -n 5
+      $ scitex-dataset db search "EEG" --json
+    """
     from .. import database
 
     results = database.search(
@@ -540,6 +638,10 @@ def db_search(
         limit=limit,
         order_by=order_by,
     )
+
+    if as_json:
+        click.echo(json.dumps({"total": len(results), "results": results}, indent=2))
+        return
 
     if not results:
         click.echo("No datasets found.")
@@ -571,11 +673,22 @@ def db_stats_deprecated(ctx):
 
 
 @db.command("show-stats")
-def db_show_stats() -> None:
-    """Show database statistics."""
+@click.option("--json", "as_json", is_flag=True, help="Emit stats as JSON to stdout.")
+def db_show_stats(as_json: bool) -> None:
+    """Show database statistics.
+
+    \b
+    Example:
+      $ scitex-dataset db show-stats
+      $ scitex-dataset db show-stats --json
+    """
     from .. import database
 
     stats = database.get_stats()
+
+    if as_json:
+        click.echo(json.dumps(stats, indent=2, default=str))
+        return
 
     if not stats.get("exists"):
         click.echo(stats.get("message", "Database not found."))
@@ -594,7 +707,12 @@ def db_show_stats() -> None:
 @db.command("clear")
 @click.confirmation_option(prompt="Delete the local database?")
 def db_clear() -> None:
-    """Delete the local database."""
+    """Delete the local database.
+
+    \b
+    Example:
+      $ scitex-dataset db clear
+    """
     from .. import database
 
     if database.clear():
@@ -632,8 +750,9 @@ def print_tab_completion(shell: str) -> None:
     """Print tab-completion script to stdout.
 
     \b
-    Usage:
-      eval "$(scitex-dataset print-tab-completion --shell bash)"
+    Example:
+      $ eval "$(scitex-dataset print-tab-completion --shell bash)"
+      $ scitex-dataset print-tab-completion --shell zsh
     """
     import os
     import subprocess
