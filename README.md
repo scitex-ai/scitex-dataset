@@ -68,7 +68,7 @@ for ds in datasets:
 
 ## Four Interfaces
 
-<details>
+<details open>
 <summary><strong>Python API</strong></summary>
 
 <br>
