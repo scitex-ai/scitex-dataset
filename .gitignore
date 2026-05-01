@@ -694,3 +694,6 @@ slurm_logs
 src/*/_sphinx_html/
 
 .claude/
+
+# Local-only legacy/scratch space (per scitex-dev audit-project PS102)
+GITIGNORED/
