@@ -207,8 +207,13 @@
 
 <span class="nd">@click</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">invoke_without_command</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">context_settings</span><span class="o">=</span><span class="n">CONTEXT_SETTINGS</span><span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">version_option</span><span class="p">(</span>
-    <span class="n">version</span><span class="o">=</span><span class="n">__version__</span><span class="p">,</span> <span class="n">prog_name</span><span class="o">=</span><span class="s2">&quot;scitex-dataset&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(prog)s</span><span class="s2"> </span><span class="si">%(version)s</span><span class="s2">&quot;</span>
+    <span class="n">__version__</span><span class="p">,</span>
+    <span class="s2">&quot;-V&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;--version&quot;</span><span class="p">,</span>
+    <span class="n">prog_name</span><span class="o">=</span><span class="s2">&quot;scitex-dataset&quot;</span><span class="p">,</span>
+    <span class="n">message</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(prog)s</span><span class="s2"> </span><span class="si">%(version)s</span><span class="s2">&quot;</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">help_option</span><span class="p">(</span><span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--help-recursive&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show help for all commands.&quot;</span><span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
     <span class="s2">&quot;--json&quot;</span><span class="p">,</span>
