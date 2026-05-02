@@ -32,8 +32,13 @@ def _print_command_help(cmd, prefix: str, parent_ctx) -> None:
 
 @click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
 @click.version_option(
-    version=__version__, prog_name="scitex-dataset", message="%(prog)s %(version)s"
+    __version__,
+    "-V",
+    "--version",
+    prog_name="scitex-dataset",
+    message="%(prog)s %(version)s",
 )
+@click.help_option("-h", "--help")
 @click.option("--help-recursive", is_flag=True, help="Show help for all commands.")
 @click.option(
     "--json",
