@@ -1,8 +1,10 @@
 ---
-name: scitex-dataset-env-vars
-description: Environment variables read by scitex-dataset at import / runtime. Follow SCITEX_<MODULE>_* convention — see general/10_arch-environment-variables.md.
-tags: [scitex-dataset, scitex-package]
+description: |
+  [TOPIC] Env Vars
+  [DETAILS] see general/10_arch-environment-variables.md.
+tags: [scitex-dataset-env-vars, scitex-dataset]
 ---
+
 
 # scitex-dataset — Environment Variables
 

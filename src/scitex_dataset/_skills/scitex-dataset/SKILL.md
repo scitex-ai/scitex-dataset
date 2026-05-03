@@ -1,5 +1,10 @@
 ---
-description: Unified dataset-discovery API across 7 scientific repositories — OpenNeuro + DANDI + PhysioNet (neuroscience, BIDS + NWB), Zenodo + Scientific Data (general), GEO (gene expression), ChEMBL (pharmacology), ClinicalTrials.gov (medical). Public API — `fetch_all_datasets()` / `fetch_datasets()` / `format_dataset()` (OpenNeuro convenience) + `search_datasets()` / `sort_datasets()` (cross-source ranking) + domain submodules `neuroscience`, `general`, `biology`, `pharmacology`, `medical` + `database` (build & query a local unified SQLite index). 11 MCP tools — `dataset_search` (cross-source filter/sort), per-source fetchers `dataset_openneuro_fetch` / `dataset_dandi_fetch` / `dataset_physionet_fetch` / `dataset_geo_fetch` / `dataset_chembl_fetch` / `dataset_clinicaltrials_fetch`, local-db `dataset_db_build` / `dataset_db_search` / `dataset_db_stats`, and `dataset_list_sources`. (Zenodo / Scientific Data are reachable via Python API + CLI; no standalone MCP fetch tool yet.) Drop-in replacement for `openneuro-python`, `dandi` CLI, raw `requests` against the OpenNeuro GraphQL API / PhysioNet / GEO / ChEMBL / ClinicalTrials REST endpoints, `pyzenodo3`, and hand-rolled dataset-scrapers. Use whenever the user asks to "find an EEG dataset", "list BIDS datasets on topic X", "search DANDI for Neuropixels", "get GEO series for Alzheimer's", "find a ChEMBL target / bioassay", "search ClinicalTrials.gov", "index all datasets locally", "cross-search multiple dataset repositories", "sort datasets by subject count / modality", or mentions OpenNeuro, DANDI, PhysioNet, BIDS, NWB, GEO, ChEMBL, ClinicalTrials, Zenodo, Scientific Data.
+name: scitex-dataset
+description: |
+  [WHAT] Unified dataset-discovery API across 7 scientific repositories.
+  [WHEN] Use when the user asks to "find an EEG dataset", "list BIDS datasets on topic X", "search DANDI for Neuropixels", "get GEO series for Alzheimer's", "find a ChEMBL target / bioassay".
+  [HOW] `import scitex_dataset` then call `fetch_all_datasets()`.
+tags: [scitex-dataset]
 allowed-tools: mcp__scitex__dataset_*
 primary_interface: python
 interfaces:
@@ -9,9 +14,8 @@ interfaces:
   skills: 2
   hook: 0
   http: 0
-name: scitex-dataset
-tags: [scitex-dataset, scitex-package]
 ---
+
 
 # scitex-dataset
 

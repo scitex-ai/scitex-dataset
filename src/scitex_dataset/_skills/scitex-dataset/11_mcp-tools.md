@@ -1,8 +1,10 @@
 ---
-description: MCP tools for dataset search and fetch.
-name: mcp-tools
-tags: [scitex-dataset, scitex-package]
+description: |
+  [TOPIC] Mcp Tools
+  [DETAILS] MCP tools for dataset search and fetch.
+tags: [scitex-dataset-mcp-tools, scitex-dataset]
 ---
+
 
 # MCP Tools
 

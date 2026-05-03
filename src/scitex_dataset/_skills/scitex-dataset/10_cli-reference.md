@@ -1,8 +1,10 @@
 ---
-description: CLI commands for scitex-dataset.
-name: cli-reference
-tags: [scitex-dataset, scitex-package]
+description: |
+  [TOPIC] Cli Reference
+  [DETAILS] CLI commands for scitex-dataset.
+tags: [scitex-dataset-cli-reference, scitex-dataset]
 ---
+
 
 # CLI Reference
 
