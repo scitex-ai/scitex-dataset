@@ -47,13 +47,17 @@ rule and empirical verification table.
 
 ## Sub-skills
 
-### Core
-- [01_quick-start.md](01_quick-start.md) — Basic usage
-- [02_data-sources.md](02_data-sources.md) — OpenNeuro, DANDI, PhysioNet
+### Mandatory
+- [01_installation.md](01_installation.md) — pip install + extras + verify
+- [02_quick-start.md](02_quick-start.md) — search / fetch / sort
+- [03_python-api.md](03_python-api.md) — Public callables + domain submodules
+- [04_cli-reference.md](04_cli-reference.md) — `scitex-dataset` console entry
 
 ### Workflows
-- [10_cli-reference.md](10_cli-reference.md) — CLI commands
+- [10_cli-reference.md](10_cli-reference.md) — historical CLI notes
 - [11_mcp-tools.md](11_mcp-tools.md) — MCP tools for AI agents
+- [13_quick-start.md](13_quick-start.md) — historical quick-start
+- [14_data-sources.md](14_data-sources.md) — OpenNeuro, DANDI, PhysioNet details
 
 ## CLI
 
