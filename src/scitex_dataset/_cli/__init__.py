@@ -11,6 +11,7 @@ from pathlib import Path
 import click
 
 from .. import __version__
+from .._sources import CATALOG_SOURCES
 from ._introspect import list_python_apis
 from ._mcp_commands import mcp
 
@@ -83,16 +84,22 @@ except ImportError:
     pass
 
 
-# Hidden deprecation redirects: bare `<source>` → `fetch-<source>` compound leaf
-def _dataset_deprecated(name: str):
-    """Hidden top-level redirect: `<name>` → `fetch-<name>`."""
+# Hidden deprecation redirects: bare `<source>` → real subcommand.
+# Most sources map to compound leaves (`fetch-<source>`); HuggingFace
+# uses a noun-group (`hf <verb>`) because it has 4 verbs.
+_DEPRECATED_TARGETS = {src: f"fetch-{src}" for src in CATALOG_SOURCES}
+_DEPRECATED_TARGETS["huggingface"] = "hf"
+
+
+def _dataset_deprecated(name: str, target: str):
+    """Hidden top-level redirect: ``<name>`` → ``<target>``."""
 
     @click.pass_context
     def _impl(ctx, **_):
         click.echo(
             f"error: `scitex-dataset {name}` was renamed to "
-            f"`scitex-dataset fetch-{name}`.\n"
-            f"Re-run with: scitex-dataset fetch-{name} [...]",
+            f"`scitex-dataset {target}`.\n"
+            f"Re-run with: scitex-dataset {target} [...]",
             err=True,
         )
         ctx.exit(2)
@@ -104,19 +111,8 @@ def _dataset_deprecated(name: str):
     )(_impl)
 
 
-for _src in [
-    "openneuro",
-    "dandi",
-    "physionet",
-    "zenodo",
-    "figshare",
-    "openml",
-    "moleculenet",
-    "chembl",
-    "clinicaltrials",
-    "geo",
-]:
-    main.add_command(_dataset_deprecated(_src))
+for _src, _tgt in _DEPRECATED_TARGETS.items():
+    main.add_command(_dataset_deprecated(_src, _tgt))
 
 
 # OpenNeuro command
@@ -530,20 +526,7 @@ def db(ctx: click.Context, help_recursive: bool):
     "-s",
     "--sources",
     multiple=True,
-    type=click.Choice(
-        [
-            "openneuro",
-            "dandi",
-            "physionet",
-            "zenodo",
-            "figshare",
-            "openml",
-            "geo",
-            "chembl",
-            "moleculenet",
-            "clinicaltrials",
-        ]
-    ),
+    type=click.Choice(CATALOG_SOURCES),
     help="Sources to index (default: all).",
 )
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
@@ -588,20 +571,7 @@ def db_build(sources: tuple, verbose: bool, dry_run: bool, yes: bool) -> None:
 @click.option(
     "-s",
     "--source",
-    type=click.Choice(
-        [
-            "openneuro",
-            "dandi",
-            "physionet",
-            "zenodo",
-            "figshare",
-            "openml",
-            "geo",
-            "chembl",
-            "moleculenet",
-            "clinicaltrials",
-        ]
-    ),
+    type=click.Choice(CATALOG_SOURCES),
 )
 @click.option("-m", "--modality", help="Filter by modality (mri, eeg, etc.).")
 @click.option("--min-subjects", type=int, help="Minimum subjects.")

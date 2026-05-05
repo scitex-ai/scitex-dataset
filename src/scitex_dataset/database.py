@@ -19,7 +19,6 @@ import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-from scitex_config._ecosystem import local_state
 from typing import Any, Dict, List, Optional
 
 from scitex_dev.decorators import supports_return_as
@@ -184,18 +183,12 @@ def build(
         Count of datasets indexed per source.
     """
     if sources is None:
-        sources = [
-            "openneuro",
-            "dandi",
-            "physionet",
-            "zenodo",
-            "figshare",
-            "openml",
-            "geo",
-            "chembl",
-            "moleculenet",
-            "clinicaltrials",
-        ]
+        from ._sources import CATALOG_SOURCES
+
+        # HuggingFace is NOT included by default — its catalog is unbounded
+        # and would dominate the index. Pass `sources=["huggingface", ...]`
+        # explicitly to opt in (uses query="" + max=1000 cap).
+        sources = list(CATALOG_SOURCES)
 
     conn = _get_connection(db_path)
     counts = {}
@@ -225,6 +218,8 @@ def build(
                 from .pharmacology.moleculenet import fetch_all_datasets, format_dataset
             elif source == "clinicaltrials":
                 from .medical.clinicaltrials import fetch_all_datasets, format_dataset
+            elif source == "huggingface":
+                from .general.huggingface import fetch_all_datasets, format_dataset
             else:
                 if logger:
                     logger.warning(f"Unknown source: {source}")

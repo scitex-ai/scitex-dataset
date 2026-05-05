@@ -56,15 +56,12 @@ def test_dataset_list_sources():
 
     result = mock_mcp.tools["dataset_list_sources"]()
 
+    from scitex_dataset._sources import ALL_SOURCES
+
     assert "sources" in result
-    assert "openneuro" in result["sources"]
-    assert "dandi" in result["sources"]
-    assert "physionet" in result["sources"]
-    assert "zenodo" in result["sources"]
-    assert "geo" in result["sources"]
-    assert "chembl" in result["sources"]
-    assert "clinicaltrials" in result["sources"]
-    assert result["count"] == 7
+    for src in ALL_SOURCES:
+        assert src in result["sources"], f"missing source {src!r}"
+    assert result["count"] == len(ALL_SOURCES)
 
 
 @patch("scitex_dataset.neuroscience.openneuro.fetch_all_datasets")

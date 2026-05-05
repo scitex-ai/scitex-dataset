@@ -31,6 +31,9 @@ except ImportError:
 __all__ = [
     "fetch_dataset",
     "search_datasets",
+    "search_hub",
+    "fetch_all_datasets",
+    "format_dataset",
     "dataset_info",
     "download_file",
 ]
@@ -373,6 +376,62 @@ def download_file(
         return Path(file_path)
     except Exception as e:
         raise RuntimeError(f"Failed to download {filename} from {repo_id}: {e}") from e
+
+
+# Clearer alias — peer modules also expose ``search_datasets``, but at
+# the package level that name belongs to ``scitex_dataset.search`` (the
+# in-memory filter). New code should prefer ``search_hub``.
+search_hub = search_datasets
+
+
+def format_dataset(ds: Dict) -> Dict:
+    """Normalize an HF search-result dict to the common dataset schema.
+
+    HuggingFace records lack the n_subjects / modalities / tasks fields
+    that BIDS/NWB sources expose, so those keys are emitted as ``None``
+    or empty lists. ``downloads`` and ``likes`` are preserved.
+    """
+    return {
+        "id": ds.get("id"),
+        "name": ds.get("name") or (ds.get("id") or "").split("/")[-1],
+        "description": ds.get("description", ""),
+        "readme": ds.get("description", ""),
+        "downloads": ds.get("downloads", 0) or 0,
+        "likes": ds.get("likes", 0) or 0,
+        "n_subjects": None,
+        "modalities": [],
+        "tasks": [],
+        "size_gb": None,
+        "private": ds.get("private", False) or False,
+        "gated": ds.get("gated", False) or False,
+        "url": ds.get("url"),
+        "source": "huggingface",
+    }
+
+
+def fetch_all_datasets(
+    query: str = "",
+    max_datasets: Optional[int] = None,
+    logger=None,
+    **_unused,
+) -> List[Dict]:
+    """Catalog-style adapter so HuggingFace can plug into ``database.build``.
+
+    Unlike OpenNeuro/DANDI/etc., HuggingFace has no bounded catalog —
+    ``query`` is required for meaningful results. Without one this calls
+    ``search_hub("")`` which lists by recency up to ``max_datasets``.
+
+    Parameters
+    ----------
+    query : str
+        Search query. Empty string lists by recency (HF default).
+    max_datasets : int, optional
+        Cap on results. Default 1000 to avoid runaway indexing.
+    """
+    limit = max_datasets if max_datasets and max_datasets > 0 else 1000
+    if logger:
+        logger.info(f"Searching HuggingFace Hub (query={query!r}, limit={limit})...")
+    return search_hub(query=query, limit=limit)
 
 
 # EOF
