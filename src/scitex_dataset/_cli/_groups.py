@@ -150,17 +150,24 @@ def _hf_search_command() -> click.Command:
     @click.argument("query")
     @click.option("-n", "--limit", default=50, type=int, help="Max results.")
     @click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
-    def _cmd(query, limit, output):
+    @click.option("--json", "as_json", is_flag=True, help="Emit results as JSON.")
+    def _cmd(query, limit, output, as_json):
         """Search HuggingFace Hub for datasets.
 
         \b
         Example:
           $ scitex-dataset general huggingface search "biology"
+          $ scitex-dataset general huggingface search "EEG" --json
         """
         from ..general.huggingface import search_hub
 
         try:
             results = search_hub(query=query, limit=limit)
+            if as_json:
+                click.echo(
+                    json.dumps({"total": len(results), "results": results}, indent=2)
+                )
+                return
             if output:
                 Path(output).write_text(json.dumps(results, indent=2))
                 click.echo(f"Saved {len(results)} results to {output}")

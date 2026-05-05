@@ -165,7 +165,13 @@ def db_stats_deprecated(ctx):
 @db.command("show-stats")
 @click.option("--json", "as_json", is_flag=True, help="Emit stats as JSON to stdout.")
 def db_show_stats(as_json: bool) -> None:
-    """Show database statistics."""
+    """Show database statistics.
+
+    \b
+    Example:
+      $ scitex-dataset db show-stats
+      $ scitex-dataset db show-stats --json
+    """
     from .. import database
 
     stats = database.get_stats()
@@ -191,7 +197,13 @@ def db_show_stats(as_json: bool) -> None:
 @db.command("clear")
 @click.confirmation_option(prompt="Delete the local database?")
 def db_clear() -> None:
-    """Delete the local database."""
+    """Delete the local database.
+
+    \b
+    Example:
+      $ scitex-dataset db clear
+      $ scitex-dataset db clear --yes
+    """
     from .. import database
 
     if database.clear():

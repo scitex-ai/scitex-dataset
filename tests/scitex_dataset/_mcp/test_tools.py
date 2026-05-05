@@ -36,7 +36,7 @@ def test_register_all_tools():
         "dataset_openneuro_fetch",
         "dataset_dandi_fetch",
         "dataset_physionet_fetch",
-        "dataset_search",
+        "dataset_filter_results",
         "dataset_list_sources",
         "dataset_db_build",
         "dataset_db_search",
@@ -127,7 +127,7 @@ def test_dataset_search(sample_datasets):
     register_all_tools(mock_mcp)
 
     # Search by modality
-    result = mock_mcp.tools["dataset_search"](
+    result = mock_mcp.tools["dataset_filter_results"](
         datasets=sample_datasets,
         modality="eeg",
         limit=10,
@@ -144,7 +144,7 @@ def test_dataset_search_with_filters(sample_datasets):
     mock_mcp = MockMCP()
     register_all_tools(mock_mcp)
 
-    result = mock_mcp.tools["dataset_search"](
+    result = mock_mcp.tools["dataset_filter_results"](
         datasets=sample_datasets,
         min_subjects=30,
         min_downloads=100,

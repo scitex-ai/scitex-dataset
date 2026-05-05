@@ -33,6 +33,7 @@ from ._db import db as db_group
 from ._groups import register_domain_groups
 from ._introspect import list_python_apis
 from ._mcp_commands import mcp
+from ._skills import skills as skills_group
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
@@ -121,6 +122,7 @@ def main(ctx: click.Context, help_recursive: bool, as_json: bool) -> None:
 main.add_command(mcp)
 main.add_command(list_python_apis)
 main.add_command(db_group)
+main.add_command(skills_group)
 register_domain_groups(main)
 
 try:
@@ -210,7 +212,13 @@ def completion_deprecated(ctx):
     help="Target shell. Default: bash.",
 )
 def print_tab_completion(shell: str) -> None:
-    """Print tab-completion script to stdout."""
+    """Print tab-completion script to stdout.
+
+    \b
+    Example:
+      $ eval "$(scitex-dataset print-tab-completion --shell bash)"
+      $ scitex-dataset print-tab-completion --shell zsh
+    """
     import os
     import subprocess
     import sys

@@ -8,10 +8,14 @@ from typing import Any, Dict, List, Optional
 
 
 def register_search_tools(mcp) -> None:
-    """Register ``dataset_search`` and ``dataset_list_sources``."""
+    """Register ``dataset_filter_results`` and ``dataset_list_sources``.
+
+    The filter tool was previously named ``dataset_search`` but renamed
+    per ``general/03_interface_03_mcp`` § 2 (no bare verbs in tool names).
+    """
 
     @mcp.tool()
-    def dataset_search(
+    def dataset_filter_results(
         datasets: List[Dict[str, Any]],
         modality: Optional[str] = None,
         min_subjects: Optional[int] = None,

@@ -40,6 +40,7 @@ def make_fetch_command(
     module = _resolve_module(source)
     fetch_all_datasets = module.fetch_all_datasets
     format_dataset = module.format_dataset
+    domain = DOMAIN_OF[source]
 
     @click.command("fetch")
     @click.option("-n", "--max-datasets", default=0, help="Max datasets (0=all).")
@@ -83,8 +84,13 @@ def make_fetch_command(
                     click.echo(f"  {ds.get('id', '?')}: {name}")
             click.echo(f"Fetched {len(formatted)} {label}")
 
-    if description:
-        _cmd.help = description
+    example = (
+        f"\n\n\\b\nExample:\n"
+        f"  $ scitex-dataset {domain} {source} fetch\n"
+        f"  $ scitex-dataset {domain} {source} fetch -n 10 -o {source}.json"
+    )
+    base_help = description or f"Fetch {label} from {source}."
+    _cmd.help = base_help + example
     return _cmd
 
 

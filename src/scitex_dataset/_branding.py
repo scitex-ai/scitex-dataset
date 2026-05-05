@@ -74,7 +74,7 @@ scientific repositories:
 - dataset_dandi_fetch: Fetch DANDI dandisets
 - dataset_physionet_fetch: Fetch PhysioNet databases
 - dataset_zenodo_fetch: Fetch Zenodo datasets
-- dataset_search: Filter and search fetched datasets
+- dataset_filter_results: Filter / rank fetched datasets in memory
 - dataset_list_sources: List available data sources
 - dataset_db_build: Build local search database
 - dataset_db_search: Full-text search local database
@@ -82,7 +82,7 @@ scientific repositories:
 
 **Typical Workflow:**
 1. Fetch datasets: dataset_openneuro_fetch(max_datasets=100)
-2. Filter results: dataset_search(datasets, modality="eeg", min_subjects=20)
+2. Filter results: dataset_filter_results(datasets, modality="eeg", min_subjects=20)
 3. Or build local DB: dataset_db_build() then dataset_db_search("alzheimer EEG")
 
 **Tips:**

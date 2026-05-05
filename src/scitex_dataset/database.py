@@ -54,7 +54,7 @@ def get_db_path() -> Path:
 
 def _get_connection(db_path: Optional[Path] = None) -> sqlite3.Connection:
     """Get database connection, creating tables if needed."""
-    path = db_path or DEFAULT_DB_PATH
+    path = db_path or _default_db_path()
     path.parent.mkdir(parents=True, exist_ok=True)
 
     conn = sqlite3.connect(path)
@@ -398,7 +398,7 @@ def get_stats(db_path: Optional[Path] = None) -> Dict[str, Any]:
     dict
         Statistics including counts per source, last build time, etc.
     """
-    path = db_path or DEFAULT_DB_PATH
+    path = db_path or _default_db_path()
 
     if not path.exists():
         return {"exists": False, "message": "Database not built. Run: db.build()"}
@@ -439,7 +439,7 @@ def clear(db_path: Optional[Path] = None) -> bool:
     bool
         True if deleted, False if didn't exist.
     """
-    path = db_path or DEFAULT_DB_PATH
+    path = db_path or _default_db_path()
 
     if path.exists():
         path.unlink()
