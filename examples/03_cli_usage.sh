@@ -33,11 +33,15 @@ scitex-dataset --help
 
 echo
 echo "=== OpenNeuro Help ==="
-scitex-dataset openneuro --help
+scitex-dataset neuroscience openneuro fetch --help
 
 echo
 echo "=== Fetching 10 datasets ==="
-scitex-dataset openneuro -n 10 -o "$OUTPUT_DIR/datasets.json" -v
+scitex-dataset neuroscience openneuro fetch -n 10 -o "$OUTPUT_DIR/datasets.json" -v
+
+echo
+echo "=== HuggingFace search (network optional) ==="
+scitex-dataset general huggingface search "biology" -n 5 || true
 
 echo
 echo "Output saved to $OUTPUT_DIR/datasets.json"
