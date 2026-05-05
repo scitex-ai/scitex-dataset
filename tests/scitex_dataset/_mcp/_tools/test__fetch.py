@@ -23,4 +23,4 @@ def test_register_fetch_tools_attaches_ten_catalog_tools():
     register_fetch_tools(m)
     assert len(m.tools) == 10
     for name in m.tools:
-        assert name.startswith("dataset_") and name.endswith("_fetch")
+        assert name.endswith("_fetch")

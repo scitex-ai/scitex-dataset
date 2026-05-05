@@ -24,7 +24,7 @@ def test_register_skills_tools_lists_real_pages():
     m = _M()
     register_skills_tools(m)
 
-    listing = json.loads(m.tools["dataset_skills_list"]())
+    listing = json.loads(m.tools["skills_list"]())
     assert listing["success"] is True
     assert "01_installation" in listing["skills"]
     assert "04_cli-reference" in listing["skills"]
@@ -48,7 +48,7 @@ def test_skills_get_round_trip():
 
     m = _M()
     register_skills_tools(m)
-    payload = json.loads(m.tools["dataset_skills_get"]("04_cli-reference"))
+    payload = json.loads(m.tools["skills_get"]("04_cli-reference"))
     assert payload["success"] is True
     assert payload["name"] == "04_cli-reference"
     assert "domain" in payload["content"]

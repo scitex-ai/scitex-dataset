@@ -22,8 +22,8 @@ def test_register_hf_tools_attaches_four():
     m = _M()
     register_hf_tools(m)
     assert set(m.tools) == {
-        "dataset_hf_fetch",
-        "dataset_hf_search",
-        "dataset_hf_info",
-        "dataset_hf_download_file",
+        "hf_fetch",
+        "hf_search",
+        "hf_info",
+        "hf_download_file",
     }

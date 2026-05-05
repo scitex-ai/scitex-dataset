@@ -33,14 +33,14 @@ def test_register_all_tools():
 
     # Check expected tools are registered
     expected_tools = [
-        "dataset_openneuro_fetch",
-        "dataset_dandi_fetch",
-        "dataset_physionet_fetch",
-        "dataset_filter_results",
-        "dataset_list_sources",
-        "dataset_db_build",
-        "dataset_db_search",
-        "dataset_db_stats",
+        "openneuro_fetch",
+        "dandi_fetch",
+        "physionet_fetch",
+        "filter_results",
+        "list_sources",
+        "db_build",
+        "db_search",
+        "db_stats",
     ]
 
     for tool_name in expected_tools:
@@ -48,13 +48,13 @@ def test_register_all_tools():
 
 
 def test_dataset_list_sources():
-    """Test dataset_list_sources tool."""
+    """Test list_sources tool."""
     from scitex_dataset._mcp.tools import register_all_tools
 
     mock_mcp = MockMCP()
     register_all_tools(mock_mcp)
 
-    result = mock_mcp.tools["dataset_list_sources"]()
+    result = mock_mcp.tools["list_sources"]()
 
     from scitex_dataset._sources import ALL_SOURCES
 
@@ -67,7 +67,7 @@ def test_dataset_list_sources():
 @patch("scitex_dataset.neuroscience.openneuro.fetch_all_datasets")
 @patch("scitex_dataset.neuroscience.openneuro.format_dataset")
 def test_dataset_openneuro_fetch(mock_format, mock_fetch):
-    """Test dataset_openneuro_fetch tool."""
+    """Test openneuro_fetch tool."""
     from scitex_dataset._mcp.tools import register_all_tools
 
     mock_fetch.return_value = [{"id": "ds001"}, {"id": "ds002"}]
@@ -76,7 +76,7 @@ def test_dataset_openneuro_fetch(mock_format, mock_fetch):
     mock_mcp = MockMCP()
     register_all_tools(mock_mcp)
 
-    result = mock_mcp.tools["dataset_openneuro_fetch"](max_datasets=2)
+    result = mock_mcp.tools["openneuro_fetch"](max_datasets=2)
 
     assert len(result) == 2
     assert result[0]["id"] == "ds001"
@@ -86,7 +86,7 @@ def test_dataset_openneuro_fetch(mock_format, mock_fetch):
 @patch("scitex_dataset.neuroscience.dandi.fetch_all_datasets")
 @patch("scitex_dataset.neuroscience.dandi.format_dataset")
 def test_dataset_dandi_fetch(mock_format, mock_fetch):
-    """Test dataset_dandi_fetch tool."""
+    """Test dandi_fetch tool."""
     from scitex_dataset._mcp.tools import register_all_tools
 
     mock_fetch.return_value = [{"identifier": "000001"}]
@@ -95,7 +95,7 @@ def test_dataset_dandi_fetch(mock_format, mock_fetch):
     mock_mcp = MockMCP()
     register_all_tools(mock_mcp)
 
-    result = mock_mcp.tools["dataset_dandi_fetch"](max_datasets=1)
+    result = mock_mcp.tools["dandi_fetch"](max_datasets=1)
 
     assert len(result) == 1
     assert result[0]["id"] == "000001"
@@ -104,7 +104,7 @@ def test_dataset_dandi_fetch(mock_format, mock_fetch):
 @patch("scitex_dataset.neuroscience.physionet.fetch_all_datasets")
 @patch("scitex_dataset.neuroscience.physionet.format_dataset")
 def test_dataset_physionet_fetch(mock_format, mock_fetch):
-    """Test dataset_physionet_fetch tool."""
+    """Test physionet_fetch tool."""
     from scitex_dataset._mcp.tools import register_all_tools
 
     mock_fetch.return_value = [{"slug": "test-db"}]
@@ -113,7 +113,7 @@ def test_dataset_physionet_fetch(mock_format, mock_fetch):
     mock_mcp = MockMCP()
     register_all_tools(mock_mcp)
 
-    result = mock_mcp.tools["dataset_physionet_fetch"](max_datasets=1)
+    result = mock_mcp.tools["physionet_fetch"](max_datasets=1)
 
     assert len(result) == 1
     assert result[0]["id"] == "test-db"
@@ -127,7 +127,7 @@ def test_dataset_search(sample_datasets):
     register_all_tools(mock_mcp)
 
     # Search by modality
-    result = mock_mcp.tools["dataset_filter_results"](
+    result = mock_mcp.tools["filter_results"](
         datasets=sample_datasets,
         modality="eeg",
         limit=10,
@@ -144,7 +144,7 @@ def test_dataset_search_with_filters(sample_datasets):
     mock_mcp = MockMCP()
     register_all_tools(mock_mcp)
 
-    result = mock_mcp.tools["dataset_filter_results"](
+    result = mock_mcp.tools["filter_results"](
         datasets=sample_datasets,
         min_subjects=30,
         min_downloads=100,
@@ -158,7 +158,7 @@ def test_dataset_search_with_filters(sample_datasets):
 
 @patch("scitex_dataset.database.get_stats")
 def test_dataset_db_stats(mock_stats):
-    """Test dataset_db_stats tool."""
+    """Test db_stats tool."""
     from scitex_dataset._mcp.tools import register_all_tools
 
     mock_stats.return_value = {
@@ -170,7 +170,7 @@ def test_dataset_db_stats(mock_stats):
     mock_mcp = MockMCP()
     register_all_tools(mock_mcp)
 
-    result = mock_mcp.tools["dataset_db_stats"]()
+    result = mock_mcp.tools["db_stats"]()
 
     assert result["exists"] is True
     assert result["total_datasets"] == 1000
@@ -178,7 +178,7 @@ def test_dataset_db_stats(mock_stats):
 
 @patch("scitex_dataset.database.search")
 def test_dataset_db_search(mock_search):
-    """Test dataset_db_search tool."""
+    """Test db_search tool."""
     from scitex_dataset._mcp.tools import register_all_tools
 
     mock_search.return_value = [{"id": "ds001", "name": "Test", "n_subjects": 25}]
@@ -186,7 +186,7 @@ def test_dataset_db_search(mock_search):
     mock_mcp = MockMCP()
     register_all_tools(mock_mcp)
 
-    result = mock_mcp.tools["dataset_db_search"](
+    result = mock_mcp.tools["db_search"](
         query="memory",
         modality="eeg",
         limit=10,

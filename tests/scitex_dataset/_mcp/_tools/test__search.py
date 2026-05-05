@@ -22,8 +22,8 @@ def test_register_search_tools_attaches_filter_and_list_sources():
 
     m = _M()
     register_search_tools(m)
-    assert "dataset_filter_results" in m.tools
-    assert "dataset_list_sources" in m.tools
+    assert "filter_results" in m.tools
+    assert "list_sources" in m.tools
 
 
 def test_dataset_list_sources_returns_eleven():
@@ -32,5 +32,5 @@ def test_dataset_list_sources_returns_eleven():
 
     m = _M()
     register_search_tools(m)
-    result = m.tools["dataset_list_sources"]()
+    result = m.tools["list_sources"]()
     assert result["count"] == len(ALL_SOURCES)

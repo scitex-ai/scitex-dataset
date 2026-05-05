@@ -9,12 +9,12 @@ from pathlib import Path
 
 
 def register_skills_tools(mcp) -> None:
-    """Register ``dataset_skills_list`` and ``dataset_skills_get``."""
+    """Register ``skills_list`` and ``skills_get``."""
 
     skills_dir = Path(__file__).resolve().parents[2] / "_skills" / "scitex-dataset"
 
     @mcp.tool()
-    def dataset_skills_list() -> str:
+    def skills_list() -> str:
         """List the names of every skill page shipped by scitex-dataset.
 
         Returns
@@ -34,7 +34,7 @@ def register_skills_tools(mcp) -> None:
             return json.dumps({"success": False, "error": str(e)}, indent=2)
 
     @mcp.tool()
-    def dataset_skills_get(name: str) -> str:
+    def skills_get(name: str) -> str:
         """Fetch the full Markdown content of one scitex-dataset skill page."""
         try:
             target = skills_dir / f"{name}.md"

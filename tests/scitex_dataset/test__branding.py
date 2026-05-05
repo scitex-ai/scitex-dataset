@@ -64,9 +64,9 @@ def test_get_mcp_instructions():
     assert "DANDI" in instructions
     assert "PhysioNet" in instructions
     assert "Zenodo" in instructions
-    assert "dataset_openneuro_fetch" in instructions
-    assert "dataset_zenodo_fetch" in instructions
-    assert "dataset_db_build" in instructions
+    assert "openneuro_fetch" in instructions
+    assert "zenodo_fetch" in instructions
+    assert "db_build" in instructions
 
 
 # EOF
