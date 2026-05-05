@@ -127,6 +127,36 @@ SOURCE_INFO = {
     },
 }
 
-__all__ = ["CATALOG_SOURCES", "ONDEMAND_SOURCES", "ALL_SOURCES", "SOURCE_INFO"]
+DOMAIN_OF = {
+    "openneuro": "neuroscience",
+    "dandi": "neuroscience",
+    "physionet": "neuroscience",
+    "zenodo": "general",
+    "figshare": "general",
+    "openml": "general",
+    "moleculenet": "pharmacology",
+    "geo": "biology",
+    "chembl": "pharmacology",
+    "clinicaltrials": "medical",
+    "huggingface": "general",
+}
+
+DOMAINS = ["neuroscience", "general", "biology", "pharmacology", "medical"]
+
+
+def sources_in_domain(domain: str):
+    """Return the source ids that live under ``domain``."""
+    return [s for s, d in DOMAIN_OF.items() if d == domain]
+
+
+__all__ = [
+    "CATALOG_SOURCES",
+    "ONDEMAND_SOURCES",
+    "ALL_SOURCES",
+    "SOURCE_INFO",
+    "DOMAIN_OF",
+    "DOMAINS",
+    "sources_in_domain",
+]
 
 # EOF

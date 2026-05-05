@@ -15,7 +15,6 @@ Usage:
 from __future__ import annotations
 
 import json
-import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
@@ -23,16 +22,20 @@ from typing import Any, Dict, List, Optional
 
 from scitex_dev.decorators import supports_return_as
 
-# Default database location.
-# Honours $SCITEX_DIR (defaults to ~/.scitex). The legacy location
-# ~/.cache/scitex-dataset/datasets.db is no longer written; users with an
-# existing legacy DB can move it manually.
-DEFAULT_DB_PATH = (
-    Path(os.environ.get("SCITEX_DIR", Path.home() / ".scitex"))
-    / "dataset"
-    / "runtime"
-    / "datasets.db"
-)
+from ._config import runtime_dir
+
+
+def _default_db_path() -> Path:
+    """Resolve the local SQLite path via the SciTeX local-state layout.
+
+    Project scope wins over user scope; ``SCITEX_DIR`` relocates user
+    scope. See ``general/01_ecosystem_06_local-state-directories``.
+    """
+    return runtime_dir() / "datasets.db"
+
+
+# Kept as a property-style accessor; do not freeze at import time.
+DEFAULT_DB_PATH = _default_db_path()
 
 __all__ = [
     "build",
