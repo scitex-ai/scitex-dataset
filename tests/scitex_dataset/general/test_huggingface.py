@@ -8,7 +8,15 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from scitex_dataset.general.huggingface import (
+# `huggingface_hub` is an optional install (extras = ["huggingface"]).
+# Skip the mock-based tests cleanly when it isn't available, instead of
+# letting `with patch("huggingface_hub.…")` raise ModuleNotFoundError.
+huggingface_hub = pytest.importorskip(
+    "huggingface_hub",
+    reason="huggingface_hub not installed; install scitex-dataset[huggingface]",
+)
+
+from scitex_dataset.general.huggingface import (  # noqa: E402
     _resolve_local_dir,
     _resolve_token,
     dataset_info,

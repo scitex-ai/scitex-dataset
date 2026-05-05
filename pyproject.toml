@@ -45,6 +45,9 @@ dependencies = [
 mcp = [
     "fastmcp>=2.0.0",
 ]
+huggingface = [
+    "huggingface-hub>=0.20.0",
+]
 scitex = [
     "scitex>=2.0.0",
 ]
@@ -53,6 +56,8 @@ dev = [
     "pytest-cov>=4.0.0",
     "pre-commit>=3.5.0",
     "ruff>=0.1.0",
+    # Optional runtime deps that the test suite still mocks against:
+    "huggingface-hub>=0.20.0",
 ]
 docs = [
     "sphinx>=7.0",
