@@ -35,12 +35,19 @@
 
 ## Supported repositories
 
-| Repository | Description | Data Types |
-|------------|-------------|------------|
-| **OpenNeuro** | Open platform for sharing neuroimaging data | MRI, EEG, MEG, iEEG, PET |
-| **DANDI** | BRAIN Initiative data archive | Electrophysiology, Ophys |
-| **PhysioNet** | Physiological signal databases | ECG, EEG, clinical data |
-| **Zenodo** | General scientific data repository (CERN) | Any research data |
+| Domain | Repository | Description | Data Types |
+|--------|------------|-------------|------------|
+| neuroscience | **OpenNeuro** | Open BIDS neuroimaging platform | MRI, EEG, MEG, iEEG, PET |
+| neuroscience | **DANDI** | BRAIN Initiative archive (NWB) | Electrophysiology, Ophys |
+| neuroscience | **PhysioNet** | Physiological signal databases | ECG, EEG, clinical data |
+| general | **Zenodo** | General scientific data (CERN) | Any research data |
+| general | **Figshare** | Research data sharing platform | Any research data |
+| general | **OpenML** | Machine-learning datasets | Tabular ML benchmarks |
+| general | **HuggingFace Hub** | ML datasets / models (on-demand) | Any |
+| biology | **GEO** | Gene Expression Omnibus (NCBI) | Transcriptomics, microarray |
+| pharmacology | **MoleculeNet** | Molecular ML benchmark suite | SMILES, properties |
+| pharmacology | **ChEMBL** | Bioactivity database (EBI) | IC50/Ki/EC50 assays |
+| medical | **ClinicalTrials.gov** | NIH study registry | Trial metadata |
 
 <p align="center"><sub><b>Table 1.</b> Supported data repositories. Each source is queried via its public API; no authentication required for metadata access.</sub></p>
 
@@ -105,16 +112,20 @@ results = database.search("alzheimer EEG", min_subjects=20)
 ```bash
 scitex-dataset --help-recursive             # Show all commands
 
-# Fetch from repositories
-scitex-dataset openneuro -n 100 -o datasets.json -v
-scitex-dataset dandi -n 50 -o dandi.json -v
-scitex-dataset physionet -n 50 -v
-scitex-dataset zenodo -q "neuroscience" -n 20
+# Grammar: scitex-dataset <domain> <dataset> <action>
+scitex-dataset neuroscience openneuro fetch -n 100 -o datasets.json -v
+scitex-dataset neuroscience dandi fetch -n 50 -o dandi.json -v
+scitex-dataset neuroscience physionet fetch -n 50 -v
+scitex-dataset general zenodo fetch -q "neuroscience" -n 20
+
+# HuggingFace (general/huggingface noun-group has 4 verbs)
+scitex-dataset general huggingface fetch Anthropic/BioMysteryBench-full
+scitex-dataset general huggingface search "biology" -n 20 --json
 
 # Local database
-scitex-dataset db build                     # index all sources
+scitex-dataset db build                     # index all catalog sources
 scitex-dataset db search "epilepsy EEG"     # full-text search
-scitex-dataset db stats                     # show statistics
+scitex-dataset db show-stats                # show statistics
 
 # Introspection
 scitex-dataset list-python-apis -v          # list Python API tree
@@ -134,17 +145,16 @@ AI agents can discover and query neuroscience datasets autonomously.
 
 | Tool | Description |
 |------|-------------|
-| `dataset_openneuro_fetch` | Fetch datasets from OpenNeuro |
-| `dataset_dandi_fetch` | Fetch datasets from DANDI Archive |
-| `dataset_physionet_fetch` | Fetch datasets from PhysioNet |
-| `dataset_zenodo_fetch` | Fetch datasets from Zenodo |
-| `dataset_search` | Filter datasets by modality, subjects, etc. |
-| `dataset_list_sources` | List available data repositories |
-| `dataset_db_build` | Build local search database |
-| `dataset_db_search` | Full-text search across all sources |
-| `dataset_db_stats` | Database statistics |
+| `dataset_list_sources` | Enumerate the 11 supported sources |
+| `dataset_filter_results` | Filter / rank fetched datasets in memory |
+| `dataset_<src>_fetch` | One per catalog source (10 total) |
+| `dataset_hf_fetch` / `_search` / `_info` / `_download_file` | HuggingFace family |
+| `dataset_db_build` / `_search` / `_stats` | Local SQLite + FTS5 index |
+| `dataset_skills_list` / `_get` | Bundled skill pages |
 
-<sub><b>Table 2.</b> Nine MCP tools available for AI-assisted dataset discovery. All tools accept JSON parameters and return JSON results.</sub>
+<sub><b>Table 2.</b> 21 MCP tools across catalog fetchers, HuggingFace,
+the local index, and skill introspection. Every MCP tool has a matching
+public Python alias (e.g. ``scitex_dataset.openneuro_fetch``).</sub>
 
 ```bash
 scitex-dataset mcp start
