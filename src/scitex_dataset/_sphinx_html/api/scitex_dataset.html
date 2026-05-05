@@ -139,8 +139,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-scitex_dataset._cli">CLI</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#scitex_dataset._cli._print_command_help"><code class="docutils literal notranslate"><span class="pre">_print_command_help()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#scitex_dataset._cli._dataset_deprecated"><code class="docutils literal notranslate"><span class="pre">_dataset_deprecated()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_dataset._cli._repositories_block"><code class="docutils literal notranslate"><span class="pre">_repositories_block()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -699,22 +698,32 @@ research related digital artifacts.</p>
 </section>
 <section id="module-scitex_dataset._cli">
 <span id="cli"></span><h2>CLI<a class="headerlink" href="#module-scitex_dataset._cli" title="Link to this heading"></a></h2>
-<p>Command-line interface for scitex-dataset.</p>
+<p>Command-line interface for <code class="docutils literal notranslate"><span class="pre">scitex-dataset</span></code>.</p>
+<p>The command grammar is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">scitex</span><span class="o">-</span><span class="n">dataset</span> <span class="o">&lt;</span><span class="n">domain</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">action</span><span class="o">&gt;</span> <span class="p">[</span><span class="n">OPTIONS</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">scitex</span><span class="o">-</span><span class="n">dataset</span> <span class="n">neuroscience</span> <span class="n">openneuro</span> <span class="n">fetch</span> <span class="o">-</span><span class="n">n</span> <span class="mi">50</span>
+<span class="n">scitex</span><span class="o">-</span><span class="n">dataset</span> <span class="n">general</span> <span class="n">huggingface</span> <span class="n">fetch</span> <span class="n">Anthropic</span><span class="o">/</span><span class="n">BioMysteryBench</span><span class="o">-</span><span class="n">full</span>
+<span class="n">scitex</span><span class="o">-</span><span class="n">dataset</span> <span class="n">pharmacology</span> <span class="n">chembl</span> <span class="n">fetch</span>
+<span class="n">scitex</span><span class="o">-</span><span class="n">dataset</span> <span class="n">db</span> <span class="n">build</span>
+</pre></div>
+</div>
+<p>The flat <code class="docutils literal notranslate"><span class="pre">fetch-&lt;source&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">hf</span> <span class="pre">&lt;verb&gt;</span></code> shapes from earlier
+versions are kept as hidden deprecation aliases that print the new path
+and exit with status 2.</p>
+<p>See <code class="docutils literal notranslate"><span class="pre">general/03_interface_02_cli/02_subcommand-structure-noun-verb.md</span></code>
+for the SciTeX CLI grammar.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="scitex_dataset._cli._print_command_help">
-<span class="sig-prename descclassname"><span class="pre">scitex_dataset._cli.</span></span><span class="sig-name descname"><span class="pre">_print_command_help</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_ctx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_dataset/_cli.html#_print_command_help"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_dataset._cli._print_command_help" title="Link to this definition"></a></dt>
-<dd><p>Recursively print help for a command and its subcommands.</p>
+<dt class="sig sig-object py" id="scitex_dataset._cli._repositories_block">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset._cli.</span></span><span class="sig-name descname"><span class="pre">_repositories_block</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_dataset/_cli.html#_repositories_block"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_dataset._cli._repositories_block" title="Link to this definition"></a></dt>
+<dd><p>Render the per-domain bullet list shown in top-level <code class="docutils literal notranslate"><span class="pre">--help</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_dataset._cli._dataset_deprecated">
-<span class="sig-prename descclassname"><span class="pre">scitex_dataset._cli.</span></span><span class="sig-name descname"><span class="pre">_dataset_deprecated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_dataset/_cli.html#_dataset_deprecated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_dataset._cli._dataset_deprecated" title="Link to this definition"></a></dt>
-<dd><p>Hidden top-level redirect: <cite>&lt;name&gt;</cite> → <cite>fetch-&lt;name&gt;</cite>.</p>
 </dd></dl>
 
 </section>

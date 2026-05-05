@@ -137,8 +137,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset._cli">CLI</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset._cli._print_command_help"><code class="docutils literal notranslate"><span class="pre">_print_command_help()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset._cli._dataset_deprecated"><code class="docutils literal notranslate"><span class="pre">_dataset_deprecated()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset._cli._repositories_block"><code class="docutils literal notranslate"><span class="pre">_repositories_block()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -187,25 +186,27 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sqlite3</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">scitex_config._ecosystem</span><span class="w"> </span><span class="kn">import</span> <span class="n">local_state</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dev.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">supports_return_as</span>
 
-<span class="c1"># Default database location.</span>
-<span class="c1"># Honours $SCITEX_DIR (defaults to ~/.scitex). The legacy location</span>
-<span class="c1"># ~/.cache/scitex-dataset/datasets.db is no longer written; users with an</span>
-<span class="c1"># existing legacy DB can move it manually.</span>
-<span class="n">DEFAULT_DB_PATH</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SCITEX_DIR&quot;</span><span class="p">,</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;.scitex&quot;</span><span class="p">))</span>
-    <span class="o">/</span> <span class="s2">&quot;dataset&quot;</span>
-    <span class="o">/</span> <span class="s2">&quot;runtime&quot;</span>
-    <span class="o">/</span> <span class="s2">&quot;datasets.db&quot;</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._config</span><span class="w"> </span><span class="kn">import</span> <span class="n">runtime_dir</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_default_db_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve the local SQLite path via the SciTeX local-state layout.</span>
+
+<span class="sd">    Project scope wins over user scope; ``SCITEX_DIR`` relocates user</span>
+<span class="sd">    scope. See ``general/01_ecosystem_06_local-state-directories``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">runtime_dir</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;datasets.db&quot;</span>
+
+
+<span class="c1"># Kept as a property-style accessor; do not freeze at import time.</span>
+<span class="n">DEFAULT_DB_PATH</span> <span class="o">=</span> <span class="n">_default_db_path</span><span class="p">()</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;build&quot;</span><span class="p">,</span>
@@ -227,7 +228,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_connection</span><span class="p">(</span><span class="n">db_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get database connection, creating tables if needed.&quot;&quot;&quot;</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">db_path</span> <span class="ow">or</span> <span class="n">DEFAULT_DB_PATH</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">db_path</span> <span class="ow">or</span> <span class="n">_default_db_path</span><span class="p">()</span>
     <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -361,18 +362,12 @@
 <span class="sd">        Count of datasets indexed per source.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">sources</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">sources</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;openneuro&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;dandi&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;physionet&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;zenodo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;figshare&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;openml&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;geo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;chembl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;moleculenet&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;clinicaltrials&quot;</span><span class="p">,</span>
-        <span class="p">]</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">._sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">CATALOG_SOURCES</span>
+
+        <span class="c1"># HuggingFace is NOT included by default — its catalog is unbounded</span>
+        <span class="c1"># and would dominate the index. Pass `sources=[&quot;huggingface&quot;, ...]`</span>
+        <span class="c1"># explicitly to opt in (uses query=&quot;&quot; + max=1000 cap).</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">CATALOG_SOURCES</span><span class="p">)</span>
 
     <span class="n">conn</span> <span class="o">=</span> <span class="n">_get_connection</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span>
     <span class="n">counts</span> <span class="o">=</span> <span class="p">{}</span>
@@ -402,6 +397,8 @@
                 <span class="kn">from</span><span class="w"> </span><span class="nn">.pharmacology.moleculenet</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_all_datasets</span><span class="p">,</span> <span class="n">format_dataset</span>
             <span class="k">elif</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;clinicaltrials&quot;</span><span class="p">:</span>
                 <span class="kn">from</span><span class="w"> </span><span class="nn">.medical.clinicaltrials</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_all_datasets</span><span class="p">,</span> <span class="n">format_dataset</span>
+            <span class="k">elif</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;huggingface&quot;</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">.general.huggingface</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_all_datasets</span><span class="p">,</span> <span class="n">format_dataset</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown source: </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -586,7 +583,7 @@
 <span class="sd">    dict</span>
 <span class="sd">        Statistics including counts per source, last build time, etc.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">db_path</span> <span class="ow">or</span> <span class="n">DEFAULT_DB_PATH</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">db_path</span> <span class="ow">or</span> <span class="n">_default_db_path</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;exists&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Database not built. Run: db.build()&quot;</span><span class="p">}</span>
@@ -630,7 +627,7 @@
 <span class="sd">    bool</span>
 <span class="sd">        True if deleted, False if didn&#39;t exist.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">db_path</span> <span class="ow">or</span> <span class="n">DEFAULT_DB_PATH</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">db_path</span> <span class="ow">or</span> <span class="n">_default_db_path</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="n">path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
