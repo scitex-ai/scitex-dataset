@@ -410,6 +410,140 @@ def dataset_skills_get(name: str) -> str:
         return json.dumps({"success": False, "error": str(e)}, indent=2)
 
 
+# HuggingFace tools
+@mcp.tool
+def dataset_hf_fetch(
+    repo_id: str,
+    local_dir: Optional[str] = None,
+    repo_type: str = "dataset",
+    max_workers: int = 4,
+    hf_home_override: Optional[str] = None,
+) -> str:
+    """Fetch a complete HuggingFace dataset to disk - use whenever the user asks to download a HuggingFace dataset (gated or public), access Anthropic/BioMysteryBench-full or other large models/datasets, or cache HF content to project filesystem (especially on Spartan with HF_HOME override). Drop-in replacement for huggingface_hub.snapshot_download or hf_hub_download with smart project-FS routing.
+
+    Downloads a dataset or model repository to the specified directory.
+    On Spartan, sets HF_HOME to project FS to avoid home quota issues.
+
+    Parameters
+    ----------
+    repo_id : str
+        HuggingFace repository ID (e.g., "Anthropic/BioMysteryBench-full").
+    local_dir : str, optional
+        Local directory for download. If None, auto-detects Spartan project FS.
+    repo_type : str
+        Repository type: "dataset" (default) or "model".
+    max_workers : int
+        Parallel download workers (default: 4).
+    hf_home_override : str, optional
+        Override HF_HOME cache directory for large datasets on Spartan.
+
+    Returns
+    -------
+    str
+        Path to the downloaded dataset directory.
+    """
+    from ..general.huggingface import fetch_dataset
+
+    result_path = fetch_dataset(
+        repo_id=repo_id,
+        local_dir=local_dir,
+        repo_type=repo_type,
+        max_workers=max_workers,
+        hf_home_override=hf_home_override,
+    )
+    return str(result_path)
+
+
+@mcp.tool
+def dataset_hf_search(
+    query: str,
+    limit: int = 50,
+) -> List[Dict[str, Any]]:
+    """Search for datasets on HuggingFace - use whenever the user asks to find or browse HuggingFace datasets by keyword, list datasets matching a query, discover public ML benchmarks, or search for domain-specific datasets (biology, medical, etc.). Drop-in replacement for HuggingFace Hub web search or huggingface_hub.list_datasets().
+
+    Searches the HuggingFace Hub dataset catalog.
+
+    Parameters
+    ----------
+    query : str
+        Search query string.
+    limit : int
+        Maximum number of results (default: 50).
+
+    Returns
+    -------
+    list[dict]
+        Search results with fields: id, name, description, downloads, likes, private, gated, url.
+    """
+    from ..general.huggingface import search_datasets
+
+    return search_datasets(query=query, limit=limit)
+
+
+@mcp.tool
+def dataset_hf_info(
+    repo_id: str,
+    repo_type: str = "dataset",
+) -> Dict[str, Any]:
+    """Get metadata about a HuggingFace dataset or model - use whenever the user asks for info about a specific HF dataset (Anthropic/BioMysteryBench-full, etc.), check a dataset's license/size/gating status, or verify dataset before downloading. Drop-in replacement for huggingface_hub.dataset_info() or HF Hub web UI inspection.
+
+    Fetches metadata for a repository.
+
+    Parameters
+    ----------
+    repo_id : str
+        Repository ID (e.g., "Anthropic/BioMysteryBench-full").
+    repo_type : str
+        Repository type: "dataset" (default) or "model".
+
+    Returns
+    -------
+    dict
+        Dataset metadata: id, name, description, downloads, likes, private, gated, url, created_at, last_modified.
+    """
+    from ..general.huggingface import dataset_info
+
+    return dataset_info(repo_id=repo_id, repo_type=repo_type)
+
+
+@mcp.tool
+def dataset_hf_download_file(
+    repo_id: str,
+    filename: str,
+    local_dir: Optional[str] = None,
+    repo_type: str = "dataset",
+) -> str:
+    """Download a single file from a HuggingFace repository - use when the user wants to fetch just one file (README.md, metadata.json, a single data file) without downloading the entire dataset. Drop-in replacement for hf_hub_download with smart project-FS awareness.
+
+    Downloads a single file from a repository.
+
+    Parameters
+    ----------
+    repo_id : str
+        Repository ID (e.g., "username/dataset_name").
+    filename : str
+        Path within the repository (e.g., "README.md" or "data/train.csv").
+    local_dir : str, optional
+        Local directory for download.
+    repo_type : str
+        Repository type: "dataset" (default) or "model".
+
+    Returns
+    -------
+    str
+        Path to the downloaded file.
+    """
+    from ..general.huggingface import download_file
+
+    result_path = download_file(
+        repo_id=repo_id,
+        filename=filename,
+        local_dir=local_dir,
+        repo_type=repo_type,
+    )
+    return str(result_path)
+
+
 @mcp.resource("scitex-dataset://readme")
 def get_readme() -> str:
     """Get package README."""

@@ -726,6 +726,182 @@ def db_clear() -> None:
         click.echo("Database not found.")
 
 
+# HuggingFace commands
+@main.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
+@click.option("--help-recursive", is_flag=True, help="Show help for all commands.")
+@click.pass_context
+def hf(ctx: click.Context, help_recursive: bool):
+    """HuggingFace dataset and model commands."""
+    if help_recursive:
+        click.echo(hf.get_help(ctx))
+        for name, cmd in sorted(hf.commands.items()):
+            _print_command_help(cmd, f"scitex-dataset hf {name}", ctx)
+        ctx.exit(0)
+
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
+
+
+@hf.command("fetch")
+@click.argument("repo_id")
+@click.option(
+    "-d", "--local-dir", type=click.Path(), help="Local directory for download."
+)
+@click.option(
+    "-t",
+    "--repo-type",
+    default="dataset",
+    type=click.Choice(["dataset", "model"]),
+    help="Repository type (default: dataset).",
+)
+@click.option(
+    "-w", "--max-workers", default=4, type=int, help="Parallel workers (default: 4)."
+)
+@click.option("--hf-home", type=click.Path(), help="Override HF_HOME cache directory.")
+@click.option("-v", "--verbose", is_flag=True, help="Verbose output.")
+def hf_fetch(
+    repo_id: str,
+    local_dir: str,
+    repo_type: str,
+    max_workers: int,
+    hf_home: str,
+    verbose: bool,
+) -> None:
+    """Fetch a HuggingFace dataset or model to disk.
+
+    \b
+    Example:
+      $ scitex-dataset hf fetch Anthropic/BioMysteryBench-full
+      $ scitex-dataset hf fetch Anthropic/BioMysteryBench-full -d /data/gpfs/projects/punim2354/cohort_c_biomysterybench/_full
+    """
+    from ..general.huggingface import fetch_dataset
+
+    if verbose:
+        click.echo(f"Fetching {repo_type} {repo_id}...")
+
+    try:
+        result_path = fetch_dataset(
+            repo_id=repo_id,
+            local_dir=local_dir,
+            repo_type=repo_type,
+            max_workers=max_workers,
+            hf_home_override=hf_home,
+        )
+        click.echo(f"Downloaded to: {result_path}")
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+
+@hf.command("search")
+@click.argument("query")
+@click.option("-n", "--limit", default=50, type=int, help="Max results (default: 50).")
+@click.option("-o", "--output", type=click.Path(), help="Output JSON file.")
+def hf_search(query: str, limit: int, output: str) -> None:
+    """Search for datasets on HuggingFace.
+
+    \b
+    Example:
+      $ scitex-dataset hf search "biology"
+      $ scitex-dataset hf search "neuroimaging" -n 10
+    """
+    from ..general.huggingface import search_datasets
+
+    try:
+        results = search_datasets(query=query, limit=limit)
+
+        if output:
+            Path(output).write_text(json.dumps(results, indent=2))
+            click.echo(f"Saved {len(results)} results to {output}")
+        else:
+            for ds in results:
+                click.echo(f"  {ds['id']}: {ds['name']}")
+                if ds.get("description"):
+                    click.echo(f"    {ds['description'][:100]}...")
+            click.echo(f"\nFound {len(results)} datasets")
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+
+@hf.command("info")
+@click.argument("repo_id")
+@click.option(
+    "-t",
+    "--repo-type",
+    default="dataset",
+    type=click.Choice(["dataset", "model"]),
+    help="Repository type (default: dataset).",
+)
+@click.option("--json", "as_json", is_flag=True, help="Output as JSON.")
+def hf_info(repo_id: str, repo_type: str, as_json: bool) -> None:
+    """Get metadata about a HuggingFace dataset or model.
+
+    \b
+    Example:
+      $ scitex-dataset hf info Anthropic/BioMysteryBench-full
+      $ scitex-dataset hf info username/dataset_name --json
+    """
+    from ..general.huggingface import dataset_info
+
+    try:
+        info = dataset_info(repo_id=repo_id, repo_type=repo_type)
+
+        if as_json:
+            click.echo(json.dumps(info, indent=2, default=str))
+        else:
+            click.echo(f"ID: {info['id']}")
+            click.echo(f"Name: {info['name']}")
+            if info.get("description"):
+                click.echo(f"Description: {info['description']}")
+            click.echo(f"Downloads: {info.get('downloads', 0)}")
+            click.echo(f"Likes: {info.get('likes', 0)}")
+            click.echo(f"Private: {info.get('private', False)}")
+            click.echo(f"Gated: {info.get('gated', False)}")
+            click.echo(f"URL: {info['url']}")
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+
+@hf.command("download-file")
+@click.argument("repo_id")
+@click.argument("filename")
+@click.option(
+    "-d", "--local-dir", type=click.Path(), help="Local directory for download."
+)
+@click.option(
+    "-t",
+    "--repo-type",
+    default="dataset",
+    type=click.Choice(["dataset", "model"]),
+    help="Repository type (default: dataset).",
+)
+def hf_download_file(
+    repo_id: str, filename: str, local_dir: str, repo_type: str
+) -> None:
+    """Download a single file from HuggingFace.
+
+    \b
+    Example:
+      $ scitex-dataset hf download-file Anthropic/BioMysteryBench-full README.md
+      $ scitex-dataset hf download-file username/dataset_name data/train.csv -d /local/path
+    """
+    from ..general.huggingface import download_file
+
+    try:
+        file_path = download_file(
+            repo_id=repo_id,
+            filename=filename,
+            local_dir=local_dir,
+            repo_type=repo_type,
+        )
+        click.echo(f"Downloaded to: {file_path}")
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+
 # Shell tab-completion
 @main.command(
     "completion",
