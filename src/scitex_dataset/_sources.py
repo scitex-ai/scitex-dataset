@@ -82,7 +82,7 @@ SOURCE_INFO = {
         "description": "Machine learning datasets and benchmarks",
         "url": "https://www.openml.org",
         "format": "ARFF/CSV/Parquet",
-        "domain": "machine-learning",
+        "domain": "general",
         "kind": "catalog",
     },
     "moleculenet": {
@@ -122,25 +122,16 @@ SOURCE_INFO = {
         "description": "ML datasets and models — fetched on demand by repo_id (not catalog-enumerated)",
         "url": "https://huggingface.co",
         "format": "Various",
-        "domain": "machine-learning",
+        "domain": "general",
         "kind": "ondemand",
     },
 }
 
-DOMAIN_OF = {
-    "openneuro": "neuroscience",
-    "dandi": "neuroscience",
-    "physionet": "neuroscience",
-    "zenodo": "general",
-    "figshare": "general",
-    "openml": "general",
-    "moleculenet": "pharmacology",
-    "geo": "biology",
-    "chembl": "pharmacology",
-    "clinicaltrials": "medical",
-    "huggingface": "general",
-}
+DOMAIN_OF = {src: meta["domain"] for src, meta in SOURCE_INFO.items()}
 
+# Display order of domains in the top-level CLI help — drives both the
+# repository bullet list and the order of domain groups in the click
+# tree. Edit this list, not the dict above, to reshuffle.
 DOMAINS = ["neuroscience", "general", "biology", "pharmacology", "medical"]
 
 

@@ -110,7 +110,7 @@ from scitex_dataset import database
 database.build(sources=["huggingface"])
 ```
 
-CLI mirror: ``scitex-dataset hf fetch | search | info | download-file``.
+CLI mirror: ``scitex-dataset general huggingface (fetch | search | info | download-file)``.
 
 ## Local Database
 
