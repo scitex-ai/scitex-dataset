@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Overview: module code &mdash; scitex-dataset v0.3.1</title>
+  <title>scitex_dataset &mdash; scitex-dataset v0.3.1</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -177,7 +177,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Overview: module code</li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">scitex_dataset</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -186,16 +187,154 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="scitex_dataset.html">scitex_dataset</a></li>
-<ul><li><a href="scitex_dataset/_cli.html">scitex_dataset._cli</a></li>
-<li><a href="scitex_dataset/database.html">scitex_dataset.database</a></li>
-<li><a href="scitex_dataset/general/zenodo.html">scitex_dataset.general.zenodo</a></li>
-<li><a href="scitex_dataset/neuroscience/dandi.html">scitex_dataset.neuroscience.dandi</a></li>
-<li><a href="scitex_dataset/neuroscience/openneuro.html">scitex_dataset.neuroscience.openneuro</a></li>
-<li><a href="scitex_dataset/neuroscience/physionet.html">scitex_dataset.neuroscience.physionet</a></li>
-<li><a href="scitex_dataset/search.html">scitex_dataset.search</a></li>
-</ul></ul>
+  <h1>Source code for scitex_dataset</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># Timestamp: &quot;2026-01-29 22:30:00 (ywatanabe)&quot;</span>
+<span class="c1"># File: /home/ywatanabe/proj/scitex-dataset/src/scitex_dataset/__init__.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">SciTeX Dataset - Unified interface for scientific dataset discovery.</span>
+
+<span class="sd">Domains:</span>
+<span class="sd">- neuroscience: OpenNeuro, DANDI, PhysioNet</span>
+<span class="sd">- general: Scientific Data, Zenodo</span>
+<span class="sd">- biology: GEO (Gene Expression Omnibus)</span>
+<span class="sd">- pharmacology: ChEMBL</span>
+<span class="sd">- medical: ClinicalTrials.gov</span>
+
+<span class="sd">Usage:</span>
+<span class="sd">    &gt;&gt;&gt; from scitex_dataset import neuroscience</span>
+<span class="sd">    &gt;&gt;&gt; datasets = neuroscience.fetch_all_datasets(max_datasets=10)</span>
+
+<span class="sd">    &gt;&gt;&gt; # Or direct import for convenience</span>
+<span class="sd">    &gt;&gt;&gt; from scitex_dataset import fetch_all_datasets, search_datasets</span>
+
+<span class="sd">    &gt;&gt;&gt; # Local database for fast searching</span>
+<span class="sd">    &gt;&gt;&gt; from scitex_dataset import database as db</span>
+<span class="sd">    &gt;&gt;&gt; db.build()  # Fetch all sources and index</span>
+<span class="sd">    &gt;&gt;&gt; results = db.search(&quot;alzheimer EEG&quot;, min_subjects=20)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">PackageNotFoundError</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">_v</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">__version__</span> <span class="o">=</span> <span class="n">_v</span><span class="p">(</span><span class="s2">&quot;scitex-dataset&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">PackageNotFoundError</span><span class="p">:</span>
+        <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.0.0+local&quot;</span>
+    <span class="k">del</span> <span class="n">_v</span><span class="p">,</span> <span class="n">PackageNotFoundError</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c1"># pragma: no cover — only on ancient Pythons</span>
+    <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.0.0+local&quot;</span>
+<span class="c1"># Domain submodules</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">_api</span> <span class="k">as</span> <span class="n">_api</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">biology</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">general</span><span class="p">,</span> <span class="n">medical</span><span class="p">,</span> <span class="n">neuroscience</span><span class="p">,</span> <span class="n">pharmacology</span>
+
+<span class="c1"># Per-source ``&lt;src&gt;_fetch`` / ``&lt;src&gt;_format`` aliases — give every MCP</span>
+<span class="c1"># tool a matching Python callable for the audit-mcp-tools § 6 parity</span>
+<span class="c1"># check. See _api.py for the explicit list.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._api</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F401</span>
+    <span class="n">chembl_fetch</span><span class="p">,</span>
+    <span class="n">clinicaltrials_fetch</span><span class="p">,</span>
+    <span class="n">dandi_fetch</span><span class="p">,</span>
+    <span class="n">figshare_fetch</span><span class="p">,</span>
+    <span class="n">geo_fetch</span><span class="p">,</span>
+    <span class="n">hf_download_file</span><span class="p">,</span>
+    <span class="n">hf_fetch</span><span class="p">,</span>
+    <span class="n">hf_info</span><span class="p">,</span>
+    <span class="n">hf_search</span><span class="p">,</span>
+    <span class="n">moleculenet_fetch</span><span class="p">,</span>
+    <span class="n">openml_fetch</span><span class="p">,</span>
+    <span class="n">openneuro_fetch</span><span class="p">,</span>
+    <span class="n">physionet_fetch</span><span class="p">,</span>
+    <span class="n">zenodo_fetch</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># DB-level aliases for MCP parity (`dataset_db_*` tools).</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">build</span> <span class="k">as</span> <span class="n">db_build</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_stats</span> <span class="k">as</span> <span class="n">db_stats</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">search</span> <span class="k">as</span> <span class="n">db_search</span>  <span class="c1"># noqa: F401</span>
+
+<span class="c1"># Convenience exports from neuroscience.openneuro (primary source)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.neuroscience.openneuro</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">OPENNEURO_API</span><span class="p">,</span>
+    <span class="n">fetch_all_datasets</span><span class="p">,</span>
+    <span class="n">fetch_datasets</span><span class="p">,</span>
+    <span class="n">format_dataset</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.search</span><span class="w"> </span><span class="kn">import</span> <span class="n">search_datasets</span><span class="p">,</span> <span class="n">sort_datasets</span>
+
+
+<div class="viewcode-block" id="list_sources">
+<a class="viewcode-back" href="../api/scitex_dataset.html#scitex_dataset.list_sources">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">list_sources</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the 11-source registry — matches ``dataset_list_sources`` MCP tool.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">._sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">SOURCE_INFO</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="n">SOURCE_INFO</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">SOURCE_INFO</span><span class="p">)}</span></div>
+
+
+
+<div class="viewcode-block" id="filter_results">
+<a class="viewcode-back" href="../api/scitex_dataset.html#scitex_dataset.filter_results">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_results</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter and rank dataset dicts — matches ``dataset_filter_results`` MCP tool.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.search</span><span class="w"> </span><span class="kn">import</span> <span class="n">search_datasets</span> <span class="k">as</span> <span class="n">_search</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.search</span><span class="w"> </span><span class="kn">import</span> <span class="n">sort_datasets</span> <span class="k">as</span> <span class="n">_sort</span>
+
+    <span class="n">sort_by</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;sort_by&quot;</span><span class="p">,</span> <span class="s2">&quot;downloads&quot;</span><span class="p">)</span>
+    <span class="n">limit</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;limit&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">_search</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">_sort</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="n">sort_by</span><span class="p">,</span> <span class="n">descending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span><span class="p">[:</span><span class="n">limit</span><span class="p">]</span> <span class="k">if</span> <span class="n">limit</span> <span class="k">else</span> <span class="n">out</span></div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;__version__&quot;</span><span class="p">,</span>
+    <span class="c1"># Domains</span>
+    <span class="s2">&quot;neuroscience&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;general&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;biology&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pharmacology&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;medical&quot;</span><span class="p">,</span>
+    <span class="c1"># Database submodule + db_* aliases (MCP parity)</span>
+    <span class="s2">&quot;database&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;db_build&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;db_search&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;db_stats&quot;</span><span class="p">,</span>
+    <span class="c1"># Convenience (OpenNeuro)</span>
+    <span class="s2">&quot;fetch_datasets&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fetch_all_datasets&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;format_dataset&quot;</span><span class="p">,</span>
+    <span class="c1"># Search + filter</span>
+    <span class="s2">&quot;search_datasets&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sort_datasets&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;filter_results&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;list_sources&quot;</span><span class="p">,</span>
+    <span class="c1"># Per-source &lt;src&gt;_fetch aliases (MCP parity)</span>
+    <span class="s2">&quot;openneuro_fetch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dandi_fetch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;physionet_fetch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;zenodo_fetch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;figshare_fetch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;openml_fetch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;moleculenet_fetch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;geo_fetch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;chembl_fetch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;clinicaltrials_fetch&quot;</span><span class="p">,</span>
+    <span class="c1"># HuggingFace family</span>
+    <span class="s2">&quot;hf_fetch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hf_search&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hf_info&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hf_download_file&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># EOF</span>
+</pre></div>
 
            </div>
           </div>
