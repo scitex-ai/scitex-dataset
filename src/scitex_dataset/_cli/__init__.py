@@ -202,3 +202,14 @@ if __name__ == "__main__":
     main()
 
 # EOF
+
+
+# audit §4 — inject version into root --help
+try:
+    from importlib.metadata import version as _v
+    main.help = (
+        f"scitex-dataset (v{_v('scitex-dataset')}) — "
+        + (main.help or "").lstrip()
+    )
+except Exception:
+    pass
