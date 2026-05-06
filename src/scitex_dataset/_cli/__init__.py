@@ -187,50 +187,15 @@ def _hf_legacy(ctx):
     ctx.exit(2)
 
 
-# Shell tab-completion (legacy + canonical)
-@main.command(
-    "completion",
-    hidden=True,
-    context_settings={"ignore_unknown_options": True, "allow_extra_args": True},
-)
-@click.pass_context
-def completion_deprecated(ctx):
-    """(deprecated) Renamed to ``print-tab-completion``."""
-    click.echo(
-        "error: `scitex-dataset completion` was renamed to "
-        "`scitex-dataset print-tab-completion`.",
-        err=True,
-    )
-    ctx.exit(2)
+# §1a: install-shell-completion + print-shell-completion (canonical leaves).
+# Replaces the legacy `completion` and `print-tab-completion` commands; the
+# attach helper also registers hidden deprecated aliases for those names.
+try:
+    from scitex_dev._cli._completion import attach_shell_completion
 
-
-@main.command("print-tab-completion")
-@click.option(
-    "--shell",
-    type=click.Choice(["bash", "zsh", "fish"]),
-    default="bash",
-    help="Target shell. Default: bash.",
-)
-def print_tab_completion(shell: str) -> None:
-    """Print tab-completion script to stdout.
-
-    \b
-    Example:
-      $ eval "$(scitex-dataset print-tab-completion --shell bash)"
-      $ scitex-dataset print-tab-completion --shell zsh
-    """
-    import os
-    import subprocess
-    import sys
-
-    env = {"_SCITEX_DATASET_COMPLETE": f"{shell}_source"}
-    result = subprocess.run(
-        [sys.executable, "-m", "scitex_dataset._cli"],
-        env={**dict(os.environ), **env},
-        capture_output=True,
-        text=True,
-    )
-    click.echo(result.stdout)
+    attach_shell_completion(main, prog_name="scitex-dataset")
+except ImportError:
+    pass
 
 
 if __name__ == "__main__":
