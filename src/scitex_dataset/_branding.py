@@ -76,7 +76,7 @@ scientific repositories:
 - zenodo_fetch: Fetch Zenodo datasets
 - filter_results: Filter / rank fetched datasets in memory
 - list_sources: List the 11 supported sources
-- db_build / db_search / db_stats: Local SQLite + FTS5 index
+- db_build / db_search / db_show_stats: Local SQLite + FTS5 index
 
 **Typical Workflow:**
 1. Fetch datasets: openneuro_fetch(max_datasets=100)

@@ -40,7 +40,7 @@ def test_register_all_tools():
         "list_sources",
         "db_build",
         "db_search",
-        "db_stats",
+        "db_show_stats",
     ]
 
     for tool_name in expected_tools:
@@ -158,7 +158,7 @@ def test_dataset_search_with_filters(sample_datasets):
 
 @patch("scitex_dataset.database.get_stats")
 def test_dataset_db_stats(mock_stats):
-    """Test db_stats tool."""
+    """Test db_show_stats tool."""
     from scitex_dataset._mcp.tools import register_all_tools
 
     mock_stats.return_value = {
@@ -170,7 +170,7 @@ def test_dataset_db_stats(mock_stats):
     mock_mcp = MockMCP()
     register_all_tools(mock_mcp)
 
-    result = mock_mcp.tools["db_stats"]()
+    result = mock_mcp.tools["db_show_stats"]()
 
     assert result["exists"] is True
     assert result["total_datasets"] == 1000

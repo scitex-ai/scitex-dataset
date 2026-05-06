@@ -19,11 +19,11 @@ from .biology.geo import fetch_all_datasets as geo_fetch
 from .biology.geo import format_dataset as geo_format
 from .general.figshare import fetch_all_datasets as figshare_fetch
 from .general.figshare import format_dataset as figshare_format
-from .general.huggingface import dataset_info as hf_info
-from .general.huggingface import download_file as hf_download_file
-from .general.huggingface import fetch_all_datasets as hf_fetch
+from .general.huggingface import dataset_info as huggingface_info
+from .general.huggingface import download_file as huggingface_download_file
+from .general.huggingface import fetch_all_datasets as huggingface_fetch
 from .general.huggingface import format_dataset as hf_format
-from .general.huggingface import search_hub as hf_search
+from .general.huggingface import search_hub as huggingface_search
 from .general.openml import fetch_all_datasets as openml_fetch
 from .general.openml import format_dataset as openml_format
 from .general.zenodo import fetch_all_datasets as zenodo_fetch
@@ -62,11 +62,11 @@ __all__ = [
     "chembl_format",
     "clinicaltrials_fetch",
     "clinicaltrials_format",
-    "hf_fetch",
+    "huggingface_fetch",
     "hf_format",
-    "hf_search",
-    "hf_info",
-    "hf_download_file",
+    "huggingface_search",
+    "huggingface_info",
+    "huggingface_download_file",
 ]
 
 # EOF

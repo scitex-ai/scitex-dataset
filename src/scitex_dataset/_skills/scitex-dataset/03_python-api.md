@@ -51,10 +51,10 @@ from scitex_dataset import (
 
 | Symbol | Purpose |
 |---|---|
-| `hf_fetch(query, ...)` | Catalog-style adapter (uses ``search_hub``) |
-| `hf_search(query, ...)` | Live HuggingFace Hub search |
-| `hf_info(repo_id, ...)` | Dataset / model metadata |
-| `hf_download_file(...)` | Single-file download |
+| `huggingface_fetch(query, ...)` | Catalog-style adapter (uses ``search_hub``) |
+| `huggingface_search(query, ...)` | Live HuggingFace Hub search |
+| `huggingface_info(repo_id, ...)` | Dataset / model metadata |
+| `huggingface_download_file(...)` | Single-file download |
 
 For ``snapshot_download``-style fetch by repo_id, use
 ``scitex_dataset.general.huggingface.fetch_dataset``.
@@ -65,7 +65,7 @@ For ``snapshot_download``-style fetch by repo_id, use
 |---|---|
 | `db_build(sources=None)` | Build / refresh the local SQLite + FTS5 index |
 | `db_search(query, ...)` | Offline search |
-| `db_stats()` | Index statistics |
+| `db_show_stats()` | Index statistics |
 
 ## Domain submodules
 
@@ -85,7 +85,7 @@ Each domain module exposes per-source modules with the standard
 
 ```python
 from scitex_dataset import (
-    openneuro_fetch, hf_search, filter_results, list_sources,
+    openneuro_fetch, huggingface_search, filter_results, list_sources,
     db_build, db_search,
 )
 
@@ -96,7 +96,7 @@ records = openneuro_fetch(max_datasets=200)
 top = filter_results(records, modality="eeg", min_subjects=20, sort_by="downloads", limit=10)
 
 # 3) Search HF Hub directly.
-hf_hits = hf_search("biology", limit=20)
+hf_hits = huggingface_search("biology", limit=20)
 
 # 4) Build the local index and query offline.
 db_build()

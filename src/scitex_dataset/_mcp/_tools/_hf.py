@@ -11,7 +11,7 @@ def register_hf_tools(mcp) -> None:
     """Register ``dataset_hf_*`` tools (alias-named ``dataset_huggingface_*`` also accepted)."""
 
     @mcp.tool()
-    def hf_fetch(
+    def huggingface_fetch(
         repo_id: str,
         local_dir: Optional[str] = None,
         repo_type: str = "dataset",
@@ -31,7 +31,7 @@ def register_hf_tools(mcp) -> None:
         return str(result_path)
 
     @mcp.tool()
-    def hf_search(
+    def huggingface_search(
         query: str,
         limit: int = 50,
     ) -> List[Dict[str, Any]]:
@@ -41,7 +41,7 @@ def register_hf_tools(mcp) -> None:
         return search_hub(query=query, limit=limit)
 
     @mcp.tool()
-    def hf_info(
+    def huggingface_info(
         repo_id: str,
         repo_type: str = "dataset",
     ) -> Dict[str, Any]:
@@ -51,7 +51,7 @@ def register_hf_tools(mcp) -> None:
         return dataset_info(repo_id=repo_id, repo_type=repo_type)
 
     @mcp.tool()
-    def hf_download_file(
+    def huggingface_download_file(
         repo_id: str,
         filename: str,
         local_dir: Optional[str] = None,

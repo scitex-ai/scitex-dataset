@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 
 
 def register_db_tools(mcp) -> None:
-    """Register ``db_build / db_search / db_stats``."""
+    """Register ``db_build / db_search / db_show_stats``."""
 
     @mcp.tool()
     def db_build(
@@ -39,7 +39,7 @@ def register_db_tools(mcp) -> None:
         limit: int = 20,
         order_by: str = "downloads",
     ) -> List[Dict[str, Any]]:
-        """Search the local SQLite + FTS5 dataset index — full-text query plus structured filters (source, modality, subject range, downloads, readme presence). Offline; requires ``db_build`` first. ``source`` accepts any of the 10 catalog sources (openneuro, dandi, physionet, zenodo, figshare, openml, geo, chembl, moleculenet, clinicaltrials). For HuggingFace, use ``hf_search`` (live API)."""
+        """Search the local SQLite + FTS5 dataset index — full-text query plus structured filters (source, modality, subject range, downloads, readme presence). Offline; requires ``db_build`` first. ``source`` accepts any of the 10 catalog sources (openneuro, dandi, physionet, zenodo, figshare, openml, geo, chembl, moleculenet, clinicaltrials). For HuggingFace, use ``huggingface_search`` (live API)."""
         from ... import database
 
         return database.search(
@@ -55,7 +55,7 @@ def register_db_tools(mcp) -> None:
         )
 
     @mcp.tool()
-    def db_stats() -> Dict[str, Any]:
+    def db_show_stats() -> Dict[str, Any]:
         """Report local dataset-index health — per-source counts, total rows, DB path, size on disk, last build time. Use whenever the user asks "how many datasets are indexed?", "is the cache fresh?", or is diagnosing an empty ``db_search``."""
         from ... import database
 

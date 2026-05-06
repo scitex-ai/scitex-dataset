@@ -61,43 +61,39 @@ pip install scitex-dataset
 
 > **MCP support**: `pip install scitex-dataset[mcp]`
 
-## Quick Start
-
-```python
-from scitex_dataset import fetch_all_datasets, format_dataset
-
-# Fetch datasets from OpenNeuro
-datasets = fetch_all_datasets(max_datasets=10)
-
-# Format for analysis
-for ds in datasets:
-    formatted = format_dataset(ds)
-    print(f"{formatted['id']}: {formatted['name']} ({formatted['n_subjects']} subjects)")
-```
-
-## Four Interfaces
+## Four Interfaces (Python · CLI · MCP · Skills)
 
 <details open>
-<summary><strong>Python API</strong></summary>
+<summary><strong>Python API ⭐⭐⭐ (primary)</strong></summary>
 
 <br>
 
 ```python
-from scitex_dataset import fetch_all_datasets, format_dataset, search_datasets, sort_datasets
-from scitex_dataset import neuroscience, database
+from scitex_dataset import (
+    openneuro_fetch, dandi_fetch, huggingface_search,
+    filter_results, list_sources,
+    db_build, db_search,
+)
 
-# Fetch from specific sources
-datasets = fetch_all_datasets(max_datasets=100)                    # OpenNeuro
-dandi_ds = neuroscience.dandi.fetch_all_datasets(max_datasets=50)  # DANDI
-phys_ds = neuroscience.physionet.fetch_all_datasets()              # PhysioNet
+# 1) Fetch from any catalog source — every <src>_fetch alias is 1:1
+#    with the dataset_<src>_fetch MCP tool.
+records = openneuro_fetch(max_datasets=100)
 
-# Search and filter
-eeg_datasets = search_datasets(datasets, modality="eeg", min_subjects=20)
-popular = sort_datasets(datasets, by="downloads", descending=True)
+# 2) Filter + rank in memory.
+top = filter_results(
+    records, modality="eeg", min_subjects=20,
+    sort_by="downloads", limit=10,
+)
 
-# Local database for fast full-text search
-database.build()                                        # index all sources
-results = database.search("alzheimer EEG", min_subjects=20)
+# 3) Search HuggingFace Hub directly (on-demand, no catalog).
+hf_hits = huggingface_search("biology", limit=20)
+
+# 4) Build the local SQLite + FTS5 index for offline queries.
+db_build()
+db_search("Alzheimer EEG")
+
+# 5) Inspect the supported sources.
+list_sources()["count"]   # 11
 ```
 
 > **[Full API reference](https://scitex-dataset.readthedocs.io/en/latest/api/scitex_dataset.html)**
@@ -105,7 +101,7 @@ results = database.search("alzheimer EEG", min_subjects=20)
 </details>
 
 <details>
-<summary><strong>CLI Commands</strong></summary>
+<summary><strong>CLI Commands ⭐⭐</strong></summary>
 
 <br>
 
@@ -137,7 +133,7 @@ scitex-dataset mcp list-tools -v            # list MCP tools
 </details>
 
 <details>
-<summary><strong>MCP Server</strong></summary>
+<summary><strong>MCP Server ⭐⭐</strong></summary>
 
 <br>
 
@@ -148,8 +144,8 @@ AI agents can discover and query neuroscience datasets autonomously.
 | `dataset_list_sources` | Enumerate the 11 supported sources |
 | `dataset_filter_results` | Filter / rank fetched datasets in memory |
 | `dataset_<src>_fetch` | One per catalog source (10 total) |
-| `dataset_hf_fetch` / `_search` / `_info` / `_download_file` | HuggingFace family |
-| `dataset_db_build` / `_search` / `_stats` | Local SQLite + FTS5 index |
+| `dataset_huggingface_fetch` / `_search` / `_info` / `_download_file` | HuggingFace family |
+| `dataset_db_build` / `_search` / `_show_stats` | Local SQLite + FTS5 index |
 | `dataset_skills_list` / `_get` | Bundled skill pages |
 
 <sub><b>Table 2.</b> 21 MCP tools across catalog fetchers, HuggingFace,
@@ -165,7 +161,7 @@ scitex-dataset mcp start
 </details>
 
 <details>
-<summary><strong>Skills</strong></summary>
+<summary><strong>Skills ⭐</strong></summary>
 
 <br>
 

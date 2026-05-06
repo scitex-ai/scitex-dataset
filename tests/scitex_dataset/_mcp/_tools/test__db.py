@@ -21,4 +21,4 @@ def test_register_db_tools_attaches_three():
 
     m = _M()
     register_db_tools(m)
-    assert set(m.tools) == {"db_build", "db_search", "db_stats"}
+    assert set(m.tools) == {"db_build", "db_search", "db_show_stats"}

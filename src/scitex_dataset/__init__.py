@@ -52,10 +52,10 @@ from ._api import (  # noqa: F401
     dandi_fetch,
     figshare_fetch,
     geo_fetch,
-    hf_download_file,
-    hf_fetch,
-    hf_info,
-    hf_search,
+    huggingface_download_file,
+    huggingface_fetch,
+    huggingface_info,
+    huggingface_search,
     moleculenet_fetch,
     openml_fetch,
     openneuro_fetch,
@@ -65,7 +65,7 @@ from ._api import (  # noqa: F401
 
 # DB-level aliases for MCP parity (`dataset_db_*` tools).
 from .database import build as db_build  # noqa: F401
-from .database import get_stats as db_stats  # noqa: F401
+from .database import get_stats as db_show_stats  # noqa: F401
 from .database import search as db_search  # noqa: F401
 
 # Convenience exports from neuroscience.openneuro (primary source)
@@ -109,7 +109,7 @@ __all__ = [
     "database",
     "db_build",
     "db_search",
-    "db_stats",
+    "db_show_stats",
     # Convenience (OpenNeuro)
     "fetch_datasets",
     "fetch_all_datasets",
@@ -131,10 +131,10 @@ __all__ = [
     "chembl_fetch",
     "clinicaltrials_fetch",
     # HuggingFace family
-    "hf_fetch",
-    "hf_search",
-    "hf_info",
-    "hf_download_file",
+    "huggingface_fetch",
+    "huggingface_search",
+    "huggingface_info",
+    "huggingface_download_file",
 ]
 
 # EOF
