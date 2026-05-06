@@ -42,6 +42,12 @@ MCP server support:
 
     pip install scitex-dataset[mcp]
 
+HuggingFace Hub support:
+
+.. code-block:: bash
+
+    pip install scitex-dataset[huggingface]
+
 SciTeX integration:
 
 .. code-block:: bash
