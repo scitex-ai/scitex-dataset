@@ -711,3 +711,4 @@ GITIGNORED/
 # general/01_ecosystem_07_license-and-cla); they must NOT appear in the
 # repo tree on the develop / main branch.
 /signatures/
+docs/sphinx/_build/
