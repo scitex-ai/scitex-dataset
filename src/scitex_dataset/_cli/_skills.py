@@ -132,9 +132,12 @@ def skills_install(dest: str, force: bool, dry_run: bool, yes: bool):
                 err=True,
             )
             raise SystemExit(2)
-        if not yes and not click.confirm(f"Overwrite {dest_path}?"):
-            click.echo("aborted.")
-            raise SystemExit(1)
+        if not yes:
+            click.echo(
+                f"error: {dest_path} exists; pass --yes/-y to overwrite.",
+                err=True,
+            )
+            raise SystemExit(2)
         shutil.rmtree(dest_path)
     shutil.copytree(src, dest_path)
     click.echo(f"Installed {len(pages)} skill pages to {dest_path}")

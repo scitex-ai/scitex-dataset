@@ -48,9 +48,6 @@ mcp = [
 huggingface = [
     "huggingface-hub>=0.20.0",
 ]
-scitex = [
-    "scitex>=2.0.0",
-]
 dev = [
     "fastmcp>=2.0.0",
     "huggingface-hub>=0.20.0",
@@ -68,7 +65,7 @@ docs = [
 ]
 all = [
     "scitex-dataset[mcp]",
-    "scitex-dataset[scitex]",
+    "scitex-dataset[huggingface]",
 ]
 
 [project.scripts]
