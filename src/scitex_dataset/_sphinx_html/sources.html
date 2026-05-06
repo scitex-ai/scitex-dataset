@@ -56,13 +56,11 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#basic-usage">Basic Usage</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#fetching-a-dataset">Fetching a Dataset</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#searching-for-datasets">Searching for Datasets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#listing-sources">Listing Sources</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#next-steps">Next Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#python-api">Python API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#cli">CLI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#next-steps">Next steps</a></li>
 </ul>
 </li>
 </ul>
@@ -70,20 +68,41 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="cli_reference.html#global-options">Global Options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cli_reference.html#commands">Commands</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="cli_reference.html#fetch">fetch</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli_reference.html#search">search</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli_reference.html#sources">sources</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli_reference.html#info">info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html#domains-and-datasets">Domains and Datasets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_reference.html#common-fetch-flags">Common <code class="docutils literal notranslate"><span class="pre">fetch</span></code> flags</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html#examples">Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_reference.html#catalog-fetch-10-sources">Catalog fetch (10 sources)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_reference.html#huggingface">HuggingFace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_reference.html#local-sqlite-fts5-index">Local SQLite + FTS5 index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_reference.html#skills">Skills</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_reference.html#introspection-completion">Introspection / completion</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html#configuration-precedence">Configuration precedence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html#legacy-aliases-hidden-exit-code-2">Legacy aliases (hidden, exit code 2)</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Data Sources</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#openneuro">OpenNeuro</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#dandi-archive">DANDI Archive</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#physionet">PhysioNet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#zenodo">Zenodo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#catalog-sources">Catalog sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#openneuro-bids-neuroimaging">OpenNeuro — BIDS neuroimaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dandi-archive-nwb-neurophysiology">DANDI Archive — NWB neurophysiology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#physionet-physiological-waveforms">PhysioNet — physiological waveforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#zenodo-general-scientific-data-cern">Zenodo — general scientific data (CERN)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#figshare-research-data-sharing">Figshare — research data sharing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openml-ml-datasets-and-benchmarks">OpenML — ML datasets and benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moleculenet-molecular-ml-benchmarks">MoleculeNet — molecular ML benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geo-gene-expression-omnibus-ncbi">GEO — Gene Expression Omnibus (NCBI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#chembl-bioactivity-ebi">ChEMBL — bioactivity (EBI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clinicaltrials-gov-interventional-observational-studies">ClinicalTrials.gov — interventional / observational studies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#on-demand-source">On-demand source</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#huggingface-hub">HuggingFace Hub</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#local-database">Local Database</a></li>
 </ul>
 </li>
 </ul>
@@ -192,77 +211,144 @@
              
   <section id="data-sources">
 <h1>Data Sources<a class="headerlink" href="#data-sources" title="Link to this heading"></a></h1>
-<p>scitex-dataset supports multiple neuroscience data repositories.</p>
-<section id="openneuro">
-<h2>OpenNeuro<a class="headerlink" href="#openneuro" title="Link to this heading"></a></h2>
-<p><a class="reference external" href="https://openneuro.org">OpenNeuro</a> is a free and open platform for sharing MRI, MEG, EEG, iEEG, and other neuroimaging data.</p>
-<p><strong>Format</strong>: BIDS (Brain Imaging Data Structure)</p>
-<p><strong>Data Types</strong>:</p>
-<ul class="simple">
-<li><p>MRI (structural, functional, diffusion)</p></li>
-<li><p>MEG</p></li>
-<li><p>EEG</p></li>
-<li><p>iEEG</p></li>
-<li><p>PET</p></li>
-</ul>
-<p><strong>Usage</strong>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>fetch<span class="w"> </span>ds000001<span class="w"> </span>--source<span class="w"> </span>openneuro
+<p>scitex-dataset supports <strong>10 catalog sources</strong> (enumerable, indexable
+into the local SQLite + FTS5 cache) plus <strong>HuggingFace Hub</strong>
+(on-demand fetch by repo_id; not indexed by default).</p>
+<p>Every catalog source exposes the same two callables —
+<code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code> and <code class="docutils literal notranslate"><span class="pre">format_dataset(ds)</span></code> — so they plug
+uniformly into <code class="docutils literal notranslate"><span class="pre">scitex_dataset.database.build()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">scitex_dataset.search.search_datasets()</span></code>. The package also
+re-exports each as <code class="docutils literal notranslate"><span class="pre">&lt;src&gt;_fetch</span></code> at the top level.</p>
+<section id="catalog-sources">
+<h2>Catalog sources<a class="headerlink" href="#catalog-sources" title="Link to this heading"></a></h2>
+<section id="openneuro-bids-neuroimaging">
+<h3>OpenNeuro — BIDS neuroimaging<a class="headerlink" href="#openneuro-bids-neuroimaging" title="Link to this heading"></a></h3>
+<p><a class="reference external" href="https://openneuro.org">OpenNeuro</a> — MRI / fMRI / EEG / MEG / iEEG / PET in BIDS.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span>openneuro<span class="w"> </span>fetch<span class="w"> </span>-n<span class="w"> </span><span class="m">50</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch</span>
-<span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;ds000001&quot;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">&quot;openneuro&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="dandi-archive">
-<h2>DANDI Archive<a class="headerlink" href="#dandi-archive" title="Link to this heading"></a></h2>
-<p><a class="reference external" href="https://dandiarchive.org">DANDI</a> is a platform for publishing and sharing neurophysiology data.</p>
-<p><strong>Format</strong>: NWB (Neurodata Without Borders)</p>
-<p><strong>Data Types</strong>:</p>
-<ul class="simple">
-<li><p>Electrophysiology</p></li>
-<li><p>Calcium imaging</p></li>
-<li><p>Behavioral data</p></li>
-<li><p>Optogenetics</p></li>
-</ul>
-<p><strong>Usage</strong>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>fetch<span class="w"> </span><span class="m">000003</span><span class="w"> </span>--source<span class="w"> </span>dandi
-</pre></div>
-</div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch</span>
-<span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;000003&quot;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">&quot;dandi&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">openneuro_fetch</span>
+<span class="n">records</span> <span class="o">=</span> <span class="n">openneuro_fetch</span><span class="p">(</span><span class="n">max_datasets</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="physionet">
-<h2>PhysioNet<a class="headerlink" href="#physionet" title="Link to this heading"></a></h2>
-<p><a class="reference external" href="https://physionet.org">PhysioNet</a> provides open access to large collections of physiological and clinical data.</p>
-<p><strong>Data Types</strong>:</p>
-<ul class="simple">
-<li><p>ECG/EKG</p></li>
-<li><p>EEG</p></li>
-<li><p>Blood pressure</p></li>
-<li><p>Respiration</p></li>
-</ul>
-<p><strong>Usage</strong>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>fetch<span class="w"> </span>mimic3wdb<span class="w"> </span>--source<span class="w"> </span>physionet
+<section id="dandi-archive-nwb-neurophysiology">
+<h3>DANDI Archive — NWB neurophysiology<a class="headerlink" href="#dandi-archive-nwb-neurophysiology" title="Link to this heading"></a></h3>
+<p><a class="reference external" href="https://dandiarchive.org">DANDI</a> — electrophysiology + ophys, NWB-format.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span>dandi<span class="w"> </span>fetch<span class="w"> </span>-v
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch</span>
-<span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;mimic3wdb&quot;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">&quot;physionet&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">dandi_fetch</span>
+<span class="n">records</span> <span class="o">=</span> <span class="n">dandi_fetch</span><span class="p">(</span><span class="n">max_datasets</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="zenodo">
-<h2>Zenodo<a class="headerlink" href="#zenodo" title="Link to this heading"></a></h2>
-<p><a class="reference external" href="https://zenodo.org">Zenodo</a> is a general-purpose open repository for research data.</p>
-<p><strong>Data Types</strong>: Various (filter by neuroscience community)</p>
-<p><strong>Usage</strong>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>fetch<span class="w"> </span><span class="m">1234567</span><span class="w"> </span>--source<span class="w"> </span>zenodo
+<section id="physionet-physiological-waveforms">
+<h3>PhysioNet — physiological waveforms<a class="headerlink" href="#physionet-physiological-waveforms" title="Link to this heading"></a></h3>
+<p><a class="reference external" href="https://physionet.org">PhysioNet</a> — ECG, EEG, EMG, MIMIC, sleep / arrhythmia studies.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span>physionet<span class="w"> </span>fetch
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch</span>
-<span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;1234567&quot;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">&quot;zenodo&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">physionet_fetch</span>
+<span class="n">records</span> <span class="o">=</span> <span class="n">physionet_fetch</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="zenodo-general-scientific-data-cern">
+<h3>Zenodo — general scientific data (CERN)<a class="headerlink" href="#zenodo-general-scientific-data-cern" title="Link to this heading"></a></h3>
+<p><a class="reference external" href="https://zenodo.org">Zenodo</a> — research data, software, publications.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span>zenodo<span class="w"> </span>fetch<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;neural network&quot;</span><span class="w"> </span>-n<span class="w"> </span><span class="m">20</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">zenodo_fetch</span>
+<span class="n">records</span> <span class="o">=</span> <span class="n">zenodo_fetch</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;neural network&quot;</span><span class="p">,</span> <span class="n">max_datasets</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="figshare-research-data-sharing">
+<h3>Figshare — research data sharing<a class="headerlink" href="#figshare-research-data-sharing" title="Link to this heading"></a></h3>
+<p><a class="reference external" href="https://figshare.com">Figshare</a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span>figshare<span class="w"> </span>fetch<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;biology&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="openml-ml-datasets-and-benchmarks">
+<h3>OpenML — ML datasets and benchmarks<a class="headerlink" href="#openml-ml-datasets-and-benchmarks" title="Link to this heading"></a></h3>
+<p><a class="reference external" href="https://www.openml.org">OpenML</a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span>openml<span class="w"> </span>fetch<span class="w"> </span>-n<span class="w"> </span><span class="m">100</span>
+</pre></div>
+</div>
+</section>
+<section id="moleculenet-molecular-ml-benchmarks">
+<h3>MoleculeNet — molecular ML benchmarks<a class="headerlink" href="#moleculenet-molecular-ml-benchmarks" title="Link to this heading"></a></h3>
+<p><a class="reference external" href="https://moleculenet.org">MoleculeNet</a> — BBBP, ClinTox, Tox21, ESOL, FreeSolv, …</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>pharmacology<span class="w"> </span>moleculenet<span class="w"> </span>fetch
+</pre></div>
+</div>
+</section>
+<section id="geo-gene-expression-omnibus-ncbi">
+<h3>GEO — Gene Expression Omnibus (NCBI)<a class="headerlink" href="#geo-gene-expression-omnibus-ncbi" title="Link to this heading"></a></h3>
+<p><a class="reference external" href="https://www.ncbi.nlm.nih.gov/geo/">GEO</a> — RNA-seq, microarray, GSE / GDS series.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>biology<span class="w"> </span>geo<span class="w"> </span>fetch
+</pre></div>
+</div>
+</section>
+<section id="chembl-bioactivity-ebi">
+<h3>ChEMBL — bioactivity (EBI)<a class="headerlink" href="#chembl-bioactivity-ebi" title="Link to this heading"></a></h3>
+<p><a class="reference external" href="https://www.ebi.ac.uk/chembl/">ChEMBL</a> — IC50 / Ki / EC50 assays.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>pharmacology<span class="w"> </span>chembl<span class="w"> </span>fetch
+</pre></div>
+</div>
+</section>
+<section id="clinicaltrials-gov-interventional-observational-studies">
+<h3>ClinicalTrials.gov — interventional / observational studies<a class="headerlink" href="#clinicaltrials-gov-interventional-observational-studies" title="Link to this heading"></a></h3>
+<p><a class="reference external" href="https://clinicaltrials.gov">ClinicalTrials.gov</a> — NIH study registry.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>medical<span class="w"> </span>clinicaltrials<span class="w"> </span>fetch
+</pre></div>
+</div>
+</section>
+</section>
+<section id="on-demand-source">
+<h2>On-demand source<a class="headerlink" href="#on-demand-source" title="Link to this heading"></a></h2>
+<section id="huggingface-hub">
+<h3>HuggingFace Hub<a class="headerlink" href="#huggingface-hub" title="Link to this heading"></a></h3>
+<p><a class="reference external" href="https://huggingface.co">HuggingFace Hub</a> has no bounded catalog, so
+the standard <code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code> adapter calls
+<code class="docutils literal notranslate"><span class="pre">search_hub(query=&quot;&quot;,</span> <span class="pre">limit=1000)</span></code>. Three workflows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">hf_search</span><span class="p">,</span> <span class="n">hf_info</span><span class="p">,</span> <span class="n">hf_fetch</span>
+
+<span class="c1"># 1) Search the live catalog.</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">hf_search</span><span class="p">(</span><span class="s2">&quot;biology&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+
+<span class="c1"># 2) Inspect a specific repo.</span>
+<span class="n">info</span> <span class="o">=</span> <span class="n">hf_info</span><span class="p">(</span><span class="s2">&quot;Anthropic/BioMysteryBench-full&quot;</span><span class="p">)</span>
+
+<span class="c1"># 3) Snapshot-download (gated repos auto-resolve HF_TOKEN /</span>
+<span class="c1">#    HF_TOKEN_PATH / ~/.bash.d/secrets/access_tokens/huggingface.txt).</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset.general.huggingface</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_dataset</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">fetch_dataset</span><span class="p">(</span>
+    <span class="s2">&quot;Anthropic/BioMysteryBench-full&quot;</span><span class="p">,</span>
+    <span class="n">local_dir</span><span class="o">=</span><span class="s2">&quot;/data/gpfs/projects/punim2354/biomysterybench&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>CLI mirror:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">scitex</span><span class="o">-</span><span class="n">dataset</span> <span class="n">general</span> <span class="n">huggingface</span> <span class="p">(</span><span class="n">fetch</span> <span class="o">|</span> <span class="n">search</span> <span class="o">|</span> <span class="n">info</span> <span class="o">|</span> <span class="n">download</span><span class="o">-</span><span class="n">file</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To opt HuggingFace into the local index explicitly (capped at 1000 items):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">db_build</span>
+<span class="n">db_build</span><span class="p">(</span><span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;huggingface&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="local-database">
+<h2>Local Database<a class="headerlink" href="#local-database" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">db_build</span><span class="p">,</span> <span class="n">db_search</span><span class="p">,</span> <span class="n">db_stats</span>
+<span class="n">db_build</span><span class="p">()</span>                    <span class="c1"># Build / refresh (catalog sources only)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">db_search</span><span class="p">(</span><span class="s2">&quot;EEG&quot;</span><span class="p">)</span>    <span class="c1"># Offline FTS5 search</span>
+<span class="n">db_stats</span><span class="p">()</span>                    <span class="c1"># Per-source counts, size, last-build time</span>
 </pre></div>
 </div>
 </section>

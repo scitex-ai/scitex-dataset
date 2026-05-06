@@ -53,13 +53,11 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#basic-usage">Basic Usage</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../quickstart.html#fetching-a-dataset">Fetching a Dataset</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../quickstart.html#searching-for-datasets">Searching for Datasets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../quickstart.html#listing-sources">Listing Sources</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#next-steps">Next Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#python-api">Python API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#cli">CLI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#next-steps">Next steps</a></li>
 </ul>
 </li>
 </ul>
@@ -67,20 +65,41 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#global-options">Global Options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#commands">Commands</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#fetch">fetch</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#search">search</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#sources">sources</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#info">info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#domains-and-datasets">Domains and Datasets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#common-fetch-flags">Common <code class="docutils literal notranslate"><span class="pre">fetch</span></code> flags</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#examples">Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#catalog-fetch-10-sources">Catalog fetch (10 sources)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#huggingface">HuggingFace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#local-sqlite-fts5-index">Local SQLite + FTS5 index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#skills">Skills</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#introspection-completion">Introspection / completion</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#configuration-precedence">Configuration precedence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#legacy-aliases-hidden-exit-code-2">Legacy aliases (hidden, exit code 2)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sources.html">Data Sources</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../sources.html#openneuro">OpenNeuro</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../sources.html#dandi-archive">DANDI Archive</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../sources.html#physionet">PhysioNet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../sources.html#zenodo">Zenodo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sources.html#catalog-sources">Catalog sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#openneuro-bids-neuroimaging">OpenNeuro — BIDS neuroimaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#dandi-archive-nwb-neurophysiology">DANDI Archive — NWB neurophysiology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#physionet-physiological-waveforms">PhysioNet — physiological waveforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#zenodo-general-scientific-data-cern">Zenodo — general scientific data (CERN)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#figshare-research-data-sharing">Figshare — research data sharing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#openml-ml-datasets-and-benchmarks">OpenML — ML datasets and benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#moleculenet-molecular-ml-benchmarks">MoleculeNet — molecular ML benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#geo-gene-expression-omnibus-ncbi">GEO — Gene Expression Omnibus (NCBI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#chembl-bioactivity-ebi">ChEMBL — bioactivity (EBI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#clinicaltrials-gov-interventional-observational-studies">ClinicalTrials.gov — interventional / observational studies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sources.html#on-demand-source">On-demand source</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#huggingface-hub">HuggingFace Hub</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sources.html#local-database">Local Database</a></li>
 </ul>
 </li>
 </ul>
