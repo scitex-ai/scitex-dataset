@@ -64,21 +64,9 @@
 <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#global-options">Global Options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#domains-and-datasets">Domains and Datasets</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#common-fetch-flags">Common <code class="docutils literal notranslate"><span class="pre">fetch</span></code> flags</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#examples">Examples</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#catalog-fetch-10-sources">Catalog fetch (10 sources)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#huggingface">HuggingFace</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#local-sqlite-fts5-index">Local SQLite + FTS5 index</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#skills">Skills</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../cli_reference.html#introspection-completion">Introspection / completion</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#configuration-precedence">Configuration precedence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#legacy-aliases-hidden-exit-code-2">Legacy aliases (hidden, exit code 2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#live-command-tree">Live command tree</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sources.html">Data Sources</a><ul>
@@ -108,7 +96,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../api/scitex_dataset.html">scitex_dataset API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.db_build"><code class="docutils literal notranslate"><span class="pre">db_build()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.db_search"><code class="docutils literal notranslate"><span class="pre">db_search()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.db_stats"><code class="docutils literal notranslate"><span class="pre">db_stats()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.db_show_stats"><code class="docutils literal notranslate"><span class="pre">db_show_stats()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
@@ -126,10 +114,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.geo_fetch"><code class="docutils literal notranslate"><span class="pre">geo_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.chembl_fetch"><code class="docutils literal notranslate"><span class="pre">chembl_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.clinicaltrials_fetch"><code class="docutils literal notranslate"><span class="pre">clinicaltrials_fetch()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.hf_fetch"><code class="docutils literal notranslate"><span class="pre">hf_fetch()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.hf_search"><code class="docutils literal notranslate"><span class="pre">hf_search()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.hf_info"><code class="docutils literal notranslate"><span class="pre">hf_info()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.hf_download_file"><code class="docutils literal notranslate"><span class="pre">hf_download_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_fetch"><code class="docutils literal notranslate"><span class="pre">huggingface_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_search"><code class="docutils literal notranslate"><span class="pre">huggingface_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
@@ -297,7 +285,37 @@
     <span class="n">max_datasets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch all datasets from OpenNeuro with pagination.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch every dataset record from OpenNeuro by paginating GraphQL.</span>
+
+<span class="sd">    Walks the public ``crn/graphql`` endpoint with cursor-based</span>
+<span class="sd">    pagination until exhausted (or ``max_datasets`` is reached). Use</span>
+<span class="sd">    ``format_dataset`` to project each raw record into the package&#39;s</span>
+<span class="sd">    common dataset schema.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    batch_size : int, default 100</span>
+<span class="sd">        Records per HTTP request. The OpenNeuro server caps this; the</span>
+<span class="sd">        function does not validate the upper bound.</span>
+<span class="sd">    max_datasets : int, optional</span>
+<span class="sd">        Stop after this many records. ``None`` (default) fetches the</span>
+<span class="sd">        entire catalog.</span>
+<span class="sd">    logger : logging.Logger, optional</span>
+<span class="sd">        If provided, HTTP and GraphQL errors are logged. Errors are</span>
+<span class="sd">        otherwise silent (the function returns whatever it has so far).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[dict]</span>
+<span class="sd">        Raw GraphQL ``node`` dicts, in catalog order. Pass each through</span>
+<span class="sd">        ``format_dataset`` for the normalized schema.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; records = fetch_all_datasets(max_datasets=10)</span>
+<span class="sd">    &gt;&gt;&gt; len(records) &lt;= 10</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">all_datasets</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">cursor</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -344,7 +362,26 @@
 <a class="viewcode-back" href="../../../api/scitex_dataset.html#scitex_dataset.format_dataset">[docs]</a>
 <span class="nd">@supports_return_as</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">format_dataset</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract and format dataset information from raw GraphQL response.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Project a raw OpenNeuro GraphQL node into the common dataset schema.</span>
+
+<span class="sd">    Every catalog source exposes ``format_dataset`` returning the same</span>
+<span class="sd">    shape so they can plug into ``database.build`` and</span>
+<span class="sd">    ``search.search_datasets`` uniformly.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    node : dict</span>
+<span class="sd">        A single ``edges[].node`` element from the OpenNeuro GraphQL</span>
+<span class="sd">        response (the ``draft`` / ``analytics`` keys are read; missing</span>
+<span class="sd">        fields fall back to ``None`` / 0).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Normalized record with keys: ``id, name, n_subjects,</span>
+<span class="sd">        modalities, tasks, size_gb, downloads, views, readme,</span>
+<span class="sd">        license, doi, url, source``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">draft</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;draft&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
     <span class="n">description</span> <span class="o">=</span> <span class="n">draft</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
     <span class="n">summary</span> <span class="o">=</span> <span class="n">draft</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;summary&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>

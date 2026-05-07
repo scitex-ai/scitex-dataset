@@ -66,21 +66,9 @@
 <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#global-options">Global Options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#domains-and-datasets">Domains and Datasets</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../cli_reference.html#common-fetch-flags">Common <code class="docutils literal notranslate"><span class="pre">fetch</span></code> flags</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#examples">Examples</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../cli_reference.html#catalog-fetch-10-sources">Catalog fetch (10 sources)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../cli_reference.html#huggingface">HuggingFace</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../cli_reference.html#local-sqlite-fts5-index">Local SQLite + FTS5 index</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../cli_reference.html#skills">Skills</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../cli_reference.html#introspection-completion">Introspection / completion</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#configuration-precedence">Configuration precedence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#legacy-aliases-hidden-exit-code-2">Legacy aliases (hidden, exit code 2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#live-command-tree">Live command tree</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../sources.html">Data Sources</a><ul>
@@ -110,7 +98,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">scitex_dataset API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.db_build"><code class="docutils literal notranslate"><span class="pre">db_build()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.db_search"><code class="docutils literal notranslate"><span class="pre">db_search()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.db_stats"><code class="docutils literal notranslate"><span class="pre">db_stats()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.db_show_stats"><code class="docutils literal notranslate"><span class="pre">db_show_stats()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
@@ -128,10 +116,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.geo_fetch"><code class="docutils literal notranslate"><span class="pre">geo_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.chembl_fetch"><code class="docutils literal notranslate"><span class="pre">chembl_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.clinicaltrials_fetch"><code class="docutils literal notranslate"><span class="pre">clinicaltrials_fetch()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.hf_fetch"><code class="docutils literal notranslate"><span class="pre">hf_fetch()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.hf_search"><code class="docutils literal notranslate"><span class="pre">hf_search()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.hf_info"><code class="docutils literal notranslate"><span class="pre">hf_info()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.hf_download_file"><code class="docutils literal notranslate"><span class="pre">hf_download_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.huggingface_fetch"><code class="docutils literal notranslate"><span class="pre">huggingface_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.huggingface_search"><code class="docutils literal notranslate"><span class="pre">huggingface_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
@@ -287,8 +275,8 @@ Default: all sources.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="scitex_dataset.db_stats">
-<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">db_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.db_stats" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="scitex_dataset.db_show_stats">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">db_show_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.db_show_stats" title="Link to this definition"></a></dt>
 <dd><p>Get database statistics.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -314,21 +302,60 @@ Default: all sources.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="scitex_dataset.fetch_all_datasets">
 <span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">fetch_all_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_dataset/neuroscience/openneuro.html#fetch_all_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_dataset.fetch_all_datasets" title="Link to this definition"></a></dt>
-<dd><p>Fetch all datasets from OpenNeuro with pagination.</p>
+<dd><p>Fetch every dataset record from OpenNeuro by paginating GraphQL.</p>
+<p>Walks the public <code class="docutils literal notranslate"><span class="pre">crn/graphql</span></code> endpoint with cursor-based
+pagination until exhausted (or <code class="docutils literal notranslate"><span class="pre">max_datasets</span></code> is reached). Use
+<code class="docutils literal notranslate"><span class="pre">format_dataset</span></code> to project each raw record into the package’s
+common dataset schema.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>default 100</em>) – Records per HTTP request. The OpenNeuro server caps this; the
+function does not validate the upper bound.</p></li>
+<li><p><strong>max_datasets</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Stop after this many records. <code class="docutils literal notranslate"><span class="pre">None</span></code> (default) fetches the
+entire catalog.</p></li>
+<li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>logging.Logger</em></a><em>, </em><em>optional</em>) – If provided, HTTP and GraphQL errors are logged. Errors are
+otherwise silent (the function returns whatever it has so far).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Raw GraphQL <code class="docutils literal notranslate"><span class="pre">node</span></code> dicts, in catalog order. Pass each through
+<code class="docutils literal notranslate"><span class="pre">format_dataset</span></code> for the normalized schema.</p>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>]</span></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>]</p>
 </dd>
 </dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">records</span> <span class="o">=</span> <span class="n">fetch_all_datasets</span><span class="p">(</span><span class="n">max_datasets</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">10</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="scitex_dataset.format_dataset">
 <span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">format_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_dataset/neuroscience/openneuro.html#format_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_dataset.format_dataset" title="Link to this definition"></a></dt>
-<dd><p>Extract and format dataset information from raw GraphQL response.</p>
+<dd><p>Project a raw OpenNeuro GraphQL node into the common dataset schema.</p>
+<p>Every catalog source exposes <code class="docutils literal notranslate"><span class="pre">format_dataset</span></code> returning the same
+shape so they can plug into <code class="docutils literal notranslate"><span class="pre">database.build</span></code> and
+<code class="docutils literal notranslate"><span class="pre">search.search_datasets</span></code> uniformly.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – A single <code class="docutils literal notranslate"><span class="pre">edges[].node</span></code> element from the OpenNeuro GraphQL
+response (the <code class="docutils literal notranslate"><span class="pre">draft</span></code> / <code class="docutils literal notranslate"><span class="pre">analytics</span></code> keys are read; missing
+fields fall back to <code class="docutils literal notranslate"><span class="pre">None</span></code> / 0).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Normalized record with keys: <code class="docutils literal notranslate"><span class="pre">id,</span> <span class="pre">name,</span> <span class="pre">n_subjects,</span>
+<span class="pre">modalities,</span> <span class="pre">tasks,</span> <span class="pre">size_gb,</span> <span class="pre">downloads,</span> <span class="pre">views,</span> <span class="pre">readme,</span>
+<span class="pre">license,</span> <span class="pre">doi,</span> <span class="pre">url,</span> <span class="pre">source</span></code>.</p>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -410,12 +437,38 @@ Default: all sources.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="scitex_dataset.openneuro_fetch">
 <span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">openneuro_fetch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.openneuro_fetch" title="Link to this definition"></a></dt>
-<dd><p>Fetch all datasets from OpenNeuro with pagination.</p>
+<dd><p>Fetch every dataset record from OpenNeuro by paginating GraphQL.</p>
+<p>Walks the public <code class="docutils literal notranslate"><span class="pre">crn/graphql</span></code> endpoint with cursor-based
+pagination until exhausted (or <code class="docutils literal notranslate"><span class="pre">max_datasets</span></code> is reached). Use
+<code class="docutils literal notranslate"><span class="pre">format_dataset</span></code> to project each raw record into the package’s
+common dataset schema.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>default 100</em>) – Records per HTTP request. The OpenNeuro server caps this; the
+function does not validate the upper bound.</p></li>
+<li><p><strong>max_datasets</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Stop after this many records. <code class="docutils literal notranslate"><span class="pre">None</span></code> (default) fetches the
+entire catalog.</p></li>
+<li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>logging.Logger</em></a><em>, </em><em>optional</em>) – If provided, HTTP and GraphQL errors are logged. Errors are
+otherwise silent (the function returns whatever it has so far).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Raw GraphQL <code class="docutils literal notranslate"><span class="pre">node</span></code> dicts, in catalog order. Pass each through
+<code class="docutils literal notranslate"><span class="pre">format_dataset</span></code> for the normalized schema.</p>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>]</span></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>]</p>
 </dd>
 </dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">records</span> <span class="o">=</span> <span class="n">fetch_all_datasets</span><span class="p">(</span><span class="n">max_datasets</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">10</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -560,8 +613,8 @@ Default: all sources.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="scitex_dataset.hf_fetch">
-<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">hf_fetch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">_unused</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.hf_fetch" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="scitex_dataset.huggingface_fetch">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">huggingface_fetch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">_unused</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.huggingface_fetch" title="Link to this definition"></a></dt>
 <dd><p>Catalog-style adapter so HuggingFace can plug into <code class="docutils literal notranslate"><span class="pre">database.build</span></code>.</p>
 <p>Unlike OpenNeuro/DANDI/etc., HuggingFace has no bounded catalog —
 <code class="docutils literal notranslate"><span class="pre">query</span></code> is required for meaningful results. Without one this calls
@@ -580,8 +633,8 @@ Default: all sources.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="scitex_dataset.hf_search">
-<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">hf_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.hf_search" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="scitex_dataset.huggingface_search">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">huggingface_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.huggingface_search" title="Link to this definition"></a></dt>
 <dd><p>Search for datasets on HuggingFace.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -601,8 +654,8 @@ id, name, description, likes, downloads, private, gated, etc.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="scitex_dataset.hf_info">
-<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">hf_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repo_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dataset'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.hf_info" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="scitex_dataset.huggingface_info">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">huggingface_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repo_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dataset'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.huggingface_info" title="Link to this definition"></a></dt>
 <dd><p>Get metadata about a HuggingFace dataset or model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -622,8 +675,8 @@ gated, size_gb, created_at, last_modified, etc.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="scitex_dataset.hf_download_file">
-<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">hf_download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repo_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dataset'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.hf_download_file" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="scitex_dataset.huggingface_download_file">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">huggingface_download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repo_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dataset'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.huggingface_download_file" title="Link to this definition"></a></dt>
 <dd><p>Download a single file from a HuggingFace repository.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -864,21 +917,60 @@ Default: all sources.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="scitex_dataset.neuroscience.openneuro.fetch_all_datasets">
 <span class="sig-prename descclassname"><span class="pre">scitex_dataset.neuroscience.openneuro.</span></span><span class="sig-name descname"><span class="pre">fetch_all_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_dataset/neuroscience/openneuro.html#fetch_all_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_dataset.neuroscience.openneuro.fetch_all_datasets" title="Link to this definition"></a></dt>
-<dd><p>Fetch all datasets from OpenNeuro with pagination.</p>
+<dd><p>Fetch every dataset record from OpenNeuro by paginating GraphQL.</p>
+<p>Walks the public <code class="docutils literal notranslate"><span class="pre">crn/graphql</span></code> endpoint with cursor-based
+pagination until exhausted (or <code class="docutils literal notranslate"><span class="pre">max_datasets</span></code> is reached). Use
+<code class="docutils literal notranslate"><span class="pre">format_dataset</span></code> to project each raw record into the package’s
+common dataset schema.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>default 100</em>) – Records per HTTP request. The OpenNeuro server caps this; the
+function does not validate the upper bound.</p></li>
+<li><p><strong>max_datasets</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Stop after this many records. <code class="docutils literal notranslate"><span class="pre">None</span></code> (default) fetches the
+entire catalog.</p></li>
+<li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>logging.Logger</em></a><em>, </em><em>optional</em>) – If provided, HTTP and GraphQL errors are logged. Errors are
+otherwise silent (the function returns whatever it has so far).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Raw GraphQL <code class="docutils literal notranslate"><span class="pre">node</span></code> dicts, in catalog order. Pass each through
+<code class="docutils literal notranslate"><span class="pre">format_dataset</span></code> for the normalized schema.</p>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>]</span></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>]</p>
 </dd>
 </dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">records</span> <span class="o">=</span> <span class="n">fetch_all_datasets</span><span class="p">(</span><span class="n">max_datasets</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">10</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="scitex_dataset.neuroscience.openneuro.format_dataset">
 <span class="sig-prename descclassname"><span class="pre">scitex_dataset.neuroscience.openneuro.</span></span><span class="sig-name descname"><span class="pre">format_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_dataset/neuroscience/openneuro.html#format_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_dataset.neuroscience.openneuro.format_dataset" title="Link to this definition"></a></dt>
-<dd><p>Extract and format dataset information from raw GraphQL response.</p>
+<dd><p>Project a raw OpenNeuro GraphQL node into the common dataset schema.</p>
+<p>Every catalog source exposes <code class="docutils literal notranslate"><span class="pre">format_dataset</span></code> returning the same
+shape so they can plug into <code class="docutils literal notranslate"><span class="pre">database.build</span></code> and
+<code class="docutils literal notranslate"><span class="pre">search.search_datasets</span></code> uniformly.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – A single <code class="docutils literal notranslate"><span class="pre">edges[].node</span></code> element from the OpenNeuro GraphQL
+response (the <code class="docutils literal notranslate"><span class="pre">draft</span></code> / <code class="docutils literal notranslate"><span class="pre">analytics</span></code> keys are read; missing
+fields fall back to <code class="docutils literal notranslate"><span class="pre">None</span></code> / 0).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Normalized record with keys: <code class="docutils literal notranslate"><span class="pre">id,</span> <span class="pre">name,</span> <span class="pre">n_subjects,</span>
+<span class="pre">modalities,</span> <span class="pre">tasks,</span> <span class="pre">size_gb,</span> <span class="pre">downloads,</span> <span class="pre">views,</span> <span class="pre">readme,</span>
+<span class="pre">license,</span> <span class="pre">doi,</span> <span class="pre">url,</span> <span class="pre">source</span></code>.</p>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>

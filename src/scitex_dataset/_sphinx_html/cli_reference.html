@@ -67,21 +67,9 @@
 <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CLI Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#global-options">Global Options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#domains-and-datasets">Domains and Datasets</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#common-fetch-flags">Common <code class="docutils literal notranslate"><span class="pre">fetch</span></code> flags</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#catalog-fetch-10-sources">Catalog fetch (10 sources)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#huggingface">HuggingFace</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#local-sqlite-fts5-index">Local SQLite + FTS5 index</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#skills">Skills</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#introspection-completion">Introspection / completion</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="#configuration-precedence">Configuration precedence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#legacy-aliases-hidden-exit-code-2">Legacy aliases (hidden, exit code 2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#live-command-tree">Live command tree</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Data Sources</a><ul>
@@ -111,7 +99,7 @@
 <li class="toctree-l1"><a class="reference internal" href="api/scitex_dataset.html">scitex_dataset API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.db_build"><code class="docutils literal notranslate"><span class="pre">db_build()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.db_search"><code class="docutils literal notranslate"><span class="pre">db_search()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.db_stats"><code class="docutils literal notranslate"><span class="pre">db_stats()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.db_show_stats"><code class="docutils literal notranslate"><span class="pre">db_show_stats()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
@@ -129,10 +117,10 @@
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.geo_fetch"><code class="docutils literal notranslate"><span class="pre">geo_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.chembl_fetch"><code class="docutils literal notranslate"><span class="pre">chembl_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.clinicaltrials_fetch"><code class="docutils literal notranslate"><span class="pre">clinicaltrials_fetch()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.hf_fetch"><code class="docutils literal notranslate"><span class="pre">hf_fetch()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.hf_search"><code class="docutils literal notranslate"><span class="pre">hf_search()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.hf_info"><code class="docutils literal notranslate"><span class="pre">hf_info()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.hf_download_file"><code class="docutils literal notranslate"><span class="pre">hf_download_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.huggingface_fetch"><code class="docutils literal notranslate"><span class="pre">huggingface_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.huggingface_search"><code class="docutils literal notranslate"><span class="pre">huggingface_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
@@ -218,100 +206,10 @@
 </div>
 <p>See <code class="docutils literal notranslate"><span class="pre">general/03_interface_02_cli/02_subcommand-structure-noun-verb</span></code> in
 the SciTeX skills for the underlying convention.</p>
-<section id="global-options">
-<h2>Global Options<a class="headerlink" href="#global-options" title="Link to this heading"></a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>--help
-scitex-dataset<span class="w"> </span>--version
-scitex-dataset<span class="w"> </span>--help-recursive<span class="w">       </span><span class="c1"># Show help for every subcommand</span>
-scitex-dataset<span class="w"> </span>--json<span class="w">                 </span><span class="c1"># Emit machine-readable JSON</span>
-</pre></div>
-</div>
-</section>
-<section id="domains-and-datasets">
-<h2>Domains and Datasets<a class="headerlink" href="#domains-and-datasets" title="Link to this heading"></a></h2>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>neuroscience:
-  - openneuro       BIDS neuroimaging
-  - dandi           NWB neurophysiology
-  - physionet       EEG / ECG / waveforms
-general:
-  - zenodo          general scientific repository
-  - figshare        research data sharing
-  - openml          ML datasets
-  - huggingface     ML datasets/models (on-demand)
-biology:
-  - geo             Gene Expression Omnibus
-pharmacology:
-  - moleculenet     molecular ML benchmarks
-  - chembl          bioactivity database
-medical:
-  - clinicaltrials  clinical study registry
-</pre></div>
-</div>
-<p>Every dataset exposes a <code class="docutils literal notranslate"><span class="pre">fetch</span></code> action with the standard flags
-<code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">/</span> <span class="pre">-o</span> <span class="pre">/</span> <span class="pre">-v</span></code> (and <code class="docutils literal notranslate"><span class="pre">-q</span></code> where the upstream API supports a query).
-HuggingFace adds <code class="docutils literal notranslate"><span class="pre">search</span></code> / <code class="docutils literal notranslate"><span class="pre">info</span></code> / <code class="docutils literal notranslate"><span class="pre">download-file</span></code>.</p>
-<section id="common-fetch-flags">
-<h3>Common <code class="docutils literal notranslate"><span class="pre">fetch</span></code> flags<a class="headerlink" href="#common-fetch-flags" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">-n,</span> <span class="pre">--max-datasets</span> <span class="pre">INT</span></code>  Max records (<code class="docutils literal notranslate"><span class="pre">0</span></code> = no limit, default <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-o,</span> <span class="pre">--output</span> <span class="pre">PATH</span></code>       Write JSON to file (default: stdout summary)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-v,</span> <span class="pre">--verbose</span></code>           Per-record progress</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-q,</span> <span class="pre">--query</span> <span class="pre">STRING</span></code>      Search query (zenodo / figshare / huggingface)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-b,</span> <span class="pre">--batch-size</span> <span class="pre">INT</span></code>    Batch size (openneuro)</p></li>
-</ul>
-</section>
-</section>
-<section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
-<section id="catalog-fetch-10-sources">
-<h3>Catalog fetch (10 sources)<a class="headerlink" href="#catalog-fetch-10-sources" title="Link to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span>openneuro<span class="w"> </span>fetch<span class="w"> </span>-n<span class="w"> </span><span class="m">50</span><span class="w"> </span>-o<span class="w"> </span>openneuro.json
-scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span>dandi<span class="w"> </span>fetch<span class="w"> </span>-v
-scitex-dataset<span class="w"> </span>general<span class="w"> </span>zenodo<span class="w"> </span>fetch<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;neuroscience&quot;</span><span class="w"> </span>-n<span class="w"> </span><span class="m">20</span>
-scitex-dataset<span class="w"> </span>pharmacology<span class="w"> </span>chembl<span class="w"> </span>fetch
-scitex-dataset<span class="w"> </span>medical<span class="w"> </span>clinicaltrials<span class="w"> </span>fetch<span class="w"> </span>-n<span class="w"> </span><span class="m">100</span>
-</pre></div>
-</div>
-</section>
-<section id="huggingface">
-<h3>HuggingFace<a class="headerlink" href="#huggingface" title="Link to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span>huggingface<span class="w"> </span>fetch<span class="w"> </span>Anthropic/BioMysteryBench-full
-scitex-dataset<span class="w"> </span>general<span class="w"> </span>huggingface<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;biology&quot;</span><span class="w"> </span>-n<span class="w"> </span><span class="m">20</span><span class="w"> </span>--json
-scitex-dataset<span class="w"> </span>general<span class="w"> </span>huggingface<span class="w"> </span>info<span class="w"> </span>Anthropic/BioMysteryBench-full
-scitex-dataset<span class="w"> </span>general<span class="w"> </span>huggingface<span class="w"> </span>download-file<span class="w"> </span>Anthropic/BioMysteryBench-full<span class="w"> </span>README.md
-</pre></div>
-</div>
-</section>
-<section id="local-sqlite-fts5-index">
-<h3>Local SQLite + FTS5 index<a class="headerlink" href="#local-sqlite-fts5-index" title="Link to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>db<span class="w"> </span>build<span class="w">                    </span><span class="c1"># index all catalog sources</span>
-scitex-dataset<span class="w"> </span>db<span class="w"> </span>build<span class="w"> </span>-s<span class="w"> </span>openneuro<span class="w"> </span>-s<span class="w"> </span>dandi
-scitex-dataset<span class="w"> </span>db<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alzheimer EEG&quot;</span>
-scitex-dataset<span class="w"> </span>db<span class="w"> </span>show-stats
-scitex-dataset<span class="w"> </span>db<span class="w"> </span>clear
-</pre></div>
-</div>
-</section>
-<section id="skills">
-<h3>Skills<a class="headerlink" href="#skills" title="Link to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>skills<span class="w"> </span>list
-scitex-dataset<span class="w"> </span>skills<span class="w"> </span>get<span class="w"> </span>04_cli-reference
-scitex-dataset<span class="w"> </span>skills<span class="w"> </span>install<span class="w"> </span>--dry-run
-</pre></div>
-</div>
-</section>
-<section id="introspection-completion">
-<h3>Introspection / completion<a class="headerlink" href="#introspection-completion" title="Link to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>list-python-apis
-scitex-dataset<span class="w"> </span>mcp<span class="w"> </span>list-tools
-<span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>scitex-dataset<span class="w"> </span>print-tab-completion<span class="w"> </span>--shell<span class="w"> </span>bash<span class="k">)</span><span class="s2">&quot;</span>
-</pre></div>
-</div>
-</section>
-</section>
 <section id="configuration-precedence">
 <h2>Configuration precedence<a class="headerlink" href="#configuration-precedence" title="Link to this heading"></a></h2>
-<p>Resolution chain (highest first), per <code class="docutils literal notranslate"><span class="pre">general/01_ecosystem_06_local-state-directories</span></code>:</p>
+<p>Resolution chain (highest first), per
+<code class="docutils literal notranslate"><span class="pre">general/01_ecosystem_06_local-state-directories</span></code>:</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--config</span> <span class="pre">&lt;path&gt;</span></code> CLI flag</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">$SCITEX_DATASET_CONFIG</span></code> env var</p></li>
@@ -353,7 +251,14 @@ logs) live under <code class="docutils literal notranslate"><span class="pre">&l
 </tbody>
 </table>
 <p>The legacy commands print a redirect message and exit with status 2.</p>
-<p>For the full subtree, run <code class="docutils literal notranslate"><span class="pre">scitex-dataset</span> <span class="pre">--help-recursive</span></code>.</p>
+</section>
+<section id="live-command-tree">
+<h2>Live command tree<a class="headerlink" href="#live-command-tree" title="Link to this heading"></a></h2>
+<p>The full subcommand tree below is rendered directly from the click
+group via <a class="reference external" href="https://sphinx-click.readthedocs.io/">sphinx-click</a>, so it
+cannot drift from <code class="docutils literal notranslate"><span class="pre">scitex-dataset</span> <span class="pre">--help-recursive</span></code>. Per the SciTeX
+Sphinx spec (audit code PS128), hand-written subcommand prose is
+forbidden here.</p>
 </section>
 </section>
 

@@ -64,21 +64,9 @@
 <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../cli_reference.html">CLI Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../cli_reference.html#global-options">Global Options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../cli_reference.html#domains-and-datasets">Domains and Datasets</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../cli_reference.html#common-fetch-flags">Common <code class="docutils literal notranslate"><span class="pre">fetch</span></code> flags</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../cli_reference.html#examples">Examples</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../cli_reference.html#catalog-fetch-10-sources">Catalog fetch (10 sources)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../cli_reference.html#huggingface">HuggingFace</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../cli_reference.html#local-sqlite-fts5-index">Local SQLite + FTS5 index</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../cli_reference.html#skills">Skills</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../cli_reference.html#introspection-completion">Introspection / completion</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="../../cli_reference.html#configuration-precedence">Configuration precedence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../cli_reference.html#legacy-aliases-hidden-exit-code-2">Legacy aliases (hidden, exit code 2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli_reference.html#live-command-tree">Live command tree</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../sources.html">Data Sources</a><ul>
@@ -108,7 +96,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../api/scitex_dataset.html">scitex_dataset API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.db_build"><code class="docutils literal notranslate"><span class="pre">db_build()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.db_search"><code class="docutils literal notranslate"><span class="pre">db_search()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.db_stats"><code class="docutils literal notranslate"><span class="pre">db_stats()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.db_show_stats"><code class="docutils literal notranslate"><span class="pre">db_show_stats()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
@@ -126,10 +114,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.geo_fetch"><code class="docutils literal notranslate"><span class="pre">geo_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.chembl_fetch"><code class="docutils literal notranslate"><span class="pre">chembl_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.clinicaltrials_fetch"><code class="docutils literal notranslate"><span class="pre">clinicaltrials_fetch()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.hf_fetch"><code class="docutils literal notranslate"><span class="pre">hf_fetch()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.hf_search"><code class="docutils literal notranslate"><span class="pre">hf_search()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.hf_info"><code class="docutils literal notranslate"><span class="pre">hf_info()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.hf_download_file"><code class="docutils literal notranslate"><span class="pre">hf_download_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.huggingface_fetch"><code class="docutils literal notranslate"><span class="pre">huggingface_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.huggingface_search"><code class="docutils literal notranslate"><span class="pre">huggingface_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
@@ -400,56 +388,32 @@
     <span class="n">ctx</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
 
-<span class="c1"># Shell tab-completion (legacy + canonical)</span>
-<span class="nd">@main</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
-    <span class="s2">&quot;completion&quot;</span><span class="p">,</span>
-    <span class="n">hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ignore_unknown_options&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;allow_extra_args&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-<span class="p">)</span>
-<span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">completion_deprecated</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(deprecated) Renamed to ``print-tab-completion``.&quot;&quot;&quot;</span>
-    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span>
-        <span class="s2">&quot;error: `scitex-dataset completion` was renamed to &quot;</span>
-        <span class="s2">&quot;`scitex-dataset print-tab-completion`.&quot;</span><span class="p">,</span>
-        <span class="n">err</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">ctx</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="c1"># §1a: install-shell-completion + print-shell-completion (canonical leaves).</span>
+<span class="c1"># Replaces the legacy `completion` and `print-tab-completion` commands; the</span>
+<span class="c1"># attach helper also registers hidden deprecated aliases for those names.</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dev._cli._completion</span><span class="w"> </span><span class="kn">import</span> <span class="n">attach_shell_completion</span>
 
-
-<span class="nd">@main</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;print-tab-completion&quot;</span><span class="p">)</span>
-<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--shell&quot;</span><span class="p">,</span>
-    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;zsh&quot;</span><span class="p">,</span> <span class="s2">&quot;fish&quot;</span><span class="p">]),</span>
-    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Target shell. Default: bash.&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">print_tab_completion</span><span class="p">(</span><span class="n">shell</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print tab-completion script to stdout.</span>
-
-<span class="sd">    \b</span>
-<span class="sd">    Example:</span>
-<span class="sd">      $ eval &quot;$(scitex-dataset print-tab-completion --shell bash)&quot;</span>
-<span class="sd">      $ scitex-dataset print-tab-completion --shell zsh</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-
-    <span class="n">env</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;_SCITEX_DATASET_COMPLETE&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">shell</span><span class="si">}</span><span class="s2">_source&quot;</span><span class="p">}</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;scitex_dataset._cli&quot;</span><span class="p">],</span>
-        <span class="n">env</span><span class="o">=</span><span class="p">{</span><span class="o">**</span><span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">),</span> <span class="o">**</span><span class="n">env</span><span class="p">},</span>
-        <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+    <span class="n">attach_shell_completion</span><span class="p">(</span><span class="n">main</span><span class="p">,</span> <span class="n">prog_name</span><span class="o">=</span><span class="s2">&quot;scitex-dataset&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">pass</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 
 <span class="c1"># EOF</span>
+
+
+<span class="c1"># audit §4 — inject version into root --help</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">_v</span>
+    <span class="n">main</span><span class="o">.</span><span class="n">help</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;scitex-dataset (v</span><span class="si">{</span><span class="n">_v</span><span class="p">(</span><span class="s1">&#39;scitex-dataset&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">) — &quot;</span>
+        <span class="o">+</span> <span class="p">(</span><span class="n">main</span><span class="o">.</span><span class="n">help</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+    <span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="k">pass</span>
 </pre></div>
 
            </div>
