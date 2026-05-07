@@ -1,0 +1,18 @@
+INFO: Fetching datasets from OpenNeuro...
+INFO: HTTP Request: POST https://openneuro.org/crn/graphql "HTTP/1.1 200 OK"
+INFO: Total: 100 datasets
+INFO: MRI datasets: 84
+INFO: MRI with 20+ subjects and readme: 44
+INFO: Datasets mentioning 'memory': 13
+INFO: Top 10 most downloaded:
+INFO:   ds000102: 20631 downloads - ds000102
+INFO:   ds001226: 3913 downloads - BTC_preop
+INFO:   ds000117: 3345 downloads - Multisubject, multimodal face processing
+INFO:   ds000174: 2988 downloads - T1-weighted structural MRI study of cannabis users at baseline and 3 years follow up
+INFO:   ds000002: 2944 downloads - Classification learning
+INFO:   ds000001: 2487 downloads - ds001
+INFO:   ds000105: 2233 downloads - Visual object recognition
+INFO:   ds000221: 1932 downloads - ds000221_R1.0.0
+INFO:   ds000201: 1708 downloads - ds000201_R1.0.5
+INFO:   ds000171: 1608 downloads - Neural Processing of Emotional Musical and Nonmusical Stimuli in Depression
+INFO: Saved large MRI datasets to /home/ywatanabe/proj/scitex-dataset/examples/02_search_datasets_out/mri_large_datasets.json

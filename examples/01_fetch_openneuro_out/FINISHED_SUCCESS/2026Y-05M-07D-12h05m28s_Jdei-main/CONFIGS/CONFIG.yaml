@@ -1,0 +1,11 @@
+ID: 2026Y-05M-07D-12h05m28s_Jdei
+PID: 409014
+START_DATETIME: 2026-05-07 12:05:28.068833
+FILE: /home/ywatanabe/proj/scitex-dataset/examples/01_fetch_openneuro.py
+SDIR_OUT: /home/ywatanabe/proj/scitex-dataset/examples/01_fetch_openneuro_out
+SDIR_RUN: 
+    /home/ywatanabe/proj/scitex-dataset/examples/01_fetch_openneuro_out/RUNNING/2026Y-05M-07D-12h05m28s_Jdei-main
+ARGS: {}
+EXIT_STATUS: 0
+END_DATETIME: 2026-05-07 12:05:36.830529
+RUN_DURATION: 00:00:08

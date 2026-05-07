@@ -1,0 +1,20 @@
+INFO: Fetching datasets from OpenNeuro...
+INFO: HTTP Request: POST https://openneuro.org/crn/graphql "HTTP/1.1 200 OK"
+INFO: Formatting 100 datasets...
+INFO: First 5 datasets:
+INFO:   ds000001: ds001
+INFO:     Subjects: 16, Modality: mri
+INFO:     Downloads: 2487
+INFO:   ds000002: Classification learning
+INFO:     Subjects: 17, Modality: /participants
+INFO:     Downloads: 2944
+INFO:   ds000003: Rhyme judgment
+INFO:     Subjects: 13, Modality: mri
+INFO:     Downloads: 834
+INFO:   ds000005: ds000005
+INFO:     Subjects: 16, Modality: /participants
+INFO:     Downloads: 1001
+INFO:   ds000006: ds000006
+INFO:     Subjects: 14, Modality: /participants
+INFO:     Downloads: 176
+INFO: Saved to /home/ywatanabe/proj/scitex-dataset/examples/01_fetch_openneuro_out/openneuro_datasets.json

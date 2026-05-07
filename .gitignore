@@ -77,6 +77,13 @@ mgmt
 **/FINISHED
 **/202?Y-*
 
+# Demo artefacts under examples/<n>_out/ are exempt — PS503 requires
+# FINISHED_SUCCESS/<session_id>/ to be committed.
+!examples/*_out/FINISHED_SUCCESS/
+!examples/*_out/FINISHED_SUCCESS/**
+!examples/*_out/FINISHED_SUCCESS/**/202?Y-*
+!examples/*_out/FINISHED_SUCCESS/**/202?Y-*/**
+
 # TODO
 **/TODO.md
 
