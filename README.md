@@ -61,6 +61,32 @@ pip install scitex-dataset
 
 > **MCP support**: `pip install scitex-dataset[mcp]`
 
+## Architecture
+
+```
+scitex_dataset/
+├── __init__.py            ← public API (every *_fetch + filter/list_sources)
+├── __main__.py            ← `python -m scitex_dataset`
+├── _api.py                ← unified fetch dispatch
+├── _sources.py            ← source registry (id → fetcher)
+├── _config.py             ← PriorityConfig (cli > yaml > env > default)
+├── _branding.py           ← CLI banner / version helpers
+├── database.py            ← local SQLite cache (db_build / db_search)
+├── search.py              ← cross-source search + filter_results
+├── neuroscience/          ← openneuro, dandi, physionet
+├── biology/               ← geo, figshare, zenodo
+├── medical/               ← clinicaltrials.gov
+├── pharmacology/          ← chembl, moleculenet
+├── general/               ← huggingface, openml
+├── _cli/                  ← `scitex-dataset` CLI (Click groups)
+├── _mcp/                  ← MCP server tools
+└── _skills/               ← agent-facing skill files
+```
+
+Sub-packages group fetchers by scientific domain; each leaf module
+exposes a `<source>_fetch(query, ...)` entry point registered in
+`_sources.py` and re-exported from `__init__.py`.
+
 ## Four Interfaces (Python · CLI · MCP · Skills)
 
 <details open>
@@ -181,6 +207,21 @@ scitex-dev skills export --package scitex-dataset  # Export to Claude Code
 | `mcp-tools` | MCP tools for AI agents |
 
 </details>
+
+## Demo
+
+```mermaid
+flowchart LR
+    Q["query<br/>'eeg motor imagery'"] --> A["scitex_dataset"]
+    A --> N["neuroscience/<br/>openneuro · dandi · physionet"]
+    A --> B["biology/<br/>geo · figshare · zenodo"]
+    A --> M["medical/<br/>clinicaltrials.gov"]
+    A --> P["pharmacology/<br/>chembl · moleculenet"]
+    A --> G["general/<br/>huggingface · openml"]
+    N & B & M & P & G --> F["filter_results()"]
+    F --> D["local SQLite cache<br/>(database.py)"]
+    D --> O["DataFrame · JSON · download"]
+```
 
 ## Part of SciTeX
 
