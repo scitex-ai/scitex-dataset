@@ -9,7 +9,7 @@
 <p align="center"><b>Unified access to neuroscience and scientific datasets</b></p>
 
 <p align="center">
-  <a href="https://scitex-dataset.readthedocs.io/">Full Documentation</a> · <code>pip install scitex-dataset</code>
+  <a href="https://scitex-dataset.readthedocs.io/">Full Documentation</a> · <code>uv pip install scitex-dataset[all]</code>
 </p>
 
 <!-- scitex-badges:start -->
