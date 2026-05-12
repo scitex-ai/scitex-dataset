@@ -1,0 +1,8 @@
+# scitex-dataset — local audit config consumed by
+# `scitex-dev ecosystem audit-project`.
+
+audit:
+  # Files allowed at the repo root in addition to PS-103's defaults.
+  root-whitelist:
+    files:
+      - codecov.yml  # Codecov per-repo config; see codecov.yml at root.

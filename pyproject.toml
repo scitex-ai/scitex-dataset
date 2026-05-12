@@ -101,8 +101,10 @@ select = ["E", "F", "W", "I"]
 ignore = ["E501"]
 
 [tool.coverage.run]
-source = ["src/scitex_dataset"]
+parallel = true
+source = ["scitex_dataset"]
 branch = true
+concurrency = ["multiprocessing", "thread"]
 omit = ["*/__pycache__/*", "*/tests/*"]
 
 [tool.coverage.report]
