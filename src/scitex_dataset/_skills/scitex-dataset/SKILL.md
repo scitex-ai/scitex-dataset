@@ -19,8 +19,6 @@ interfaces:
 
 # scitex-dataset
 
-> **Interfaces:** Python ⭐⭐⭐ (primary) · CLI ⭐ · MCP ⭐⭐ · Skills ⭐⭐ · Hook — · HTTP —
-
 Unified cross-repository dataset discovery — one API over OpenNeuro,
 DANDI, PhysioNet, Zenodo, Figshare, OpenML, MoleculeNet, GEO, ChEMBL,
 ClinicalTrials.gov (catalog-indexed) plus HuggingFace Hub (on-demand
