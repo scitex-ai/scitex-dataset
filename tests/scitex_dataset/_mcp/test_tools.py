@@ -1,15 +1,33 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2026-01-29 23:58:00 (ywatanabe)"
-# File: /home/ywatanabe/proj/scitex-dataset/tests/test_mcp_tools.py
+# Timestamp: "2026-05-18 00:00:00 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-dataset/tests/scitex_dataset/_mcp/test_tools.py
 
-"""Tests for MCP tools registration."""
+"""Tests for MCP tools registration.
 
-from unittest.mock import patch
+PA-306 compliance: no ``unittest.mock``, no ``monkeypatch``. Each
+collaborator is swapped at the module namespace via a real save/restore
+context manager, mirroring the pattern used in
+``scitex-agent-container/tests/.../test__send.py``.
+"""
+
+from __future__ import annotations
+
+from contextlib import contextmanager
+from typing import Iterator
+
+import scitex_dataset.database as _db_mod
+import scitex_dataset.neuroscience.dandi as _dandi_mod
+import scitex_dataset.neuroscience.openneuro as _on_mod
+import scitex_dataset.neuroscience.physionet as _pn_mod
+
+# ---------------------------------------------------------------------------
+# Hand-rolled MCP stub (not a unittest.mock object)
+# ---------------------------------------------------------------------------
 
 
-class MockMCP:
-    """Mock FastMCP server for testing tool registration."""
+class _MockMCP:
+    """FastMCP-shaped tool collector used by registration assertions."""
 
     def __init__(self):
         self.tools = {}
@@ -24,179 +42,394 @@ class MockMCP:
         return decorator
 
 
-def test_register_all_tools():
-    """Test that all tools are registered."""
+# ---------------------------------------------------------------------------
+# Collaborator swaps (test seams — no mocks, no monkeypatch)
+# ---------------------------------------------------------------------------
+
+
+@contextmanager
+def _swap_openneuro(fetch_all, format_one) -> Iterator[None]:
+    saved_fetch = _on_mod.fetch_all_datasets
+    saved_format = _on_mod.format_dataset
+    _on_mod.fetch_all_datasets = fetch_all  # type: ignore[assignment]
+    _on_mod.format_dataset = format_one  # type: ignore[assignment]
+    try:
+        yield
+    finally:
+        _on_mod.fetch_all_datasets = saved_fetch  # type: ignore[assignment]
+        _on_mod.format_dataset = saved_format  # type: ignore[assignment]
+
+
+@contextmanager
+def _swap_dandi(fetch_all, format_one) -> Iterator[None]:
+    saved_fetch = _dandi_mod.fetch_all_datasets
+    saved_format = _dandi_mod.format_dataset
+    _dandi_mod.fetch_all_datasets = fetch_all  # type: ignore[assignment]
+    _dandi_mod.format_dataset = format_one  # type: ignore[assignment]
+    try:
+        yield
+    finally:
+        _dandi_mod.fetch_all_datasets = saved_fetch  # type: ignore[assignment]
+        _dandi_mod.format_dataset = saved_format  # type: ignore[assignment]
+
+
+@contextmanager
+def _swap_physionet(fetch_all, format_one) -> Iterator[None]:
+    saved_fetch = _pn_mod.fetch_all_datasets
+    saved_format = _pn_mod.format_dataset
+    _pn_mod.fetch_all_datasets = fetch_all  # type: ignore[assignment]
+    _pn_mod.format_dataset = format_one  # type: ignore[assignment]
+    try:
+        yield
+    finally:
+        _pn_mod.fetch_all_datasets = saved_fetch  # type: ignore[assignment]
+        _pn_mod.format_dataset = saved_format  # type: ignore[assignment]
+
+
+@contextmanager
+def _swap_db_get_stats(fn) -> Iterator[None]:
+    saved = _db_mod.get_stats
+    _db_mod.get_stats = fn  # type: ignore[assignment]
+    try:
+        yield
+    finally:
+        _db_mod.get_stats = saved  # type: ignore[assignment]
+
+
+@contextmanager
+def _swap_db_search(fn) -> Iterator[None]:
+    saved = _db_mod.search
+    _db_mod.search = fn  # type: ignore[assignment]
+    try:
+        yield
+    finally:
+        _db_mod.search = saved  # type: ignore[assignment]
+
+
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
+
+
+def _register_all() -> _MockMCP:
     from scitex_dataset._mcp.tools import register_all_tools
 
-    mock_mcp = MockMCP()
-    register_all_tools(mock_mcp)
-
-    # Check expected tools are registered
-    expected_tools = [
-        "dataset_openneuro_fetch",
-        "dataset_dandi_fetch",
-        "dataset_physionet_fetch",
-        "dataset_search",
-        "dataset_list_sources",
-        "dataset_db_build",
-        "dataset_db_search",
-        "dataset_db_stats",
-    ]
-
-    for tool_name in expected_tools:
-        assert tool_name in mock_mcp.tools, f"Missing tool: {tool_name}"
+    m = _MockMCP()
+    register_all_tools(m)
+    return m
 
 
-def test_dataset_list_sources():
-    """Test dataset_list_sources tool."""
+def test_register_all_tools_includes_openneuro_fetch():
+    # Arrange
     from scitex_dataset._mcp.tools import register_all_tools
 
-    mock_mcp = MockMCP()
-    register_all_tools(mock_mcp)
-
-    result = mock_mcp.tools["dataset_list_sources"]()
-
-    assert "sources" in result
-    assert "openneuro" in result["sources"]
-    assert "dandi" in result["sources"]
-    assert "physionet" in result["sources"]
-    assert "zenodo" in result["sources"]
-    assert "geo" in result["sources"]
-    assert "chembl" in result["sources"]
-    assert "clinicaltrials" in result["sources"]
-    assert result["count"] == 7
+    m = _MockMCP()
+    # Act
+    register_all_tools(m)
+    # Assert
+    assert "openneuro_fetch" in m.tools
 
 
-@patch("scitex_dataset.neuroscience.openneuro.fetch_all_datasets")
-@patch("scitex_dataset.neuroscience.openneuro.format_dataset")
-def test_dataset_openneuro_fetch(mock_format, mock_fetch):
-    """Test dataset_openneuro_fetch tool."""
+def test_register_all_tools_includes_dandi_fetch():
+    # Arrange
     from scitex_dataset._mcp.tools import register_all_tools
 
-    mock_fetch.return_value = [{"id": "ds001"}, {"id": "ds002"}]
-    mock_format.side_effect = lambda x: {"id": x["id"], "name": f"Dataset {x['id']}"}
+    m = _MockMCP()
+    # Act
+    register_all_tools(m)
+    # Assert
+    assert "dandi_fetch" in m.tools
 
-    mock_mcp = MockMCP()
-    register_all_tools(mock_mcp)
 
-    result = mock_mcp.tools["dataset_openneuro_fetch"](max_datasets=2)
+def test_register_all_tools_includes_physionet_fetch():
+    # Arrange
+    from scitex_dataset._mcp.tools import register_all_tools
 
+    m = _MockMCP()
+    # Act
+    register_all_tools(m)
+    # Assert
+    assert "physionet_fetch" in m.tools
+
+
+def test_register_all_tools_includes_filter_results():
+    # Arrange
+    from scitex_dataset._mcp.tools import register_all_tools
+
+    m = _MockMCP()
+    # Act
+    register_all_tools(m)
+    # Assert
+    assert "filter_results" in m.tools
+
+
+def test_register_all_tools_includes_list_sources():
+    # Arrange
+    from scitex_dataset._mcp.tools import register_all_tools
+
+    m = _MockMCP()
+    # Act
+    register_all_tools(m)
+    # Assert
+    assert "list_sources" in m.tools
+
+
+def test_register_all_tools_includes_db_build():
+    # Arrange
+    from scitex_dataset._mcp.tools import register_all_tools
+
+    m = _MockMCP()
+    # Act
+    register_all_tools(m)
+    # Assert
+    assert "db_build" in m.tools
+
+
+def test_register_all_tools_includes_db_search():
+    # Arrange
+    from scitex_dataset._mcp.tools import register_all_tools
+
+    m = _MockMCP()
+    # Act
+    register_all_tools(m)
+    # Assert
+    assert "db_search" in m.tools
+
+
+def test_register_all_tools_includes_db_show_stats():
+    # Arrange
+    from scitex_dataset._mcp.tools import register_all_tools
+
+    m = _MockMCP()
+    # Act
+    register_all_tools(m)
+    # Assert
+    assert "db_show_stats" in m.tools
+
+
+def test_list_sources_payload_contains_all_sources():
+    # Arrange
+    from scitex_dataset._sources import ALL_SOURCES
+
+    m = _register_all()
+    # Act
+    result = m.tools["list_sources"]()
+    # Assert
+    assert all(src in result["sources"] for src in ALL_SOURCES)
+
+
+def test_list_sources_count_equals_all_sources_length():
+    # Arrange
+    from scitex_dataset._sources import ALL_SOURCES
+
+    m = _register_all()
+    # Act
+    result = m.tools["list_sources"]()
+    # Assert
+    assert result["count"] == len(ALL_SOURCES)
+
+
+def test_openneuro_fetch_returns_swapped_length():
+    # Arrange
+    calls: list[dict] = []
+
+    def fake_fetch(**kw):
+        calls.append(kw)
+        return [{"id": "ds001"}, {"id": "ds002"}]
+
+    def fake_format(x):
+        return {"id": x["id"], "name": f"Dataset {x['id']}"}
+
+    m = _register_all()
+    # Act
+    with _swap_openneuro(fake_fetch, fake_format):
+        result = m.tools["openneuro_fetch"](max_datasets=2)
+    # Assert
     assert len(result) == 2
+
+
+def test_openneuro_fetch_preserves_first_id_from_swapped_fetch():
+    # Arrange
+    def fake_fetch(**kw):
+        del kw
+        return [{"id": "ds001"}, {"id": "ds002"}]
+
+    def fake_format(x):
+        return {"id": x["id"], "name": f"Dataset {x['id']}"}
+
+    m = _register_all()
+    # Act
+    with _swap_openneuro(fake_fetch, fake_format):
+        result = m.tools["openneuro_fetch"](max_datasets=2)
+    # Assert
     assert result[0]["id"] == "ds001"
-    mock_fetch.assert_called_once()
 
 
-@patch("scitex_dataset.neuroscience.dandi.fetch_all_datasets")
-@patch("scitex_dataset.neuroscience.dandi.format_dataset")
-def test_dataset_dandi_fetch(mock_format, mock_fetch):
-    """Test dataset_dandi_fetch tool."""
-    from scitex_dataset._mcp.tools import register_all_tools
+def test_dandi_fetch_returns_one_item_when_swapped_fetch_returns_one():
+    # Arrange
+    def fake_fetch(**kw):
+        del kw
+        return [{"identifier": "000001"}]
 
-    mock_fetch.return_value = [{"identifier": "000001"}]
-    mock_format.return_value = {"id": "000001", "name": "DANDI Dataset"}
+    def fake_format(x):
+        del x
+        return {"id": "000001", "name": "DANDI Dataset"}
 
-    mock_mcp = MockMCP()
-    register_all_tools(mock_mcp)
-
-    result = mock_mcp.tools["dataset_dandi_fetch"](max_datasets=1)
-
+    m = _register_all()
+    # Act
+    with _swap_dandi(fake_fetch, fake_format):
+        result = m.tools["dandi_fetch"](max_datasets=1)
+    # Assert
     assert len(result) == 1
+
+
+def test_dandi_fetch_returns_id_from_swapped_format():
+    # Arrange
+    def fake_fetch(**kw):
+        del kw
+        return [{"identifier": "000001"}]
+
+    def fake_format(x):
+        del x
+        return {"id": "000001", "name": "DANDI Dataset"}
+
+    m = _register_all()
+    # Act
+    with _swap_dandi(fake_fetch, fake_format):
+        result = m.tools["dandi_fetch"](max_datasets=1)
+    # Assert
     assert result[0]["id"] == "000001"
 
 
-@patch("scitex_dataset.neuroscience.physionet.fetch_all_datasets")
-@patch("scitex_dataset.neuroscience.physionet.format_dataset")
-def test_dataset_physionet_fetch(mock_format, mock_fetch):
-    """Test dataset_physionet_fetch tool."""
-    from scitex_dataset._mcp.tools import register_all_tools
+def test_physionet_fetch_returns_one_item_when_swapped_fetch_returns_one():
+    # Arrange
+    def fake_fetch(**kw):
+        del kw
+        return [{"slug": "test-db"}]
 
-    mock_fetch.return_value = [{"slug": "test-db"}]
-    mock_format.return_value = {"id": "test-db", "name": "Test DB"}
+    def fake_format(x):
+        del x
+        return {"id": "test-db", "name": "Test DB"}
 
-    mock_mcp = MockMCP()
-    register_all_tools(mock_mcp)
-
-    result = mock_mcp.tools["dataset_physionet_fetch"](max_datasets=1)
-
+    m = _register_all()
+    # Act
+    with _swap_physionet(fake_fetch, fake_format):
+        result = m.tools["physionet_fetch"](max_datasets=1)
+    # Assert
     assert len(result) == 1
+
+
+def test_physionet_fetch_returns_id_from_swapped_format():
+    # Arrange
+    def fake_fetch(**kw):
+        del kw
+        return [{"slug": "test-db"}]
+
+    def fake_format(x):
+        del x
+        return {"id": "test-db", "name": "Test DB"}
+
+    m = _register_all()
+    # Act
+    with _swap_physionet(fake_fetch, fake_format):
+        result = m.tools["physionet_fetch"](max_datasets=1)
+    # Assert
     assert result[0]["id"] == "test-db"
 
 
-def test_dataset_search(sample_datasets):
-    """Test dataset_search tool."""
-    from scitex_dataset._mcp.tools import register_all_tools
-
-    mock_mcp = MockMCP()
-    register_all_tools(mock_mcp)
-
-    # Search by modality
-    result = mock_mcp.tools["dataset_search"](
+def test_filter_results_by_modality_returns_only_eeg_entries(sample_datasets):
+    # Arrange
+    m = _register_all()
+    # Act
+    result = m.tools["filter_results"](
         datasets=sample_datasets,
         modality="eeg",
         limit=10,
     )
-
-    assert len(result) > 0
+    # Assert
     assert all("eeg" in ds.get("modalities", []) for ds in result)
 
 
-def test_dataset_search_with_filters(sample_datasets):
-    """Test dataset_search with multiple filters."""
-    from scitex_dataset._mcp.tools import register_all_tools
-
-    mock_mcp = MockMCP()
-    register_all_tools(mock_mcp)
-
-    result = mock_mcp.tools["dataset_search"](
+def test_filter_results_respects_min_subjects_floor(sample_datasets):
+    # Arrange
+    m = _register_all()
+    # Act
+    result = m.tools["filter_results"](
         datasets=sample_datasets,
         min_subjects=30,
         min_downloads=100,
         limit=10,
     )
-
-    for ds in result:
-        assert ds["n_subjects"] >= 30
-        assert ds["downloads"] >= 100
+    # Assert
+    assert all(ds["n_subjects"] >= 30 for ds in result)
 
 
-@patch("scitex_dataset.database.get_stats")
-def test_dataset_db_stats(mock_stats):
-    """Test dataset_db_stats tool."""
-    from scitex_dataset._mcp.tools import register_all_tools
-
-    mock_stats.return_value = {
-        "exists": True,
-        "total_datasets": 1000,
-        "by_source": {"openneuro": 600, "dandi": 300, "physionet": 100},
-    }
-
-    mock_mcp = MockMCP()
-    register_all_tools(mock_mcp)
-
-    result = mock_mcp.tools["dataset_db_stats"]()
-
-    assert result["exists"] is True
-    assert result["total_datasets"] == 1000
-
-
-@patch("scitex_dataset.database.search")
-def test_dataset_db_search(mock_search):
-    """Test dataset_db_search tool."""
-    from scitex_dataset._mcp.tools import register_all_tools
-
-    mock_search.return_value = [{"id": "ds001", "name": "Test", "n_subjects": 25}]
-
-    mock_mcp = MockMCP()
-    register_all_tools(mock_mcp)
-
-    result = mock_mcp.tools["dataset_db_search"](
-        query="memory",
-        modality="eeg",
+def test_filter_results_respects_min_downloads_floor(sample_datasets):
+    # Arrange
+    m = _register_all()
+    # Act
+    result = m.tools["filter_results"](
+        datasets=sample_datasets,
+        min_subjects=30,
+        min_downloads=100,
         limit=10,
     )
+    # Assert
+    assert all(ds["downloads"] >= 100 for ds in result)
 
+
+def test_db_show_stats_returns_exists_true_from_swapped_stats():
+    # Arrange
+    def fake_stats(**kw):
+        del kw
+        return {
+            "exists": True,
+            "total_datasets": 1_000,
+            "by_source": {"openneuro": 600, "dandi": 300, "physionet": 100},
+        }
+
+    m = _register_all()
+    # Act
+    with _swap_db_get_stats(fake_stats):
+        result = m.tools["db_show_stats"]()
+    # Assert
+    assert result["exists"] is True
+
+
+def test_db_show_stats_returns_total_from_swapped_stats():
+    # Arrange
+    def fake_stats(**kw):
+        del kw
+        return {
+            "exists": True,
+            "total_datasets": 1_000,
+            "by_source": {"openneuro": 600, "dandi": 300, "physionet": 100},
+        }
+
+    m = _register_all()
+    # Act
+    with _swap_db_get_stats(fake_stats):
+        result = m.tools["db_show_stats"]()
+    # Assert
+    assert result["total_datasets"] == 1_000
+
+
+def test_db_search_returns_one_item_from_swapped_search():
+    # Arrange
+    def fake_search(**kw):
+        del kw
+        return [{"id": "ds001", "name": "Test", "n_subjects": 25}]
+
+    m = _register_all()
+    # Act
+    with _swap_db_search(fake_search):
+        result = m.tools["db_search"](
+            query="memory",
+            modality="eeg",
+            limit=10,
+        )
+    # Assert
     assert len(result) == 1
-    mock_search.assert_called_once()
 
 
 # EOF

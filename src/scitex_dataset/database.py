@@ -15,25 +15,27 @@ Usage:
 from __future__ import annotations
 
 import json
-import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-from scitex_config._ecosystem import local_state
 from typing import Any, Dict, List, Optional
 
 from scitex_dev.decorators import supports_return_as
 
-# Default database location.
-# Honours $SCITEX_DIR (defaults to ~/.scitex). The legacy location
-# ~/.cache/scitex-dataset/datasets.db is no longer written; users with an
-# existing legacy DB can move it manually.
-DEFAULT_DB_PATH = (
-    Path(os.environ.get("SCITEX_DIR", Path.home() / ".scitex"))
-    / "dataset"
-    / "runtime"
-    / "datasets.db"
-)
+from ._config import runtime_dir
+
+
+def _default_db_path() -> Path:
+    """Resolve the local SQLite path via the SciTeX local-state layout.
+
+    Project scope wins over user scope; ``SCITEX_DIR`` relocates user
+    scope. See ``general/01_ecosystem_06_local-state-directories``.
+    """
+    return runtime_dir() / "datasets.db"
+
+
+# Kept as a property-style accessor; do not freeze at import time.
+DEFAULT_DB_PATH = _default_db_path()
 
 __all__ = [
     "build",
@@ -52,7 +54,7 @@ def get_db_path() -> Path:
 
 def _get_connection(db_path: Optional[Path] = None) -> sqlite3.Connection:
     """Get database connection, creating tables if needed."""
-    path = db_path or DEFAULT_DB_PATH
+    path = db_path or _default_db_path()
     path.parent.mkdir(parents=True, exist_ok=True)
 
     conn = sqlite3.connect(path)
@@ -184,18 +186,12 @@ def build(
         Count of datasets indexed per source.
     """
     if sources is None:
-        sources = [
-            "openneuro",
-            "dandi",
-            "physionet",
-            "zenodo",
-            "figshare",
-            "openml",
-            "geo",
-            "chembl",
-            "moleculenet",
-            "clinicaltrials",
-        ]
+        from ._sources import CATALOG_SOURCES
+
+        # HuggingFace is NOT included by default — its catalog is unbounded
+        # and would dominate the index. Pass `sources=["huggingface", ...]`
+        # explicitly to opt in (uses query="" + max=1000 cap).
+        sources = list(CATALOG_SOURCES)
 
     conn = _get_connection(db_path)
     counts = {}
@@ -225,6 +221,8 @@ def build(
                 from .pharmacology.moleculenet import fetch_all_datasets, format_dataset
             elif source == "clinicaltrials":
                 from .medical.clinicaltrials import fetch_all_datasets, format_dataset
+            elif source == "huggingface":
+                from .general.huggingface import fetch_all_datasets, format_dataset
             else:
                 if logger:
                     logger.warning(f"Unknown source: {source}")
@@ -400,7 +398,7 @@ def get_stats(db_path: Optional[Path] = None) -> Dict[str, Any]:
     dict
         Statistics including counts per source, last build time, etc.
     """
-    path = db_path or DEFAULT_DB_PATH
+    path = db_path or _default_db_path()
 
     if not path.exists():
         return {"exists": False, "message": "Database not built. Run: db.build()"}
@@ -441,7 +439,7 @@ def clear(db_path: Optional[Path] = None) -> bool:
     bool
         True if deleted, False if didn't exist.
     """
-    path = db_path or DEFAULT_DB_PATH
+    path = db_path or _default_db_path()
 
     if path.exists():
         path.unlink()

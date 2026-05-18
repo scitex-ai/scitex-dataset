@@ -1,5 +1,10 @@
 ---
-description: Unified dataset-discovery API across 7 scientific repositories — OpenNeuro + DANDI + PhysioNet (neuroscience, BIDS + NWB), Zenodo + Scientific Data (general), GEO (gene expression), ChEMBL (pharmacology), ClinicalTrials.gov (medical). Public API — `fetch_all_datasets()` / `fetch_datasets()` / `format_dataset()` (OpenNeuro convenience) + `search_datasets()` / `sort_datasets()` (cross-source ranking) + domain submodules `neuroscience`, `general`, `biology`, `pharmacology`, `medical` + `database` (build & query a local unified SQLite index). 11 MCP tools — `dataset_search` (cross-source filter/sort), per-source fetchers `dataset_openneuro_fetch` / `dataset_dandi_fetch` / `dataset_physionet_fetch` / `dataset_geo_fetch` / `dataset_chembl_fetch` / `dataset_clinicaltrials_fetch`, local-db `dataset_db_build` / `dataset_db_search` / `dataset_db_stats`, and `dataset_list_sources`. (Zenodo / Scientific Data are reachable via Python API + CLI; no standalone MCP fetch tool yet.) Drop-in replacement for `openneuro-python`, `dandi` CLI, raw `requests` against the OpenNeuro GraphQL API / PhysioNet / GEO / ChEMBL / ClinicalTrials REST endpoints, `pyzenodo3`, and hand-rolled dataset-scrapers. Use whenever the user asks to "find an EEG dataset", "list BIDS datasets on topic X", "search DANDI for Neuropixels", "get GEO series for Alzheimer's", "find a ChEMBL target / bioassay", "search ClinicalTrials.gov", "index all datasets locally", "cross-search multiple dataset repositories", "sort datasets by subject count / modality", or mentions OpenNeuro, DANDI, PhysioNet, BIDS, NWB, GEO, ChEMBL, ClinicalTrials, Zenodo, Scientific Data.
+name: scitex-dataset
+description: |
+  [WHAT] Unified dataset-discovery API across 11 scientific repositories (10 catalog sources + HuggingFace on-demand).
+  [WHEN] Use when the user asks to "find an EEG dataset", "list BIDS datasets on topic X", "search DANDI for Neuropixels", "get GEO series for Alzheimer's", "find a ChEMBL target / bioassay".
+  [HOW] `import scitex_dataset` then call `fetch_all_datasets()`.
+tags: [scitex-dataset]
 allowed-tools: mcp__scitex__dataset_*
 primary_interface: python
 interfaces:
@@ -9,15 +14,15 @@ interfaces:
   skills: 2
   hook: 0
   http: 0
-name: scitex-dataset
-tags: [scitex-dataset, scitex-package]
 ---
+
 
 # scitex-dataset
 
-> **Interfaces:** Python ⭐⭐⭐ (primary) · CLI ⭐ · MCP ⭐⭐ · Skills ⭐⭐ · Hook — · HTTP —
-
-Unified cross-repository dataset discovery — one API over OpenNeuro, DANDI, PhysioNet, Zenodo, Scientific Data, GEO, ChEMBL, and ClinicalTrials.gov.
+Unified cross-repository dataset discovery — one API over OpenNeuro,
+DANDI, PhysioNet, Zenodo, Figshare, OpenML, MoleculeNet, GEO, ChEMBL,
+ClinicalTrials.gov (catalog-indexed) plus HuggingFace Hub (on-demand
+fetch by repo_id).
 
 ## Installation & import (two equivalent paths)
 
@@ -43,13 +48,17 @@ rule and empirical verification table.
 
 ## Sub-skills
 
-### Core
-- [01_quick-start.md](01_quick-start.md) — Basic usage
-- [02_data-sources.md](02_data-sources.md) — OpenNeuro, DANDI, PhysioNet
+### Mandatory
+- [01_installation.md](01_installation.md) — pip install + extras + verify
+- [02_quick-start.md](02_quick-start.md) — search / fetch / sort
+- [03_python-api.md](03_python-api.md) — Public callables + domain submodules
+- [04_cli-reference.md](04_cli-reference.md) — `scitex-dataset` console entry
 
 ### Workflows
-- [10_cli-reference.md](10_cli-reference.md) — CLI commands
+- [10_cli-reference.md](10_cli-reference.md) — historical CLI notes
 - [11_mcp-tools.md](11_mcp-tools.md) — MCP tools for AI agents
+- [13_quick-start.md](13_quick-start.md) — historical quick-start
+- [14_data-sources.md](14_data-sources.md) — OpenNeuro, DANDI, PhysioNet details
 
 ## CLI
 
@@ -62,14 +71,27 @@ scitex-dataset fetch openneuro ds003104
 
 | Tool | Description |
 |------|-------------|
-| `dataset_search` | Search across all sources |
-| `dataset_openneuro_fetch` | Fetch from OpenNeuro |
-| `dataset_dandi_fetch` | Fetch from DANDI Archive |
-| `dataset_physionet_fetch` | Fetch from PhysioNet |
-| `dataset_db_search` | Search local database |
-| `dataset_db_build` | Build local database |
-| `dataset_db_stats` | Database statistics |
-| `dataset_list_sources` | List available sources |
+| `dataset_list_sources` | Enumerate the 11 supported sources |
+| `dataset_search` | Filter + rank an in-memory list of fetched datasets |
+| `dataset_openneuro_fetch` | Fetch BIDS metadata from OpenNeuro |
+| `dataset_dandi_fetch` | Fetch NWB metadata from DANDI Archive |
+| `dataset_physionet_fetch` | Fetch PhysioNet databases |
+| `dataset_zenodo_fetch` | Fetch Zenodo records (query) |
+| `dataset_figshare_fetch` | Fetch Figshare items (query) |
+| `dataset_openml_fetch` | Fetch OpenML datasets |
+| `dataset_moleculenet_fetch` | Fetch MoleculeNet benchmarks |
+| `dataset_geo_fetch` | Fetch GEO series |
+| `dataset_chembl_fetch` | Fetch ChEMBL bioactivity records |
+| `dataset_clinicaltrials_fetch` | Fetch ClinicalTrials.gov studies |
+| `dataset_hf_fetch` | Snapshot-download a HuggingFace repo |
+| `dataset_hf_search` | Search HuggingFace Hub |
+| `dataset_hf_info` | Get HF dataset/model metadata |
+| `dataset_hf_download_file` | Download one file from an HF repo |
+| `dataset_db_build` | Build/refresh the local SQLite + FTS5 index |
+| `dataset_db_search` | Offline search of the local index |
+| `dataset_db_stats` | Local-index statistics |
+| `dataset_skills_list` | List bundled skill pages |
+| `dataset_skills_get` | Read a bundled skill page by name |
 
 
 ## Environment

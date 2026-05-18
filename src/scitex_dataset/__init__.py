@@ -29,7 +29,9 @@ Usage:
 from __future__ import annotations
 
 try:
-    from importlib.metadata import version as _v, PackageNotFoundError
+    from importlib.metadata import PackageNotFoundError
+    from importlib.metadata import version as _v
+
     try:
         __version__ = _v("scitex-dataset")
     except PackageNotFoundError:
@@ -38,7 +40,33 @@ try:
 except ImportError:  # pragma: no cover — only on ancient Pythons
     __version__ = "0.0.0+local"
 # Domain submodules
+from . import _api as _api  # noqa: F401
 from . import biology, database, general, medical, neuroscience, pharmacology
+
+# Per-source ``<src>_fetch`` / ``<src>_format`` aliases — give every MCP
+# tool a matching Python callable for the audit-mcp-tools § 6 parity
+# check. See _api.py for the explicit list.
+from ._api import (  # noqa: F401
+    chembl_fetch,
+    clinicaltrials_fetch,
+    dandi_fetch,
+    figshare_fetch,
+    geo_fetch,
+    huggingface_download_file,
+    huggingface_fetch,
+    huggingface_info,
+    huggingface_search,
+    moleculenet_fetch,
+    openml_fetch,
+    openneuro_fetch,
+    physionet_fetch,
+    zenodo_fetch,
+)
+
+# DB-level aliases for MCP parity (`dataset_db_*` tools).
+from .database import build as db_build  # noqa: F401
+from .database import get_stats as db_show_stats  # noqa: F401
+from .database import search as db_search  # noqa: F401
 
 # Convenience exports from neuroscience.openneuro (primary source)
 from .neuroscience.openneuro import (
@@ -49,6 +77,26 @@ from .neuroscience.openneuro import (
 )
 from .search import search_datasets, sort_datasets
 
+
+def list_sources() -> dict:
+    """Return the 11-source registry — matches ``dataset_list_sources`` MCP tool."""
+    from ._sources import SOURCE_INFO
+
+    return {"sources": SOURCE_INFO, "count": len(SOURCE_INFO)}
+
+
+def filter_results(datasets, **kwargs):
+    """Filter and rank dataset dicts — matches ``dataset_filter_results`` MCP tool."""
+    from .search import search_datasets as _search
+    from .search import sort_datasets as _sort
+
+    sort_by = kwargs.pop("sort_by", "downloads")
+    limit = kwargs.pop("limit", None)
+    out = _search(datasets, **kwargs)
+    out = _sort(out, by=sort_by, descending=True)
+    return out[:limit] if limit else out
+
+
 __all__ = [
     "__version__",
     # Domains
@@ -57,16 +105,36 @@ __all__ = [
     "biology",
     "pharmacology",
     "medical",
-    # Database
+    # Database submodule + db_* aliases (MCP parity)
     "database",
+    "db_build",
+    "db_search",
+    "db_show_stats",
     # Convenience (OpenNeuro)
     "fetch_datasets",
     "fetch_all_datasets",
     "format_dataset",
-    "OPENNEURO_API",
-    # Search
+    # Search + filter
     "search_datasets",
     "sort_datasets",
+    "filter_results",
+    "list_sources",
+    # Per-source <src>_fetch aliases (MCP parity)
+    "openneuro_fetch",
+    "dandi_fetch",
+    "physionet_fetch",
+    "zenodo_fetch",
+    "figshare_fetch",
+    "openml_fetch",
+    "moleculenet_fetch",
+    "geo_fetch",
+    "chembl_fetch",
+    "clinicaltrials_fetch",
+    # HuggingFace family
+    "huggingface_fetch",
+    "huggingface_search",
+    "huggingface_info",
+    "huggingface_download_file",
 ]
 
 # EOF

@@ -16,12 +16,19 @@ from pathlib import Path
 EXAMPLE = Path(__file__).resolve().parents[2] / "examples" / "quickstart.py"
 
 
-def test_example_exists():
-    assert EXAMPLE.exists(), f"missing example: {EXAMPLE}"
+def test_example_file_exists_on_disk():
+    # Arrange
+    path = EXAMPLE
+    # Act
+    exists = path.exists()
+    # Assert
+    assert exists, f"missing example: {path}"
 
 
-def test_compiles():
-    subprocess.run(
-        [sys.executable, "-m", "py_compile", str(EXAMPLE)],
-        check=True,
-    )
+def test_example_compiles_under_py_compile():
+    # Arrange
+    cmd = [sys.executable, "-m", "py_compile", str(EXAMPLE)]
+    # Act
+    result = subprocess.run(cmd, check=False)
+    # Assert
+    assert result.returncode == 0, f"py_compile failed for {EXAMPLE}"

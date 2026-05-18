@@ -69,21 +69,19 @@ scientific repositories:
 - PhysioNet: EEG, ECG, and physiological signals
 - Zenodo: General scientific data repository (CERN)
 
-**Tools:**
-- dataset_openneuro_fetch: Fetch OpenNeuro datasets
-- dataset_dandi_fetch: Fetch DANDI dandisets
-- dataset_physionet_fetch: Fetch PhysioNet databases
-- dataset_zenodo_fetch: Fetch Zenodo datasets
-- dataset_search: Filter and search fetched datasets
-- dataset_list_sources: List available data sources
-- dataset_db_build: Build local search database
-- dataset_db_search: Full-text search local database
-- dataset_db_stats: Database statistics
+**Tools (standalone naming — umbrella mounts with `dataset` namespace):**
+- openneuro_fetch: Fetch OpenNeuro datasets
+- dandi_fetch: Fetch DANDI dandisets
+- physionet_fetch: Fetch PhysioNet databases
+- zenodo_fetch: Fetch Zenodo datasets
+- filter_results: Filter / rank fetched datasets in memory
+- list_sources: List the 11 supported sources
+- db_build / db_search / db_show_stats: Local SQLite + FTS5 index
 
 **Typical Workflow:**
-1. Fetch datasets: dataset_openneuro_fetch(max_datasets=100)
-2. Filter results: dataset_search(datasets, modality="eeg", min_subjects=20)
-3. Or build local DB: dataset_db_build() then dataset_db_search("alzheimer EEG")
+1. Fetch datasets: openneuro_fetch(max_datasets=100)
+2. Filter results: filter_results(datasets, modality="eeg", min_subjects=20)
+3. Or build local DB: db_build() then db_search("alzheimer EEG")
 
 **Tips:**
 - Use max_datasets to limit API calls during exploration

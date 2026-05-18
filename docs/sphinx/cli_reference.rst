@@ -1,97 +1,58 @@
 CLI Reference
 =============
 
-The ``scitex-dataset`` command-line interface provides easy access to dataset operations.
+The ``scitex-dataset`` command-line interface follows the SciTeX
+3-level noun-verb grammar:
 
-Global Options
---------------
+.. code-block:: text
 
-.. code-block:: bash
+    scitex-dataset <domain> <dataset> <action> [OPTIONS]
 
-    scitex-dataset --help
-    scitex-dataset --version
+See ``general/03_interface_02_cli/02_subcommand-structure-noun-verb`` in
+the SciTeX skills for the underlying convention.
 
-Commands
---------
+Configuration precedence
+------------------------
 
-fetch
-~~~~~
+Resolution chain (highest first), per
+``general/01_ecosystem_06_local-state-directories``:
 
-Fetch a dataset from a specified source.
+1. ``--config <path>`` CLI flag
+2. ``$SCITEX_DATASET_CONFIG`` env var
+3. ``<project>/.scitex/dataset/config.yaml``
+4. ``$SCITEX_DIR/dataset/config.yaml`` (default ``~/.scitex/dataset/config.yaml``)
 
-.. code-block:: bash
+Project scope wins over user scope. ``SCITEX_DIR`` relocates the user
+scope atomically. Runtime files (the local SQLite index, snapshots,
+logs) live under ``<scope-root>/runtime/``.
 
-    scitex-dataset fetch DATASET_ID [OPTIONS]
+Legacy aliases (hidden, exit code 2)
+------------------------------------
 
-Options:
+For users migrating from the pre-3-level CLI:
 
-- ``--source, -s``: Data source (openneuro, dandi, physionet, zenodo)
-- ``--output, -o``: Output directory (default: current directory)
-- ``--include``: Include file patterns
-- ``--exclude``: Exclude file patterns
+============================== ==========================================
+Old form                       New form
+============================== ==========================================
+``fetch-<source> [...]``       ``<domain> <source> fetch [...]``
+``<source>`` (bare)            ``<domain> <source> fetch``
+``hf <verb>``                  ``general huggingface <verb>``
+``hf-<verb>``                  ``general huggingface <verb>``
+``db stats``                   ``db show-stats``
+``completion``                 ``print-tab-completion``
+============================== ==========================================
 
-Examples:
+The legacy commands print a redirect message and exit with status 2.
 
-.. code-block:: bash
+Live command tree
+-----------------
 
-    # Fetch OpenNeuro dataset
-    scitex-dataset fetch ds000001 --source openneuro
+The full subcommand tree below is rendered directly from the click
+group via `sphinx-click <https://sphinx-click.readthedocs.io/>`_, so it
+cannot drift from ``scitex-dataset --help-recursive``. Per the SciTeX
+Sphinx spec (audit code PS128), hand-written subcommand prose is
+forbidden here.
 
-    # Fetch to specific directory
-    scitex-dataset fetch ds000001 -s openneuro -o ./datasets
-
-    # Fetch only specific files
-    scitex-dataset fetch ds000001 -s openneuro --include "*.nii.gz"
-
-search
-~~~~~~
-
-Search for datasets across sources.
-
-.. code-block:: bash
-
-    scitex-dataset search QUERY [OPTIONS]
-
-Options:
-
-- ``--source, -s``: Limit search to specific source
-- ``--limit, -n``: Maximum number of results
-
-Examples:
-
-.. code-block:: bash
-
-    # Search all sources
-    scitex-dataset search "EEG epilepsy"
-
-    # Search specific source
-    scitex-dataset search "fMRI visual" --source openneuro
-
-    # Limit results
-    scitex-dataset search "MEG" --limit 10
-
-sources
-~~~~~~~
-
-List available data sources.
-
-.. code-block:: bash
-
-    scitex-dataset sources
-
-Output shows each source with its description and status.
-
-info
-~~~~
-
-Get information about a specific dataset.
-
-.. code-block:: bash
-
-    scitex-dataset info DATASET_ID --source SOURCE
-
-Examples:
-
-.. code-block:: bash
-
-    scitex-dataset info ds000001 --source openneuro
+.. click:: scitex_dataset._cli:main
+   :prog: scitex-dataset
+   :nested: full

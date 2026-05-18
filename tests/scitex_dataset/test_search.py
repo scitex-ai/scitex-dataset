@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2026-01-29 22:27:00 (ywatanabe)"
-# File: /home/ywatanabe/proj/scitex-dataset/tests/test_search.py
+# Timestamp: "2026-05-18 00:00:00 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-dataset/tests/scitex_dataset/test_search.py
 
 """Tests for search functionality."""
 
@@ -41,62 +41,138 @@ SAMPLE_DATASETS = [
 ]
 
 
-def test_search_by_modality():
-    """Test filtering by modality."""
-    results = search_datasets(SAMPLE_DATASETS, modality="eeg")
+def test_search_by_modality_eeg_returns_two_rows():
+    # Arrange
+    datasets = SAMPLE_DATASETS
+    # Act
+    results = search_datasets(datasets, modality="eeg")
+    # Assert
     assert len(results) == 2
+
+
+def test_search_by_modality_eeg_returns_only_eeg_datasets():
+    # Arrange
+    datasets = SAMPLE_DATASETS
+    # Act
+    results = search_datasets(datasets, modality="eeg")
+    # Assert
     assert all("eeg" in d["modalities"] for d in results)
 
 
-def test_search_by_min_subjects():
-    """Test filtering by minimum subjects."""
-    results = search_datasets(SAMPLE_DATASETS, min_subjects=20)
+def test_search_by_min_subjects_returns_two_rows():
+    # Arrange
+    datasets = SAMPLE_DATASETS
+    # Act
+    results = search_datasets(datasets, min_subjects=20)
+    # Assert
     assert len(results) == 2
+
+
+def test_search_by_min_subjects_returns_only_high_count_datasets():
+    # Arrange
+    datasets = SAMPLE_DATASETS
+    # Act
+    results = search_datasets(datasets, min_subjects=20)
+    # Assert
     assert all(d["n_subjects"] >= 20 for d in results)
 
 
-def test_search_by_task():
-    """Test filtering by task name."""
-    results = search_datasets(SAMPLE_DATASETS, task_contains="rest")
+def test_search_by_task_contains_rest_returns_two_rows():
+    # Arrange
+    datasets = SAMPLE_DATASETS
+    # Act
+    results = search_datasets(datasets, task_contains="rest")
+    # Assert
     assert len(results) == 2
 
 
-def test_search_by_text_query():
-    """Test text search in name and readme."""
-    results = search_datasets(SAMPLE_DATASETS, text_query="memory")
+def test_search_text_query_memory_returns_one_row():
+    # Arrange
+    datasets = SAMPLE_DATASETS
+    # Act
+    results = search_datasets(datasets, text_query="memory")
+    # Assert
     assert len(results) == 1
+
+
+def test_search_text_query_memory_returns_matching_id():
+    # Arrange
+    datasets = SAMPLE_DATASETS
+    # Act
+    results = search_datasets(datasets, text_query="memory")
+    # Assert
     assert results[0]["id"] == "ds001"
 
 
-def test_search_has_readme():
-    """Test filtering by readme presence."""
-    results = search_datasets(SAMPLE_DATASETS, has_readme=True)
+def test_search_has_readme_true_returns_two_rows():
+    # Arrange
+    datasets = SAMPLE_DATASETS
+    # Act
+    results = search_datasets(datasets, has_readme=True)
+    # Assert
     assert len(results) == 2
+
+
+def test_search_has_readme_true_returns_only_non_null_readmes():
+    # Arrange
+    datasets = SAMPLE_DATASETS
+    # Act
+    results = search_datasets(datasets, has_readme=True)
+    # Assert
     assert all(d["readme"] for d in results)
 
 
-def test_search_combined_filters():
-    """Test combining multiple filters."""
-    results = search_datasets(
-        SAMPLE_DATASETS,
-        modality="mri",
-        min_subjects=20,
-    )
+def test_search_combined_modality_and_min_subjects_returns_one_row():
+    # Arrange
+    datasets = SAMPLE_DATASETS
+    # Act
+    results = search_datasets(datasets, modality="mri", min_subjects=20)
+    # Assert
     assert len(results) == 1
+
+
+def test_search_combined_modality_and_min_subjects_returns_matching_id():
+    # Arrange
+    datasets = SAMPLE_DATASETS
+    # Act
+    results = search_datasets(datasets, modality="mri", min_subjects=20)
+    # Assert
     assert results[0]["id"] == "ds001"
 
 
-def test_sort_by_downloads():
-    """Test sorting by downloads."""
-    results = sort_datasets(SAMPLE_DATASETS, by="downloads", descending=True)
+def test_sort_by_downloads_descending_places_top_downloads_first():
+    # Arrange
+    datasets = SAMPLE_DATASETS
+    # Act
+    results = sort_datasets(datasets, by="downloads", descending=True)
+    # Assert
     assert results[0]["id"] == "ds003"
+
+
+def test_sort_by_downloads_descending_places_low_downloads_last():
+    # Arrange
+    datasets = SAMPLE_DATASETS
+    # Act
+    results = sort_datasets(datasets, by="downloads", descending=True)
+    # Assert
     assert results[-1]["id"] == "ds002"
 
 
-def test_sort_by_subjects_ascending():
-    """Test sorting by subjects ascending."""
-    results = sort_datasets(SAMPLE_DATASETS, by="n_subjects", descending=False)
+def test_sort_by_n_subjects_ascending_places_lowest_first():
+    # Arrange
+    datasets = SAMPLE_DATASETS
+    # Act
+    results = sort_datasets(datasets, by="n_subjects", descending=False)
+    # Assert
     assert results[0]["id"] == "ds002"
+
+
+def test_sort_by_n_subjects_ascending_places_highest_last():
+    # Arrange
+    datasets = SAMPLE_DATASETS
+    # Act
+    results = sort_datasets(datasets, by="n_subjects", descending=False)
+    # Assert
     assert results[-1]["id"] == "ds003"
 
 

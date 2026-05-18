@@ -12,12 +12,13 @@ Platforms:
 - openml: Machine learning dataset repository
 """
 
-from . import figshare, openml, zenodo
+from . import figshare, huggingface, openml, zenodo
 
 __all__ = [
     "zenodo",
     "figshare",
     "openml",
+    "huggingface",
 ]
 
 # EOF

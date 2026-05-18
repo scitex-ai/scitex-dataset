@@ -1,0 +1,37 @@
+# scitex-dataset — project-scope config.yaml
+#
+# Resolution chain (highest first):
+#   1. --config <path> CLI flag
+#   2. $SCITEX_DATASET_CONFIG env var
+#   3. <project>/.scitex/dataset/config.yaml      <-- THIS FILE
+#   4. ~/.scitex/dataset/config.yaml              ($SCITEX_DIR/dataset/...)
+#
+# See the local-state-directories skill (general/01_ecosystem_06_*) for the
+# full layout. Project scope wins; SCITEX_DIR relocates the user scope.
+
+# Runtime caches / SQLite index live under <scope-root>/runtime/.
+# Each fetcher may also accept its own --max-datasets, --query, etc.
+
+defaults:
+  fetch:
+    max_datasets: 0       # 0 = no limit
+    output: null          # null = print to stdout, otherwise JSON path
+
+database:
+  # Sources used by `scitex-dataset db build` when --sources is omitted.
+  # HuggingFace is excluded by default — its catalog is unbounded; opt in
+  # by listing it explicitly here.
+  default_sources:
+    - openneuro
+    - dandi
+    - physionet
+    - zenodo
+    - figshare
+    - openml
+    - geo
+    - chembl
+    - moleculenet
+    - clinicaltrials
+
+# Per-source overrides — keys mirror the dataset id under each domain.
+sources: {}

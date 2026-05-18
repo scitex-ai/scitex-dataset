@@ -1,0 +1,24 @@
+# scitex-dataset — CLI auditor custom dictionary
+#
+# Tokens that are domain-correct but absent from the auditor's default
+# noun/verb catalog. See `general/03_interface_02_cli/07_audit-cli.md`
+# § 1d.
+
+nouns:
+  # Domain groups
+  - neuroscience
+  - pharmacology
+  - biology
+  - medical
+  # Catalog source ids that double as nouns
+  - huggingface
+  - openneuro
+  - dandi
+  - physionet
+  - zenodo
+  - figshare
+  - openml
+  - moleculenet
+  - chembl
+  - clinicaltrials
+  - geo

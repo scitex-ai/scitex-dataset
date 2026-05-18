@@ -16,13 +16,28 @@ from pathlib import Path
 EXAMPLE = Path(__file__).resolve().parents[2] / "examples" / "03_cli_usage.sh"
 
 
-def test_example_exists():
-    assert EXAMPLE.exists(), f"missing example: {EXAMPLE}"
+def test_example_shell_script_exists_on_disk():
+    # Arrange
+    path = EXAMPLE
+    # Act
+    exists = path.exists()
+    # Assert
+    assert exists, f"missing example: {path}"
 
 
-def test_executable_bit():
-    assert os.access(EXAMPLE, os.X_OK), f"not executable: {EXAMPLE}"
+def test_example_shell_script_has_executable_bit():
+    # Arrange
+    path = EXAMPLE
+    # Act
+    is_executable = os.access(path, os.X_OK)
+    # Assert
+    assert is_executable, f"not executable: {path}"
 
 
-def test_bash_syntax():
-    subprocess.run(["bash", "-n", str(EXAMPLE)], check=True)
+def test_example_shell_script_parses_under_bash_n():
+    # Arrange
+    cmd = ["bash", "-n", str(EXAMPLE)]
+    # Act
+    result = subprocess.run(cmd, check=False)
+    # Assert
+    assert result.returncode == 0, f"bash -n failed for {EXAMPLE}"
