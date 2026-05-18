@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2026-01-29 23:58:00 (ywatanabe)"
+# Timestamp: "2026-05-18 00:00:00 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-dataset/tests/conftest.py
 
 """Shared test fixtures for scitex-dataset.
+
+PA-306 compliance: no ``unittest.mock``, no ``monkeypatch``. HTTP
+collaborators are swapped at the module namespace using real
+save/restore context managers (see ``_swap_httpx_get`` / etc. in the
+per-source test modules).
 
 This module also wires module-import-time subprocess coverage. We use
 ``os.environ[...] = ...`` (force-set), NOT ``setdefault`` — pytest-cov has
@@ -17,7 +22,6 @@ import os
 import sys
 import sysconfig
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
@@ -78,7 +82,7 @@ def openneuro_node():
                 "primaryModality": "mri",
                 "subjects": [f"sub-{i:02d}" for i in range(1, 26)],
                 "tasks": ["rest", "memory"],
-                "size": 5368709120,  # 5 GB
+                "size": 5_368_709_120,  # 5 GB
                 "totalFiles": 250,
             },
         },
@@ -100,7 +104,7 @@ def dandi_dandiset():
             "version": "draft",
             "status": "Valid",
             "asset_count": 42,
-            "size": 10737418240,  # 10 GB
+            "size": 10_737_418_240,  # 10 GB
         },
     }
 
@@ -118,7 +122,7 @@ def physionet_database():
         "license": {"name": "Open Data Commons Attribution License v1.0"},
         "subject_count": 100,
         "record_count": 500,
-        "total_size": 21474836480,  # 20 GB
+        "total_size": 21_474_836_480,  # 20 GB
         "publish_date": "2023-06-15",
         "data_access": "open",
     }
@@ -137,7 +141,7 @@ def sample_datasets():
             "n_subjects": 50,
             "tasks": ["rest", "memory"],
             "downloads": 200,
-            "views": 1000,
+            "views": 1_000,
             "readme": "A study on Alzheimer's disease using EEG.",
             "size_gb": 5.0,
         },
@@ -173,7 +177,7 @@ def sample_datasets():
             "n_subjects": 10,
             "tasks": ["seizure monitoring"],
             "downloads": 500,
-            "views": 2000,
+            "views": 2_000,
             "readme": "Intracranial EEG recordings from epilepsy patients.",
             "size_gb": 25.0,
         },
@@ -185,14 +189,6 @@ def sample_datasets():
 def temp_db_path(tmp_path):
     """Create a temporary database path."""
     return tmp_path / "test_datasets.db"
-
-
-# Mock HTTP responses
-@pytest.fixture
-def mock_httpx_get():
-    """Mock httpx.get for network isolation in tests."""
-    with patch("httpx.get") as mock:
-        yield mock
 
 
 # CLI runner
