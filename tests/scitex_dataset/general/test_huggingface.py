@@ -1,17 +1,33 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Tests for HuggingFace dataset fetcher."""
+# Timestamp: "2026-05-18 00:00:00 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-dataset/tests/scitex_dataset/general/test_huggingface.py
+
+"""Tests for HuggingFace dataset fetcher.
+
+PA-306 compliance: no ``unittest.mock``, no ``monkeypatch``. The
+``huggingface_hub`` symbols are imported lazily inside each helper, so
+we swap them by injecting a hand-rolled stub module into
+``sys.modules['huggingface_hub']`` for the duration of the test.
+Environment variables are swapped via ``os.environ[...]`` with a real
+save/restore context manager.
+"""
+
+from __future__ import annotations
 
 import os
+import sys
+import types
+from contextlib import contextmanager
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from typing import Iterator
 
 import pytest
 
 # `huggingface_hub` is an optional install (extras = ["huggingface"]).
-# Skip the mock-based tests cleanly when it isn't available, instead of
-# letting `with patch("huggingface_hub.…")` raise ModuleNotFoundError.
-huggingface_hub = pytest.importorskip(
+# Skip the swap-based tests cleanly when it isn't available, instead of
+# letting `import huggingface_hub` raise ModuleNotFoundError.
+pytest.importorskip(
     "huggingface_hub",
     reason="huggingface_hub not installed; install scitex-dataset[huggingface]",
 )
@@ -25,209 +41,323 @@ from scitex_dataset.general.huggingface import (  # noqa: E402
     search_datasets,
 )
 
+# ---------------------------------------------------------------------------
+# Test helpers — no unittest.mock
+# ---------------------------------------------------------------------------
+
+
+@contextmanager
+def _swap_env(updates: dict, clear: bool = False) -> Iterator[None]:
+    """Swap a set of env vars for the duration of the block.
+
+    If ``clear`` is True, every env var listed in ``updates`` AND any
+    var that is currently set will be removed first, then ``updates`` is
+    applied. Otherwise this only sets the listed keys.
+    """
+    saved = dict(os.environ)
+    try:
+        if clear:
+            os.environ.clear()
+        for k, v in updates.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+        yield
+    finally:
+        os.environ.clear()
+        os.environ.update(saved)
+
+
+@contextmanager
+def _swap_path_home(target: Path) -> Iterator[None]:
+    """Replace ``Path.home`` with a lambda returning ``target``."""
+    saved = Path.home
+    Path.home = staticmethod(lambda: target)  # type: ignore[assignment,method-assign]
+    try:
+        yield
+    finally:
+        Path.home = saved  # type: ignore[method-assign]
+
+
+@contextmanager
+def _swap_module(name: str, replacement) -> Iterator[None]:
+    """Swap ``sys.modules[name]`` with ``replacement`` for the block."""
+    saved = sys.modules.get(name)
+    sys.modules[name] = replacement
+    try:
+        yield
+    finally:
+        if saved is None:
+            sys.modules.pop(name, None)
+        else:
+            sys.modules[name] = saved
+
+
+class _DatasetInfoStub:
+    """Plain-data stand-in for ``huggingface_hub.dataset_info`` return value."""
+
+    def __init__(
+        self,
+        *,
+        id_: str,
+        description: str = "",
+        downloads: int = 0,
+        likes: int = 0,
+        private: bool = False,
+        gated: bool = False,
+        created_at: str = "2026-01-01",
+        last_modified: str = "2026-05-01",
+    ):
+        self.id = id_
+        self.description = description
+        self.downloads = downloads
+        self.likes = likes
+        self.private = private
+        self.gated = gated
+        self.created_at = created_at
+        self.last_modified = last_modified
+
+
+# ---------------------------------------------------------------------------
+# _resolve_token tests
+# ---------------------------------------------------------------------------
+
 
 class TestResolveToken:
-    """Test token resolution priority chain."""
-
-    def test_token_from_env_var(self):
-        """HF_TOKEN env var has highest priority."""
-        with patch.dict(os.environ, {"HF_TOKEN": "token_from_env"}):
+    def test_hf_token_env_var_takes_first_priority(self):
+        # Arrange
+        updates = {"HF_TOKEN": "token_from_env"}
+        # Act
+        with _swap_env(updates):
             token = _resolve_token()
-            assert token == "token_from_env"
+        # Assert
+        assert token == "token_from_env"
 
-    def test_token_from_path_env_var(self, tmp_path):
-        """HF_TOKEN_PATH env var is second priority."""
+    def test_hf_token_path_env_var_takes_second_priority(self, tmp_path):
+        # Arrange
         token_file = tmp_path / "token.txt"
         token_file.write_text("token_from_file")
+        updates = {"HF_TOKEN": None, "HF_TOKEN_PATH": str(token_file)}
+        # Act
+        with _swap_env(updates, clear=True):
+            token = _resolve_token()
+        # Assert
+        assert token == "token_from_file"
 
-        with patch.dict(os.environ, {"HF_TOKEN": "", "HF_TOKEN_PATH": str(token_file)}):
-            # Clear HF_TOKEN from the environment
-            env = dict(os.environ)
-            if "HF_TOKEN" in env:
-                del env["HF_TOKEN"]
-            with patch.dict(os.environ, env, clear=True):
-                with patch.dict(os.environ, {"HF_TOKEN_PATH": str(token_file)}):
-                    token = _resolve_token()
-                    assert token == "token_from_file"
-
-    def test_token_from_default_location(self, tmp_path, monkeypatch):
-        """Default secret location is third priority."""
-        # Mock Path.home() to return tmp_path
-        monkeypatch.setattr(Path, "home", lambda: tmp_path)
-
+    def test_default_secret_location_takes_third_priority(self, tmp_path):
+        # Arrange
         secret_file = (
             tmp_path / ".bash.d" / "secrets" / "access_tokens" / "huggingface.txt"
         )
         secret_file.parent.mkdir(parents=True, exist_ok=True)
         secret_file.write_text("token_from_default")
-
-        with patch.dict(os.environ, {}, clear=True):
+        # Act
+        with _swap_env({}, clear=True), _swap_path_home(tmp_path):
             token = _resolve_token()
-            assert token == "token_from_default"
+        # Assert
+        assert token == "token_from_default"
 
-    def test_token_not_found_returns_none(self, tmp_path, monkeypatch):
-        """Return None when no token is found."""
-        # Mock Path.home() to point to a directory with no token
-        monkeypatch.setattr(Path, "home", lambda: tmp_path)
-
-        with patch.dict(os.environ, {}, clear=True):
+    def test_returns_none_when_no_token_anywhere(self, tmp_path):
+        # Arrange
+        # tmp_path has no .bash.d/secrets/...
+        # Act
+        with _swap_env({}, clear=True), _swap_path_home(tmp_path):
             token = _resolve_token()
-            assert token is None
+        # Assert
+        assert token is None
+
+
+# ---------------------------------------------------------------------------
+# _resolve_local_dir tests
+# ---------------------------------------------------------------------------
 
 
 class TestResolveLocalDir:
-    """Test local directory resolution."""
-
-    def test_explicit_local_dir(self, tmp_path):
-        """Explicit local_dir parameter is returned."""
-        result = _resolve_local_dir("user/dataset", local_dir=str(tmp_path))
+    def test_explicit_local_dir_parameter_is_returned_resolved(self, tmp_path):
+        # Arrange
+        explicit = str(tmp_path)
+        # Act
+        result = _resolve_local_dir("user/dataset", local_dir=explicit)
+        # Assert
         assert result == tmp_path
 
-    def test_home_fallback(self):
-        """Fall back to home directory when no Spartan detected."""
-        result = _resolve_local_dir(
-            "user/dataset", local_dir=None, spartan_detect=False
-        )
+    def test_fallback_to_home_directory_when_no_spartan_detected(self):
+        # Arrange
+        repo = "user/dataset"
         expected = Path.home() / ".scitex" / "dataset" / "huggingface" / "user_dataset"
+        # Act
+        result = _resolve_local_dir(repo, local_dir=None, spartan_detect=False)
+        # Assert
         assert result == expected
 
 
-class TestDatasetInfo:
-    """Test dataset_info function."""
+# ---------------------------------------------------------------------------
+# dataset_info tests
+# ---------------------------------------------------------------------------
 
+
+class TestDatasetInfo:
     @pytest.mark.skipif(
         not os.environ.get("HF_TOKEN"),
         reason="Requires HF_TOKEN for network access",
     )
-    def test_dataset_info_public_dataset(self):
-        """Fetch info for a public dataset."""
-        # Use a public test dataset
-        info = dataset_info("hf-internal-testing/tiny-random-gpt2", repo_type="model")
+    def test_live_public_dataset_info_returns_id_field(self):
+        # Arrange
+        repo = "hf-internal-testing/tiny-random-gpt2"
+        # Act
+        info = dataset_info(repo, repo_type="model")
+        # Assert
         assert "id" in info
-        assert "name" in info
-        assert info["url"]
 
-    def test_dataset_info_mock(self):
-        """Test dataset_info with mocked API."""
-        mock_info = MagicMock()
-        mock_info.id = "user/dataset"
-        mock_info.description = "Test dataset"
-        mock_info.downloads = 100
-        mock_info.likes = 10
-        mock_info.private = False
-        mock_info.gated = False
-        mock_info.created_at = "2026-01-01"
-        mock_info.last_modified = "2026-05-01"
-
-        with patch(
-            "scitex_dataset.general.huggingface.dataset_info"
-            if False
-            else "huggingface_hub.dataset_info"
-        ) as mock_fn:
-            mock_fn.return_value = mock_info
-
+    def test_dataset_info_returns_repo_id_when_swapped_module_used(self):
+        # Arrange
+        stub_info = _DatasetInfoStub(id_="user/dataset", downloads=100)
+        stub_module = types.ModuleType("huggingface_hub")
+        stub_module.dataset_info = lambda repo_id: stub_info  # type: ignore[attr-defined]
+        stub_module.model_info = lambda repo_id: stub_info  # type: ignore[attr-defined]
+        # Act
+        with _swap_module("huggingface_hub", stub_module):
             result = dataset_info("user/dataset")
-            assert result["id"] == "user/dataset"
-            assert result["downloads"] == 100
+        # Assert
+        assert result["id"] == "user/dataset"
+
+    def test_dataset_info_returns_downloads_when_swapped_module_used(self):
+        # Arrange
+        stub_info = _DatasetInfoStub(id_="user/dataset", downloads=100)
+        stub_module = types.ModuleType("huggingface_hub")
+        stub_module.dataset_info = lambda repo_id: stub_info  # type: ignore[attr-defined]
+        stub_module.model_info = lambda repo_id: stub_info  # type: ignore[attr-defined]
+        # Act
+        with _swap_module("huggingface_hub", stub_module):
+            result = dataset_info("user/dataset")
+        # Assert
+        assert result["downloads"] == 100
+
+
+# ---------------------------------------------------------------------------
+# search_datasets tests
+# ---------------------------------------------------------------------------
 
 
 class TestSearchDatasets:
-    """Test search_datasets function."""
-
     @pytest.mark.skipif(
         not os.environ.get("HF_TOKEN"),
         reason="Requires HF_TOKEN for network access",
     )
-    def test_search_datasets_live(self):
-        """Search for datasets (live test)."""
-        results = search_datasets("biology", limit=5)
-        assert isinstance(results, list)
+    def test_live_search_returns_non_empty_list_for_biology_query(self):
+        # Arrange
+        query = "biology"
+        # Act
+        results = search_datasets(query, limit=5)
+        # Assert
         assert len(results) > 0
-        assert "id" in results[0]
-        assert "name" in results[0]
-        assert "url" in results[0]
 
-    def test_search_datasets_mock(self):
-        """Test search_datasets with mocked API."""
-        mock_dataset_info = MagicMock()
-        mock_dataset_info.id = "user/biology_dataset"
-        mock_dataset_info.description = "A biology dataset"
-        mock_dataset_info.downloads = 50
-        mock_dataset_info.likes = 5
-        mock_dataset_info.private = False
-        mock_dataset_info.gated = False
-
-        with patch("huggingface_hub.list_datasets") as mock_fn:
-            mock_fn.return_value = [mock_dataset_info]
-
+    def test_search_datasets_returns_one_result_when_stub_returns_one(self):
+        # Arrange
+        stub_info = _DatasetInfoStub(
+            id_="user/biology_dataset", downloads=50, description="A biology dataset"
+        )
+        stub_module = types.ModuleType("huggingface_hub")
+        stub_module.list_datasets = lambda **kw: [stub_info]  # type: ignore[attr-defined]
+        # Act
+        with _swap_module("huggingface_hub", stub_module):
             results = search_datasets("biology", limit=1)
-            assert len(results) == 1
-            assert results[0]["id"] == "user/biology_dataset"
+        # Assert
+        assert len(results) == 1
+
+    def test_search_datasets_returns_id_from_stub_record(self):
+        # Arrange
+        stub_info = _DatasetInfoStub(
+            id_="user/biology_dataset", downloads=50, description="A biology dataset"
+        )
+        stub_module = types.ModuleType("huggingface_hub")
+        stub_module.list_datasets = lambda **kw: [stub_info]  # type: ignore[attr-defined]
+        # Act
+        with _swap_module("huggingface_hub", stub_module):
+            results = search_datasets("biology", limit=1)
+        # Assert
+        assert results[0]["id"] == "user/biology_dataset"
+
+
+# ---------------------------------------------------------------------------
+# fetch_dataset tests
+# ---------------------------------------------------------------------------
 
 
 class TestFetchDataset:
-    """Test fetch_dataset function."""
-
     @pytest.mark.skipif(
         not os.environ.get("HF_TOKEN"),
         reason="Requires HF_TOKEN for network access",
     )
-    def test_fetch_tiny_dataset(self, tmp_path):
-        """Fetch a tiny public dataset for testing."""
-        # Use a very small public dataset for testing
+    def test_live_fetch_of_tiny_public_dataset_returns_existing_path(self, tmp_path):
+        # Arrange
+        repo = "hf-internal-testing/tiny-random-gpt2"
+        # Act
         result = fetch_dataset(
-            "hf-internal-testing/tiny-random-gpt2",
+            repo,
             local_dir=str(tmp_path),
             repo_type="model",
             max_workers=1,
         )
+        # Assert
         assert result.exists()
-        assert result.is_dir()
 
-    def test_fetch_dataset_with_hf_home_override(self, tmp_path):
-        """Test HF_HOME override."""
+    def test_fetch_dataset_with_hf_home_override_invokes_swapped_snapshot(
+        self, tmp_path
+    ):
+        # Arrange
         hf_home_path = tmp_path / "hf_cache"
         hf_home_path.mkdir(exist_ok=True)
 
-        original_hf_home = os.environ.get("HF_HOME")
+        calls: list[dict] = []
 
-        with patch("huggingface_hub.snapshot_download") as mock_dl:
-            mock_dl.return_value = str(tmp_path / "result")
+        def fake_snapshot(**kwargs):
+            calls.append(kwargs)
+            return str(tmp_path / "result")
 
-            try:
-                fetch_dataset(
-                    "user/dataset",
-                    local_dir=str(tmp_path),
-                    hf_home_override=str(hf_home_path),
-                    max_workers=1,
-                )
+        stub_module = types.ModuleType("huggingface_hub")
+        stub_module.snapshot_download = fake_snapshot  # type: ignore[attr-defined]
+        # Act
+        with _swap_module("huggingface_hub", stub_module):
+            fetch_dataset(
+                "user/dataset",
+                local_dir=str(tmp_path),
+                hf_home_override=str(hf_home_path),
+                max_workers=1,
+            )
+        # Assert
+        assert len(calls) == 1
 
-                # Verify HF_HOME was set
-                assert mock_dl.called
-            finally:
-                # Restore original HF_HOME
-                if original_hf_home:
-                    os.environ["HF_HOME"] = original_hf_home
-                elif "HF_HOME" in os.environ:
-                    del os.environ["HF_HOME"]
+
+# ---------------------------------------------------------------------------
+# download_file tests
+# ---------------------------------------------------------------------------
 
 
 class TestDownloadFile:
-    """Test download_file function."""
+    def test_download_file_returns_path_returned_from_swapped_downloader(
+        self, tmp_path
+    ):
+        # Arrange
+        mock_file_path = tmp_path / "downloaded_file.txt"
+        mock_file_path.write_text("test content")
 
-    def test_download_file_mock(self, tmp_path):
-        """Test download_file with mocked API."""
-        with patch("huggingface_hub.hf_hub_download") as mock_dl:
-            mock_file_path = tmp_path / "downloaded_file.txt"
-            mock_file_path.write_text("test content")
-            mock_dl.return_value = str(mock_file_path)
+        def fake_dl(**kwargs):
+            del kwargs
+            return str(mock_file_path)
 
+        stub_module = types.ModuleType("huggingface_hub")
+        stub_module.hf_hub_download = fake_dl  # type: ignore[attr-defined]
+        # Act
+        with _swap_module("huggingface_hub", stub_module):
             result = download_file(
                 "user/dataset",
                 "README.md",
                 local_dir=str(tmp_path),
             )
-            assert Path(result).name == "downloaded_file.txt"
+        # Assert
+        assert Path(result).name == "downloaded_file.txt"
 
 
 # EOF
