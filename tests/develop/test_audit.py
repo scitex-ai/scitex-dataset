@@ -8,16 +8,25 @@ import shutil
 
 import pytest
 
+# Module-level skip: keeps the test body single-assertion (PA-307 TQ007).
+pytestmark = pytest.mark.skipif(
+    shutil.which("scitex-dev") is None,
+    reason=(
+        "scitex-dev not installed — add `scitex-dev[cli-audit]` "
+        "to [project.optional-dependencies.dev]"
+    ),
+)
 
-def test_audit_all_clean():
-    if shutil.which("scitex-dev") is None:
-        pytest.skip(
-            "scitex-dev not installed — add `scitex-dev[cli-audit]` "
-            "to [project.optional-dependencies.dev]"
-        )
+
+def test_audit_all_for_scitex_dataset_returns_clean():
+    # Arrange
     from scitex_dev.testing import audit_all_for_package
 
-    audit_all_for_package(
+    # Act
+    # ``audit_all_for_package`` raises ``AssertionError`` on non-zero exit
+    # (pytest surfaces that as a normal failure). On a clean run it
+    # returns ``None``, which we capture for the explicit assertion.
+    outcome = audit_all_for_package(
         "scitex-dataset",
         skip_rules=(
             # 20/39 Python APIs unmapped to MCP tools (biology_/chembl_/dandi_
@@ -26,3 +35,5 @@ def test_audit_all_clean():
             "§6",
         ),
     )
+    # Assert
+    assert outcome is None
