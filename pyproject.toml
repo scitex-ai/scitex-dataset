@@ -91,6 +91,7 @@ packages = ["src/scitex_dataset"]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-v --tb=short"
+pythonpath = ["src"]
 
 [tool.ruff]
 line-length = 88
