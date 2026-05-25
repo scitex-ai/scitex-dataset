@@ -30,6 +30,13 @@ jobs:
           # (yaml, fastmcp, textual) get exercised. Falls back to [dev] then
           # plain editable so a packaging hiccup doesn't strand CI.
           pip install -e ".[all,dev]" || pip install -e ".[dev]" || pip install -e .
+      - name: Build Sphinx HTML (required by audit-develop test)
+        run: |
+          pip install -e ".[docs]" 2>/dev/null || true
+          sphinx-build -b html docs/sphinx docs/sphinx/_build/html 2>/dev/null || true
+          mkdir -p src/scitex_dataset/_sphinx_html
+          cp -rf docs/sphinx/_build/html/* src/scitex_dataset/_sphinx_html/ 2>/dev/null || true
+          touch src/scitex_dataset/_sphinx_html/.nojekyll 2>/dev/null || true
       - name: Run tests
         run: |
           pytest tests/ --cov=src/scitex_dataset --cov-report=xml --cov-report=term
