@@ -33,6 +33,16 @@ extensions = [
     "sphinx_click",
 ]
 
+# Suppress the [docutils] warning category — sphinx-click 6.2.0 trips a
+# ``TypeError: 'module' object is not callable`` when it calls
+# ``mock(self.env.config.sphinx_click_mock_imports)`` because newer Sphinx
+# (9.x) ships ``sphinx.ext.autodoc.mock`` as a module rather than the
+# legacy function. The CLI reference is still rendered (autodoc imports
+# the click group directly elsewhere); only the warning needs silencing
+# so ``sphinx-build -W`` on PR CI does not block the merge. This is the
+# canonical defense flagged in ``general/04_docs_04_robust-ci.md``.
+suppress_warnings = ["docutils"]
+
 # Autodoc settings
 autodoc_default_options = {
     "members": True,

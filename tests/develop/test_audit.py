@@ -26,14 +26,6 @@ def test_audit_all_for_scitex_dataset_returns_clean():
     # ``audit_all_for_package`` raises ``AssertionError`` on non-zero exit
     # (pytest surfaces that as a normal failure). On a clean run it
     # returns ``None``, which we capture for the explicit assertion.
-    outcome = audit_all_for_package(
-        "scitex-dataset",
-        skip_rules=(
-            # 20/39 Python APIs unmapped to MCP tools (biology_/chembl_/dandi_
-            # families etc.). Real architectural debt; per-API decision needed.
-            # Tracked under /overhaul-scitex; remove when parity reached.
-            "§6",
-        ),
-    )
+    outcome = audit_all_for_package("scitex-dataset")
     # Assert
     assert outcome is None

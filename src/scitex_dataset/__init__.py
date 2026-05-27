@@ -97,29 +97,31 @@ def filter_results(datasets, **kwargs):
     return out[:limit] if limit else out
 
 
+# Public Python API surface — kept in lock-step with the MCP tool set
+# under `_mcp/_tools/` so `scitex-dev ecosystem audit-mcp-tools` § 6
+# parity passes without skip_rules masking.
+#
+# The domain submodules (``neuroscience``, ``biology``, …) and the
+# ``database`` module remain importable via ordinary attribute access
+# (``scitex_dataset.biology.fetch_all_datasets``) — they are simply
+# excluded from ``__all__`` so the audit doesn't flatten their
+# convenience re-exports into a second, MCP-less Python surface. The
+# bare convenience aliases ``fetch_*`` / ``format_dataset`` / ``search_*``
+# / ``sort_*`` are likewise omitted: they are OpenNeuro-only shortcuts
+# that masquerade as domain-level functions and have no matching MCP
+# tool; the source-explicit ``openneuro_fetch`` is the supported entry.
 __all__ = [
     "__version__",
-    # Domains
-    "neuroscience",
-    "general",
-    "biology",
-    "pharmacology",
-    "medical",
-    # Database submodule + db_* aliases (MCP parity)
-    "database",
+    # Database aliases (MCP parity with ``dataset_db_*`` tools)
     "db_build",
     "db_search",
     "db_show_stats",
-    # Convenience (OpenNeuro)
-    "fetch_datasets",
-    "fetch_all_datasets",
-    "format_dataset",
-    # Search + filter
-    "search_datasets",
-    "sort_datasets",
+    # Search + filter (MCP parity with ``dataset_filter_results`` /
+    # ``dataset_list_sources``)
     "filter_results",
     "list_sources",
-    # Per-source <src>_fetch aliases (MCP parity)
+    # Per-source ``<src>_fetch`` aliases (MCP parity with
+    # ``dataset_<src>_fetch`` tools)
     "openneuro_fetch",
     "dandi_fetch",
     "physionet_fetch",

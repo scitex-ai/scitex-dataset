@@ -1,0 +1,6 @@
+# Sphinx-generated docs bundle — exclude from GitHub language stats.
+# Without this, the pre-built HTML in src/<pkg>/_sphinx_html/ dwarfs the
+# Python source and Linguist reports the repo as "HTML". The bundle is
+# tracked because scitex-cloud serves docs straight from the wheel
+# (audit-project PS-121), so we cannot just gitignore it.
+src/*/_sphinx_html/** linguist-generated
