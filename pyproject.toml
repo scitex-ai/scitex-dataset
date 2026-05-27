@@ -85,14 +85,16 @@ Repository = "https://github.com/ywatanabe1989/scitex-dataset.git"
 Issues = "https://github.com/ywatanabe1989/scitex-dataset/issues"
 
 [tool.hatch.build.targets.wheel]
+# ``packages = ["src/scitex_dataset"]`` already pulls in every file
+# under the package directory — including non-.py assets such as
+# ``_sphinx_html/`` (the in-wheel docs bundle scitex-cloud serves from
+# per PS-121) and ``_skills/``. A separate ``force-include`` rule for
+# ``_sphinx_html`` would re-add every file a second time, producing a
+# wheel with duplicate ZIP entries that PyPI rejects with
+# ``400 Bad Request: Invalid distribution file. ZIP archive not
+# accepted: Duplicate filename`` (observed on the v0.3.10 release run).
+# So we deliberately rely on the implicit package include alone.
 packages = ["src/scitex_dataset"]
-
-# Hatchling drops a plain include glob for ``_sphinx_html/`` because the
-# directory already sits inside a Python package; ``force-include`` is the
-# canonical way to ship the pre-built docs bundle that scitex-cloud serves
-# from the wheel (see audit-project PS-121).
-[tool.hatch.build.targets.wheel.force-include]
-"src/scitex_dataset/_sphinx_html" = "scitex_dataset/_sphinx_html"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
