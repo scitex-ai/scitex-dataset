@@ -87,6 +87,13 @@ Issues = "https://github.com/ywatanabe1989/scitex-dataset/issues"
 [tool.hatch.build.targets.wheel]
 packages = ["src/scitex_dataset"]
 
+# Hatchling drops a plain include glob for ``_sphinx_html/`` because the
+# directory already sits inside a Python package; ``force-include`` is the
+# canonical way to ship the pre-built docs bundle that scitex-cloud serves
+# from the wheel (see audit-project PS-121).
+[tool.hatch.build.targets.wheel.force-include]
+"src/scitex_dataset/_sphinx_html" = "scitex_dataset/_sphinx_html"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
