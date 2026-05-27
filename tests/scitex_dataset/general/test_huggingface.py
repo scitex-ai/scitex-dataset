@@ -185,19 +185,18 @@ class TestResolveLocalDir:
     def test_fallback_to_runtime_directory_when_no_spartan_detected(self):
         # Arrange
         repo = "user/dataset"
-        # The new canonical path is under runtime/ via the SciTeX resolver.
-        expected = (
-            Path.home()
-            / ".scitex"
-            / "dataset"
-            / "runtime"
-            / "huggingface"
-            / "user_dataset"
-        )
+        # The resolved path must end with runtime/huggingface/<repo>.
+        # We cannot hardcode the full path because _resolve_local_dir uses
+        # runtime_dir() which may resolve to project scope (if the repo has
+        # .scitex/dataset/) or user scope (~/.scitex/dataset/).
+        # Only the suffix (under runtime/) is guaranteed.
         # Act
         result = _resolve_local_dir(repo, local_dir=None, spartan_detect=False)
         # Assert
-        assert result == expected
+        assert str(result).endswith("/runtime/huggingface/user_dataset"), (
+            f"Expected path ending with '/runtime/huggingface/user_dataset', "
+            f"got {result}"
+        )
 
 
 # ---------------------------------------------------------------------------
