@@ -201,10 +201,13 @@ scitex-dev skills export --package scitex-dataset  # Export to Claude Code
 
 | Skill | Content |
 |-------|---------|
-| `quick-start` | Basic usage |
-| `data-sources` | OpenNeuro, DANDI, PhysioNet |
-| `cli-reference` | CLI commands |
+| `installation` | pip install + extras + verify |
+| `quick-start` | Search, fetch, sort across sources |
+| `python-api` | Top-level exports, domain submodules, examples |
+| `cli-reference` | CLI grammar, domains, flags, config precedence |
 | `mcp-tools` | MCP tools for AI agents |
+| `env-vars` | SCITEX_* environment variables |
+| `data-sources` | All 11 supported repositories |
 
 </details>
 
