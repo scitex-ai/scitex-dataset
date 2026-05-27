@@ -24,7 +24,7 @@ same name (under the ``dataset`` namespace).
 .. code-block:: python
 
     from scitex_dataset import (
-        openneuro_fetch, dandi_fetch, hf_search,
+        openneuro_fetch, dandi_fetch, huggingface_search,
         filter_results, list_sources,
         db_build, db_search,
     )
@@ -39,7 +39,7 @@ same name (under the ``dataset`` namespace).
     )
 
     # 3) Search HuggingFace Hub directly.
-    hf_hits = hf_search("biology", limit=20)
+    hf_hits = huggingface_search("biology", limit=20)
 
     # 4) Build the local SQLite + FTS5 index for offline queries.
     db_build()
