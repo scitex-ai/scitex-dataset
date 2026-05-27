@@ -182,10 +182,18 @@ class TestResolveLocalDir:
         # Assert
         assert result == tmp_path
 
-    def test_fallback_to_home_directory_when_no_spartan_detected(self):
+    def test_fallback_to_runtime_directory_when_no_spartan_detected(self):
         # Arrange
         repo = "user/dataset"
-        expected = Path.home() / ".scitex" / "dataset" / "huggingface" / "user_dataset"
+        # The new canonical path is under runtime/ via the SciTeX resolver.
+        expected = (
+            Path.home()
+            / ".scitex"
+            / "dataset"
+            / "runtime"
+            / "huggingface"
+            / "user_dataset"
+        )
         # Act
         result = _resolve_local_dir(repo, local_dir=None, spartan_detect=False)
         # Assert
