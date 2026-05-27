@@ -97,11 +97,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.db_build"><code class="docutils literal notranslate"><span class="pre">db_build()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.db_search"><code class="docutils literal notranslate"><span class="pre">db_search()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.db_show_stats"><code class="docutils literal notranslate"><span class="pre">db_show_stats()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.filter_results"><code class="docutils literal notranslate"><span class="pre">filter_results()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.list_sources"><code class="docutils literal notranslate"><span class="pre">list_sources()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.openneuro_fetch"><code class="docutils literal notranslate"><span class="pre">openneuro_fetch()</span></code></a></li>
@@ -300,29 +295,31 @@
 
 
 
+<span class="c1"># Public Python API surface — kept in lock-step with the MCP tool set</span>
+<span class="c1"># under `_mcp/_tools/` so `scitex-dev ecosystem audit-mcp-tools` § 6</span>
+<span class="c1"># parity passes without skip_rules masking.</span>
+<span class="c1">#</span>
+<span class="c1"># The domain submodules (``neuroscience``, ``biology``, …) and the</span>
+<span class="c1"># ``database`` module remain importable via ordinary attribute access</span>
+<span class="c1"># (``scitex_dataset.biology.fetch_all_datasets``) — they are simply</span>
+<span class="c1"># excluded from ``__all__`` so the audit doesn&#39;t flatten their</span>
+<span class="c1"># convenience re-exports into a second, MCP-less Python surface. The</span>
+<span class="c1"># bare convenience aliases ``fetch_*`` / ``format_dataset`` / ``search_*``</span>
+<span class="c1"># / ``sort_*`` are likewise omitted: they are OpenNeuro-only shortcuts</span>
+<span class="c1"># that masquerade as domain-level functions and have no matching MCP</span>
+<span class="c1"># tool; the source-explicit ``openneuro_fetch`` is the supported entry.</span>
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;__version__&quot;</span><span class="p">,</span>
-    <span class="c1"># Domains</span>
-    <span class="s2">&quot;neuroscience&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;general&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;biology&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;pharmacology&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;medical&quot;</span><span class="p">,</span>
-    <span class="c1"># Database submodule + db_* aliases (MCP parity)</span>
-    <span class="s2">&quot;database&quot;</span><span class="p">,</span>
+    <span class="c1"># Database aliases (MCP parity with ``dataset_db_*`` tools)</span>
     <span class="s2">&quot;db_build&quot;</span><span class="p">,</span>
     <span class="s2">&quot;db_search&quot;</span><span class="p">,</span>
     <span class="s2">&quot;db_show_stats&quot;</span><span class="p">,</span>
-    <span class="c1"># Convenience (OpenNeuro)</span>
-    <span class="s2">&quot;fetch_datasets&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;fetch_all_datasets&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;format_dataset&quot;</span><span class="p">,</span>
-    <span class="c1"># Search + filter</span>
-    <span class="s2">&quot;search_datasets&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;sort_datasets&quot;</span><span class="p">,</span>
+    <span class="c1"># Search + filter (MCP parity with ``dataset_filter_results`` /</span>
+    <span class="c1"># ``dataset_list_sources``)</span>
     <span class="s2">&quot;filter_results&quot;</span><span class="p">,</span>
     <span class="s2">&quot;list_sources&quot;</span><span class="p">,</span>
-    <span class="c1"># Per-source &lt;src&gt;_fetch aliases (MCP parity)</span>
+    <span class="c1"># Per-source ``&lt;src&gt;_fetch`` aliases (MCP parity with</span>
+    <span class="c1"># ``dataset_&lt;src&gt;_fetch`` tools)</span>
     <span class="s2">&quot;openneuro_fetch&quot;</span><span class="p">,</span>
     <span class="s2">&quot;dandi_fetch&quot;</span><span class="p">,</span>
     <span class="s2">&quot;physionet_fetch&quot;</span><span class="p">,</span>
