@@ -15,7 +15,12 @@ sys.path.insert(0, os.path.abspath("../../src"))
 project = "scitex-dataset"
 copyright = "2025, Yusuke Watanabe"
 author = "Yusuke Watanabe"
-release = "0.3.1"
+try:
+    from importlib.metadata import version as _v
+
+    release = _v("scitex-dataset")
+except Exception:
+    release = "0.0.0"
 
 # -- General configuration ---------------------------------------------------
 

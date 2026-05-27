@@ -60,6 +60,71 @@ Zenodo
    :undoc-members:
    :show-inheritance:
 
+Figshare
+~~~~~~~~
+
+.. automodule:: scitex_dataset.general.figshare
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+OpenML
+~~~~~~
+
+.. automodule:: scitex_dataset.general.openml
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+HuggingFace Hub
+~~~~~~~~~~~~~~~
+
+.. automodule:: scitex_dataset.general.huggingface
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Biology Sources
+---------------
+
+GEO
+~~~
+
+.. automodule:: scitex_dataset.biology.geo
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Pharmacology Sources
+--------------------
+
+MoleculeNet
+~~~~~~~~~~~
+
+.. automodule:: scitex_dataset.pharmacology.moleculenet
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+ChEMBL
+~~~~~~
+
+.. automodule:: scitex_dataset.pharmacology.chembl
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Medical Sources
+---------------
+
+ClinicalTrials.gov
+~~~~~~~~~~~~~~~~~~
+
+.. automodule:: scitex_dataset.medical.clinicaltrials
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 CLI
 ---
 
