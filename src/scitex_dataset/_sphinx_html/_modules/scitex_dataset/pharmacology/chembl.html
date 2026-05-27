@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_dataset.neuroscience.openneuro &mdash; scitex-dataset v0.3.10</title>
+  <title>scitex_dataset.pharmacology.chembl &mdash; scitex-dataset v0.3.10</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -237,7 +237,7 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
           <li class="breadcrumb-item"><a href="../../scitex_dataset.html">scitex_dataset</a></li>
-      <li class="breadcrumb-item active">scitex_dataset.neuroscience.openneuro</li>
+      <li class="breadcrumb-item active">scitex_dataset.pharmacology.chembl</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -246,81 +246,56 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for scitex_dataset.neuroscience.openneuro</h1><div class="highlight"><pre>
+  <h1>Source code for scitex_dataset.pharmacology.chembl</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="c1"># Timestamp: &quot;2026-01-29 22:35:00 (ywatanabe)&quot;</span>
-<span class="c1"># File: /home/ywatanabe/proj/scitex-dataset/src/scitex_dataset/neuroscience/openneuro.py</span>
+<span class="c1"># Timestamp: &quot;2026-03-28 00:00:00 (ywatanabe)&quot;</span>
+<span class="c1"># File: /home/ywatanabe/proj/scitex-dataset/src/scitex_dataset/pharmacology/chembl.py</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">OpenNeuro dataset fetcher using GraphQL API.</span>
+<span class="sd">ChEMBL dataset fetcher.</span>
+
+<span class="sd">ChEMBL hosts bioactivity data for drug-like molecules from EMBL-EBI.</span>
+
+<span class="sd">API: https://www.ebi.ac.uk/chembl/api/data/</span>
 
 <span class="sd">Example:</span>
-<span class="sd">    &gt;&gt;&gt; from scitex_dataset import fetch_all_datasets, format_dataset</span>
-<span class="sd">    &gt;&gt;&gt; datasets = fetch_all_datasets(max_datasets=10)</span>
-<span class="sd">    &gt;&gt;&gt; formatted = [format_dataset(ds) for ds in datasets]</span>
+<span class="sd">    &gt;&gt;&gt; from scitex_dataset.pharmacology import chembl</span>
+<span class="sd">    &gt;&gt;&gt; datasets = chembl.fetch_all_datasets(max_datasets=10)</span>
+<span class="sd">    &gt;&gt;&gt; formatted = [chembl.format_dataset(ds) for ds in datasets]</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_httpx</span>  <span class="c1"># noqa: N812</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_httpx</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dev.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">supports_return_as</span>
 
-<span class="n">OPENNEURO_API</span> <span class="o">=</span> <span class="s2">&quot;https://openneuro.org/crn/graphql&quot;</span>
+<span class="n">CHEMBL_API</span> <span class="o">=</span> <span class="s2">&quot;https://www.ebi.ac.uk/chembl/api/data&quot;</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;OPENNEURO_API&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CHEMBL_API&quot;</span><span class="p">,</span>
     <span class="s2">&quot;fetch_datasets&quot;</span><span class="p">,</span>
     <span class="s2">&quot;fetch_all_datasets&quot;</span><span class="p">,</span>
     <span class="s2">&quot;format_dataset&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_make_query</span><span class="p">(</span><span class="n">first</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">after</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="n">after_arg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;, after: &quot;</span><span class="si">{</span><span class="n">after</span><span class="si">}</span><span class="s1">&quot;&#39;</span> <span class="k">if</span> <span class="n">after</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">query </span><span class="se">{{</span>
-<span class="s2">  datasets(first: </span><span class="si">{</span><span class="n">first</span><span class="si">}{</span><span class="n">after_arg</span><span class="si">}</span><span class="s2">) </span><span class="se">{{</span>
-<span class="s2">    edges </span><span class="se">{{</span>
-<span class="s2">      node </span><span class="se">{{</span>
-<span class="s2">        id</span>
-<span class="s2">        name</span>
-<span class="s2">        created</span>
-<span class="s2">        public</span>
-<span class="s2">        publishDate</span>
-<span class="s2">        analytics </span><span class="se">{{</span><span class="s2"> views downloads </span><span class="se">}}</span>
-<span class="s2">        draft </span><span class="se">{{</span>
-<span class="s2">          modified</span>
-<span class="s2">          readme</span>
-<span class="s2">          description </span><span class="se">{{</span>
-<span class="s2">            Name BIDSVersion License Authors SeniorAuthor</span>
-<span class="s2">            DatasetDOI DatasetType Acknowledgements</span>
-<span class="s2">            HowToAcknowledge Funding ReferencesAndLinks EthicsApprovals</span>
-<span class="s2">          </span><span class="se">}}</span>
-<span class="s2">          summary </span><span class="se">{{</span>
-<span class="s2">            modalities primaryModality secondaryModalities</span>
-<span class="s2">            sessions subjects tasks size totalFiles dataProcessed</span>
-<span class="s2">          </span><span class="se">}}</span>
-<span class="s2">        </span><span class="se">}}</span>
-<span class="s2">      </span><span class="se">}}</span>
-<span class="s2">    </span><span class="se">}}</span>
-<span class="s2">    pageInfo </span><span class="se">{{</span><span class="s2"> hasNextPage endCursor </span><span class="se">}}</span>
-<span class="s2">  </span><span class="se">}}</span>
-<span class="se">}}</span>
-<span class="s2">&quot;&quot;&quot;</span>
-
-
 <div class="viewcode-block" id="fetch_datasets">
 <a class="viewcode-back" href="../../../api/scitex_dataset.html#scitex_dataset.fetch_datasets">[docs]</a>
 <span class="nd">@supports_return_as</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">fetch_datasets</span><span class="p">(</span><span class="n">first</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">after</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch a single page of datasets from OpenNeuro.&quot;&quot;&quot;</span>
-    <span class="n">response</span> <span class="o">=</span> <span class="n">_httpx</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-        <span class="n">OPENNEURO_API</span><span class="p">,</span>
-        <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">_make_query</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">after</span><span class="p">)},</span>
-        <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fetch_datasets</span><span class="p">(</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch a single page of assays from ChEMBL.&quot;&quot;&quot;</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">_httpx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">CHEMBL_API</span><span class="si">}</span><span class="s2">/assay.json&quot;</span><span class="p">,</span>
+        <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="n">limit</span><span class="p">,</span>
+            <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="n">offset</span><span class="p">,</span>
+        <span class="p">},</span>
         <span class="n">timeout</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
@@ -332,47 +307,17 @@
 <a class="viewcode-back" href="../../../api/scitex_dataset.html#scitex_dataset.fetch_all_datasets">[docs]</a>
 <span class="nd">@supports_return_as</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">fetch_all_datasets</span><span class="p">(</span>
-    <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="n">max_datasets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch every dataset record from OpenNeuro by paginating GraphQL.</span>
-
-<span class="sd">    Walks the public ``crn/graphql`` endpoint with cursor-based</span>
-<span class="sd">    pagination until exhausted (or ``max_datasets`` is reached). Use</span>
-<span class="sd">    ``format_dataset`` to project each raw record into the package&#39;s</span>
-<span class="sd">    common dataset schema.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    batch_size : int, default 100</span>
-<span class="sd">        Records per HTTP request. The OpenNeuro server caps this; the</span>
-<span class="sd">        function does not validate the upper bound.</span>
-<span class="sd">    max_datasets : int, optional</span>
-<span class="sd">        Stop after this many records. ``None`` (default) fetches the</span>
-<span class="sd">        entire catalog.</span>
-<span class="sd">    logger : logging.Logger, optional</span>
-<span class="sd">        If provided, HTTP and GraphQL errors are logged. Errors are</span>
-<span class="sd">        otherwise silent (the function returns whatever it has so far).</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    list[dict]</span>
-<span class="sd">        Raw GraphQL ``node`` dicts, in catalog order. Pass each through</span>
-<span class="sd">        ``format_dataset`` for the normalized schema.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; records = fetch_all_datasets(max_datasets=10)</span>
-<span class="sd">    &gt;&gt;&gt; len(records) &lt;= 10</span>
-<span class="sd">    True</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch all assays from ChEMBL with pagination.&quot;&quot;&quot;</span>
     <span class="n">all_datasets</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">cursor</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">limit</span> <span class="o">=</span> <span class="mi">100</span>
 
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">fetch_datasets</span><span class="p">(</span><span class="n">first</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">after</span><span class="o">=</span><span class="n">cursor</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">fetch_datasets</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">_httpx</span><span class="o">.</span><span class="n">HTTPStatusError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;HTTP Error: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -382,28 +327,26 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Request Error: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">break</span>
 
-        <span class="k">if</span> <span class="s2">&quot;errors&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;GraphQL Errors: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;errors&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">assays</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assays&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;page_meta&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">has_next</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;next&quot;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">assays</span><span class="p">:</span>
             <span class="k">break</span>
 
-        <span class="n">datasets</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;datasets&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">edges</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;edges&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="n">page_info</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pageInfo&quot;</span><span class="p">,</span> <span class="p">{})</span>
-
-        <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
-            <span class="n">all_datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="s2">&quot;node&quot;</span><span class="p">])</span>
+        <span class="n">all_datasets</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">assays</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fetched </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">)</span><span class="si">}</span><span class="s2"> datasets...&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fetched </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">)</span><span class="si">}</span><span class="s2"> ChEMBL assays...&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">max_datasets</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">max_datasets</span><span class="p">:</span>
+            <span class="n">all_datasets</span> <span class="o">=</span> <span class="n">all_datasets</span><span class="p">[:</span><span class="n">max_datasets</span><span class="p">]</span>
             <span class="k">break</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">page_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hasNextPage&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">has_next</span><span class="p">:</span>
             <span class="k">break</span>
 
-        <span class="n">cursor</span> <span class="o">=</span> <span class="n">page_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;endCursor&quot;</span><span class="p">)</span>
+        <span class="n">offset</span> <span class="o">+=</span> <span class="n">limit</span>
 
     <span class="k">return</span> <span class="n">all_datasets</span></div>
 
@@ -412,76 +355,29 @@
 <div class="viewcode-block" id="format_dataset">
 <a class="viewcode-back" href="../../../api/scitex_dataset.html#scitex_dataset.format_dataset">[docs]</a>
 <span class="nd">@supports_return_as</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">format_dataset</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Project a raw OpenNeuro GraphQL node into the common dataset schema.</span>
-
-<span class="sd">    Every catalog source exposes ``format_dataset`` returning the same</span>
-<span class="sd">    shape so they can plug into ``database.build`` and</span>
-<span class="sd">    ``search.search_datasets`` uniformly.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    node : dict</span>
-<span class="sd">        A single ``edges[].node`` element from the OpenNeuro GraphQL</span>
-<span class="sd">        response (the ``draft`` / ``analytics`` keys are read; missing</span>
-<span class="sd">        fields fall back to ``None`` / 0).</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    dict</span>
-<span class="sd">        Normalized record with keys: ``id, name, n_subjects,</span>
-<span class="sd">        modalities, tasks, size_gb, downloads, views, readme,</span>
-<span class="sd">        license, doi, url, source``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">draft</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;draft&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
-    <span class="n">description</span> <span class="o">=</span> <span class="n">draft</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
-    <span class="n">summary</span> <span class="o">=</span> <span class="n">draft</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;summary&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
-    <span class="n">analytics</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;analytics&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
-
-    <span class="n">size_bytes</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;size&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
-    <span class="n">size_gb</span> <span class="o">=</span> <span class="n">size_bytes</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract and format ChEMBL assay information.&quot;&quot;&quot;</span>
+    <span class="n">chembl_id</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assay_chembl_id&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">)</span>
+    <span class="n">assay_type</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assay_type&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">organism</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assay_organism&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target_chembl_id&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;created&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;modified&quot;</span><span class="p">:</span> <span class="n">draft</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;modified&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;publish_date&quot;</span><span class="p">:</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;publishDate&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;public&quot;</span><span class="p">:</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;public&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;views&quot;</span><span class="p">:</span> <span class="n">analytics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;views&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;downloads&quot;</span><span class="p">:</span> <span class="n">analytics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;downloads&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;readme&quot;</span><span class="p">:</span> <span class="n">draft</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;readme&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;bids_version&quot;</span><span class="p">:</span> <span class="n">description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;BIDSVersion&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;license&quot;</span><span class="p">:</span> <span class="n">description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;License&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;authors&quot;</span><span class="p">:</span> <span class="n">description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Authors&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;senior_author&quot;</span><span class="p">:</span> <span class="n">description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SeniorAuthor&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;doi&quot;</span><span class="p">:</span> <span class="n">description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DatasetDOI&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;dataset_type&quot;</span><span class="p">:</span> <span class="n">description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DatasetType&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;acknowledgements&quot;</span><span class="p">:</span> <span class="n">description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Acknowledgements&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;how_to_acknowledge&quot;</span><span class="p">:</span> <span class="n">description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HowToAcknowledge&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;funding&quot;</span><span class="p">:</span> <span class="n">description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Funding&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;references_and_links&quot;</span><span class="p">:</span> <span class="n">description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ReferencesAndLinks&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;ethics_approvals&quot;</span><span class="p">:</span> <span class="n">description</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;EthicsApprovals&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;modalities&quot;</span><span class="p">,</span> <span class="p">[]),</span>
-        <span class="s2">&quot;primary_modality&quot;</span><span class="p">:</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;primaryModality&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;secondary_modalities&quot;</span><span class="p">:</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;secondaryModalities&quot;</span><span class="p">,</span> <span class="p">[]),</span>
-        <span class="s2">&quot;sessions&quot;</span><span class="p">:</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sessions&quot;</span><span class="p">,</span> <span class="p">[]),</span>
-        <span class="s2">&quot;n_subjects&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subjects&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]),</span>
-        <span class="s2">&quot;tasks&quot;</span><span class="p">:</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tasks&quot;</span><span class="p">,</span> <span class="p">[]),</span>
-        <span class="s2">&quot;size_gb&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">size_gb</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-        <span class="s2">&quot;total_files&quot;</span><span class="p">:</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;totalFiles&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="s2">&quot;data_processed&quot;</span><span class="p">:</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataProcessed&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">chembl_id</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+        <span class="s2">&quot;assay_type&quot;</span><span class="p">:</span> <span class="n">assay_type</span><span class="p">,</span>
+        <span class="s2">&quot;organism&quot;</span><span class="p">:</span> <span class="n">organism</span><span class="p">,</span>
+        <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="n">target</span><span class="p">,</span>
+        <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># ChEMBL API does not expose creation date</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;https://www.ebi.ac.uk/chembl/assay_report_card/</span><span class="si">{</span><span class="n">chembl_id</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="k">if</span> <span class="n">chembl_id</span>
+        <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="c1"># ChEMBL-specific</span>
+        <span class="s2">&quot;assay_category&quot;</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assay_category&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;assay_cell_type&quot;</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assay_cell_type&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
     <span class="p">}</span></div>
 
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_log_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Log formatted dataset information (internal use).&quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ID: </span><span class="si">{</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Name: </span><span class="si">{</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Modalities: </span><span class="si">{</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;modalities&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Subjects: </span><span class="si">{</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;n_subjects&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Size: </span><span class="si">{</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;size_gb&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> GB&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># EOF</span>
