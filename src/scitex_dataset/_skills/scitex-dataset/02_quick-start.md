@@ -37,7 +37,7 @@ top = sort_datasets(results, by="downloads")
 
 ```bash
 scitex-dataset --help
-scitex-dataset list-sources
+scitex-dataset neuroscience openneuro fetch -n 10
 ```
 
 ## Domains
