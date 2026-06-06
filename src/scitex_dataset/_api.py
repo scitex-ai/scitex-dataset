@@ -32,6 +32,11 @@ from .medical.clinicaltrials import fetch_all_datasets as clinicaltrials_fetch
 from .medical.clinicaltrials import format_dataset as clinicaltrials_format
 from .neuroscience.dandi import fetch_all_datasets as dandi_fetch
 from .neuroscience.dandi import format_dataset as dandi_format
+from .neuroscience.gin import fetch_all_datasets as gin_fetch
+from .neuroscience.gin import format_dataset as gin_format
+from .neuroscience.gin import gin_download
+from .neuroscience.gin import gin_info
+from .neuroscience.gin import gin_search
 from .neuroscience.openneuro import fetch_all_datasets as openneuro_fetch
 from .neuroscience.openneuro import format_dataset as openneuro_format
 from .neuroscience.physionet import fetch_all_datasets as physionet_fetch
@@ -48,6 +53,12 @@ __all__ = [
     "dandi_format",
     "physionet_fetch",
     "physionet_format",
+    "gin_fetch",
+    "gin_format",
+    "gin_search",
+    "gin_info",
+    "gin_download",
+    "download_dataset",
     "zenodo_fetch",
     "zenodo_format",
     "figshare_fetch",
@@ -68,5 +79,68 @@ __all__ = [
     "huggingface_info",
     "huggingface_download_file",
 ]
+
+
+# ---------------------------------------------------------------------- #
+# Unified download dispatcher (issue #36).
+#
+# A single ``download_dataset(source, id, dest, **opts)`` entry point
+# that routes to the per-source downloader. Today only the sources
+# that ship a real download path (HuggingFace, GIN) are wired up;
+# catalog-only sources raise ``NotImplementedError`` with a hint.
+# ---------------------------------------------------------------------- #
+
+def download_dataset(
+    source: str,
+    id: str,
+    dest=None,
+    **kwargs,
+):
+    """Unified ``download_dataset(source, id, dest, **opts)`` dispatcher.
+
+    Parameters
+    ----------
+    source : str
+        Source id, case-insensitive. Matched against
+        :data:`scitex_dataset._sources.ALL_SOURCES`.
+    id : str
+        Source-native identifier — HF ``org/name``, GIN ``owner/repo``,
+        etc.
+    dest : str | Path, optional
+        Local destination. Per-source default applies if ``None``.
+    **kwargs
+        Forwarded to the underlying ``<source>_download`` function.
+
+    Returns
+    -------
+    Any
+        Whatever the underlying downloader returns (path or manifest
+        dict).
+
+    Raises
+    ------
+    ValueError
+        If ``source`` is not in the registry.
+    NotImplementedError
+        If the matched source has no download adapter wired up yet.
+    """
+    src = source.lower().strip()
+    if src in ("gin",):
+        return gin_download(repo_id=id, local_dir=dest, **kwargs)
+    if src in ("huggingface", "hf"):
+        return huggingface_fetch(repo_id=id, local_dir=dest, **kwargs)
+
+    from ._sources import ALL_SOURCES
+    if src in ALL_SOURCES:
+        raise NotImplementedError(
+            f"download_dataset: source {src!r} is catalog-only today; "
+            f"a download adapter has not yet been wired up. "
+            f"Track at https://github.com/ywatanabe1989/scitex-dataset/issues"
+        )
+    raise ValueError(
+        f"download_dataset: unknown source {source!r}. "
+        f"Known sources: {sorted(ALL_SOURCES)}"
+    )
+
 
 # EOF

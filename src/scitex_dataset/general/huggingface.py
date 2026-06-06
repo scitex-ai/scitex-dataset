@@ -12,11 +12,25 @@ from HuggingFace with project-FS awareness (on Spartan, caches to /data/gpfs/ in
 of home to avoid quota issues).
 
 API Documentation: https://huggingface.co/docs/hub/
+
+Local-state layout
+------------------
+Downloaded snapshots are regenerable cache data and live under the SciTeX
+local-state runtime directory::
+
+    <scope-root>/runtime/huggingface/<repo_id>/
+
+where ``<scope-root>`` is project-scope (``<project>/.scitex/dataset/``) or
+user-scope (``$SCITEX_DIR/dataset/``, default ``~/.scitex/dataset/``).  See
+``general/01_ecosystem_06_local-state-directories`` for the canonical layout.
 """
 
 import os
+import warnings
 from pathlib import Path
 from typing import Dict, List, Optional
+
+from .._config import runtime_dir as _runtime_dir, user_root as _user_root
 
 # Note: supports_return_as is a decorator from scitex_dev that formats output
 # It's optional and mainly for consistency with other modules
@@ -95,7 +109,12 @@ def _resolve_local_dir(
     Priority:
     1. Explicit local_dir parameter
     2. Spartan project filesystem: /data/gpfs/projects/<punim>/<repo_id>/
-    3. Home directory: ~/.scitex/dataset/huggingface/<repo_id>/
+    3. SciTeX runtime directory: ``<scope-root>/runtime/huggingface/<repo_id>/``
+
+    Resolution follows the SciTeX local-state-directories standard: project
+    scope (``<project>/.scitex/dataset/``) wins over user scope
+    (``$SCITEX_DIR/dataset/``).  Setting ``SCITEX_DIR`` relocates the user
+    scope atomically.
 
     Parameters
     ----------
@@ -130,9 +149,29 @@ def _resolve_local_dir(
         except Exception:
             pass
 
-    # Fall back to home directory
+    # Fall back to SciTeX runtime directory via the PathManager resolver.
+    # Regenerable cache data belongs under <scope-root>/runtime/ per the
+    # local-state-directories standard.
     repo_name = repo_id.replace("/", "_")
-    return Path.home() / ".scitex" / "dataset" / "huggingface" / repo_name
+    new_path = _runtime_dir() / "huggingface" / repo_name
+
+    # Back-compat: migrate from legacy ~/.scitex/dataset/huggingface/<repo_name>/
+    # to the canonical runtime location (rule §8 of the local-state-directories
+    # skill). Only kicks in at user scope where legacy data could exist.
+    old_path = _user_root() / "huggingface" / repo_name
+    if old_path.exists() and not new_path.exists():
+        warnings.warn(
+            f"Migrating HuggingFace cache from {old_path} to {new_path} "
+            f"per the SciTeX local-state-directories standard "
+            f"(general/01_ecosystem_06_local-state-directories). "
+            f"This is a one-time migration.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        new_path.parent.mkdir(parents=True, exist_ok=True)
+        old_path.rename(new_path)
+
+    return new_path
 
 
 @supports_return_as
@@ -156,7 +195,8 @@ def fetch_dataset(
         HuggingFace repository ID (e.g., "Anthropic/BioMysteryBench-full").
     local_dir : str, optional
         Local directory for dataset. If None, uses Spartan project FS if detected,
-        else ~/.scitex/dataset/huggingface/<repo_id>/.
+        else ``<scope-root>/runtime/huggingface/<repo_id>/`` via the SciTeX
+        local-state resolver (project scope wins over ``$SCITEX_DIR``).
     repo_type : str
         Repository type: "dataset" (default) or "model".
     gated_token_var : str
@@ -335,7 +375,8 @@ def download_file(
     filename : str
         Path within the repository (e.g., "data/train.csv").
     local_dir : str, optional
-        Local directory for download. If None, uses ~/.scitex/dataset/huggingface/<repo_id>/.
+        Local directory for download. If None, uses the SciTeX runtime directory
+        via ``<scope-root>/runtime/huggingface/<repo_id>/``.
     repo_type : str
         Repository type: "dataset" (default) or "model".
 

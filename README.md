@@ -40,6 +40,7 @@
 | neuroscience | **OpenNeuro** | Open BIDS neuroimaging platform | MRI, EEG, MEG, iEEG, PET |
 | neuroscience | **DANDI** | BRAIN Initiative archive (NWB) | Electrophysiology, Ophys |
 | neuroscience | **PhysioNet** | Physiological signal databases | ECG, EEG, clinical data |
+| neuroscience | **GIN** | G-Node Infrastructure (Gogs + git-annex) | iEEG, ephys, behaviour |
 | general | **Zenodo** | General scientific data (CERN) | Any research data |
 | general | **Figshare** | Research data sharing platform | Any research data |
 | general | **OpenML** | Machine-learning datasets | Tabular ML benchmarks |
@@ -60,6 +61,42 @@ pip install scitex-dataset
 ```
 
 > **MCP support**: `pip install scitex-dataset[mcp]`
+
+<details>
+<summary><strong>Targeting a specific Python (agent containers, system venvs, Spartan modules)</strong></summary>
+
+<br>
+
+When the host has multiple Python interpreters — e.g. a pre-built
+agent venv at `/opt/venv-agent`, a Spartan `module load Python/3.11.3`,
+or an existing `~/.venv` you want to leave alone — point `uv` at the
+exact interpreter you want with `--python`:
+
+```bash
+# install into a specific venv WITHOUT touching project-local .venv
+uv pip install --python /opt/venv-agent/bin/python "scitex-dataset[all]"
+
+# one-shot CLI run under that interpreter
+uv run --python /opt/venv-agent/bin/python scitex-dataset list-python-apis
+
+# install the CLI as a tool, pinned to the same interpreter
+uv tool install --python /opt/venv-agent/bin/python "scitex-dataset[mcp]"
+
+# in a downstream script that bootstraps scitex-dataset, honour
+# SCITEX_PYTHON if the caller sets it:
+SCITEX_PYTHON="${SCITEX_PYTHON:-/opt/venv-agent/bin/python}"
+uv pip install --python "$SCITEX_PYTHON" "scitex-dataset[all]"
+```
+
+The Makefile honours `PYTHON=`:
+
+```bash
+PYTHON=/opt/venv-agent/bin/python make install
+```
+
+See issue [#38](https://github.com/ywatanabe1989/scitex-dataset/issues/38).
+
+</details>
 
 ## Architecture
 
@@ -201,10 +238,13 @@ scitex-dev skills export --package scitex-dataset  # Export to Claude Code
 
 | Skill | Content |
 |-------|---------|
-| `quick-start` | Basic usage |
-| `data-sources` | OpenNeuro, DANDI, PhysioNet |
-| `cli-reference` | CLI commands |
+| `installation` | pip install + extras + verify |
+| `quick-start` | Search, fetch, sort across sources |
+| `python-api` | Top-level exports, domain submodules, examples |
+| `cli-reference` | CLI grammar, domains, flags, config precedence |
 | `mcp-tools` | MCP tools for AI agents |
+| `env-vars` | SCITEX_* environment variables |
+| `data-sources` | All 11 supported repositories |
 
 </details>
 

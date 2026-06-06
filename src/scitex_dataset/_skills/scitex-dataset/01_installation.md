@@ -20,10 +20,11 @@ Pulls `httpx>=0.24`, `click>=8.0`, `scitex-dev`, and `scitex-config`.
 | Extra | Purpose |
 |---|---|
 | `mcp` | MCP server (`scitex-dataset mcp serve`) |
-| `scitex` | Pull in the `scitex` umbrella for full ecosystem integration |
 | `dev` | Test + lint tooling |
 | `docs` | Sphinx + RTD theme |
 | `all` | Everything above |
+
+> Note: the umbrella ``scitex`` package is installed separately via ``pip install scitex`` — it is not a ``scitex-dataset`` extra.
 
 ```bash
 pip install 'scitex-dataset[mcp]'

@@ -48,12 +48,6 @@ HuggingFace Hub support:
 
     pip install scitex-dataset[huggingface]
 
-SciTeX integration:
-
-.. code-block:: bash
-
-    pip install scitex-dataset[scitex]
-
 Verification
 ------------
 
@@ -62,4 +56,4 @@ Verify the installation:
 .. code-block:: bash
 
     scitex-dataset --version
-    scitex-dataset sources
+    scitex-dataset --help

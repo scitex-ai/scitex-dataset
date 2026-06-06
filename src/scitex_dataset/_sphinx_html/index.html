@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex-dataset - Neuroscience Dataset Fetcher &mdash; scitex-dataset v0.3.1</title>
+  <title>scitex-dataset - Multi-domain Scientific Dataset Fetcher &mdash; scitex-dataset v0.4.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=4621528c"></script>
+      <script src="_static/documentation_options.js?v=6c02275b"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -104,6 +104,10 @@
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.openneuro_fetch"><code class="docutils literal notranslate"><span class="pre">openneuro_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.dandi_fetch"><code class="docutils literal notranslate"><span class="pre">dandi_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.physionet_fetch"><code class="docutils literal notranslate"><span class="pre">physionet_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.gin_fetch"><code class="docutils literal notranslate"><span class="pre">gin_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.gin_search"><code class="docutils literal notranslate"><span class="pre">gin_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.gin_info"><code class="docutils literal notranslate"><span class="pre">gin_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.gin_download"><code class="docutils literal notranslate"><span class="pre">gin_download()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.zenodo_fetch"><code class="docutils literal notranslate"><span class="pre">zenodo_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.figshare_fetch"><code class="docutils literal notranslate"><span class="pre">figshare_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.openml_fetch"><code class="docutils literal notranslate"><span class="pre">openml_fetch()</span></code></a></li>
@@ -115,6 +119,7 @@
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.huggingface_search"><code class="docutils literal notranslate"><span class="pre">huggingface_search()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.download_dataset"><code class="docutils literal notranslate"><span class="pre">download_dataset()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
@@ -157,6 +162,62 @@
 <li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.zenodo.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.general.figshare">Figshare</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.figshare.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.figshare.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.figshare.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.general.openml">OpenML</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.openml.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.openml.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.openml.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.general.huggingface">HuggingFace Hub</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#local-state-layout">Local-state layout</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface.fetch_dataset"><code class="docutils literal notranslate"><span class="pre">fetch_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface.search_hub"><code class="docutils literal notranslate"><span class="pre">search_hub()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface.dataset_info"><code class="docutils literal notranslate"><span class="pre">dataset_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface.download_file"><code class="docutils literal notranslate"><span class="pre">download_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#biology-sources">Biology Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.biology.geo">GEO</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.biology.geo.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.biology.geo.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.biology.geo.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#pharmacology-sources">Pharmacology Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.pharmacology.moleculenet">MoleculeNet</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.pharmacology.moleculenet.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.pharmacology.moleculenet.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.pharmacology.moleculenet.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.pharmacology.chembl">ChEMBL</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.pharmacology.chembl.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.pharmacology.chembl.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.pharmacology.chembl.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#medical-sources">Medical Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.medical.clinicaltrials">ClinicalTrials.gov</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.medical.clinicaltrials.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.medical.clinicaltrials.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.medical.clinicaltrials.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset._cli">CLI</a><ul>
@@ -181,7 +242,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">scitex-dataset - Neuroscience Dataset Fetcher</li>
+      <li class="breadcrumb-item active">scitex-dataset - Multi-domain Scientific Dataset Fetcher</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/ywatanabe1989/scitex-dataset/blob/main/docs/sphinx/index.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -191,9 +252,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="scitex-dataset-neuroscience-dataset-fetcher">
-<h1>scitex-dataset - Neuroscience Dataset Fetcher<a class="headerlink" href="#scitex-dataset-neuroscience-dataset-fetcher" title="Link to this heading"></a></h1>
-<p><strong>scitex-dataset</strong> is a unified Python interface for fetching neuroscience datasets from multiple sources including OpenNeuro, DANDI Archive, and PhysioNet.</p>
+  <section id="scitex-dataset-multi-domain-scientific-dataset-fetcher">
+<h1>scitex-dataset - Multi-domain Scientific Dataset Fetcher<a class="headerlink" href="#scitex-dataset-multi-domain-scientific-dataset-fetcher" title="Link to this heading"></a></h1>
+<p><strong>scitex-dataset</strong> is a unified Python interface for discovering and fetching scientific datasets across <strong>11 repositories</strong> — neuroscience (OpenNeuro, DANDI, PhysioNet), general science (Zenodo, Figshare, OpenML, HuggingFace Hub), biology (GEO), pharmacology (MoleculeNet, ChEMBL), and medical (ClinicalTrials.gov).</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
@@ -244,6 +305,10 @@
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.openneuro_fetch"><code class="docutils literal notranslate"><span class="pre">openneuro_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.dandi_fetch"><code class="docutils literal notranslate"><span class="pre">dandi_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.physionet_fetch"><code class="docutils literal notranslate"><span class="pre">physionet_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.gin_fetch"><code class="docutils literal notranslate"><span class="pre">gin_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.gin_search"><code class="docutils literal notranslate"><span class="pre">gin_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.gin_info"><code class="docutils literal notranslate"><span class="pre">gin_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.gin_download"><code class="docutils literal notranslate"><span class="pre">gin_download()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.zenodo_fetch"><code class="docutils literal notranslate"><span class="pre">zenodo_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.figshare_fetch"><code class="docutils literal notranslate"><span class="pre">figshare_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.openml_fetch"><code class="docutils literal notranslate"><span class="pre">openml_fetch()</span></code></a></li>
@@ -255,10 +320,14 @@
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.huggingface_search"><code class="docutils literal notranslate"><span class="pre">huggingface_search()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.download_dataset"><code class="docutils literal notranslate"><span class="pre">download_dataset()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.database">Database Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#neuroscience-sources">Neuroscience Sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#general-sources">General Sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#biology-sources">Biology Sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#pharmacology-sources">Pharmacology Sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#medical-sources">Medical Sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset._cli">CLI</a></li>
 </ul>
 </li>
@@ -267,43 +336,61 @@
 <section id="key-features">
 <h2>Key Features<a class="headerlink" href="#key-features" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p><strong>Unified Interface</strong>: Single API for multiple neuroscience data repositories</p></li>
-<li><p><strong>Multiple Sources</strong>: OpenNeuro, DANDI Archive, PhysioNet, and more</p></li>
+<li><p><strong>Unified Interface</strong>: Single API across 10 catalog sources + HuggingFace Hub (on-demand)</p></li>
+<li><p><strong>Multi-domain</strong>: Neuroscience, biology, pharmacology, medical, and general science</p></li>
+<li><p><strong>Local SQLite + FTS5 Index</strong>: Build an offline-searchable cache via <code class="docutils literal notranslate"><span class="pre">db_build()</span></code></p></li>
 <li><p><strong>CLI &amp; Python API</strong>: Use from command line or import as a library</p></li>
-<li><p><strong>BIDS/NWB Support</strong>: Works with standard neuroimaging data formats</p></li>
-<li><p><strong>MCP Integration</strong>: AI agents can fetch datasets via MCP server</p></li>
+<li><p><strong>MCP Integration</strong>: AI agents can discover and fetch datasets via MCP server</p></li>
 </ul>
 </section>
 <section id="supported-sources">
 <h2>Supported Sources<a class="headerlink" href="#supported-sources" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p><strong>OpenNeuro</strong>: BIDS-formatted neuroimaging datasets</p></li>
-<li><p><strong>DANDI Archive</strong>: NWB-formatted neurophysiology data</p></li>
-<li><p><strong>PhysioNet</strong>: Physiological signal databases</p></li>
-<li><p><strong>Zenodo</strong>: General scientific datasets</p></li>
-</ul>
+<p><em>Neuroscience</em>
+- <strong>OpenNeuro</strong>: BIDS-formatted neuroimaging (MRI, EEG, MEG, iEEG, PET)
+- <strong>DANDI Archive</strong>: NWB-formatted neurophysiology data
+- <strong>PhysioNet</strong>: Physiological signal databases (ECG, EEG, waveforms)</p>
+<p><em>General Science</em>
+- <strong>Zenodo</strong>: General scientific data repository (CERN)
+- <strong>Figshare</strong>: Research data sharing platform
+- <strong>OpenML</strong>: Machine learning datasets and benchmarks
+- <strong>HuggingFace Hub</strong>: ML datasets and models (on-demand)</p>
+<p><em>Biology</em>
+- <strong>GEO</strong>: Gene Expression Omnibus (NCBI) — transcriptomics, microarray</p>
+<p><em>Pharmacology</em>
+- <strong>MoleculeNet</strong>: Molecular ML benchmark suite
+- <strong>ChEMBL</strong>: Bioactivity database (EBI) — IC50/Ki/EC50 assays</p>
+<p><em>Medical</em>
+- <strong>ClinicalTrials.gov</strong>: NIH clinical study registry</p>
 </section>
 <section id="quick-example">
 <h2>Quick Example<a class="headerlink" href="#quick-example" title="Link to this heading"></a></h2>
 <p>Python API:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">openneuro_fetch</span><span class="p">,</span> <span class="n">filter_results</span><span class="p">,</span> <span class="n">db_build</span><span class="p">,</span> <span class="n">db_search</span>
 
 <span class="c1"># Fetch from OpenNeuro</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;ds000001&quot;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">&quot;openneuro&quot;</span><span class="p">)</span>
+<span class="n">records</span> <span class="o">=</span> <span class="n">openneuro_fetch</span><span class="p">(</span><span class="n">max_datasets</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 
-<span class="c1"># Search across sources</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="s2">&quot;EEG epilepsy&quot;</span><span class="p">)</span>
+<span class="c1"># Filter + rank in memory</span>
+<span class="n">top</span> <span class="o">=</span> <span class="n">filter_results</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;eeg&quot;</span><span class="p">,</span> <span class="n">min_subjects</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">sort_by</span><span class="o">=</span><span class="s2">&quot;downloads&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># Build the local SQLite + FTS5 index for offline queries</span>
+<span class="n">db_build</span><span class="p">()</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">db_search</span><span class="p">(</span><span class="s2">&quot;Alzheimer EEG&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>CLI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fetch a dataset</span>
-scitex-dataset<span class="w"> </span>fetch<span class="w"> </span>ds000001<span class="w"> </span>--source<span class="w"> </span>openneuro
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fetch datasets</span>
+scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span>openneuro<span class="w"> </span>fetch<span class="w"> </span>-n<span class="w"> </span><span class="m">50</span>
 
 <span class="c1"># Search for datasets</span>
-scitex-dataset<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;fMRI visual&quot;</span>
+scitex-dataset<span class="w"> </span>general<span class="w"> </span>huggingface<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;biology&quot;</span><span class="w"> </span>-n<span class="w"> </span><span class="m">20</span>
 
-<span class="c1"># List available sources</span>
-scitex-dataset<span class="w"> </span>sources
+<span class="c1"># Build/search the local database</span>
+scitex-dataset<span class="w"> </span>db<span class="w"> </span>build
+scitex-dataset<span class="w"> </span>db<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alzheimer EEG&quot;</span>
+
+<span class="c1"># List available sources (embedded in --help)</span>
+scitex-dataset<span class="w"> </span>--help
 </pre></div>
 </div>
 </section>
