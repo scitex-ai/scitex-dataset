@@ -50,8 +50,13 @@ from ._api import (  # noqa: F401
     chembl_fetch,
     clinicaltrials_fetch,
     dandi_fetch,
+    download_dataset,
     figshare_fetch,
     geo_fetch,
+    gin_download,
+    gin_fetch,
+    gin_info,
+    gin_search,
     huggingface_download_file,
     huggingface_fetch,
     huggingface_info,
@@ -125,6 +130,10 @@ __all__ = [
     "openneuro_fetch",
     "dandi_fetch",
     "physionet_fetch",
+    "gin_fetch",
+    "gin_search",
+    "gin_info",
+    "gin_download",
     "zenodo_fetch",
     "figshare_fetch",
     "openml_fetch",
@@ -137,6 +146,8 @@ __all__ = [
     "huggingface_search",
     "huggingface_info",
     "huggingface_download_file",
+    # Unified dispatcher (issue #36)
+    "download_dataset",
 ]
 
 # EOF
