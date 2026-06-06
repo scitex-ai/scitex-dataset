@@ -102,6 +102,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.openneuro_fetch"><code class="docutils literal notranslate"><span class="pre">openneuro_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.dandi_fetch"><code class="docutils literal notranslate"><span class="pre">dandi_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.physionet_fetch"><code class="docutils literal notranslate"><span class="pre">physionet_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.gin_fetch"><code class="docutils literal notranslate"><span class="pre">gin_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.gin_search"><code class="docutils literal notranslate"><span class="pre">gin_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.gin_info"><code class="docutils literal notranslate"><span class="pre">gin_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.gin_download"><code class="docutils literal notranslate"><span class="pre">gin_download()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.zenodo_fetch"><code class="docutils literal notranslate"><span class="pre">zenodo_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.figshare_fetch"><code class="docutils literal notranslate"><span class="pre">figshare_fetch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.openml_fetch"><code class="docutils literal notranslate"><span class="pre">openml_fetch()</span></code></a></li>
@@ -113,6 +117,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.huggingface_search"><code class="docutils literal notranslate"><span class="pre">huggingface_search()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.download_dataset"><code class="docutils literal notranslate"><span class="pre">download_dataset()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
@@ -298,8 +303,13 @@
     <span class="n">chembl_fetch</span><span class="p">,</span>
     <span class="n">clinicaltrials_fetch</span><span class="p">,</span>
     <span class="n">dandi_fetch</span><span class="p">,</span>
+    <span class="n">download_dataset</span><span class="p">,</span>
     <span class="n">figshare_fetch</span><span class="p">,</span>
     <span class="n">geo_fetch</span><span class="p">,</span>
+    <span class="n">gin_download</span><span class="p">,</span>
+    <span class="n">gin_fetch</span><span class="p">,</span>
+    <span class="n">gin_info</span><span class="p">,</span>
+    <span class="n">gin_search</span><span class="p">,</span>
     <span class="n">huggingface_download_file</span><span class="p">,</span>
     <span class="n">huggingface_fetch</span><span class="p">,</span>
     <span class="n">huggingface_info</span><span class="p">,</span>
@@ -379,6 +389,10 @@
     <span class="s2">&quot;openneuro_fetch&quot;</span><span class="p">,</span>
     <span class="s2">&quot;dandi_fetch&quot;</span><span class="p">,</span>
     <span class="s2">&quot;physionet_fetch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gin_fetch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gin_search&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gin_info&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gin_download&quot;</span><span class="p">,</span>
     <span class="s2">&quot;zenodo_fetch&quot;</span><span class="p">,</span>
     <span class="s2">&quot;figshare_fetch&quot;</span><span class="p">,</span>
     <span class="s2">&quot;openml_fetch&quot;</span><span class="p">,</span>
@@ -391,6 +405,8 @@
     <span class="s2">&quot;huggingface_search&quot;</span><span class="p">,</span>
     <span class="s2">&quot;huggingface_info&quot;</span><span class="p">,</span>
     <span class="s2">&quot;huggingface_download_file&quot;</span><span class="p">,</span>
+    <span class="c1"># Unified dispatcher (issue #36)</span>
+    <span class="s2">&quot;download_dataset&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="c1"># EOF</span>
