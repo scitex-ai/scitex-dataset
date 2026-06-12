@@ -46,6 +46,14 @@ from .pharmacology.chembl import format_dataset as chembl_format
 from .pharmacology.moleculenet import fetch_all_datasets as moleculenet_fetch
 from .pharmacology.moleculenet import format_dataset as moleculenet_format
 
+# Agentic AI-for-science benchmark cohorts. Each ``mask`` is the
+# read-only pure-Python verb (safe over MCP); ``download`` /
+# ``prepare`` are CLI-only on purpose (multi-GB pulls belong on SLURM
+# compute nodes, not an MCP client).
+from .ai_for_science.biomysterybench import mask as biomysterybench_mask
+from .ai_for_science.bixbench import mask as bixbench_mask
+from .ai_for_science.corebench import mask as corebench_mask
+
 __all__ = [
     "openneuro_fetch",
     "openneuro_format",
@@ -78,6 +86,10 @@ __all__ = [
     "huggingface_search",
     "huggingface_info",
     "huggingface_download_file",
+    # Agentic AI-for-science benchmark cohorts (mask-only over MCP)
+    "corebench_mask",
+    "bixbench_mask",
+    "biomysterybench_mask",
 ]
 
 

@@ -22,3 +22,9 @@ nouns:
   - chembl
   - clinicaltrials
   - geo
+  # Agentic AI-for-science benchmark cohort ids (issue #42).
+  # Coined names (paper-/lab-specific), so they're not in any English
+  # POS catalog by construction.
+  - corebench
+  - bixbench
+  - biomysterybench

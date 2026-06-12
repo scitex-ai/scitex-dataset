@@ -28,7 +28,13 @@ from __future__ import annotations
 import click
 
 from .. import __version__
-from .._sources import ALL_SOURCES, DOMAIN_OF, DOMAINS, SOURCE_INFO
+from .._sources import (
+    AGENTIC_BENCH_SOURCES,
+    ALL_SOURCES,
+    DOMAIN_OF,
+    DOMAINS,
+    SOURCE_INFO,
+)
 from ._db import db as db_group
 from ._groups import register_domain_groups
 from ._introspect import list_python_apis
@@ -160,6 +166,12 @@ def _legacy_redirect(name: str, target: str) -> click.Command:
 
 
 for _src in ALL_SOURCES:
+    # Agentic-bench sources are new in this domain — they have no
+    # prior bare `<src>` or `fetch-<src>` legacy form to redirect from.
+    # Adding the redirects would also be misleading: their pipeline is
+    # `download | prepare | mask`, not `fetch`.
+    if _src in AGENTIC_BENCH_SOURCES:
+        continue
     domain = DOMAIN_OF[_src]
     target = f"{domain} {_src} fetch"
     main.add_command(_legacy_redirect(_src, target))
