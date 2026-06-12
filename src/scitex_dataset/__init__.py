@@ -7,11 +7,14 @@
 SciTeX Dataset - Unified interface for scientific dataset discovery.
 
 Domains:
-- neuroscience: OpenNeuro, DANDI, PhysioNet
-- general: Scientific Data, Zenodo
-- biology: GEO (Gene Expression Omnibus)
-- pharmacology: ChEMBL
-- medical: ClinicalTrials.gov
+- neuroscience:    OpenNeuro, DANDI, PhysioNet
+- general:         Scientific Data, Zenodo, Figshare, OpenML, HuggingFace
+- biology:         GEO (Gene Expression Omnibus)
+- pharmacology:    ChEMBL, MoleculeNet
+- medical:         ClinicalTrials.gov
+- ai-for-science:  CORE-Bench, BixBench, BioMysteryBench (agentic
+                   reproducibility / bioinformatics / biology cohorts —
+                   ``download | prepare | mask`` verb tree)
 
 Usage:
     >>> from scitex_dataset import neuroscience
@@ -24,6 +27,14 @@ Usage:
     >>> from scitex_dataset import database as db
     >>> db.build()  # Fetch all sources and index
     >>> results = db.search("alzheimer EEG", min_subjects=20)
+
+    >>> # Prepare an agentic-benchmark cohort (mask only — safe, fast)
+    >>> from scitex_dataset import ai_for_science
+    >>> paths = ai_for_science.resolve_paths("cohort_a_corebench")
+    >>> ai_for_science.corebench.mask(
+    ...     oracle_dir=paths.oracle_dir,
+    ...     benchmark_dir=paths.benchmark_dir,
+    ... )
 """
 
 from __future__ import annotations
@@ -41,14 +52,25 @@ except ImportError:  # pragma: no cover — only on ancient Pythons
     __version__ = "0.0.0+local"
 # Domain submodules
 from . import _api as _api  # noqa: F401
-from . import biology, database, general, medical, neuroscience, pharmacology
+from . import (
+    ai_for_science,
+    biology,
+    database,
+    general,
+    medical,
+    neuroscience,
+    pharmacology,
+)
 
 # Per-source ``<src>_fetch`` / ``<src>_format`` aliases — give every MCP
 # tool a matching Python callable for the audit-mcp-tools § 6 parity
 # check. See _api.py for the explicit list.
 from ._api import (  # noqa: F401
+    biomysterybench_mask,
+    bixbench_mask,
     chembl_fetch,
     clinicaltrials_fetch,
+    corebench_mask,
     dandi_fetch,
     download_dataset,
     figshare_fetch,
@@ -148,6 +170,11 @@ __all__ = [
     "huggingface_download_file",
     # Unified dispatcher (issue #36)
     "download_dataset",
+    # Agentic AI-for-science benchmark cohorts (MCP parity with
+    # ``dataset_<bench>_mask`` tools)
+    "corebench_mask",
+    "bixbench_mask",
+    "biomysterybench_mask",
 ]
 
 # EOF

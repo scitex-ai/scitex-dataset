@@ -8,6 +8,12 @@ Every catalog source becomes a noun group with one verb (``fetch``).
 HuggingFace adds ``search``, ``info``, and ``download-file`` (so the
 noun-group form is justified — see ``general/03_interface_02_cli/02``
 on tree-vs-compound-leaf).
+
+Agentic-bench sources (``ai-for-science``: corebench / bixbench /
+biomysterybench) use a different verb tree (``download | prepare |
+mask``) because the agentic pipeline is multi-step rather than a
+single fetch. Their groups are built by ``_make_agentic_bench_group``;
+the catalog/ondemand path goes through ``make_fetch_command``.
 """
 
 from __future__ import annotations
@@ -18,6 +24,7 @@ from pathlib import Path
 import click
 
 from .._sources import (
+    AGENTIC_BENCH_SOURCES,
     DOMAINS,
     SOURCE_INFO,
     sources_in_domain,
@@ -65,6 +72,10 @@ def _make_dataset_group(source: str) -> click.Group:
         _grp.add_command(_hf_search_command())
         _grp.add_command(_hf_info_command())
         _grp.add_command(_hf_download_file_command())
+    elif source in AGENTIC_BENCH_SOURCES:
+        # Agentic benchmarks use download | prepare | mask, not fetch.
+        for cmd in _agentic_bench_commands(source):
+            _grp.add_command(cmd)
     else:
         _grp.add_command(make_fetch_command(source, **spec))
 
@@ -257,6 +268,145 @@ def _hf_download_file_command() -> click.Command:
             raise SystemExit(1)
 
     return _cmd
+
+
+# ---------------------------------------------------------------------------
+# Agentic AI-for-science benchmarks — download | prepare | mask verb tree.
+# ---------------------------------------------------------------------------
+
+
+def _agentic_bench_module(source: str):
+    """Return the ``scitex_dataset.ai_for_science.<source>`` module."""
+    import importlib
+
+    return importlib.import_module(
+        f"..ai_for_science.{source}", package=__package__
+    )
+
+
+def _emit_result(as_json: bool, result: dict, headline: str) -> None:
+    """Render a verb result dict — JSON when requested, human-friendly otherwise."""
+    if as_json:
+        click.echo(json.dumps(result, indent=2, default=str))
+        return
+    click.echo(headline)
+    for key in ("output", "manifest", "capsule_dir"):
+        if key in result:
+            click.echo(f"  {key}: {result[key]}")
+    if "n_records" in result:
+        click.echo(f"  n_records: {result['n_records']}")
+
+
+def _common_paths_options(f):
+    """Attach the four standard --*-root / --paths options to a click cmd."""
+    f = click.option(
+        "--oracle-root",
+        type=click.Path(),
+        default=None,
+        help="Operator-private oracle root (default: $SCITEX_ORACLES_ROOT or "
+        "~/.scitex/oracles).",
+    )(f)
+    f = click.option(
+        "--dataset-root",
+        type=click.Path(),
+        default=None,
+        help="Dataset output root (default: $SCITEX_DATASET_ROOT or "
+        "~/.scitex/dataset).",
+    )(f)
+    f = click.option(
+        "--json",
+        "as_json",
+        is_flag=True,
+        help="Emit the result dict as JSON.",
+    )(f)
+    return f
+
+
+def _agentic_bench_commands(source: str) -> list[click.Command]:
+    """Build [download, prepare, mask] click commands for one cohort."""
+    module = _agentic_bench_module(source)
+
+    @click.command("download")
+    @_common_paths_options
+    def _download_cmd(oracle_root, dataset_root, as_json):
+        """Fetch upstream artifacts into oracle + capsule dirs.
+
+        \b
+        WARNING: capsule downloads are multi-GB. Run on SLURM, not a
+        login node or CI.
+        """
+        from ..ai_for_science._base import resolve_paths
+
+        paths = resolve_paths(
+            module.COHORT_DIR,
+            oracle_root=oracle_root,
+            dataset_root=dataset_root,
+        )
+        try:
+            result = module.download(
+                oracle_dir=paths.oracle_dir, capsule_dir=paths.capsule_dir
+            )
+        except Exception as exc:
+            click.echo(f"Error: {exc}", err=True)
+            raise SystemExit(1)
+        result["paths"] = paths.as_dict()
+        _emit_result(as_json, result, f"Downloaded {source}.")
+
+    @click.command("mask")
+    @_common_paths_options
+    def _mask_cmd(oracle_root, dataset_root, as_json):
+        """Read oracle artifacts, write the masked agent-visible questions file."""
+        from ..ai_for_science._base import resolve_paths
+
+        paths = resolve_paths(
+            module.COHORT_DIR,
+            oracle_root=oracle_root,
+            dataset_root=dataset_root,
+        )
+        try:
+            result = module.mask(
+                oracle_dir=paths.oracle_dir,
+                benchmark_dir=paths.benchmark_dir,
+            )
+        except Exception as exc:
+            click.echo(f"Error: {exc}", err=True)
+            raise SystemExit(1)
+        result["paths"] = paths.as_dict()
+        _emit_result(as_json, result, f"Masked {source}.")
+
+    @click.command("prepare")
+    @_common_paths_options
+    @click.option(
+        "--version",
+        default="v0-unstamped",
+        help="Snapshot version recorded in MANIFEST.yaml (upstream tag / "
+        "HF revision / ISO-date).",
+    )
+    @click.option(
+        "--skip-download",
+        is_flag=True,
+        help="Skip the upstream pull (oracle artifacts already staged).",
+    )
+    def _prepare_cmd(oracle_root, dataset_root, as_json, version, skip_download):
+        """Run download + mask + emit .scitex/dataset/MANIFEST.yaml.
+
+        \b
+        WARNING: includes the multi-GB download step unless
+        --skip-download is given. SLURM-only on shared compute.
+        """
+        try:
+            result = module.prepare(
+                oracle_root=oracle_root,
+                dataset_root=dataset_root,
+                version=version,
+                skip_download=skip_download,
+            )
+        except Exception as exc:
+            click.echo(f"Error: {exc}", err=True)
+            raise SystemExit(1)
+        _emit_result(as_json, result, f"Prepared {source}.")
+
+    return [_download_cmd, _prepare_cmd, _mask_cmd]
 
 
 __all__ = ["register_domain_groups"]

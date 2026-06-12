@@ -4,16 +4,22 @@
 
 """Single source-of-truth for the source registry.
 
-Two lists exist on purpose:
+Three lists exist on purpose, by CLI shape:
 
 - ``CATALOG_SOURCES`` — sources whose modules expose the standard
   ``fetch_all_datasets() / format_dataset()`` contract and can be
-  enumerated/indexed wholesale.
+  enumerated/indexed wholesale. Verb: ``fetch``.
 - ``ONDEMAND_SOURCES`` — sources fetched by repo_id (no full catalog
-  enumeration). HuggingFace is the only one today.
+  enumeration). HuggingFace is the only one today. Verbs: ``fetch``,
+  ``search``, ``info``, ``download-file``.
+- ``AGENTIC_BENCH_SOURCES`` — agentic AI-for-science benchmark cohorts
+  whose pipeline is ``download → prepare → mask`` (oracle answers nulled
+  before the agent ever sees the dataset). Categorically distinct from
+  the raw catalog/ondemand sources; they emit a provenance
+  ``MANIFEST.yaml`` so consumers can pin a specific snapshot.
 
-``ALL_SOURCES = CATALOG_SOURCES + ONDEMAND_SOURCES`` is the union used
-by CLI choice lists and ``dataset_list_sources``.
+``ALL_SOURCES = CATALOG_SOURCES + ONDEMAND_SOURCES + AGENTIC_BENCH_SOURCES``
+is the union used by CLI choice lists and ``dataset_list_sources``.
 """
 
 CATALOG_SOURCES = [
@@ -34,7 +40,19 @@ ONDEMAND_SOURCES = [
     "huggingface",
 ]
 
-ALL_SOURCES = CATALOG_SOURCES + ONDEMAND_SOURCES
+# Agentic AI-for-science benchmark cohorts. Each has a multi-verb
+# pipeline (``download``, ``prepare``, ``mask``) rather than a single
+# ``fetch`` — the upstream artifacts carry ground-truth answers and must
+# be masked before being made agent-visible. See
+# ``ai_for_science/__init__.py`` for the contract every benchmark module
+# implements.
+AGENTIC_BENCH_SOURCES = [
+    "corebench",
+    "bixbench",
+    "biomysterybench",
+]
+
+ALL_SOURCES = CATALOG_SOURCES + ONDEMAND_SOURCES + AGENTIC_BENCH_SOURCES
 
 # Catalog metadata used by `dataset_list_sources` MCP tool.
 SOURCE_INFO = {
@@ -134,6 +152,30 @@ SOURCE_INFO = {
         "domain": "general",
         "kind": "ondemand",
     },
+    "corebench": {
+        "name": "CORE-Bench",
+        "description": "Agentic AI-for-science benchmark: 90 reproducibility-judging capsules from CodeOcean papers (Princeton)",
+        "url": "https://corebench.cs.princeton.edu",
+        "format": "Capsule tarballs + JSON manifests",
+        "domain": "ai-for-science",
+        "kind": "agentic-bench",
+    },
+    "bixbench": {
+        "name": "BixBench",
+        "description": "Agentic AI-for-science benchmark: 205 bioinformatics-analysis tasks across 54 capsules (FutureHouse)",
+        "url": "https://huggingface.co/datasets/futurehouse/BixBench",
+        "format": "HF snapshot (CapsuleData / CapsuleNotebook dirs + JSONL manifest)",
+        "domain": "ai-for-science",
+        "kind": "agentic-bench",
+    },
+    "biomysterybench": {
+        "name": "BioMysteryBench",
+        "description": "Agentic AI-for-science benchmark: biology-mystery problems with rubric-graded answers (Anthropic; gated full set)",
+        "url": "https://huggingface.co/datasets/Anthropic/BioMysteryBench-preview",
+        "format": "HF snapshot (data zip + problems.csv/parquet)",
+        "domain": "ai-for-science",
+        "kind": "agentic-bench",
+    },
 }
 
 DOMAIN_OF = {src: meta["domain"] for src, meta in SOURCE_INFO.items()}
@@ -141,7 +183,14 @@ DOMAIN_OF = {src: meta["domain"] for src, meta in SOURCE_INFO.items()}
 # Display order of domains in the top-level CLI help — drives both the
 # repository bullet list and the order of domain groups in the click
 # tree. Edit this list, not the dict above, to reshuffle.
-DOMAINS = ["neuroscience", "general", "biology", "pharmacology", "medical"]
+DOMAINS = [
+    "neuroscience",
+    "general",
+    "biology",
+    "pharmacology",
+    "medical",
+    "ai-for-science",
+]
 
 
 def sources_in_domain(domain: str):
@@ -152,6 +201,7 @@ def sources_in_domain(domain: str):
 __all__ = [
     "CATALOG_SOURCES",
     "ONDEMAND_SOURCES",
+    "AGENTIC_BENCH_SOURCES",
     "ALL_SOURCES",
     "SOURCE_INFO",
     "DOMAIN_OF",

@@ -9,6 +9,7 @@ server (``_mcp/server.py``) and by external aggregator servers via
 ``_mcp/tools.py``.
 """
 
+from ._ai_for_science import register_ai_for_science_tools
 from ._db import register_db_tools
 from ._fetch import register_fetch_tools
 from ._hf import register_hf_tools
@@ -22,6 +23,7 @@ def register_all_tools(mcp) -> None:
     register_search_tools(mcp)
     register_db_tools(mcp)
     register_hf_tools(mcp)
+    register_ai_for_science_tools(mcp)
     register_skills_tools(mcp)
 
 
