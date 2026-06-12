@@ -254,6 +254,127 @@ class TestBuildInventory:
 # ---------------------------------------------------------------------------
 
 
+class TestClassifyCapsuleFiles:
+    def test_classify_returns_none_when_capsule_dir_absent(self, tmp_path):
+        # Arrange
+        missing = tmp_path / "nope"
+        # Act
+        result = corebench._classify_capsule_files(missing)
+        # Assert
+        assert result is None
+
+    def test_classify_counts_python_files(self, tmp_path):
+        # Arrange
+        capsule = tmp_path / "capsule-x"
+        capsule.mkdir()
+        (capsule / "a.py").write_text("# a")
+        (capsule / "b.py").write_text("# b")
+        # Act
+        stats = corebench._classify_capsule_files(capsule)
+        # Assert
+        assert stats["n_python_files"] == 2
+
+    def test_classify_counts_r_files_case_insensitive(self, tmp_path):
+        # Arrange
+        capsule = tmp_path / "capsule-x"
+        capsule.mkdir()
+        (capsule / "analysis.R").write_text("# r")
+        (capsule / "report.rmd").write_text("# rmd")
+        # Act
+        stats = corebench._classify_capsule_files(capsule)
+        # Assert
+        assert stats["n_r_files"] == 2
+
+    def test_classify_counts_notebooks(self, tmp_path):
+        # Arrange
+        capsule = tmp_path / "capsule-x"
+        capsule.mkdir()
+        (capsule / "nb.ipynb").write_text("{}")
+        # Act
+        stats = corebench._classify_capsule_files(capsule)
+        # Assert
+        assert stats["n_notebooks"] == 1
+
+    def test_classify_detects_dockerfile(self, tmp_path):
+        # Arrange
+        capsule = tmp_path / "capsule-x"
+        capsule.mkdir()
+        (capsule / "Dockerfile").write_text("FROM python")
+        # Act
+        stats = corebench._classify_capsule_files(capsule)
+        # Assert
+        assert stats["has_dockerfile"] is True
+
+    def test_classify_counts_data_files_by_extension(self, tmp_path):
+        # Arrange
+        capsule = tmp_path / "capsule-x"
+        capsule.mkdir()
+        for name in ("a.csv", "b.parquet", "c.npy"):
+            (capsule / name).write_text("x")
+        # Act
+        stats = corebench._classify_capsule_files(capsule)
+        # Assert
+        assert stats["n_data_files"] == 3
+
+
+class TestCapsuleUrl:
+    def test_capsule_url_combines_base_and_capsule_id(self):
+        # Arrange
+        base = "https://corebench.cs.princeton.edu"
+        cid = "capsule-7038571"
+        # Act
+        url = corebench._capsule_url(base, cid)
+        # Assert
+        assert url == f"{base}/capsules/{cid}.tar.gz"
+
+
+class TestDownloadSkipsExistingCapsules:
+    def test_download_marks_existing_file_as_have(self, tmp_path):
+        # Arrange — pre-stage a capsule tarball so download(...) sees
+        # it as already present (no network call attempted).
+        capsule_dir = tmp_path / "cap"
+        capsule_dir.mkdir()
+        (capsule_dir / "capsule-abc.tar.gz").write_text("not-really-a-tarball")
+        # Act
+        result = corebench.download(
+            oracle_dir=tmp_path / "oracle",
+            capsule_dir=capsule_dir,
+            capsule_ids=["capsule-abc"],
+        )
+        # Assert
+        assert result["n_have"] == 1
+
+    def test_download_records_zero_fetched_when_only_existing_present(
+        self, tmp_path
+    ):
+        # Arrange
+        capsule_dir = tmp_path / "cap"
+        capsule_dir.mkdir()
+        (capsule_dir / "capsule-abc.tar.gz").write_text("x")
+        # Act
+        result = corebench.download(
+            oracle_dir=tmp_path / "oracle",
+            capsule_dir=capsule_dir,
+            capsule_ids=["capsule-abc"],
+        )
+        # Assert
+        assert result["n_fetched"] == 0
+
+    def test_download_raises_when_capsule_ids_none_and_oracle_missing(
+        self, tmp_path
+    ):
+        # Arrange
+        capsule_dir = tmp_path / "cap"
+        bare_oracle = tmp_path / "empty-oracle"
+        bare_oracle.mkdir()
+        # Act
+        # Assert
+        with pytest.raises(FileNotFoundError):
+            corebench.download(
+                oracle_dir=bare_oracle, capsule_dir=capsule_dir
+            )
+
+
 class TestPrepareSkipDownload:
     def test_prepare_skip_download_emits_manifest_yaml(
         self, tmp_path, staged_oracle_dir

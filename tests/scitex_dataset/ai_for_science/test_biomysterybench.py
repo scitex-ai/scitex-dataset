@@ -128,6 +128,84 @@ class TestMaskRow:
         assert once == twice
 
 
+class TestRelocateOracleFiles:
+    def test_relocate_moves_present_local_file_to_oracle(self, tmp_path):
+        # Arrange
+        capsule = tmp_path / "capsule"
+        capsule.mkdir()
+        (capsule / "problems.csv").write_text("id,question\np1,q1\n")
+        oracle = tmp_path / "oracle"
+        # Act
+        statuses = biomysterybench._relocate_oracle_files(capsule, oracle)
+        # Assert
+        assert "problems.csv: moved-local-to-oracle" in statuses
+
+    def test_relocate_clears_local_after_move(self, tmp_path):
+        # Arrange
+        capsule = tmp_path / "capsule"
+        capsule.mkdir()
+        (capsule / "problems.csv").write_text("id,question\np1,q1\n")
+        oracle = tmp_path / "oracle"
+        # Act
+        biomysterybench._relocate_oracle_files(capsule, oracle)
+        # Assert
+        assert not (capsule / "problems.csv").exists()
+
+    def test_relocate_reports_absent_for_files_upstream_did_not_ship(
+        self, tmp_path
+    ):
+        # Arrange — preview snapshot doesn't ship problems.parquet
+        capsule = tmp_path / "capsule"
+        capsule.mkdir()
+        oracle = tmp_path / "oracle"
+        # Act
+        statuses = biomysterybench._relocate_oracle_files(capsule, oracle)
+        # Assert
+        assert "problems.parquet: absent-upstream" in statuses
+
+    def test_relocate_reports_already_relocated_on_repeat_run(self, tmp_path):
+        # Arrange
+        capsule = tmp_path / "capsule"
+        capsule.mkdir()
+        oracle = tmp_path / "oracle"
+        oracle.mkdir()
+        (oracle / "problems.csv").write_text("id\np1\n")
+        # Act
+        statuses = biomysterybench._relocate_oracle_files(capsule, oracle)
+        # Assert
+        assert "problems.csv: already-relocated" in statuses
+
+    def test_relocate_removes_duplicate_local_when_matches_oracle(
+        self, tmp_path
+    ):
+        # Arrange
+        capsule = tmp_path / "capsule"
+        capsule.mkdir()
+        (capsule / "problems.csv").write_text("same\n")
+        oracle = tmp_path / "oracle"
+        oracle.mkdir()
+        (oracle / "problems.csv").write_text("same\n")
+        # Act
+        statuses = biomysterybench._relocate_oracle_files(capsule, oracle)
+        # Assert
+        assert "problems.csv: removed-duplicate-local-copy" in statuses
+
+    def test_relocate_raises_runtimeerror_when_local_and_oracle_differ(
+        self, tmp_path
+    ):
+        # Arrange
+        capsule = tmp_path / "capsule"
+        capsule.mkdir()
+        (capsule / "problems.csv").write_text("local\n")
+        oracle = tmp_path / "oracle"
+        oracle.mkdir()
+        (oracle / "problems.csv").write_text("oracle\n")
+        # Act
+        # Assert
+        with pytest.raises(RuntimeError):
+            biomysterybench._relocate_oracle_files(capsule, oracle)
+
+
 class TestMaskOnDisk:
     def test_mask_writes_questions_jsonl_in_benchmark_dir(
         self, tmp_path, staged_oracle_dir

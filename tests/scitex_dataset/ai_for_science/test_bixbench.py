@@ -127,6 +127,82 @@ class TestMaskRecord:
         assert oracle_record == snapshot
 
 
+class TestRelocateOracleManifest:
+    def test_relocate_moves_local_to_oracle_when_only_local_present(
+        self, tmp_path
+    ):
+        # Arrange
+        local = tmp_path / "capsule" / "BixBench.jsonl"
+        local.parent.mkdir()
+        local.write_text("payload\n")
+        oracle = tmp_path / "oracle" / "BixBench.jsonl"
+        # Act
+        status = bixbench._relocate_oracle_manifest(local, oracle)
+        # Assert
+        assert status == "moved-local-to-oracle"
+
+    def test_relocate_clears_local_after_moving_to_oracle(self, tmp_path):
+        # Arrange
+        local = tmp_path / "capsule" / "BixBench.jsonl"
+        local.parent.mkdir()
+        local.write_text("payload\n")
+        oracle = tmp_path / "oracle" / "BixBench.jsonl"
+        # Act
+        bixbench._relocate_oracle_manifest(local, oracle)
+        # Assert
+        assert not local.exists()
+
+    def test_relocate_returns_already_relocated_when_only_oracle_present(
+        self, tmp_path
+    ):
+        # Arrange
+        local = tmp_path / "capsule" / "BixBench.jsonl"
+        oracle = tmp_path / "oracle" / "BixBench.jsonl"
+        oracle.parent.mkdir()
+        oracle.write_text("payload\n")
+        # Act
+        status = bixbench._relocate_oracle_manifest(local, oracle)
+        # Assert
+        assert status == "already-relocated"
+
+    def test_relocate_removes_local_duplicate_when_both_match(self, tmp_path):
+        # Arrange
+        local = tmp_path / "capsule" / "BixBench.jsonl"
+        local.parent.mkdir()
+        local.write_text("same-bytes\n")
+        oracle = tmp_path / "oracle" / "BixBench.jsonl"
+        oracle.parent.mkdir()
+        oracle.write_text("same-bytes\n")
+        # Act
+        status = bixbench._relocate_oracle_manifest(local, oracle)
+        # Assert
+        assert status == "removed-duplicate-local-copy"
+
+    def test_relocate_raises_runtimeerror_when_both_present_and_differ(
+        self, tmp_path
+    ):
+        # Arrange
+        local = tmp_path / "capsule" / "BixBench.jsonl"
+        local.parent.mkdir()
+        local.write_text("local-bytes\n")
+        oracle = tmp_path / "oracle" / "BixBench.jsonl"
+        oracle.parent.mkdir()
+        oracle.write_text("oracle-bytes\n")
+        # Act
+        # Assert
+        with pytest.raises(RuntimeError):
+            bixbench._relocate_oracle_manifest(local, oracle)
+
+    def test_relocate_raises_filenotfounderror_when_both_absent(self, tmp_path):
+        # Arrange
+        local = tmp_path / "capsule" / "BixBench.jsonl"
+        oracle = tmp_path / "oracle" / "BixBench.jsonl"
+        # Act
+        # Assert
+        with pytest.raises(FileNotFoundError):
+            bixbench._relocate_oracle_manifest(local, oracle)
+
+
 class TestMaskOnDisk:
     def test_mask_writes_questions_jsonl_in_benchmark_dir(
         self, tmp_path, staged_oracle_dir
