@@ -16,7 +16,7 @@ Schema (one document per cohort, written deterministically as YAML):
     version:     str   # snapshot tag — upstream tag, HF revision, or
                        # ISO-date for non-versioned upstreams
     source_url:  str   # canonical upstream URL
-    cohort_dir:  str   # on-disk cohort directory name
+    benchmark:   str   # canonical benchmark name (on-disk dir under ai-for-science/)
     mask_seed:   str   # deterministic seed for the mask transform
                        # (empty = no randomness; current masks all use ``""``)
     files:       list  # [{path: <rel>, sha256: <hex>, size: <int>}, ...]
@@ -65,7 +65,7 @@ class Manifest:
     name: str
     version: str
     source_url: str
-    cohort_dir: str
+    benchmark: str
     mask_seed: str = ""
     files: list[ManifestEntry] = field(default_factory=list)
     scitex_dataset_version: str = ""
@@ -77,7 +77,7 @@ class Manifest:
             "name": self.name,
             "version": self.version,
             "source_url": self.source_url,
-            "cohort_dir": self.cohort_dir,
+            "benchmark": self.benchmark,
             "mask_seed": self.mask_seed,
             "files": [e.as_dict() for e in self.files],
             "scitex_dataset_version": self.scitex_dataset_version,
@@ -97,9 +97,7 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def manifest_entries_for(
-    paths: Iterable[Path], root: Path
-) -> list[ManifestEntry]:
+def manifest_entries_for(paths: Iterable[Path], root: Path) -> list[ManifestEntry]:
     """Build sorted ``ManifestEntry`` rows for the given paths.
 
     ``path`` field is rendered relative to ``root`` with POSIX
@@ -146,7 +144,7 @@ def _yaml_scalar(value) -> str:
     if value is None:
         return "null"
     s = str(value)
-    if s == "" or any(ch in s for ch in ' :#"\'\\\n\t'):
+    if s == "" or any(ch in s for ch in " :#\"'\\\n\t"):
         escaped = s.replace("\\", "\\\\").replace('"', '\\"')
         return f'"{escaped}"'
     return s
@@ -193,7 +191,7 @@ def write_manifest(
     name: str,
     version: str,
     source_url: str,
-    cohort_dir: str,
+    benchmark: str,
     tracked_paths: Iterable[Path],
     tracked_root: Path,
     mask_seed: str = "",
@@ -220,7 +218,7 @@ def write_manifest(
         name=name,
         version=version,
         source_url=source_url,
-        cohort_dir=cohort_dir,
+        benchmark=benchmark,
         mask_seed=mask_seed,
         files=entries,
         scitex_dataset_version=_scitex_dataset_version(),
@@ -230,9 +228,9 @@ def write_manifest(
     manifest_dir.mkdir(parents=True, exist_ok=True)
     out = manifest_dir / MANIFEST_FILENAME
     out.write_text(to_yaml(doc), encoding="utf-8")
-    # Operator-private oracle copy of capsule answers is never tracked
-    # here — by construction ``tracked_paths`` comes from the masked
-    # benchmark dir, not the oracle dir.
+    # Answer-bearing upstream artifacts are never tracked here — by
+    # construction ``tracked_paths`` comes from the agent-visible masked
+    # dir, not the operator-private raw dir.
     _ = os  # silence unused-import linter if os ever gets dropped above
     return out
 

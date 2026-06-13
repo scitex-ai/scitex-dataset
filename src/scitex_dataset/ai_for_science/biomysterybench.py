@@ -2,11 +2,7 @@
 # -*- coding: utf-8 -*-
 # File: src/scitex_dataset/ai_for_science/biomysterybench.py
 
-"""BioMysteryBench dataset preparation (cohort C).
-
-Migrated from
-``paper-scitex-clew/scripts/cohorts/c_biomysterybench/dataset/``
-(operator brief 2026-06-12).
+"""BioMysteryBench dataset preparation.
 
 BioMysteryBench: biology-mystery problems with rubric-graded answers,
 hosted on Hugging Face Hub by Anthropic. Two variants:
@@ -14,21 +10,21 @@ hosted on Hugging Face Hub by Anthropic. Two variants:
 - ``Anthropic/BioMysteryBench-preview``  — 5 problems, ~11 MB, public.
 - ``Anthropic/BioMysteryBench-full``     — 99 problems, ~159 GB, gated.
 
-Pipeline:
+Pipeline (raw/masked contract — see :mod:`._base`):
 
 1. ``download(...)`` — snapshot-download the preview tree (default) or
-   the full set when ``download_full=True`` AND HF access is granted.
-   Relocates upstream-with-answers artifacts (``problems.csv``,
-   ``problems.parquet``, ``README.md``) into the operator-private
-   ``oracle_dir``.
-2. ``mask(...)`` — read ``oracle_dir/problems.csv``, null the
-   ``answer_rubric`` column, write JSONL to
-   ``benchmark_dir/questions.jsonl``. All other columns preserved
-   verbatim.
+   the full set when ``download_full=True`` AND HF access is granted,
+   storing the upstream tree *as-is* under ``raw_dir`` (answers and all).
+   ``raw_dir`` is operator-private and never mounted into a capsule.
+2. ``mask(...)`` — read ``raw_dir/problems.csv``, null the
+   ``answer_rubric`` column, write JSONL to ``masked_dir/questions.jsonl``,
+   then symlink the answer-free upstream content (e.g. ``data/*.zip``
+   problem environments) into ``masked_dir``. ``masked_dir`` is the
+   agent-visible, leak-safe view the harness mounts read-only.
 
 NOTE on compute: the preview is small (~11 MB), the full set is multi-
 GB and must run on SLURM. ``mask(...)`` is pure-Python on a small CSV
-and safe to run anywhere.
+plus symlink creation and safe to run anywhere.
 """
 
 from __future__ import annotations
@@ -40,11 +36,10 @@ from pathlib import Path
 from ._base import BenchmarkPaths, resolve_paths
 from ._manifest import write_manifest
 
-# Canonical cohort identity. ``COHORT_DIR`` matches the legacy on-disk
-# layout used by the paper repo.
+# Canonical benchmark identity.
+BENCHMARK = "biomysterybench"
 COHORT_ID = "biomysterybench"
 COHORT_NAME = "BioMysteryBench"
-COHORT_DIR = "cohort_c_biomysterybench"
 
 HF_REPO_ID_PREVIEW = "Anthropic/BioMysteryBench-preview"
 HF_REPO_ID_FULL = "Anthropic/BioMysteryBench-full"
@@ -56,8 +51,8 @@ PRESERVED_FIELDS = ("id", "question", "allowed_domains", "human_solvable")
 # Column whose value is replaced with None.
 ORACLE_FIELD = "answer_rubric"
 
-# Upstream-with-answers artifacts relocated to oracle_dir after a
-# successful HF snapshot.
+# Answer-bearing upstream files — kept in raw_dir, NEVER symlinked into
+# the agent-visible masked view.
 ORACLE_FILENAMES = ("problems.csv", "problems.parquet", "README.md")
 
 # Backward-compat symlink for the pre-rename name.
@@ -82,113 +77,100 @@ def mask_row(row: dict) -> dict:
     return out
 
 
-def _refresh_compat_symlinks(bench_dir: Path) -> None:
+def _refresh_compat_symlinks(masked_dir: Path) -> None:
     for old_name, new_name in _COMPAT_SYMLINKS:
-        link = bench_dir / old_name
+        link = masked_dir / old_name
         if link.is_symlink() or link.exists():
             link.unlink()
         link.symlink_to(new_name)
 
 
+def _link_safe_view(raw_dir: Path, masked_dir: Path, deny: set[str]) -> list[str]:
+    """Symlink every answer-free top-level ``raw_dir`` entry into ``masked_dir``.
+
+    Each link is RELATIVE (``../raw/<name>``) so the benchmark dir stays
+    relocatable, and idempotent (an existing link/file at the target is
+    unlinked first). Entries whose name is in ``deny`` (the oracle
+    filenames) are skipped — the agent never sees them. Returns the list
+    of created link paths (as strings).
+    """
+    created: list[str] = []
+    for entry in sorted(raw_dir.iterdir()):
+        if entry.name in deny:
+            continue
+        link = masked_dir / entry.name
+        if link.is_symlink() or link.exists():
+            link.unlink()
+        link.symlink_to(Path("..") / "raw" / entry.name)
+        created.append(str(link))
+    return created
+
+
 def mask(
     *,
-    oracle_dir: Path,
-    benchmark_dir: Path,
+    raw_dir: Path,
+    masked_dir: Path,
     **_,
 ) -> dict:
-    """Read ``oracle_dir/problems.csv``, write masked ``questions.jsonl``.
+    """Read ``raw_dir/problems.csv``, build the masked view in ``masked_dir``.
 
-    Output is JSONL (one JSON object per line, ``sort_keys=True``,
-    ``ensure_ascii=False``) — symmetric with cohort B and deliberately
-    distinct from the upstream CSV so the on-disk shape doubles as a
-    hint that the file has been masked.
+    Writes ``questions.jsonl`` (JSONL, ``sort_keys=True``,
+    ``ensure_ascii=False`` — symmetric with the other benchmarks) and
+    symlinks the answer-free upstream content (problem environments)
+    into ``masked_dir`` so the agent gets the data without the rubric.
     """
-    src = oracle_dir / "problems.csv"
+    src = raw_dir / "problems.csv"
     if not src.is_file():
         raise FileNotFoundError(
-            f"biomysterybench: oracle source not found: {src}. "
+            f"biomysterybench: upstream source not found: {src}. "
             "Did you run download(...)?"
         )
 
-    benchmark_dir.mkdir(parents=True, exist_ok=True)
-    dst = benchmark_dir / "questions.jsonl"
+    masked_dir.mkdir(parents=True, exist_ok=True)
+    dst = masked_dir / "questions.jsonl"
     n = 0
-    with src.open("r", encoding="utf-8", newline="") as fh_in, dst.open(
-        "w", encoding="utf-8", newline="\n"
-    ) as fh_out:
+    with (
+        src.open("r", encoding="utf-8", newline="") as fh_in,
+        dst.open("w", encoding="utf-8", newline="\n") as fh_out,
+    ):
         reader = csv.DictReader(fh_in)
         for row in reader:
-            fh_out.write(
-                json.dumps(mask_row(row), sort_keys=True, ensure_ascii=False)
-            )
+            fh_out.write(json.dumps(mask_row(row), sort_keys=True, ensure_ascii=False))
             fh_out.write("\n")
             n += 1
 
-    _refresh_compat_symlinks(benchmark_dir)
+    symlinked = _link_safe_view(raw_dir, masked_dir, set(ORACLE_FILENAMES))
+    _refresh_compat_symlinks(masked_dir)
     return {
         "output": str(dst),
         "n_records": n,
         "mask_fields": [ORACLE_FIELD],
-        "compat_symlinks": [
-            str(benchmark_dir / old) for old, _ in _COMPAT_SYMLINKS
-        ],
+        "symlinked": symlinked,
+        "compat_symlinks": [str(masked_dir / old) for old, _ in _COMPAT_SYMLINKS],
     }
 
 
 # ---------------------------------------------------------------------------
-# Download — HF snapshot + oracle relocation.
+# Download — HF snapshot stored as-is under raw_dir.
 # ---------------------------------------------------------------------------
-
-
-def _relocate_oracle_files(
-    capsule_dir: Path, oracle_dir: Path
-) -> list[str]:
-    """Move each oracle-bearing file from capsule_dir to oracle_dir.
-
-    Returns the list of relocation statuses (one per file). Idempotent.
-    """
-    oracle_dir.mkdir(parents=True, exist_ok=True)
-    statuses: list[str] = []
-    for name in ORACLE_FILENAMES:
-        local = capsule_dir / name
-        oracle = oracle_dir / name
-        if local.is_file() and oracle.is_file():
-            if local.read_bytes() == oracle.read_bytes():
-                local.unlink()
-                statuses.append(f"{name}: removed-duplicate-local-copy")
-            else:
-                raise RuntimeError(
-                    f"biomysterybench: oracle file mismatch between {local} "
-                    f"and {oracle}. Inspect both, pick one, delete the other."
-                )
-        elif local.is_file() and not oracle.is_file():
-            local.replace(oracle)
-            statuses.append(f"{name}: moved-local-to-oracle")
-        elif oracle.is_file():
-            statuses.append(f"{name}: already-relocated")
-        else:
-            # Not every upstream variant ships all three (preview has
-            # CSV + README only). Record absent files so callers know
-            # which path was taken.
-            statuses.append(f"{name}: absent-upstream")
-    return statuses
 
 
 def download(
     *,
-    oracle_dir: Path,
-    capsule_dir: Path,
+    raw_dir: Path,
     download_full: bool = False,
     hf_token: str | None = None,
     max_workers: int = 4,
     **_,
 ) -> dict:
-    """Pull the BMB HF snapshot, relocate the oracle artifacts.
+    """Pull the BMB HF snapshot into ``raw_dir`` exactly as-is.
 
     Preview snapshot (~11 MB, public) is always attempted. When
     ``download_full=True`` and HF access is granted the full set
     (~159 GB, gated) is pulled afterwards. ``huggingface_hub`` is
-    required.
+    required. No file is relocated — the answer-bearing artifacts stay
+    in the operator-private ``raw_dir`` and leak-prevention happens at
+    ``mask`` time (only ``masked_dir`` is ever mounted).
     """
     try:
         from huggingface_hub import snapshot_download
@@ -198,13 +180,13 @@ def download(
             "Install with: pip install 'scitex-dataset[huggingface]'"
         ) from exc
 
-    capsule_dir.mkdir(parents=True, exist_ok=True)
+    raw_dir.mkdir(parents=True, exist_ok=True)
     pulled: list[str] = []
 
     snapshot_download(
         repo_id=HF_REPO_ID_PREVIEW,
         repo_type=HF_REPO_TYPE,
-        local_dir=str(capsule_dir),
+        local_dir=str(raw_dir),
         max_workers=max_workers,
         token=hf_token,
     )
@@ -214,18 +196,15 @@ def download(
         snapshot_download(
             repo_id=HF_REPO_ID_FULL,
             repo_type=HF_REPO_TYPE,
-            local_dir=str(capsule_dir),
+            local_dir=str(raw_dir),
             max_workers=max_workers,
             token=hf_token,
         )
         pulled.append(HF_REPO_ID_FULL)
 
-    statuses = _relocate_oracle_files(capsule_dir, oracle_dir)
     return {
-        "capsule_dir": str(capsule_dir),
-        "oracle_dir": str(oracle_dir),
+        "raw_dir": str(raw_dir),
         "snapshots_pulled": pulled,
-        "relocations": statuses,
     }
 
 
@@ -237,7 +216,6 @@ def download(
 def prepare(
     *,
     paths: BenchmarkPaths | None = None,
-    oracle_root: Path | str | None = None,
     dataset_root: Path | str | None = None,
     version: str = "v0-unstamped",
     skip_download: bool = False,
@@ -248,23 +226,18 @@ def prepare(
 
     Pass ``download_full=True`` to attempt the gated 159 GB set after
     the preview. Pass ``skip_download=True`` to skip both HF pulls if
-    the oracle CSV has already been hand-staged.
+    the upstream CSV has already been hand-staged under ``raw_dir``.
     """
     if paths is None:
-        paths = resolve_paths(
-            COHORT_DIR, oracle_root=oracle_root, dataset_root=dataset_root
-        )
+        paths = resolve_paths(BENCHMARK, dataset_root=dataset_root)
 
-    out: dict = {"cohort": COHORT_ID, "paths": paths.as_dict()}
+    out: dict = {"benchmark": BENCHMARK, "paths": paths.as_dict()}
     if not skip_download:
         out["download"] = download(
-            oracle_dir=paths.oracle_dir,
-            capsule_dir=paths.capsule_dir,
+            raw_dir=paths.raw_dir,
             download_full=download_full,
         )
-    out["mask"] = mask(
-        oracle_dir=paths.oracle_dir, benchmark_dir=paths.benchmark_dir
-    )
+    out["mask"] = mask(raw_dir=paths.raw_dir, masked_dir=paths.masked_dir)
 
     manifest_path = write_manifest(
         manifest_dir=paths.manifest_dir,
@@ -272,9 +245,9 @@ def prepare(
         name=COHORT_NAME,
         version=version,
         source_url=SOURCE_URL,
-        cohort_dir=COHORT_DIR,
+        benchmark=BENCHMARK,
         tracked_paths=[Path(out["mask"]["output"])],
-        tracked_root=paths.benchmark_dir,
+        tracked_root=paths.masked_dir,
         mask_seed="",
     )
     out["manifest"] = str(manifest_path)
@@ -282,9 +255,9 @@ def prepare(
 
 
 __all__ = [
+    "BENCHMARK",
     "COHORT_ID",
     "COHORT_NAME",
-    "COHORT_DIR",
     "HF_REPO_ID_PREVIEW",
     "HF_REPO_ID_FULL",
     "HF_REPO_TYPE",
