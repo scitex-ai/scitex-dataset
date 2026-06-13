@@ -1,12 +1,46 @@
 #!/usr/bin/env python3
-"""Tests for ai_for_science.corebench mask + inventory (no network)."""
+"""Tests for ai_for_science.corebench mask + inventory + download (no network).
+
+PA-306 compliance: no ``unittest.mock``, no ``monkeypatch``. The network
+download uses the module-level ``corebench._http_download`` helper, which
+we replace with a hand-rolled stub via attribute save/restore for the
+duration of each test.
+"""
 
 import json
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
 
 from scitex_dataset.ai_for_science import corebench
+
+# ---------------------------------------------------------------------------
+# Network seam — swap corebench._http_download (no unittest.mock)
+# ---------------------------------------------------------------------------
+
+
+@contextmanager
+def _swap_http_download(replacement):
+    """Replace ``corebench._http_download`` for the duration of the block."""
+    saved = corebench._http_download
+    corebench._http_download = replacement  # type: ignore[assignment]
+    try:
+        yield
+    finally:
+        corebench._http_download = saved  # type: ignore[assignment]
+
+
+class _HttpRecorder:
+    """Records fetch calls and writes dummy bytes to each destination."""
+
+    def __init__(self):
+        self.calls = []
+
+    def __call__(self, url, dest):
+        self.calls.append((url, str(dest)))
+        Path(dest).write_bytes(b"x")
+
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -430,6 +464,93 @@ class TestPrepareSkipDownload:
         result = corebench.prepare(paths=paths, skip_download=True)
         # Assert
         assert Path(result["manifest"]).read_text().startswith("id: corebench")
+
+
+class TestDownloadFetchesCapsules:
+    def test_download_fetches_each_requested_capsule(self, tmp_path):
+        # Arrange
+        rec = _HttpRecorder()
+        raw_dir = tmp_path / "raw"
+        # Act
+        with _swap_http_download(rec):
+            result = corebench.download(raw_dir=raw_dir, capsule_ids=["111", "222"])
+        # Assert
+        assert result["n_fetched"] == 2
+
+    def test_download_writes_tarball_files_under_capsules_dir(self, tmp_path):
+        # Arrange
+        rec = _HttpRecorder()
+        raw_dir = tmp_path / "raw"
+        # Act
+        with _swap_http_download(rec):
+            corebench.download(raw_dir=raw_dir, capsule_ids=["111", "222"])
+        # Assert
+        assert (raw_dir / "capsules" / "111.tar.gz").is_file()
+
+    def test_download_calls_http_download_once_per_capsule(self, tmp_path):
+        # Arrange
+        rec = _HttpRecorder()
+        raw_dir = tmp_path / "raw"
+        # Act
+        with _swap_http_download(rec):
+            corebench.download(raw_dir=raw_dir, capsule_ids=["111", "222"])
+        # Assert
+        assert len(rec.calls) == 2
+
+    def test_download_skips_existing_nonempty_tarball(self, tmp_path):
+        # Arrange — pre-stage one tarball so it is counted as already-have
+        # and only the second id triggers a fetch.
+        rec = _HttpRecorder()
+        raw_dir = tmp_path / "raw"
+        (raw_dir / "capsules").mkdir(parents=True)
+        (raw_dir / "capsules" / "111.tar.gz").write_bytes(b"already-here")
+        # Act
+        with _swap_http_download(rec):
+            result = corebench.download(raw_dir=raw_dir, capsule_ids=["111", "222"])
+        # Assert
+        assert result["n_have"] >= 1
+
+
+class TestPrepareWithDownload:
+    def test_prepare_with_download_emits_expected_keys(self, tmp_path, staged_raw_dir):
+        # Arrange — oracle JSONs already staged; _http_download is a no-op
+        # (capsule_ids resolved from staged manifests, all skipped/fetched
+        # into a stub). Use a recorder so no real network is touched.
+        from scitex_dataset.ai_for_science import _base
+
+        rec = _HttpRecorder()
+        root = staged_raw_dir.parent
+        paths = _base.BenchmarkPaths(
+            benchmark=corebench.BENCHMARK,
+            root=root,
+            raw_dir=staged_raw_dir,
+            masked_dir=root / "masked",
+            manifest_dir=root / ".scitex" / "dataset",
+        )
+        # Act
+        with _swap_http_download(rec):
+            result = corebench.prepare(paths=paths, skip_download=False)
+        # Assert
+        assert {"download", "inventory", "mask", "manifest"} <= set(result)
+
+    def test_prepare_with_download_writes_manifest_file(self, tmp_path, staged_raw_dir):
+        # Arrange
+        from scitex_dataset.ai_for_science import _base
+
+        rec = _HttpRecorder()
+        root = staged_raw_dir.parent
+        paths = _base.BenchmarkPaths(
+            benchmark=corebench.BENCHMARK,
+            root=root,
+            raw_dir=staged_raw_dir,
+            masked_dir=root / "masked",
+            manifest_dir=root / ".scitex" / "dataset",
+        )
+        # Act
+        with _swap_http_download(rec):
+            result = corebench.prepare(paths=paths, skip_download=False)
+        # Assert
+        assert Path(result["manifest"]).is_file()
 
 
 if __name__ == "__main__":

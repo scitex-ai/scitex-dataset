@@ -1,12 +1,69 @@
 #!/usr/bin/env python3
-"""Tests for ai_for_science.bixbench mask (no network)."""
+"""Tests for ai_for_science.bixbench mask + download (no network).
+
+PA-306 compliance: no ``unittest.mock``, no ``monkeypatch``.
+``snapshot_download`` is imported lazily inside ``download(...)`` from
+``huggingface_hub``, so we swap a hand-rolled stub module into
+``sys.modules['huggingface_hub']`` for the duration of the test.
+"""
 
 import json
+import sys
+import types
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
 
 from scitex_dataset.ai_for_science import bixbench
+
+# ---------------------------------------------------------------------------
+# Network seam — hand-rolled huggingface_hub stub (no unittest.mock)
+# ---------------------------------------------------------------------------
+
+
+@contextmanager
+def _swap_module(name: str, replacement):
+    """Swap ``sys.modules[name]`` with ``replacement`` for the block."""
+    saved = sys.modules.get(name)
+    sys.modules[name] = replacement
+    try:
+        yield
+    finally:
+        if saved is None:
+            sys.modules.pop(name, None)
+        else:
+            sys.modules[name] = saved
+
+
+class _SnapshotRecorder:
+    """Records snapshot_download calls and writes a dummy file per pull."""
+
+    def __init__(self, *, write_dummy=True):
+        self.calls = []
+        self._write_dummy = write_dummy
+
+    def __call__(self, *, repo_id, repo_type, local_dir, max_workers, token):
+        self.calls.append(
+            {
+                "repo_id": repo_id,
+                "repo_type": repo_type,
+                "local_dir": local_dir,
+                "max_workers": max_workers,
+                "token": token,
+            }
+        )
+        if self._write_dummy:
+            dst = Path(local_dir)
+            dst.mkdir(parents=True, exist_ok=True)
+            (dst / "BixBench.jsonl").write_text("{}\n")
+        return str(local_dir)
+
+
+def _hf_stub(recorder):
+    stub = types.ModuleType("huggingface_hub")
+    stub.snapshot_download = recorder  # type: ignore[attr-defined]
+    return stub
 
 
 def _sample_record():
@@ -197,6 +254,81 @@ class TestMaskSymlinkView:
         result = bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
         # Assert
         assert len(result["symlinked"]) >= 1
+
+
+class TestDownload:
+    def test_download_returns_repo_id_in_pulled_list(self, tmp_path):
+        # Arrange
+        rec = _SnapshotRecorder()
+        raw_dir = tmp_path / "raw"
+        # Act
+        with _swap_module("huggingface_hub", _hf_stub(rec)):
+            result = bixbench.download(raw_dir=raw_dir)
+        # Assert
+        assert result["snapshots_pulled"] == [bixbench.HF_REPO_ID]
+
+    def test_download_calls_snapshot_download_once(self, tmp_path):
+        # Arrange
+        rec = _SnapshotRecorder()
+        raw_dir = tmp_path / "raw"
+        # Act
+        with _swap_module("huggingface_hub", _hf_stub(rec)):
+            bixbench.download(raw_dir=raw_dir)
+        # Assert
+        assert len(rec.calls) == 1
+
+    def test_download_returns_raw_dir(self, tmp_path):
+        # Arrange
+        rec = _SnapshotRecorder()
+        raw_dir = tmp_path / "raw"
+        # Act
+        with _swap_module("huggingface_hub", _hf_stub(rec)):
+            result = bixbench.download(raw_dir=raw_dir)
+        # Assert
+        assert result["raw_dir"] == str(raw_dir)
+
+
+class TestPrepareWithDownload:
+    def test_prepare_with_download_emits_download_mask_manifest_keys(
+        self, tmp_path, staged_raw_dir
+    ):
+        # Arrange — JSONL already staged; snapshot_download is a no-op so
+        # the staged raw_dir survives the download step.
+        from scitex_dataset.ai_for_science import _base
+
+        rec = _SnapshotRecorder(write_dummy=False)
+        root = staged_raw_dir.parent
+        paths = _base.BenchmarkPaths(
+            benchmark=bixbench.BENCHMARK,
+            root=root,
+            raw_dir=staged_raw_dir,
+            masked_dir=root / "masked",
+            manifest_dir=root / ".scitex" / "dataset",
+        )
+        # Act
+        with _swap_module("huggingface_hub", _hf_stub(rec)):
+            result = bixbench.prepare(paths=paths, skip_download=False)
+        # Assert
+        assert {"download", "mask", "manifest"} <= set(result)
+
+    def test_prepare_with_download_writes_manifest_file(self, tmp_path, staged_raw_dir):
+        # Arrange
+        from scitex_dataset.ai_for_science import _base
+
+        rec = _SnapshotRecorder(write_dummy=False)
+        root = staged_raw_dir.parent
+        paths = _base.BenchmarkPaths(
+            benchmark=bixbench.BENCHMARK,
+            root=root,
+            raw_dir=staged_raw_dir,
+            masked_dir=root / "masked",
+            manifest_dir=root / ".scitex" / "dataset",
+        )
+        # Act
+        with _swap_module("huggingface_hub", _hf_stub(rec)):
+            result = bixbench.prepare(paths=paths, skip_download=False)
+        # Assert
+        assert Path(result["manifest"]).is_file()
 
 
 if __name__ == "__main__":
