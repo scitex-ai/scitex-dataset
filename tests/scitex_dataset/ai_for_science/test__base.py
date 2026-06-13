@@ -111,6 +111,43 @@ class TestResolvePaths:
         # Assert
         assert paths.root == env_root / "ai-for-science" / "biomysterybench"
 
+    def test_resolve_paths_falls_back_to_config_chain_when_no_override_or_env(self):
+        # Arrange — with neither an explicit override NOR the env var, the
+        # resolver falls through to the _config project→user chain
+        # (``project_root() or user_root()``). We don't assert the exact
+        # path (it depends on where pytest runs) — only that resolution
+        # succeeds and lands under the ai-for-science category dir. This
+        # exercises the final fallback branch (_base.py:71) that the
+        # override/env tests skip. Env managed via os.environ save/restore
+        # so the test stays mock-free (PA-306 forbids the monkeypatch fixture).
+        import os
+
+        prior = os.environ.get("SCITEX_DATASET_ROOT")
+        os.environ.pop("SCITEX_DATASET_ROOT", None)
+        try:
+            # Act
+            paths = _base.resolve_paths("corebench")
+        finally:
+            if prior is not None:
+                os.environ["SCITEX_DATASET_ROOT"] = prior
+        # Assert
+        assert paths.root.parent.name == "ai-for-science"
+
+    def test_resolve_paths_fallback_root_ends_with_benchmark_name(self):
+        # Arrange
+        import os
+
+        prior = os.environ.get("SCITEX_DATASET_ROOT")
+        os.environ.pop("SCITEX_DATASET_ROOT", None)
+        try:
+            # Act
+            paths = _base.resolve_paths("corebench")
+        finally:
+            if prior is not None:
+                os.environ["SCITEX_DATASET_ROOT"] = prior
+        # Assert
+        assert paths.root.name == "corebench"
+
 
 if __name__ == "__main__":
     import os
