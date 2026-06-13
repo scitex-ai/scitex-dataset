@@ -96,7 +96,10 @@ def _link_safe_view(raw_dir: Path, masked_dir: Path, deny: set[str]) -> list[str
     """
     created: list[str] = []
     for entry in sorted(raw_dir.iterdir()):
-        if entry.name in deny:
+        # Skip the oracle deny-list and dot-prefixed HuggingFace/VCS
+        # internals (``.cache``, ``.gitattributes``, …): neither is
+        # benchmark content, and ``.cache`` is a latent leak-surface.
+        if entry.name in deny or entry.name.startswith("."):
             continue
         link = masked_dir / entry.name
         if link.is_symlink() or link.exists():

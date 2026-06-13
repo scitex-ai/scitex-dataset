@@ -255,6 +255,29 @@ class TestMaskSymlinkView:
         # Assert
         assert len(result["symlinked"]) >= 1
 
+    def test_mask_does_not_symlink_dot_cache_into_masked(
+        self, tmp_path, staged_raw_dir
+    ):
+        # Arrange — HF ``.cache`` is a latent leak-surface and must never
+        # reach the agent-visible masked view.
+        (staged_raw_dir / ".cache").mkdir()
+        masked_dir = staged_raw_dir.parent / "masked"
+        # Act
+        bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
+        # Assert
+        assert not (masked_dir / ".cache").exists()
+
+    def test_mask_does_not_symlink_gitattributes_into_masked(
+        self, tmp_path, staged_raw_dir
+    ):
+        # Arrange — VCS internals are not benchmark content.
+        (staged_raw_dir / ".gitattributes").write_text("* text=auto\n")
+        masked_dir = staged_raw_dir.parent / "masked"
+        # Act
+        bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
+        # Assert
+        assert not (masked_dir / ".gitattributes").exists()
+
 
 class TestDownload:
     def test_download_returns_repo_id_in_pulled_list(self, tmp_path):
