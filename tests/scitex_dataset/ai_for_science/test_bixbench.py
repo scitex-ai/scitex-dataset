@@ -38,8 +38,9 @@ def oracle_record():
 
 
 @pytest.fixture
-def staged_oracle_dir(tmp_path):
-    base = tmp_path / "oracles" / "cohort_b_bixbench"
+def staged_raw_dir(tmp_path):
+    """Stage the upstream snapshot the way download(...) would leave raw/."""
+    base = tmp_path / "ai-for-science" / "bixbench" / "raw"
     base.mkdir(parents=True)
     (base / "BixBench.jsonl").write_text(json.dumps(_sample_record()) + "\n")
     return base
@@ -127,127 +128,75 @@ class TestMaskRecord:
         assert oracle_record == snapshot
 
 
-class TestRelocateOracleManifest:
-    def test_relocate_moves_local_to_oracle_when_only_local_present(
-        self, tmp_path
-    ):
-        # Arrange
-        local = tmp_path / "capsule" / "BixBench.jsonl"
-        local.parent.mkdir()
-        local.write_text("payload\n")
-        oracle = tmp_path / "oracle" / "BixBench.jsonl"
-        # Act
-        status = bixbench._relocate_oracle_manifest(local, oracle)
-        # Assert
-        assert status == "moved-local-to-oracle"
-
-    def test_relocate_clears_local_after_moving_to_oracle(self, tmp_path):
-        # Arrange
-        local = tmp_path / "capsule" / "BixBench.jsonl"
-        local.parent.mkdir()
-        local.write_text("payload\n")
-        oracle = tmp_path / "oracle" / "BixBench.jsonl"
-        # Act
-        bixbench._relocate_oracle_manifest(local, oracle)
-        # Assert
-        assert not local.exists()
-
-    def test_relocate_returns_already_relocated_when_only_oracle_present(
-        self, tmp_path
-    ):
-        # Arrange
-        local = tmp_path / "capsule" / "BixBench.jsonl"
-        oracle = tmp_path / "oracle" / "BixBench.jsonl"
-        oracle.parent.mkdir()
-        oracle.write_text("payload\n")
-        # Act
-        status = bixbench._relocate_oracle_manifest(local, oracle)
-        # Assert
-        assert status == "already-relocated"
-
-    def test_relocate_removes_local_duplicate_when_both_match(self, tmp_path):
-        # Arrange
-        local = tmp_path / "capsule" / "BixBench.jsonl"
-        local.parent.mkdir()
-        local.write_text("same-bytes\n")
-        oracle = tmp_path / "oracle" / "BixBench.jsonl"
-        oracle.parent.mkdir()
-        oracle.write_text("same-bytes\n")
-        # Act
-        status = bixbench._relocate_oracle_manifest(local, oracle)
-        # Assert
-        assert status == "removed-duplicate-local-copy"
-
-    def test_relocate_raises_runtimeerror_when_both_present_and_differ(
-        self, tmp_path
-    ):
-        # Arrange
-        local = tmp_path / "capsule" / "BixBench.jsonl"
-        local.parent.mkdir()
-        local.write_text("local-bytes\n")
-        oracle = tmp_path / "oracle" / "BixBench.jsonl"
-        oracle.parent.mkdir()
-        oracle.write_text("oracle-bytes\n")
-        # Act
-        # Assert
-        with pytest.raises(RuntimeError):
-            bixbench._relocate_oracle_manifest(local, oracle)
-
-    def test_relocate_raises_filenotfounderror_when_both_absent(self, tmp_path):
-        # Arrange
-        local = tmp_path / "capsule" / "BixBench.jsonl"
-        oracle = tmp_path / "oracle" / "BixBench.jsonl"
-        # Act
-        # Assert
-        with pytest.raises(FileNotFoundError):
-            bixbench._relocate_oracle_manifest(local, oracle)
-
-
 class TestMaskOnDisk:
-    def test_mask_writes_questions_jsonl_in_benchmark_dir(
-        self, tmp_path, staged_oracle_dir
-    ):
+    def test_mask_writes_questions_jsonl_in_masked_dir(self, tmp_path, staged_raw_dir):
         # Arrange
-        benchmark_dir = tmp_path / "bench"
+        masked_dir = staged_raw_dir.parent / "masked"
         # Act
-        bixbench.mask(
-            oracle_dir=staged_oracle_dir, benchmark_dir=benchmark_dir
-        )
+        bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
         # Assert
-        assert (benchmark_dir / "questions.jsonl").is_file()
+        assert (masked_dir / "questions.jsonl").is_file()
 
-    def test_mask_records_count_matches_oracle_line_count(
-        self, tmp_path, staged_oracle_dir
-    ):
+    def test_mask_records_count_matches_raw_line_count(self, tmp_path, staged_raw_dir):
         # Arrange
-        benchmark_dir = tmp_path / "bench"
+        masked_dir = staged_raw_dir.parent / "masked"
         # Act
-        result = bixbench.mask(
-            oracle_dir=staged_oracle_dir, benchmark_dir=benchmark_dir
-        )
+        result = bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
         # Assert
         assert result["n_records"] == 1
 
-    def test_mask_creates_backward_compat_symlink(
-        self, tmp_path, staged_oracle_dir
-    ):
+    def test_mask_creates_backward_compat_symlink(self, tmp_path, staged_raw_dir):
         # Arrange
-        benchmark_dir = tmp_path / "bench"
+        masked_dir = staged_raw_dir.parent / "masked"
         # Act
-        bixbench.mask(
-            oracle_dir=staged_oracle_dir, benchmark_dir=benchmark_dir
-        )
+        bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
         # Assert
-        assert (benchmark_dir / "BixBench_masked.jsonl").is_symlink()
+        assert (masked_dir / "BixBench_masked.jsonl").is_symlink()
 
-    def test_mask_raises_when_oracle_jsonl_missing(self, tmp_path):
+    def test_mask_raises_when_raw_jsonl_missing(self, tmp_path):
         # Arrange
         bare = tmp_path / "empty"
         bare.mkdir()
         # Act
         # Assert
         with pytest.raises(FileNotFoundError):
-            bixbench.mask(oracle_dir=bare, benchmark_dir=tmp_path / "out")
+            bixbench.mask(raw_dir=bare, masked_dir=tmp_path / "out")
+
+
+class TestMaskSymlinkView:
+    def test_mask_symlinks_answer_free_capsule_into_masked_dir(
+        self, tmp_path, staged_raw_dir
+    ):
+        # Arrange — stage an answer-free capsule dir alongside the oracle.
+        (staged_raw_dir / "CapsuleData-abc").mkdir()
+        (staged_raw_dir / "CapsuleData-abc" / "data.csv").write_text("x,y\n1,2\n")
+        masked_dir = staged_raw_dir.parent / "masked"
+        # Act
+        bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
+        # Assert
+        link = masked_dir / "CapsuleData-abc"
+        assert link.is_symlink() and link.resolve() == (
+            staged_raw_dir / "CapsuleData-abc"
+        )
+
+    def test_mask_does_not_symlink_oracle_manifest_into_masked_dir(
+        self, tmp_path, staged_raw_dir
+    ):
+        # Arrange
+        masked_dir = staged_raw_dir.parent / "masked"
+        # Act
+        bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
+        # Assert
+        assert not (masked_dir / "BixBench.jsonl").is_symlink()
+
+    def test_mask_result_symlinked_list_is_non_empty(self, tmp_path, staged_raw_dir):
+        # Arrange — answer-free content present so a link is created.
+        (staged_raw_dir / "CapsuleData-abc").mkdir()
+        masked_dir = staged_raw_dir.parent / "masked"
+        # Act
+        result = bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
+        # Assert
+        assert len(result["symlinked"]) >= 1
 
 
 if __name__ == "__main__":

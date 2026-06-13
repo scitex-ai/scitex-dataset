@@ -28,12 +28,12 @@ Usage:
     >>> db.build()  # Fetch all sources and index
     >>> results = db.search("alzheimer EEG", min_subjects=20)
 
-    >>> # Prepare an agentic-benchmark cohort (mask only — safe, fast)
+    >>> # Prepare an agentic benchmark (mask only — safe, fast)
     >>> from scitex_dataset import ai_for_science
-    >>> paths = ai_for_science.resolve_paths("cohort_a_corebench")
+    >>> paths = ai_for_science.resolve_paths("corebench")
     >>> ai_for_science.corebench.mask(
-    ...     oracle_dir=paths.oracle_dir,
-    ...     benchmark_dir=paths.benchmark_dir,
+    ...     raw_dir=paths.raw_dir,
+    ...     masked_dir=paths.masked_dir,
     ... )
 """
 

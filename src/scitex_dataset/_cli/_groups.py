@@ -279,9 +279,7 @@ def _agentic_bench_module(source: str):
     """Return the ``scitex_dataset.ai_for_science.<source>`` module."""
     import importlib
 
-    return importlib.import_module(
-        f"..ai_for_science.{source}", package=__package__
-    )
+    return importlib.import_module(f"..ai_for_science.{source}", package=__package__)
 
 
 def _emit_result(as_json: bool, result: dict, headline: str) -> None:
@@ -290,7 +288,7 @@ def _emit_result(as_json: bool, result: dict, headline: str) -> None:
         click.echo(json.dumps(result, indent=2, default=str))
         return
     click.echo(headline)
-    for key in ("output", "manifest", "capsule_dir"):
+    for key in ("output", "manifest", "raw_dir", "masked_dir"):
         if key in result:
             click.echo(f"  {key}: {result[key]}")
     if "n_records" in result:
@@ -298,19 +296,13 @@ def _emit_result(as_json: bool, result: dict, headline: str) -> None:
 
 
 def _common_paths_options(f):
-    """Attach the four standard --*-root / --paths options to a click cmd."""
-    f = click.option(
-        "--oracle-root",
-        type=click.Path(),
-        default=None,
-        help="Operator-private oracle root (default: $SCITEX_ORACLES_ROOT or "
-        "~/.scitex/oracles).",
-    )(f)
+    """Attach the standard --dataset-root / --json options to a click cmd."""
     f = click.option(
         "--dataset-root",
         type=click.Path(),
         default=None,
-        help="Dataset output root (default: $SCITEX_DATASET_ROOT or "
+        help="Dataset root holding ai-for-science/ (default: "
+        "$SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or "
         "~/.scitex/dataset).",
     )(f)
     f = click.option(
@@ -323,24 +315,25 @@ def _common_paths_options(f):
 
 
 def _agentic_bench_commands(source: str) -> list[click.Command]:
-    """Build [download, prepare, mask] click commands for one cohort."""
+    """Build [download, prepare, mask] click commands for one benchmark."""
     module = _agentic_bench_module(source)
 
     @click.command("download")
     @_common_paths_options
-    def _download_cmd(oracle_root, dataset_root, as_json):
+    @click.option(
+        "--full",
+        "download_full",
+        is_flag=True,
+        help="Pull the full gated set instead of the small preview "
+        "(where the benchmark distinguishes them, e.g. biomysterybench).",
+    )
+    def _download_cmd(dataset_root, as_json, download_full):
         """Placeholder docstring (overwritten below with the per-source example)."""
         from ..ai_for_science._base import resolve_paths
 
-        paths = resolve_paths(
-            module.COHORT_DIR,
-            oracle_root=oracle_root,
-            dataset_root=dataset_root,
-        )
+        paths = resolve_paths(module.BENCHMARK, dataset_root=dataset_root)
         try:
-            result = module.download(
-                oracle_dir=paths.oracle_dir, capsule_dir=paths.capsule_dir
-            )
+            result = module.download(raw_dir=paths.raw_dir, download_full=download_full)
         except Exception as exc:
             click.echo(f"Error: {exc}", err=True)
             raise SystemExit(1)
@@ -348,29 +341,25 @@ def _agentic_bench_commands(source: str) -> list[click.Command]:
         _emit_result(as_json, result, f"Downloaded {source}.")
 
     _download_cmd.help = (
-        f"Fetch upstream artifacts for {source} into oracle + capsule "
-        f"dirs.\n\nWARNING: capsule downloads are multi-GB. Run on "
-        f"SLURM, not a login node or CI.\n\n\b\nExample:\n"
+        f"Fetch the upstream {source} snapshot into raw/ as-is.\n\n"
+        f"WARNING: downloads are multi-GB. Run on SLURM, not a login "
+        f"node or CI.\n\n\b\nExample:\n"
         f"  $ scitex-dataset ai-for-science {source} download\n"
         f"  $ scitex-dataset ai-for-science {source} download "
-        f"--oracle-root ~/.scitex/oracles --dataset-root /scratch/datasets"
+        f"--full --dataset-root /scratch/datasets"
     )
 
     @click.command("mask")
     @_common_paths_options
-    def _mask_cmd(oracle_root, dataset_root, as_json):
+    def _mask_cmd(dataset_root, as_json):
         """Placeholder docstring (overwritten below with the per-source example)."""
         from ..ai_for_science._base import resolve_paths
 
-        paths = resolve_paths(
-            module.COHORT_DIR,
-            oracle_root=oracle_root,
-            dataset_root=dataset_root,
-        )
+        paths = resolve_paths(module.BENCHMARK, dataset_root=dataset_root)
         try:
             result = module.mask(
-                oracle_dir=paths.oracle_dir,
-                benchmark_dir=paths.benchmark_dir,
+                raw_dir=paths.raw_dir,
+                masked_dir=paths.masked_dir,
             )
         except Exception as exc:
             click.echo(f"Error: {exc}", err=True)
@@ -379,9 +368,9 @@ def _agentic_bench_commands(source: str) -> list[click.Command]:
         _emit_result(as_json, result, f"Masked {source}.")
 
     _mask_cmd.help = (
-        f"Read {source} oracle artifacts; write the agent-visible "
-        f"masked questions file (oracle answer values nulled).\n\n\b\n"
-        f"Example:\n"
+        f"Read the {source} raw/ snapshot; write the agent-visible "
+        f"masked/ view (oracle values nulled + answer-free content "
+        f"symlinked).\n\n\b\nExample:\n"
         f"  $ scitex-dataset ai-for-science {source} mask\n"
         f"  $ scitex-dataset ai-for-science {source} mask --json"
     )
@@ -397,16 +386,22 @@ def _agentic_bench_commands(source: str) -> list[click.Command]:
     @click.option(
         "--skip-download",
         is_flag=True,
-        help="Skip the upstream pull (oracle artifacts already staged).",
+        help="Skip the upstream pull (raw/ already staged).",
     )
-    def _prepare_cmd(oracle_root, dataset_root, as_json, version, skip_download):
+    @click.option(
+        "--full",
+        "download_full",
+        is_flag=True,
+        help="Pull the full gated set instead of the small preview.",
+    )
+    def _prepare_cmd(dataset_root, as_json, version, skip_download, download_full):
         """Placeholder docstring (overwritten below with the per-source example)."""
         try:
             result = module.prepare(
-                oracle_root=oracle_root,
                 dataset_root=dataset_root,
                 version=version,
                 skip_download=skip_download,
+                download_full=download_full,
             )
         except Exception as exc:
             click.echo(f"Error: {exc}", err=True)
@@ -414,13 +409,13 @@ def _agentic_bench_commands(source: str) -> list[click.Command]:
         _emit_result(as_json, result, f"Prepared {source}.")
 
     _prepare_cmd.help = (
-        f"Prepare {source}: download + mask + emit "
+        f"Prepare {source}: download (raw/) + mask (masked/) + emit "
         f".scitex/dataset/MANIFEST.yaml (id + version + sha256 + "
         f"mask-seed).\n\nWARNING: includes the multi-GB download step "
         f"unless --skip-download is given. SLURM-only on shared "
         f"compute.\n\n\b\nExample:\n"
         f"  $ scitex-dataset ai-for-science {source} prepare --skip-download\n"
-        f"  $ scitex-dataset ai-for-science {source} prepare --version v1.0"
+        f"  $ scitex-dataset ai-for-science {source} prepare --full --version v1.0"
     )
 
     return [_download_cmd, _prepare_cmd, _mask_cmd]

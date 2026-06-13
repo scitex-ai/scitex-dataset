@@ -8,7 +8,6 @@ import pytest
 
 from scitex_dataset.ai_for_science import corebench
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -56,9 +55,9 @@ def oracle_test_record():
 
 
 @pytest.fixture
-def staged_oracle_dir(tmp_path):
-    """Lay out the oracle directory the same way download.sh would."""
-    base = tmp_path / "oracles" / "cohort_a_corebench"
+def staged_raw_dir(tmp_path):
+    """Lay out raw/ with the oracle JSONs staged where download.sh leaves them."""
+    base = tmp_path / "ai-for-science" / "corebench" / "raw"
     (base / "dataset").mkdir(parents=True)
     (base / "dataset" / "core_train.json").write_text(
         json.dumps([_make_train_record()])
@@ -79,9 +78,7 @@ class TestMaskRecord:
         # Act
         masked = corebench.mask_record(rec)
         # Assert
-        assert all(
-            v is None for entry in masked["results"] for v in entry.values()
-        )
+        assert all(v is None for entry in masked["results"] for v in entry.values())
 
     def test_mask_record_preserves_question_keys(self, oracle_train_record):
         # Arrange
@@ -131,9 +128,7 @@ class TestMaskRecord:
         # Assert
         assert oracle_train_record == snapshot
 
-    def test_mask_record_is_idempotent_after_double_apply(
-        self, oracle_train_record
-    ):
+    def test_mask_record_is_idempotent_after_double_apply(self, oracle_train_record):
         # Arrange
         once = corebench.mask_record(oracle_train_record)
         # Act
@@ -148,62 +143,93 @@ class TestMaskRecord:
 
 
 class TestMaskOnDisk:
-    def test_mask_emits_questions_json_under_benchmark_dir(
-        self, tmp_path, staged_oracle_dir
-    ):
+    def test_mask_emits_questions_json_under_masked_dir(self, tmp_path, staged_raw_dir):
         # Arrange
-        benchmark_dir = tmp_path / "bench"
+        masked_dir = staged_raw_dir.parent / "masked"
         # Act
-        corebench.mask(
-            oracle_dir=staged_oracle_dir, benchmark_dir=benchmark_dir
-        )
+        corebench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
         # Assert
-        assert (benchmark_dir / "questions.json").is_file()
+        assert (masked_dir / "questions.json").is_file()
 
     def test_mask_returns_n_records_two_for_train_plus_test_singletons(
-        self, tmp_path, staged_oracle_dir
+        self, tmp_path, staged_raw_dir
     ):
         # Arrange
-        benchmark_dir = tmp_path / "bench"
+        masked_dir = staged_raw_dir.parent / "masked"
         # Act
-        result = corebench.mask(
-            oracle_dir=staged_oracle_dir, benchmark_dir=benchmark_dir
-        )
+        result = corebench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
         # Assert
         assert result["n_records"] == 2
 
-    def test_mask_records_n_train_count_separately(
-        self, tmp_path, staged_oracle_dir
-    ):
+    def test_mask_records_n_train_count_separately(self, tmp_path, staged_raw_dir):
         # Arrange
-        benchmark_dir = tmp_path / "bench"
+        masked_dir = staged_raw_dir.parent / "masked"
         # Act
-        result = corebench.mask(
-            oracle_dir=staged_oracle_dir, benchmark_dir=benchmark_dir
-        )
+        result = corebench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
         # Assert
         assert result["n_train"] == 1
 
-    def test_mask_records_n_test_count_separately(
-        self, tmp_path, staged_oracle_dir
-    ):
+    def test_mask_records_n_test_count_separately(self, tmp_path, staged_raw_dir):
         # Arrange
-        benchmark_dir = tmp_path / "bench"
+        masked_dir = staged_raw_dir.parent / "masked"
         # Act
-        result = corebench.mask(
-            oracle_dir=staged_oracle_dir, benchmark_dir=benchmark_dir
-        )
+        result = corebench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
         # Assert
         assert result["n_test"] == 1
 
     def test_mask_raises_when_oracle_train_json_missing(self, tmp_path):
         # Arrange
-        bare = tmp_path / "empty-oracle"
+        bare = tmp_path / "empty-raw"
         bare.mkdir()
         # Act
         # Assert
         with pytest.raises(FileNotFoundError):
-            corebench.mask(oracle_dir=bare, benchmark_dir=tmp_path / "out")
+            corebench.mask(raw_dir=bare, masked_dir=tmp_path / "out")
+
+
+class TestMaskSymlinkView:
+    def test_mask_symlinks_answer_free_capsules_into_masked_dir(
+        self, tmp_path, staged_raw_dir
+    ):
+        # Arrange — stage an answer-free capsule tarball under raw/capsules.
+        (staged_raw_dir / "capsules").mkdir()
+        (staged_raw_dir / "capsules" / "capsule-1111111.tar.gz").write_text("tar")
+        masked_dir = staged_raw_dir.parent / "masked"
+        # Act
+        corebench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
+        # Assert
+        link = masked_dir / "capsules"
+        assert link.is_symlink() and link.resolve() == (staged_raw_dir / "capsules")
+
+    def test_mask_does_not_symlink_oracle_files_into_masked_dir(
+        self, tmp_path, staged_raw_dir
+    ):
+        # Arrange
+        masked_dir = staged_raw_dir.parent / "masked"
+        # Act
+        corebench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
+        # Assert — neither the dataset/ dir nor core_test.json gets linked.
+        assert not (masked_dir / "dataset").is_symlink()
+
+    def test_mask_does_not_symlink_core_test_json_into_masked_dir(
+        self, tmp_path, staged_raw_dir
+    ):
+        # Arrange
+        masked_dir = staged_raw_dir.parent / "masked"
+        # Act
+        corebench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
+        # Assert
+        assert not (masked_dir / "core_test.json").is_symlink()
+
+    def test_mask_result_symlinked_list_is_non_empty(self, tmp_path, staged_raw_dir):
+        # Arrange — answer-free content present so a link is created.
+        (staged_raw_dir / "capsules").mkdir()
+        (staged_raw_dir / "capsules" / "capsule-1111111.tar.gz").write_text("tar")
+        masked_dir = staged_raw_dir.parent / "masked"
+        # Act
+        result = corebench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
+        # Assert
+        assert len(result["symlinked"]) >= 1
 
 
 # ---------------------------------------------------------------------------
@@ -212,38 +238,36 @@ class TestMaskOnDisk:
 
 
 class TestBuildInventory:
-    def test_build_inventory_writes_inventory_json_next_to_capsules(
-        self, tmp_path, staged_oracle_dir
+    def test_build_inventory_writes_inventory_json_in_masked_dir(
+        self, tmp_path, staged_raw_dir
     ):
         # Arrange
-        capsule_dir = tmp_path / "data" / "src" / "capsules"
+        masked_dir = staged_raw_dir.parent / "masked"
         # Act
-        corebench.build_inventory(
-            oracle_dir=staged_oracle_dir, capsule_dir=capsule_dir
-        )
+        corebench.build_inventory(raw_dir=staged_raw_dir, masked_dir=masked_dir)
         # Assert
-        assert (capsule_dir.parent / "inventory.json").is_file()
+        assert (masked_dir / "inventory.json").is_file()
 
     def test_build_inventory_summary_counts_one_train_capsule(
-        self, tmp_path, staged_oracle_dir
+        self, tmp_path, staged_raw_dir
     ):
         # Arrange
-        capsule_dir = tmp_path / "data" / "src" / "capsules"
+        masked_dir = staged_raw_dir.parent / "masked"
         # Act
         result = corebench.build_inventory(
-            oracle_dir=staged_oracle_dir, capsule_dir=capsule_dir
+            raw_dir=staged_raw_dir, masked_dir=masked_dir
         )
         # Assert
         assert result["summary"]["n_capsules_train"] == 1
 
     def test_build_inventory_summary_counts_one_test_capsule(
-        self, tmp_path, staged_oracle_dir
+        self, tmp_path, staged_raw_dir
     ):
         # Arrange
-        capsule_dir = tmp_path / "data" / "src" / "capsules"
+        masked_dir = staged_raw_dir.parent / "masked"
         # Act
         result = corebench.build_inventory(
-            oracle_dir=staged_oracle_dir, capsule_dir=capsule_dir
+            raw_dir=staged_raw_dir, masked_dir=masked_dir
         )
         # Assert
         assert result["summary"]["n_capsules_test"] == 1
@@ -330,64 +354,58 @@ class TestCapsuleUrl:
 
 class TestDownloadSkipsExistingCapsules:
     def test_download_marks_existing_file_as_have(self, tmp_path):
-        # Arrange — pre-stage a capsule tarball so download(...) sees
-        # it as already present (no network call attempted).
-        capsule_dir = tmp_path / "cap"
-        capsule_dir.mkdir()
-        (capsule_dir / "capsule-abc.tar.gz").write_text("not-really-a-tarball")
+        # Arrange — pre-stage a capsule tarball under raw/capsules so
+        # download(...) sees it as already present (no network call).
+        raw_dir = tmp_path / "raw"
+        (raw_dir / "capsules").mkdir(parents=True)
+        (raw_dir / "capsules" / "capsule-abc.tar.gz").write_text("not-really-a-tarball")
         # Act
-        result = corebench.download(
-            oracle_dir=tmp_path / "oracle",
-            capsule_dir=capsule_dir,
-            capsule_ids=["capsule-abc"],
-        )
+        result = corebench.download(raw_dir=raw_dir, capsule_ids=["capsule-abc"])
         # Assert
         assert result["n_have"] == 1
 
-    def test_download_records_zero_fetched_when_only_existing_present(
-        self, tmp_path
-    ):
+    def test_download_records_zero_fetched_when_only_existing_present(self, tmp_path):
         # Arrange
-        capsule_dir = tmp_path / "cap"
-        capsule_dir.mkdir()
-        (capsule_dir / "capsule-abc.tar.gz").write_text("x")
+        raw_dir = tmp_path / "raw"
+        (raw_dir / "capsules").mkdir(parents=True)
+        (raw_dir / "capsules" / "capsule-abc.tar.gz").write_text("x")
         # Act
-        result = corebench.download(
-            oracle_dir=tmp_path / "oracle",
-            capsule_dir=capsule_dir,
-            capsule_ids=["capsule-abc"],
-        )
+        result = corebench.download(raw_dir=raw_dir, capsule_ids=["capsule-abc"])
         # Assert
         assert result["n_fetched"] == 0
 
-    def test_download_raises_when_capsule_ids_none_and_oracle_missing(
-        self, tmp_path
-    ):
+    def test_download_writes_tarball_path_under_raw_capsules(self, tmp_path):
         # Arrange
-        capsule_dir = tmp_path / "cap"
-        bare_oracle = tmp_path / "empty-oracle"
-        bare_oracle.mkdir()
+        raw_dir = tmp_path / "raw"
+        (raw_dir / "capsules").mkdir(parents=True)
+        (raw_dir / "capsules" / "capsule-abc.tar.gz").write_text("x")
+        # Act
+        result = corebench.download(raw_dir=raw_dir, capsule_ids=["capsule-abc"])
+        # Assert
+        assert result["capsules_dir"] == str(raw_dir / "capsules")
+
+    def test_download_raises_when_capsule_ids_none_and_oracle_missing(self, tmp_path):
+        # Arrange
+        bare_raw = tmp_path / "empty-raw"
+        bare_raw.mkdir()
         # Act
         # Assert
         with pytest.raises(FileNotFoundError):
-            corebench.download(
-                oracle_dir=bare_oracle, capsule_dir=capsule_dir
-            )
+            corebench.download(raw_dir=bare_raw)
 
 
 class TestPrepareSkipDownload:
-    def test_prepare_skip_download_emits_manifest_yaml(
-        self, tmp_path, staged_oracle_dir
-    ):
+    def test_prepare_skip_download_emits_manifest_yaml(self, tmp_path, staged_raw_dir):
         # Arrange
         from scitex_dataset.ai_for_science import _base
 
+        root = staged_raw_dir.parent
         paths = _base.BenchmarkPaths(
-            cohort_dir=corebench.COHORT_DIR,
-            oracle_dir=staged_oracle_dir,
-            capsule_dir=tmp_path / "data" / "src" / "capsules",
-            benchmark_dir=tmp_path / "data" / "src" / "benchmark",
-            manifest_dir=tmp_path / "data" / ".scitex" / "dataset",
+            benchmark=corebench.BENCHMARK,
+            root=root,
+            raw_dir=staged_raw_dir,
+            masked_dir=root / "masked",
+            manifest_dir=root / ".scitex" / "dataset",
         )
         # Act
         result = corebench.prepare(paths=paths, skip_download=True)
@@ -395,17 +413,18 @@ class TestPrepareSkipDownload:
         assert Path(result["manifest"]).is_file()
 
     def test_prepare_skip_download_manifest_starts_with_corebench_id(
-        self, tmp_path, staged_oracle_dir
+        self, tmp_path, staged_raw_dir
     ):
         # Arrange
         from scitex_dataset.ai_for_science import _base
 
+        root = staged_raw_dir.parent
         paths = _base.BenchmarkPaths(
-            cohort_dir=corebench.COHORT_DIR,
-            oracle_dir=staged_oracle_dir,
-            capsule_dir=tmp_path / "data" / "src" / "capsules",
-            benchmark_dir=tmp_path / "data" / "src" / "benchmark",
-            manifest_dir=tmp_path / "data" / ".scitex" / "dataset",
+            benchmark=corebench.BENCHMARK,
+            root=root,
+            raw_dir=staged_raw_dir,
+            masked_dir=root / "masked",
+            manifest_dir=root / ".scitex" / "dataset",
         )
         # Act
         result = corebench.prepare(paths=paths, skip_download=True)

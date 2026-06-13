@@ -47,8 +47,9 @@ def _sample_rows():
 
 
 @pytest.fixture
-def staged_oracle_dir(tmp_path):
-    base = tmp_path / "oracles" / "cohort_c_biomysterybench"
+def staged_raw_dir(tmp_path):
+    """Stage the upstream snapshot the way download(...) leaves raw/."""
+    base = tmp_path / "ai-for-science" / "biomysterybench" / "raw"
     base.mkdir(parents=True)
     (base / "problems.csv").write_text(_build_csv_text(_sample_rows()))
     return base
@@ -128,120 +129,32 @@ class TestMaskRow:
         assert once == twice
 
 
-class TestRelocateOracleFiles:
-    def test_relocate_moves_present_local_file_to_oracle(self, tmp_path):
-        # Arrange
-        capsule = tmp_path / "capsule"
-        capsule.mkdir()
-        (capsule / "problems.csv").write_text("id,question\np1,q1\n")
-        oracle = tmp_path / "oracle"
-        # Act
-        statuses = biomysterybench._relocate_oracle_files(capsule, oracle)
-        # Assert
-        assert "problems.csv: moved-local-to-oracle" in statuses
-
-    def test_relocate_clears_local_after_move(self, tmp_path):
-        # Arrange
-        capsule = tmp_path / "capsule"
-        capsule.mkdir()
-        (capsule / "problems.csv").write_text("id,question\np1,q1\n")
-        oracle = tmp_path / "oracle"
-        # Act
-        biomysterybench._relocate_oracle_files(capsule, oracle)
-        # Assert
-        assert not (capsule / "problems.csv").exists()
-
-    def test_relocate_reports_absent_for_files_upstream_did_not_ship(
-        self, tmp_path
-    ):
-        # Arrange — preview snapshot doesn't ship problems.parquet
-        capsule = tmp_path / "capsule"
-        capsule.mkdir()
-        oracle = tmp_path / "oracle"
-        # Act
-        statuses = biomysterybench._relocate_oracle_files(capsule, oracle)
-        # Assert
-        assert "problems.parquet: absent-upstream" in statuses
-
-    def test_relocate_reports_already_relocated_on_repeat_run(self, tmp_path):
-        # Arrange
-        capsule = tmp_path / "capsule"
-        capsule.mkdir()
-        oracle = tmp_path / "oracle"
-        oracle.mkdir()
-        (oracle / "problems.csv").write_text("id\np1\n")
-        # Act
-        statuses = biomysterybench._relocate_oracle_files(capsule, oracle)
-        # Assert
-        assert "problems.csv: already-relocated" in statuses
-
-    def test_relocate_removes_duplicate_local_when_matches_oracle(
-        self, tmp_path
-    ):
-        # Arrange
-        capsule = tmp_path / "capsule"
-        capsule.mkdir()
-        (capsule / "problems.csv").write_text("same\n")
-        oracle = tmp_path / "oracle"
-        oracle.mkdir()
-        (oracle / "problems.csv").write_text("same\n")
-        # Act
-        statuses = biomysterybench._relocate_oracle_files(capsule, oracle)
-        # Assert
-        assert "problems.csv: removed-duplicate-local-copy" in statuses
-
-    def test_relocate_raises_runtimeerror_when_local_and_oracle_differ(
-        self, tmp_path
-    ):
-        # Arrange
-        capsule = tmp_path / "capsule"
-        capsule.mkdir()
-        (capsule / "problems.csv").write_text("local\n")
-        oracle = tmp_path / "oracle"
-        oracle.mkdir()
-        (oracle / "problems.csv").write_text("oracle\n")
-        # Act
-        # Assert
-        with pytest.raises(RuntimeError):
-            biomysterybench._relocate_oracle_files(capsule, oracle)
-
-
 class TestMaskOnDisk:
-    def test_mask_writes_questions_jsonl_in_benchmark_dir(
-        self, tmp_path, staged_oracle_dir
-    ):
+    def test_mask_writes_questions_jsonl_in_masked_dir(self, tmp_path, staged_raw_dir):
         # Arrange
-        benchmark_dir = tmp_path / "bench"
+        masked_dir = staged_raw_dir.parent / "masked"
         # Act
-        biomysterybench.mask(
-            oracle_dir=staged_oracle_dir, benchmark_dir=benchmark_dir
-        )
+        biomysterybench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
         # Assert
-        assert (benchmark_dir / "questions.jsonl").is_file()
+        assert (masked_dir / "questions.jsonl").is_file()
 
-    def test_mask_record_count_matches_csv_row_count(
-        self, tmp_path, staged_oracle_dir
-    ):
+    def test_mask_record_count_matches_csv_row_count(self, tmp_path, staged_raw_dir):
         # Arrange
-        benchmark_dir = tmp_path / "bench"
+        masked_dir = staged_raw_dir.parent / "masked"
         # Act
-        result = biomysterybench.mask(
-            oracle_dir=staged_oracle_dir, benchmark_dir=benchmark_dir
-        )
+        result = biomysterybench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
         # Assert
         assert result["n_records"] == 2
 
     def test_mask_creates_problems_masked_compat_symlink(
-        self, tmp_path, staged_oracle_dir
+        self, tmp_path, staged_raw_dir
     ):
         # Arrange
-        benchmark_dir = tmp_path / "bench"
+        masked_dir = staged_raw_dir.parent / "masked"
         # Act
-        biomysterybench.mask(
-            oracle_dir=staged_oracle_dir, benchmark_dir=benchmark_dir
-        )
+        biomysterybench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
         # Assert
-        assert (benchmark_dir / "problems_masked.jsonl").is_symlink()
+        assert (masked_dir / "problems_masked.jsonl").is_symlink()
 
     def test_mask_raises_when_problems_csv_missing(self, tmp_path):
         # Arrange
@@ -250,9 +163,41 @@ class TestMaskOnDisk:
         # Act
         # Assert
         with pytest.raises(FileNotFoundError):
-            biomysterybench.mask(
-                oracle_dir=bare, benchmark_dir=tmp_path / "out"
-            )
+            biomysterybench.mask(raw_dir=bare, masked_dir=tmp_path / "out")
+
+
+class TestMaskSymlinkView:
+    def test_mask_symlinks_answer_free_data_into_masked_dir(
+        self, tmp_path, staged_raw_dir
+    ):
+        # Arrange — stage an answer-free problem environment alongside the CSV.
+        (staged_raw_dir / "data").mkdir()
+        (staged_raw_dir / "data" / "env.zip").write_text("zip-bytes")
+        masked_dir = staged_raw_dir.parent / "masked"
+        # Act
+        biomysterybench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
+        # Assert
+        link = masked_dir / "data"
+        assert link.is_symlink() and link.resolve() == (staged_raw_dir / "data")
+
+    def test_mask_does_not_symlink_oracle_csv_into_masked_dir(
+        self, tmp_path, staged_raw_dir
+    ):
+        # Arrange
+        masked_dir = staged_raw_dir.parent / "masked"
+        # Act
+        biomysterybench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
+        # Assert
+        assert not (masked_dir / "problems.csv").is_symlink()
+
+    def test_mask_result_symlinked_list_is_non_empty(self, tmp_path, staged_raw_dir):
+        # Arrange — answer-free content present so a link is created.
+        (staged_raw_dir / "data").mkdir()
+        masked_dir = staged_raw_dir.parent / "masked"
+        # Act
+        result = biomysterybench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
+        # Assert
+        assert len(result["symlinked"]) >= 1
 
 
 if __name__ == "__main__":
