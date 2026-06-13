@@ -284,12 +284,12 @@
 <span class="sd">    &gt;&gt;&gt; db.build()  # Fetch all sources and index</span>
 <span class="sd">    &gt;&gt;&gt; results = db.search(&quot;alzheimer EEG&quot;, min_subjects=20)</span>
 
-<span class="sd">    &gt;&gt;&gt; # Prepare an agentic-benchmark cohort (mask only — safe, fast)</span>
+<span class="sd">    &gt;&gt;&gt; # Prepare an agentic benchmark (mask only — safe, fast)</span>
 <span class="sd">    &gt;&gt;&gt; from scitex_dataset import ai_for_science</span>
-<span class="sd">    &gt;&gt;&gt; paths = ai_for_science.resolve_paths(&quot;cohort_a_corebench&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; paths = ai_for_science.resolve_paths(&quot;corebench&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; ai_for_science.corebench.mask(</span>
-<span class="sd">    ...     oracle_dir=paths.oracle_dir,</span>
-<span class="sd">    ...     benchmark_dir=paths.benchmark_dir,</span>
+<span class="sd">    ...     raw_dir=paths.raw_dir,</span>
+<span class="sd">    ...     masked_dir=paths.masked_dir,</span>
 <span class="sd">    ... )</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
