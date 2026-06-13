@@ -132,7 +132,7 @@ class TestWriteManifest:
             name="CORE-Bench",
             version="v1",
             source_url="https://example.test",
-            cohort_dir="cohort_a_corebench",
+            benchmark="corebench",
             tracked_paths=[tracked],
             tracked_root=tmp_path,
             mask_seed="",
@@ -141,9 +141,7 @@ class TestWriteManifest:
         # Assert
         assert out == manifest_dir / "MANIFEST.yaml"
 
-    def test_write_manifest_pinned_prepared_at_is_byte_idempotent(
-        self, tmp_path
-    ):
+    def test_write_manifest_pinned_prepared_at_is_byte_idempotent(self, tmp_path):
         # Arrange
         tracked = tmp_path / "questions.json"
         tracked.write_text("[]")
@@ -154,7 +152,7 @@ class TestWriteManifest:
             name="BixBench",
             version="v1",
             source_url="https://example.test",
-            cohort_dir="cohort_b_bixbench",
+            benchmark="bixbench",
             tracked_paths=[tracked],
             tracked_root=tmp_path,
             mask_seed="",
@@ -179,13 +177,32 @@ class TestWriteManifest:
             name="BioMysteryBench",
             version="v1",
             source_url="https://example.test",
-            cohort_dir="cohort_c_biomysterybench",
+            benchmark="biomysterybench",
             tracked_paths=[tracked],
             tracked_root=tmp_path,
             prepared_at="2026-06-12T00:00:00Z",
         )
         # Assert
         assert expected_digest in out.read_text()
+
+    def test_write_manifest_emits_benchmark_yaml_key(self, tmp_path):
+        # Arrange
+        tracked = tmp_path / "questions.json"
+        tracked.write_text("[]")
+        # Act
+        out = _manifest.write_manifest(
+            manifest_dir=tmp_path / "m",
+            id="corebench",
+            name="CORE-Bench",
+            version="v1",
+            source_url="https://example.test",
+            benchmark="corebench",
+            tracked_paths=[tracked],
+            tracked_root=tmp_path,
+            prepared_at="2026-06-12T00:00:00Z",
+        )
+        # Assert
+        assert "benchmark: corebench" in out.read_text()
 
 
 if __name__ == "__main__":
