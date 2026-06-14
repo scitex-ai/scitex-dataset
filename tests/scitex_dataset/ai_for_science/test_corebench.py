@@ -153,7 +153,7 @@ class TestStandardizeForSolver:
         # Act
         ids = {t["task_id"] for t in _read_jsonl(root / "for_solver" / "tasks.jsonl")}
         # Assert
-        assert "corebench/capsule-1111111__hard" in ids
+        assert "corebench/capsule-1111111__hard__q0" in ids
 
     def test_task_prompt_appends_question_text(self, staged_raw_dir):
         # Arrange
@@ -165,7 +165,7 @@ class TestStandardizeForSolver:
         )
         tasks = _read_jsonl(root / "for_solver" / "tasks.jsonl")
         # Act
-        hard = next(t for t in tasks if t["task_id"].endswith("__hard"))
+        hard = next(t for t in tasks if t["task_id"].endswith("__hard__q0"))
         # Assert
         assert hard["prompt"].endswith("Question: What is the AUC?")
 
@@ -267,7 +267,7 @@ class TestStandardizeEval:
         )
         answers = _read_jsonl(root / "eval" / "answers.jsonl")
         # Act
-        hard = next(a for a in answers if a["task_id"].endswith("__hard"))
+        hard = next(a for a in answers if a["task_id"].endswith("__hard__q0"))
         # Assert
         assert hard["answer"] == {"value": 0.81}
 
