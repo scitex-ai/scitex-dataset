@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Smoke tests for ai_for_science._base path resolution (raw/masked contract)."""
+"""Smoke tests for ai_for_science._base path resolution.
+
+Contract: raw -> {for_solver, eval} (no masked_dir).
+"""
 
 from pathlib import Path
 
@@ -35,7 +38,7 @@ class TestResolvePaths:
         # Assert
         assert paths.raw_dir == dataset_root / "ai-for-science" / benchmark / "raw"
 
-    def test_resolve_paths_masked_dir_under_benchmark_root(self, tmp_path):
+    def test_resolve_paths_for_solver_dir_under_benchmark_root(self, tmp_path):
         # Arrange
         benchmark = "corebench"
         dataset_root = tmp_path / "dataset"
@@ -43,8 +46,26 @@ class TestResolvePaths:
         paths = _base.resolve_paths(benchmark, dataset_root=dataset_root)
         # Assert
         assert (
-            paths.masked_dir == dataset_root / "ai-for-science" / benchmark / "masked"
+            paths.for_solver_dir
+            == dataset_root / "ai-for-science" / benchmark / "for_solver"
         )
+
+    def test_resolve_paths_eval_dir_under_benchmark_root(self, tmp_path):
+        # Arrange
+        benchmark = "corebench"
+        dataset_root = tmp_path / "dataset"
+        # Act
+        paths = _base.resolve_paths(benchmark, dataset_root=dataset_root)
+        # Assert
+        assert paths.eval_dir == dataset_root / "ai-for-science" / benchmark / "eval"
+
+    def test_resolve_paths_has_no_masked_dir_field(self, tmp_path):
+        # Arrange
+        paths = _base.resolve_paths("corebench", dataset_root=tmp_path / "dataset")
+        # Act
+        keys = set(paths.as_dict())
+        # Assert
+        assert "masked_dir" not in keys
 
     def test_resolve_paths_manifest_dir_under_benchmark_scitex_dataset(self, tmp_path):
         # Arrange

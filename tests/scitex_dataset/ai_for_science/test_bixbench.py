@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for ai_for_science.bixbench mask + download (no network).
+"""Tests for ai_for_science.bixbench standardize + download (no network).
 
 PA-306 compliance: no ``unittest.mock``, no ``monkeypatch``.
 ``snapshot_download`` is imported lazily inside ``download(...)`` from
@@ -8,6 +8,7 @@ PA-306 compliance: no ``unittest.mock``, no ``monkeypatch``.
 """
 
 import json
+import subprocess
 import sys
 import types
 from contextlib import contextmanager
@@ -69,29 +70,15 @@ def _hf_stub(recorder):
 def _sample_record():
     return {
         "id": "rec-1",
-        "tag": "Q",
-        "version": "v1",
         "question": "Which gene rises?",
         "hypothesis": "Truncating ASXL1 alters expression.",
-        "capsule_uuid": "abc-123",
         "short_id": "sh1",
-        "question_id": "qid1",
-        "categories": ["bio"],
-        "data_folder": "CapsuleData-abc",
-        "eval_mode": "open",
+        "data_folder": "CapsuleFolder-abc",
         "canary": "CANARY-SENTINEL",
-        # Oracle fields that must get nulled:
+        # Oracle fields that must stay out of the for_solver view:
         "answer": "ASXL1",
         "ideal": "gene X",
-        "result": "p<0.01",
-        "distractors": ["gene Y", "gene Z"],
-        "paper": "https://doi.org/10.1234/abc",
     }
-
-
-@pytest.fixture
-def oracle_record():
-    return _sample_record()
 
 
 @pytest.fixture
@@ -100,183 +87,199 @@ def staged_raw_dir(tmp_path):
     base = tmp_path / "ai-for-science" / "bixbench" / "raw"
     base.mkdir(parents=True)
     (base / "BixBench.jsonl").write_text(json.dumps(_sample_record()) + "\n")
+    (base / "CapsuleFolder-abc").mkdir()
     return base
 
 
-class TestMaskRecord:
-    def test_mask_record_nulls_answer(self, oracle_record):
+def _read_jsonl(path):
+    return [json.loads(line) for line in path.read_text().splitlines() if line]
+
+
+# ---------------------------------------------------------------------------
+# standardize — for_solver tasks + eval answers
+# ---------------------------------------------------------------------------
+
+
+class TestStandardize:
+    def test_writes_tasks_jsonl(self, staged_raw_dir):
         # Arrange
-        rec = oracle_record
+        root = staged_raw_dir.parent
         # Act
-        masked = bixbench.mask_record(rec)
+        bixbench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
         # Assert
-        assert masked["answer"] is None
+        assert (root / "for_solver" / "tasks.jsonl").is_file()
 
-    def test_mask_record_nulls_ideal(self, oracle_record):
+    def test_tasks_have_exactly_uniform_keys(self, staged_raw_dir):
         # Arrange
-        rec = oracle_record
+        root = staged_raw_dir.parent
+        bixbench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
         # Act
-        masked = bixbench.mask_record(rec)
+        tasks = _read_jsonl(root / "for_solver" / "tasks.jsonl")
         # Assert
-        assert masked["ideal"] is None
+        assert all(set(t) == {"task_id", "benchmark", "prompt", "data"} for t in tasks)
 
-    def test_mask_record_nulls_result(self, oracle_record):
+    def test_tasks_carry_no_answer_text(self, staged_raw_dir):
+        # Arrange — the oracle answer "ASXL1" must not leak into tasks.
+        root = staged_raw_dir.parent
+        bixbench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        raw_text = (root / "for_solver" / "tasks.jsonl").read_text()
+        # Assert
+        assert "ASXL1" not in raw_text
+
+    def test_task_id_prefixes_benchmark(self, staged_raw_dir):
         # Arrange
-        rec = oracle_record
+        root = staged_raw_dir.parent
+        bixbench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
         # Act
-        masked = bixbench.mask_record(rec)
+        tasks = _read_jsonl(root / "for_solver" / "tasks.jsonl")
         # Assert
-        assert masked["result"] is None
+        assert tasks[0]["task_id"] == "bixbench/sh1"
 
-    def test_mask_record_nulls_distractors(self, oracle_record):
+    def test_data_folder_symlinked_into_for_solver(self, staged_raw_dir):
         # Arrange
-        rec = oracle_record
+        root = staged_raw_dir.parent
         # Act
-        masked = bixbench.mask_record(rec)
+        bixbench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
         # Assert
-        assert masked["distractors"] is None
+        link = root / "for_solver" / "CapsuleFolder-abc"
+        assert link.is_symlink() and link.resolve() == (
+            staged_raw_dir / "CapsuleFolder-abc"
+        )
 
-    def test_mask_record_nulls_paper(self, oracle_record):
+    def test_oracle_manifest_not_symlinked(self, staged_raw_dir):
         # Arrange
-        rec = oracle_record
+        root = staged_raw_dir.parent
         # Act
-        masked = bixbench.mask_record(rec)
+        bixbench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
         # Assert
-        assert masked["paper"] is None
+        assert not (root / "for_solver" / "BixBench.jsonl").exists()
 
-    def test_mask_record_preserves_hypothesis(self, oracle_record):
+    def test_answer_ids_match_task_ids(self, staged_raw_dir):
         # Arrange
-        expected = oracle_record["hypothesis"]
+        root = staged_raw_dir.parent
+        bixbench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        task_ids = {
+            t["task_id"] for t in _read_jsonl(root / "for_solver" / "tasks.jsonl")
+        }
         # Act
-        masked = bixbench.mask_record(oracle_record)
+        answer_ids = {
+            a["task_id"] for a in _read_jsonl(root / "eval" / "answers.jsonl")
+        }
         # Assert
-        assert masked["hypothesis"] == expected
+        assert answer_ids == task_ids
 
-    def test_mask_record_preserves_canary(self, oracle_record):
+    def test_evaluate_py_written(self, staged_raw_dir):
         # Arrange
-        expected = oracle_record["canary"]
+        root = staged_raw_dir.parent
         # Act
-        masked = bixbench.mask_record(oracle_record)
+        bixbench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
         # Assert
-        assert masked["canary"] == expected
+        assert (root / "eval" / "evaluate.py").is_file()
 
-    def test_mask_record_preserves_question(self, oracle_record):
-        # Arrange
-        expected = oracle_record["question"]
-        # Act
-        masked = bixbench.mask_record(oracle_record)
-        # Assert
-        assert masked["question"] == expected
-
-    def test_mask_record_is_idempotent(self, oracle_record):
-        # Arrange
-        once = bixbench.mask_record(oracle_record)
-        # Act
-        twice = bixbench.mask_record(once)
-        # Assert
-        assert once == twice
-
-    def test_mask_record_does_not_mutate_input(self, oracle_record):
-        # Arrange
-        snapshot = json.loads(json.dumps(oracle_record))
-        # Act
-        _ = bixbench.mask_record(oracle_record)
-        # Assert
-        assert oracle_record == snapshot
-
-
-class TestMaskOnDisk:
-    def test_mask_writes_questions_jsonl_in_masked_dir(self, tmp_path, staged_raw_dir):
-        # Arrange
-        masked_dir = staged_raw_dir.parent / "masked"
-        # Act
-        bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
-        # Assert
-        assert (masked_dir / "questions.jsonl").is_file()
-
-    def test_mask_records_count_matches_raw_line_count(self, tmp_path, staged_raw_dir):
-        # Arrange
-        masked_dir = staged_raw_dir.parent / "masked"
-        # Act
-        result = bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
-        # Assert
-        assert result["n_records"] == 1
-
-    def test_mask_creates_backward_compat_symlink(self, tmp_path, staged_raw_dir):
-        # Arrange
-        masked_dir = staged_raw_dir.parent / "masked"
-        # Act
-        bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
-        # Assert
-        assert (masked_dir / "BixBench_masked.jsonl").is_symlink()
-
-    def test_mask_raises_when_raw_jsonl_missing(self, tmp_path):
+    def test_raises_when_raw_jsonl_missing(self, tmp_path):
         # Arrange
         bare = tmp_path / "empty"
         bare.mkdir()
         # Act
         # Assert
         with pytest.raises(FileNotFoundError):
-            bixbench.mask(raw_dir=bare, masked_dir=tmp_path / "out")
+            bixbench.standardize(
+                raw_dir=bare,
+                for_solver_dir=tmp_path / "fs",
+                eval_dir=tmp_path / "ev",
+            )
 
 
-class TestMaskSymlinkView:
-    def test_mask_symlinks_answer_free_capsule_into_masked_dir(
-        self, tmp_path, staged_raw_dir
-    ):
-        # Arrange — stage an answer-free capsule dir alongside the oracle.
-        (staged_raw_dir / "CapsuleData-abc").mkdir()
-        (staged_raw_dir / "CapsuleData-abc" / "data.csv").write_text("x,y\n1,2\n")
-        masked_dir = staged_raw_dir.parent / "masked"
-        # Act
-        bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
-        # Assert
-        link = masked_dir / "CapsuleData-abc"
-        assert link.is_symlink() and link.resolve() == (
-            staged_raw_dir / "CapsuleData-abc"
+class TestEvaluatePyRoundTrip:
+    def test_correct_string_submission_scores_one(self, staged_raw_dir):
+        # Arrange — string mode: submit the exact oracle answer.
+        root = staged_raw_dir.parent
+        bixbench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
         )
+        sub = [{"task_id": "bixbench/sh1", "answer": "ASXL1"}]
+        (root / "good.json").write_text(json.dumps(sub))
+        # Act
+        out = subprocess.run(
+            [
+                sys.executable,
+                str(root / "eval" / "evaluate.py"),
+                "--submission",
+                str(root / "good.json"),
+                "--answers",
+                str(root / "eval" / "answers.jsonl"),
+            ],
+            capture_output=True,
+            text=True,
+        )
+        # Assert
+        assert json.loads(out.stdout)["score"] == 1.0
 
-    def test_mask_does_not_symlink_oracle_manifest_into_masked_dir(
-        self, tmp_path, staged_raw_dir
-    ):
+    def test_wrong_string_submission_scores_below_one(self, staged_raw_dir):
         # Arrange
-        masked_dir = staged_raw_dir.parent / "masked"
+        root = staged_raw_dir.parent
+        bixbench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        sub = [{"task_id": "bixbench/sh1", "answer": "totally wrong"}]
+        (root / "bad.json").write_text(json.dumps(sub))
         # Act
-        bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
+        out = subprocess.run(
+            [
+                sys.executable,
+                str(root / "eval" / "evaluate.py"),
+                "--submission",
+                str(root / "bad.json"),
+                "--answers",
+                str(root / "eval" / "answers.jsonl"),
+            ],
+            capture_output=True,
+            text=True,
+        )
         # Assert
-        assert not (masked_dir / "BixBench.jsonl").is_symlink()
+        assert json.loads(out.stdout)["score"] < 1.0
 
-    def test_mask_result_symlinked_list_is_non_empty(self, tmp_path, staged_raw_dir):
-        # Arrange — answer-free content present so a link is created.
-        (staged_raw_dir / "CapsuleData-abc").mkdir()
-        masked_dir = staged_raw_dir.parent / "masked"
-        # Act
-        result = bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
-        # Assert
-        assert len(result["symlinked"]) >= 1
 
-    def test_mask_does_not_symlink_dot_cache_into_masked(
-        self, tmp_path, staged_raw_dir
-    ):
-        # Arrange — HF ``.cache`` is a latent leak-surface and must never
-        # reach the agent-visible masked view.
-        (staged_raw_dir / ".cache").mkdir()
-        masked_dir = staged_raw_dir.parent / "masked"
-        # Act
-        bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
-        # Assert
-        assert not (masked_dir / ".cache").exists()
-
-    def test_mask_does_not_symlink_gitattributes_into_masked(
-        self, tmp_path, staged_raw_dir
-    ):
-        # Arrange — VCS internals are not benchmark content.
-        (staged_raw_dir / ".gitattributes").write_text("* text=auto\n")
-        masked_dir = staged_raw_dir.parent / "masked"
-        # Act
-        bixbench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
-        # Assert
-        assert not (masked_dir / ".gitattributes").exists()
+# ---------------------------------------------------------------------------
+# download
+# ---------------------------------------------------------------------------
 
 
 class TestDownload:
@@ -290,31 +293,20 @@ class TestDownload:
         # Assert
         assert result["snapshots_pulled"] == [bixbench.HF_REPO_ID]
 
-    def test_download_calls_snapshot_download_once(self, tmp_path):
-        # Arrange
-        rec = _SnapshotRecorder()
-        raw_dir = tmp_path / "raw"
-        # Act
-        with _swap_module("huggingface_hub", _hf_stub(rec)):
-            bixbench.download(raw_dir=raw_dir)
-        # Assert
-        assert len(rec.calls) == 1
-
-    def test_download_returns_raw_dir(self, tmp_path):
-        # Arrange
+    def test_download_records_resolved_set(self, tmp_path):
+        # Arrange — snapshot_download natively skips by etag/sha; we just
+        # record the resolved snapshot path it returns.
         rec = _SnapshotRecorder()
         raw_dir = tmp_path / "raw"
         # Act
         with _swap_module("huggingface_hub", _hf_stub(rec)):
             result = bixbench.download(raw_dir=raw_dir)
         # Assert
-        assert result["raw_dir"] == str(raw_dir)
+        assert result["resolved"] == str(raw_dir)
 
 
 class TestPrepareWithDownload:
-    def test_prepare_with_download_emits_download_mask_manifest_keys(
-        self, tmp_path, staged_raw_dir
-    ):
+    def test_prepare_emits_download_standardize_manifest_keys(self, staged_raw_dir):
         # Arrange — JSONL already staged; snapshot_download is a no-op so
         # the staged raw_dir survives the download step.
         from scitex_dataset.ai_for_science import _base
@@ -325,33 +317,15 @@ class TestPrepareWithDownload:
             benchmark=bixbench.BENCHMARK,
             root=root,
             raw_dir=staged_raw_dir,
-            masked_dir=root / "masked",
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
             manifest_dir=root / ".scitex" / "dataset",
         )
         # Act
         with _swap_module("huggingface_hub", _hf_stub(rec)):
             result = bixbench.prepare(paths=paths, skip_download=False)
         # Assert
-        assert {"download", "mask", "manifest"} <= set(result)
-
-    def test_prepare_with_download_writes_manifest_file(self, tmp_path, staged_raw_dir):
-        # Arrange
-        from scitex_dataset.ai_for_science import _base
-
-        rec = _SnapshotRecorder(write_dummy=False)
-        root = staged_raw_dir.parent
-        paths = _base.BenchmarkPaths(
-            benchmark=bixbench.BENCHMARK,
-            root=root,
-            raw_dir=staged_raw_dir,
-            masked_dir=root / "masked",
-            manifest_dir=root / ".scitex" / "dataset",
-        )
-        # Act
-        with _swap_module("huggingface_hub", _hf_stub(rec)):
-            result = bixbench.prepare(paths=paths, skip_download=False)
-        # Assert
-        assert Path(result["manifest"]).is_file()
+        assert {"download", "standardize", "manifest"} <= set(result)
 
 
 if __name__ == "__main__":

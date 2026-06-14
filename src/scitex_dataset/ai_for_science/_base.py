@@ -7,15 +7,21 @@
 One on-disk contract, two filesystem roles per benchmark — no separate
 ``oracles`` tree. Leak-prevention is handled *within* the dataset scope:
 
-- ``raw_dir``    — upstream snapshot stored *as-is* (may contain answers,
-                   rubrics, solutions). Operator-private: it is NEVER
-                   bind-mounted into an agent capsule, and ``prepare``
-                   leaves it read-only.
-- ``masked_dir`` — agent-visible, leak-safe derivative. A curated view
-                   built by ``mask``: symlinks to answer-free upstream
-                   files plus transformed question files with the oracle
-                   columns nulled. This is what the experiment harness
-                   mounts read-only inside the agent capsule.
+- ``raw_dir``        — upstream snapshot stored *as-is* (may contain
+                   answers, rubrics, solutions). Operator-private: it is
+                   NEVER bind-mounted into an agent capsule, and
+                   ``prepare`` leaves it read-only.
+- ``for_solver_dir`` — agent-visible, leak-safe derivative built by
+                   ``standardize``: a UNIFORM ``tasks.jsonl`` (no
+                   answers) + submission schema/example + symlinks to
+                   answer-free upstream problem data. This is what the
+                   experiment harness mounts read-only inside the agent
+                   capsule.
+- ``eval_dir``       — operator-side scorer view built by
+                   ``standardize``: ``answers.jsonl`` (keyed by the same
+                   ``task_id`` as ``tasks.jsonl``) + a stdlib-only
+                   ``evaluate.py`` CLI scorer. NEVER mounted into a
+                   capsule.
 - ``manifest_dir`` — ``.scitex/dataset/`` holding ``MANIFEST.yaml``
                    (id + version + source + checksum + mask-seed), so a
                    single ``cp -r`` of the benchmark dir carries its
@@ -27,7 +33,8 @@ benchmark, mirroring the CLI grammar ``scitex-dataset ai-for-science
 
     <dataset-root>/ai-for-science/<benchmark>/
         raw/                      # upstream as-is (operator-private)
-        masked/                   # agent-visible leak-safe view
+        for_solver/               # agent-visible leak-safe view
+        eval/                     # operator-side scorer view
         .scitex/dataset/MANIFEST.yaml
 
 ``<dataset-root>`` is resolved through :mod:`scitex_dataset._config`
@@ -78,7 +85,8 @@ class BenchmarkPaths:
     benchmark: str
     root: Path
     raw_dir: Path
-    masked_dir: Path
+    for_solver_dir: Path
+    eval_dir: Path
     manifest_dir: Path
 
     def as_dict(self) -> dict:
@@ -87,7 +95,8 @@ class BenchmarkPaths:
             "benchmark": self.benchmark,
             "root": str(self.root),
             "raw_dir": str(self.raw_dir),
-            "masked_dir": str(self.masked_dir),
+            "for_solver_dir": str(self.for_solver_dir),
+            "eval_dir": str(self.eval_dir),
             "manifest_dir": str(self.manifest_dir),
         }
 
@@ -103,14 +112,15 @@ def resolve_paths(
     ``bixbench``, ``biomysterybench``) — NOT a repo-specific cohort
     slug. The layout is::
 
-        <dataset-root>/ai-for-science/<benchmark>/{raw,masked,.scitex/dataset}
+        <dataset-root>/ai-for-science/<benchmark>/{raw,for_solver,eval,.scitex/dataset}
     """
     root = _dataset_root(dataset_root) / DOMAIN / benchmark
     return BenchmarkPaths(
         benchmark=benchmark,
         root=root,
         raw_dir=root / "raw",
-        masked_dir=root / "masked",
+        for_solver_dir=root / "for_solver",
+        eval_dir=root / "eval",
         manifest_dir=root / ".scitex" / "dataset",
     )
 

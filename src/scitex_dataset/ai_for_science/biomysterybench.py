@@ -10,31 +10,33 @@ hosted on Hugging Face Hub by Anthropic. Two variants:
 - ``Anthropic/BioMysteryBench-preview``  — 5 problems, ~11 MB, public.
 - ``Anthropic/BioMysteryBench-full``     — 99 problems, ~159 GB, gated.
 
-Pipeline (raw/masked contract — see :mod:`._base`):
+Pipeline (raw → {for_solver, eval} contract — see :mod:`._base`):
 
 1. ``download(...)`` — snapshot-download the preview tree (default) or
    the full set when ``download_full=True`` AND HF access is granted,
    storing the upstream tree *as-is* under ``raw_dir`` (answers and all).
    ``raw_dir`` is operator-private and never mounted into a capsule.
-2. ``mask(...)`` — read ``raw_dir/problems.csv``, null the
-   ``answer_rubric`` column, write JSONL to ``masked_dir/questions.jsonl``,
-   then symlink the answer-free upstream content (e.g. ``data/*.zip``
-   problem environments) into ``masked_dir``. ``masked_dir`` is the
-   agent-visible, leak-safe view the harness mounts read-only.
+2. ``standardize(...)`` — read ``raw_dir/problems.csv``, split into a
+   uniform leak-safe ``for_solver/tasks.jsonl`` (no rubric) and an
+   operator-side ``eval/answers.jsonl`` (carrying the rubric) +
+   ``eval/evaluate.py``. Each task's ``data`` points at
+   ``data/<id>.zip`` if present, symlinked answer-free into
+   ``for_solver``. ``for_solver`` is the agent-visible view mounted
+   read-only; ``eval`` is operator-only.
 
 NOTE on compute: the preview is small (~11 MB), the full set is multi-
-GB and must run on SLURM. ``mask(...)`` is pure-Python on a small CSV
-plus symlink creation and safe to run anywhere.
+GB and must run on SLURM. ``standardize(...)`` is pure-Python on a small
+CSV plus symlink creation and safe to run anywhere.
 """
 
 from __future__ import annotations
 
 import csv
-import json
 from pathlib import Path
 
 from ._base import BenchmarkPaths, resolve_paths
 from ._manifest import write_manifest
+from ._standardize import render_evaluate_py, write_eval, write_for_solver
 
 # Canonical benchmark identity.
 BENCHMARK = "biomysterybench"
@@ -46,81 +48,42 @@ HF_REPO_ID_FULL = "Anthropic/BioMysteryBench-full"
 HF_REPO_TYPE = "dataset"
 SOURCE_URL = f"https://huggingface.co/datasets/{HF_REPO_ID_PREVIEW}"
 
-# Columns kept verbatim from problems.csv.
-PRESERVED_FIELDS = ("id", "question", "allowed_domains", "human_solvable")
-# Column whose value is replaced with None.
+# Column carrying the rubric answer; moved to eval/, never in for_solver.
 ORACLE_FIELD = "answer_rubric"
 
 # Answer-bearing upstream files — kept in raw_dir, NEVER symlinked into
-# the agent-visible masked view.
+# the agent-visible for_solver view.
 ORACLE_FILENAMES = ("problems.csv", "problems.parquet", "README.md")
 
-# Backward-compat symlink for the pre-rename name.
-_COMPAT_SYMLINKS = (("problems_masked.jsonl", "questions.jsonl"),)
+# Default scorer mode baked into eval/evaluate.py — BMB answers are
+# rubric-graded (not auto-scorable), so evaluate.py marks them for
+# manual grading rather than computing a numeric/string score.
+DEFAULT_MODE = "rubric"
+
+# Subdir under raw_dir holding per-problem zipped environments.
+_DATA_SUBDIR = "data"
 
 
 # ---------------------------------------------------------------------------
-# Mask — pure-Python, network-free.
+# Standardize — pure-Python, network-free.
 # ---------------------------------------------------------------------------
 
 
-def mask_row(row: dict) -> dict:
-    """Project ``row`` to ``{*PRESERVED_FIELDS: ..., ORACLE_FIELD: None}``.
-
-    Anything in ``row`` that isn't a preserved field is dropped — the
-    mask is deliberately strict so an upstream schema drift can't
-    accidentally leak a new answer-bearing column. Idempotent
-    (re-masking already-masked rows yields identical bytes).
-    """
-    out = {field: row.get(field) for field in PRESERVED_FIELDS}
-    out[ORACLE_FIELD] = None
-    return out
-
-
-def _refresh_compat_symlinks(masked_dir: Path) -> None:
-    for old_name, new_name in _COMPAT_SYMLINKS:
-        link = masked_dir / old_name
-        if link.is_symlink() or link.exists():
-            link.unlink()
-        link.symlink_to(new_name)
-
-
-def _link_safe_view(raw_dir: Path, masked_dir: Path, deny: set[str]) -> list[str]:
-    """Symlink every answer-free top-level ``raw_dir`` entry into ``masked_dir``.
-
-    Each link is RELATIVE (``../raw/<name>``) so the benchmark dir stays
-    relocatable, and idempotent (an existing link/file at the target is
-    unlinked first). Entries whose name is in ``deny`` (the oracle
-    filenames) are skipped — the agent never sees them. Returns the list
-    of created link paths (as strings).
-    """
-    created: list[str] = []
-    for entry in sorted(raw_dir.iterdir()):
-        # Skip the oracle deny-list and dot-prefixed HuggingFace/VCS
-        # internals (``.cache``, ``.gitattributes``, …): neither is
-        # benchmark content, and ``.cache`` is a latent leak-surface.
-        if entry.name in deny or entry.name.startswith("."):
-            continue
-        link = masked_dir / entry.name
-        if link.is_symlink() or link.exists():
-            link.unlink()
-        link.symlink_to(Path("..") / "raw" / entry.name)
-        created.append(str(link))
-    return created
-
-
-def mask(
+def standardize(
     *,
     raw_dir: Path,
-    masked_dir: Path,
+    for_solver_dir: Path,
+    eval_dir: Path,
     **_,
 ) -> dict:
-    """Read ``raw_dir/problems.csv``, build the masked view in ``masked_dir``.
+    """Read ``raw_dir/problems.csv``, build the for_solver + eval views.
 
-    Writes ``questions.jsonl`` (JSONL, ``sort_keys=True``,
-    ``ensure_ascii=False`` — symmetric with the other benchmarks) and
-    symlinks the answer-free upstream content (problem environments)
-    into ``masked_dir`` so the agent gets the data without the rubric.
+    Each CSV row becomes one leak-safe task (``{task_id, benchmark,
+    prompt, data}``) + one answer (``{rubric}``). A task's ``data``
+    points at ``data/<id>.zip`` when that environment exists under
+    ``raw/data``, else ``null``. The whole ``raw/data`` dir is symlinked
+    answer-free into ``for_solver`` when present. The rubric stays in
+    operator-only ``eval/answers.jsonl``.
     """
     src = raw_dir / "problems.csv"
     if not src.is_file():
@@ -129,27 +92,47 @@ def mask(
             "Did you run download(...)?"
         )
 
-    masked_dir.mkdir(parents=True, exist_ok=True)
-    dst = masked_dir / "questions.jsonl"
-    n = 0
-    with (
-        src.open("r", encoding="utf-8", newline="") as fh_in,
-        dst.open("w", encoding="utf-8", newline="\n") as fh_out,
-    ):
+    data_dir = raw_dir / _DATA_SUBDIR
+    tasks: list[dict] = []
+    answers: list[dict] = []
+    with src.open("r", encoding="utf-8", newline="") as fh_in:
         reader = csv.DictReader(fh_in)
         for row in reader:
-            fh_out.write(json.dumps(mask_row(row), sort_keys=True, ensure_ascii=False))
-            fh_out.write("\n")
-            n += 1
+            rid = row["id"]
+            task_id = f"biomysterybench/{rid}"
+            zip_path = data_dir / f"{rid}.zip"
+            tasks.append(
+                {
+                    "task_id": task_id,
+                    "benchmark": BENCHMARK,
+                    "prompt": row["question"],
+                    "data": f"./data/{rid}.zip" if zip_path.exists() else None,
+                }
+            )
+            answers.append(
+                {
+                    "task_id": task_id,
+                    "answer": {"rubric": row.get(ORACLE_FIELD)},
+                }
+            )
 
-    symlinked = _link_safe_view(raw_dir, masked_dir, set(ORACLE_FILENAMES))
-    _refresh_compat_symlinks(masked_dir)
+    data_links = [_DATA_SUBDIR] if data_dir.exists() else []
+    fs = write_for_solver(
+        for_solver_dir=for_solver_dir,
+        tasks=tasks,
+        raw_dir=raw_dir,
+        data_links=data_links,
+    )
+    ev = write_eval(
+        eval_dir=eval_dir,
+        answers=answers,
+        evaluate_py_source=render_evaluate_py(DEFAULT_MODE),
+    )
     return {
-        "output": str(dst),
-        "n_records": n,
-        "mask_fields": [ORACLE_FIELD],
-        "symlinked": symlinked,
-        "compat_symlinks": [str(masked_dir / old) for old, _ in _COMPAT_SYMLINKS],
+        "for_solver": fs,
+        "eval": ev,
+        "n_tasks": len(tasks),
+        "default_mode": DEFAULT_MODE,
     }
 
 
@@ -173,7 +156,7 @@ def download(
     (~159 GB, gated) is pulled afterwards. ``huggingface_hub`` is
     required. No file is relocated — the answer-bearing artifacts stay
     in the operator-private ``raw_dir`` and leak-prevention happens at
-    ``mask`` time (only ``masked_dir`` is ever mounted).
+    ``standardize`` time (only ``for_solver`` is ever mounted).
     """
     try:
         from huggingface_hub import snapshot_download
@@ -186,6 +169,9 @@ def download(
     raw_dir.mkdir(parents=True, exist_ok=True)
     pulled: list[str] = []
 
+    # snapshot_download already does per-file etag/sha skip natively, so
+    # re-runs only re-pull files whose upstream content changed — no
+    # extra integrity bookkeeping needed on our side.
     snapshot_download(
         repo_id=HF_REPO_ID_PREVIEW,
         repo_type=HF_REPO_TYPE,
@@ -240,7 +226,11 @@ def prepare(
             raw_dir=paths.raw_dir,
             download_full=download_full,
         )
-    out["mask"] = mask(raw_dir=paths.raw_dir, masked_dir=paths.masked_dir)
+    out["standardize"] = standardize(
+        raw_dir=paths.raw_dir,
+        for_solver_dir=paths.for_solver_dir,
+        eval_dir=paths.eval_dir,
+    )
 
     manifest_path = write_manifest(
         manifest_dir=paths.manifest_dir,
@@ -249,8 +239,8 @@ def prepare(
         version=version,
         source_url=SOURCE_URL,
         benchmark=BENCHMARK,
-        tracked_paths=[Path(out["mask"]["output"])],
-        tracked_root=paths.masked_dir,
+        tracked_paths=[Path(out["standardize"]["for_solver"]["tasks"])],
+        tracked_root=paths.for_solver_dir,
         mask_seed="",
     )
     out["manifest"] = str(manifest_path)
@@ -265,12 +255,11 @@ __all__ = [
     "HF_REPO_ID_FULL",
     "HF_REPO_TYPE",
     "SOURCE_URL",
-    "PRESERVED_FIELDS",
+    "DEFAULT_MODE",
     "ORACLE_FIELD",
     "ORACLE_FILENAMES",
     "download",
-    "mask",
-    "mask_row",
+    "standardize",
     "prepare",
 ]
 

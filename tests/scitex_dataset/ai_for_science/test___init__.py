@@ -17,13 +17,13 @@ class TestPackageSurface:
         assert attr is not None
 
     @pytest.mark.parametrize("name", ["corebench", "bixbench", "biomysterybench"])
-    def test_benchmark_submodule_exposes_mask_callable(self, name):
+    def test_benchmark_submodule_exposes_standardize_callable(self, name):
         # Arrange
         module = getattr(ai_for_science, name)
         # Act
-        mask = getattr(module, "mask", None)
+        standardize = getattr(module, "standardize", None)
         # Assert
-        assert callable(mask)
+        assert callable(standardize)
 
     @pytest.mark.parametrize("name", ["corebench", "bixbench", "biomysterybench"])
     def test_benchmark_submodule_exposes_download_callable(self, name):
@@ -89,12 +89,16 @@ class TestPackageSurface:
         assert attr is None
 
 
-class TestPackageRootMaskAliases:
+class TestPackageRootStandardizeAliases:
     @pytest.mark.parametrize(
         "name",
-        ["corebench_mask", "bixbench_mask", "biomysterybench_mask"],
+        [
+            "corebench_standardize",
+            "bixbench_standardize",
+            "biomysterybench_standardize",
+        ],
     )
-    def test_mask_alias_appears_in_package_root_all(self, name):
+    def test_standardize_alias_appears_in_package_root_all(self, name):
         # Arrange
         import scitex_dataset
 
@@ -105,9 +109,13 @@ class TestPackageRootMaskAliases:
 
     @pytest.mark.parametrize(
         "name",
-        ["corebench_mask", "bixbench_mask", "biomysterybench_mask"],
+        [
+            "corebench_standardize",
+            "bixbench_standardize",
+            "biomysterybench_standardize",
+        ],
     )
-    def test_mask_alias_is_callable_on_package_root(self, name):
+    def test_standardize_alias_is_callable_on_package_root(self, name):
         # Arrange
         import scitex_dataset
 
