@@ -73,29 +73,49 @@ def built(tmp_path):
 
 class TestNewBenchmarkConformance:
     def test_tasks_have_uniform_schema(self, built):
+        # Arrange
         _, for_solver, _ = built
+        # Act
         rec = json.loads((for_solver / "tasks.jsonl").read_text().splitlines()[0])
+        # Assert
         assert set(rec) == set(_standardize.TASK_KEYS)
 
     def test_tasks_carry_no_answer_field(self, built):
+        # Arrange
         _, for_solver, _ = built
+        # Act
         rec = json.loads((for_solver / "tasks.jsonl").read_text().splitlines()[0])
+        # Assert
         assert "answer" not in rec
 
     def test_problem_data_is_symlinked(self, built):
+        # Arrange
         _, for_solver, _ = built
-        assert (for_solver / "problem_q1.txt").is_symlink()
+        # Act
+        link = for_solver / "problem_q1.txt"
+        # Assert
+        assert link.is_symlink()
 
     def test_oracle_not_reachable_from_for_solver(self, built):
+        # Arrange
         _, for_solver, _ = built
-        assert not (for_solver / "ORACLE_answers.csv").exists()
+        # Act
+        leaked = (for_solver / "ORACLE_answers.csv").exists()
+        # Assert
+        assert not leaked
 
     def test_submission_schema_emitted(self, built):
+        # Arrange
         _, for_solver, _ = built
-        assert (for_solver / "submission.schema.json").is_file()
+        # Act
+        schema = for_solver / "submission.schema.json"
+        # Assert
+        assert schema.is_file()
 
     def test_eval_answers_keyed_by_same_task_id(self, built):
+        # Arrange
         _, for_solver, eval_dir = built
+        # Act
         tasks = {
             json.loads(line)["task_id"]
             for line in (for_solver / "tasks.jsonl").read_text().splitlines()
@@ -104,16 +124,23 @@ class TestNewBenchmarkConformance:
             json.loads(line)["task_id"]
             for line in (eval_dir / "answers.jsonl").read_text().splitlines()
         }
+        # Assert
         assert tasks == answers
 
-    def test_evaluate_py_is_executable(self, built):
+    def test_evaluate_py_is_emitted(self, built):
+        # Arrange
         _, _, eval_dir = built
-        assert (eval_dir / "evaluate.py").is_file()
+        # Act
+        evaluate = eval_dir / "evaluate.py"
+        # Assert
+        assert evaluate.is_file()
 
     def test_correct_submission_scores_one(self, built):
+        # Arrange
         root, _, eval_dir = built
         sub = [{"task_id": f"{BENCH}/q1", "answer": 42.0}]
         (root / "good.json").write_text(json.dumps(sub))
+        # Act
         out = subprocess.run(
             [
                 sys.executable,
@@ -126,6 +153,7 @@ class TestNewBenchmarkConformance:
             capture_output=True,
             text=True,
         )
+        # Assert
         assert json.loads(out.stdout)["score"] == 1.0
 
 
