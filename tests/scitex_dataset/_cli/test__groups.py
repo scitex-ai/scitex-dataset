@@ -66,13 +66,13 @@ class TestDomainGroupWiring:
         assert "prepare" in result.output
 
     @pytest.mark.parametrize("bench", ["corebench", "bixbench", "biomysterybench"])
-    def test_benchmark_help_lists_mask_verb(self, runner, bench):
+    def test_benchmark_help_lists_standardize_verb(self, runner, bench):
         # Arrange
         cli = main
         # Act
         result = runner.invoke(cli, ["ai-for-science", bench, "-h"])
         # Assert
-        assert "mask" in result.output
+        assert "standardize" in result.output
 
 
 def _stage_bixbench_raw(dataset_root):
@@ -82,13 +82,11 @@ def _stage_bixbench_raw(dataset_root):
     (raw_dir / "BixBench.jsonl").write_text(
         json.dumps(
             {
-                "id": "x",
+                "short_id": "x",
                 "question": "q?",
+                "data_folder": "CapsuleFolder-x.zip",
                 "answer": "secret",
                 "ideal": "i",
-                "result": "r",
-                "distractors": [],
-                "paper": "p",
                 "canary": "c",
                 "hypothesis": "h",
             }
@@ -98,13 +96,13 @@ def _stage_bixbench_raw(dataset_root):
     return raw_dir
 
 
-class TestMaskCli:
-    def test_corebench_mask_missing_raw_exits_nonzero(self, runner, tmp_path):
+class TestStandardizeCli:
+    def test_corebench_standardize_missing_raw_exits_nonzero(self, runner, tmp_path):
         # Arrange — point the dataset root at an empty tmp dir
         args = [
             "ai-for-science",
             "corebench",
-            "mask",
+            "standardize",
             "--dataset-root",
             str(tmp_path / "dataset"),
         ]
@@ -113,14 +111,14 @@ class TestMaskCli:
         # Assert
         assert result.exit_code != 0
 
-    def test_bixbench_mask_with_staged_raw_exits_zero(self, runner, tmp_path):
+    def test_bixbench_standardize_with_staged_raw_exits_zero(self, runner, tmp_path):
         # Arrange
         dataset_root = tmp_path / "dataset"
         _stage_bixbench_raw(dataset_root)
         args = [
             "ai-for-science",
             "bixbench",
-            "mask",
+            "standardize",
             "--dataset-root",
             str(dataset_root),
             "--json",
@@ -130,14 +128,14 @@ class TestMaskCli:
         # Assert
         assert result.exit_code == 0
 
-    def test_bixbench_mask_emits_one_record_in_json_output(self, runner, tmp_path):
+    def test_bixbench_standardize_emits_one_task_in_json_output(self, runner, tmp_path):
         # Arrange
         dataset_root = tmp_path / "dataset"
         _stage_bixbench_raw(dataset_root)
         args = [
             "ai-for-science",
             "bixbench",
-            "mask",
+            "standardize",
             "--dataset-root",
             str(dataset_root),
             "--json",
@@ -146,7 +144,7 @@ class TestMaskCli:
         # Act
         payload = json.loads(result.output)
         # Assert
-        assert payload["n_records"] == 1
+        assert payload["n_tasks"] == 1
 
 
 if __name__ == "__main__":

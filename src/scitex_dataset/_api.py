@@ -15,6 +15,13 @@ no logic of their own.
 
 from __future__ import annotations
 
+# Agentic AI-for-science benchmark cohorts. Each ``standardize`` is the
+# read-only pure-Python verb (safe over MCP); ``download`` /
+# ``prepare`` are CLI-only on purpose (multi-GB pulls belong on SLURM
+# compute nodes, not an MCP client).
+from .ai_for_science.biomysterybench import standardize as biomysterybench_standardize
+from .ai_for_science.bixbench import standardize as bixbench_standardize
+from .ai_for_science.corebench import standardize as corebench_standardize
 from .biology.geo import fetch_all_datasets as geo_fetch
 from .biology.geo import format_dataset as geo_format
 from .general.figshare import fetch_all_datasets as figshare_fetch
@@ -34,9 +41,7 @@ from .neuroscience.dandi import fetch_all_datasets as dandi_fetch
 from .neuroscience.dandi import format_dataset as dandi_format
 from .neuroscience.gin import fetch_all_datasets as gin_fetch
 from .neuroscience.gin import format_dataset as gin_format
-from .neuroscience.gin import gin_download
-from .neuroscience.gin import gin_info
-from .neuroscience.gin import gin_search
+from .neuroscience.gin import gin_download, gin_info, gin_search
 from .neuroscience.openneuro import fetch_all_datasets as openneuro_fetch
 from .neuroscience.openneuro import format_dataset as openneuro_format
 from .neuroscience.physionet import fetch_all_datasets as physionet_fetch
@@ -45,14 +50,6 @@ from .pharmacology.chembl import fetch_all_datasets as chembl_fetch
 from .pharmacology.chembl import format_dataset as chembl_format
 from .pharmacology.moleculenet import fetch_all_datasets as moleculenet_fetch
 from .pharmacology.moleculenet import format_dataset as moleculenet_format
-
-# Agentic AI-for-science benchmark cohorts. Each ``mask`` is the
-# read-only pure-Python verb (safe over MCP); ``download`` /
-# ``prepare`` are CLI-only on purpose (multi-GB pulls belong on SLURM
-# compute nodes, not an MCP client).
-from .ai_for_science.biomysterybench import mask as biomysterybench_mask
-from .ai_for_science.bixbench import mask as bixbench_mask
-from .ai_for_science.corebench import mask as corebench_mask
 
 __all__ = [
     "openneuro_fetch",
@@ -86,10 +83,10 @@ __all__ = [
     "huggingface_search",
     "huggingface_info",
     "huggingface_download_file",
-    # Agentic AI-for-science benchmark cohorts (mask-only over MCP)
-    "corebench_mask",
-    "bixbench_mask",
-    "biomysterybench_mask",
+    # Agentic AI-for-science benchmark cohorts (standardize-only over MCP)
+    "corebench_standardize",
+    "bixbench_standardize",
+    "biomysterybench_standardize",
 ]
 
 
@@ -101,6 +98,7 @@ __all__ = [
 # that ship a real download path (HuggingFace, GIN) are wired up;
 # catalog-only sources raise ``NotImplementedError`` with a hint.
 # ---------------------------------------------------------------------- #
+
 
 def download_dataset(
     source: str,
@@ -143,6 +141,7 @@ def download_dataset(
         return huggingface_fetch(repo_id=id, local_dir=dest, **kwargs)
 
     from ._sources import ALL_SOURCES
+
     if src in ALL_SOURCES:
         raise NotImplementedError(
             f"download_dataset: source {src!r} is catalog-only today; "

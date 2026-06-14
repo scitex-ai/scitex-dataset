@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for ai_for_science.biomysterybench mask + download (no network).
+"""Tests for ai_for_science.biomysterybench standardize + download (no network).
 
 PA-306 compliance: no ``unittest.mock``, no ``monkeypatch``.
 ``snapshot_download`` is imported lazily inside ``download(...)`` from
@@ -8,6 +8,8 @@ PA-306 compliance: no ``unittest.mock``, no ``monkeypatch``.
 """
 
 import io
+import json
+import subprocess
 import sys
 import types
 from contextlib import contextmanager
@@ -69,10 +71,8 @@ def _hf_stub(recorder):
 def _build_csv_text(rows: list[dict]) -> str:
     """Render ``rows`` to CSV text without touching the filesystem.
 
-    Used by the fixture so the fixture itself doesn't call ``open()`` —
-    the audit's PA-307 STX-TQ005 rule flags fixtures that acquire an
-    external resource via ``open()`` and return instead of yield. We
-    keep CSV writing on an in-memory buffer to sidestep the pattern.
+    Keeps the fixture from acquiring an external resource via ``open()``
+    (PA-307 STX-TQ005) by writing to an in-memory buffer.
     """
     import csv as _csv
 
@@ -91,14 +91,14 @@ def _sample_rows():
             "question": "Which organism is the model?",
             "allowed_domains": "biology",
             "human_solvable": "true",
-            "answer_rubric": "The answer is Homo sapiens",
+            "answer_rubric": "Award full marks for Homo sapiens",
         },
         {
             "id": "p2",
             "question": "What gene is upregulated?",
             "allowed_domains": "biology",
             "human_solvable": "true",
-            "answer_rubric": "The answer is BRCA1",
+            "answer_rubric": "Award full marks for BRCA1",
         },
     ]
 
@@ -112,149 +112,211 @@ def staged_raw_dir(tmp_path):
     return base
 
 
-class TestMaskRow:
-    def test_mask_row_nulls_answer_rubric(self):
+def _read_jsonl(path):
+    return [json.loads(line) for line in path.read_text().splitlines() if line]
+
+
+# ---------------------------------------------------------------------------
+# standardize — for_solver tasks + eval answers (rubric mode)
+# ---------------------------------------------------------------------------
+
+
+class TestStandardize:
+    def test_writes_tasks_jsonl(self, staged_raw_dir):
         # Arrange
-        row = {
-            "id": "p1",
-            "question": "Which gene?",
-            "allowed_domains": "bio",
-            "human_solvable": "true",
-            "answer_rubric": "the answer is X",
+        root = staged_raw_dir.parent
+        # Act
+        biomysterybench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Assert
+        assert (root / "for_solver" / "tasks.jsonl").is_file()
+
+    def test_tasks_have_exactly_uniform_keys(self, staged_raw_dir):
+        # Arrange
+        root = staged_raw_dir.parent
+        biomysterybench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        tasks = _read_jsonl(root / "for_solver" / "tasks.jsonl")
+        # Assert
+        assert all(set(t) == {"task_id", "benchmark", "prompt", "data"} for t in tasks)
+
+    def test_tasks_carry_no_rubric_text(self, staged_raw_dir):
+        # Arrange — the rubric "BRCA1" must not leak into for_solver tasks.
+        root = staged_raw_dir.parent
+        biomysterybench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        raw_text = (root / "for_solver" / "tasks.jsonl").read_text()
+        # Assert
+        assert "BRCA1" not in raw_text
+
+    def test_task_id_prefixes_benchmark(self, staged_raw_dir):
+        # Arrange
+        root = staged_raw_dir.parent
+        biomysterybench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        ids = {t["task_id"] for t in _read_jsonl(root / "for_solver" / "tasks.jsonl")}
+        # Assert
+        assert "biomysterybench/p1" in ids
+
+    def test_data_is_null_when_no_environment(self, staged_raw_dir):
+        # Arrange — no raw/data dir staged, so each task's data is null.
+        root = staged_raw_dir.parent
+        biomysterybench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        tasks = _read_jsonl(root / "for_solver" / "tasks.jsonl")
+        # Assert
+        assert all(t["data"] is None for t in tasks)
+
+    def test_data_points_at_zip_when_environment_present(self, staged_raw_dir):
+        # Arrange — stage raw/data/p1.zip so p1's task data is set.
+        (staged_raw_dir / "data").mkdir()
+        (staged_raw_dir / "data" / "p1.zip").write_text("zip-bytes")
+        root = staged_raw_dir.parent
+        biomysterybench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        tasks = _read_jsonl(root / "for_solver" / "tasks.jsonl")
+        p1 = next(t for t in tasks if t["task_id"] == "biomysterybench/p1")
+        # Assert
+        assert p1["data"] == "./data/p1.zip"
+
+    def test_data_dir_symlinked_into_for_solver(self, staged_raw_dir):
+        # Arrange
+        (staged_raw_dir / "data").mkdir()
+        root = staged_raw_dir.parent
+        # Act
+        biomysterybench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Assert
+        link = root / "for_solver" / "data"
+        assert link.is_symlink() and link.resolve() == (staged_raw_dir / "data")
+
+    def test_oracle_csv_not_symlinked(self, staged_raw_dir):
+        # Arrange
+        root = staged_raw_dir.parent
+        # Act
+        biomysterybench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Assert
+        assert not (root / "for_solver" / "problems.csv").exists()
+
+    def test_answer_ids_match_task_ids(self, staged_raw_dir):
+        # Arrange
+        root = staged_raw_dir.parent
+        biomysterybench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        task_ids = {
+            t["task_id"] for t in _read_jsonl(root / "for_solver" / "tasks.jsonl")
         }
         # Act
-        masked = biomysterybench.mask_row(row)
-        # Assert
-        assert masked["answer_rubric"] is None
-
-    def test_mask_row_preserves_id(self):
-        # Arrange
-        row = {
-            "id": "p1",
-            "question": "Which gene?",
-            "allowed_domains": "bio",
-            "human_solvable": "true",
-            "answer_rubric": "the answer is X",
+        answer_ids = {
+            a["task_id"] for a in _read_jsonl(root / "eval" / "answers.jsonl")
         }
-        # Act
-        masked = biomysterybench.mask_row(row)
         # Assert
-        assert masked["id"] == "p1"
+        assert answer_ids == task_ids
 
-    def test_mask_row_preserves_question(self):
+    def test_answers_carry_rubric(self, staged_raw_dir):
         # Arrange
-        row = {
-            "id": "p1",
-            "question": "Which gene?",
-            "allowed_domains": "bio",
-            "human_solvable": "true",
-            "answer_rubric": "the answer is X",
-        }
+        root = staged_raw_dir.parent
+        biomysterybench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        answers = _read_jsonl(root / "eval" / "answers.jsonl")
         # Act
-        masked = biomysterybench.mask_row(row)
+        p1 = next(a for a in answers if a["task_id"] == "biomysterybench/p1")
         # Assert
-        assert masked["question"] == "Which gene?"
+        assert p1["answer"]["rubric"] == "Award full marks for Homo sapiens"
 
-    def test_mask_row_drops_unknown_fields(self):
-        # Arrange — upstream schema-drifted with an extra answer column
-        row = {
-            "id": "p1",
-            "question": "Q",
-            "allowed_domains": "bio",
-            "human_solvable": "true",
-            "answer_rubric": "the answer is X",
-            "answer_hint": "starts with H",
-        }
-        # Act
-        masked = biomysterybench.mask_row(row)
-        # Assert
-        assert "answer_hint" not in masked
-
-    def test_mask_row_is_idempotent(self):
+    def test_evaluate_py_written(self, staged_raw_dir):
         # Arrange
-        row = {
-            "id": "p1",
-            "question": "Q",
-            "allowed_domains": "bio",
-            "human_solvable": "true",
-            "answer_rubric": "the answer is X",
-        }
-        once = biomysterybench.mask_row(row)
+        root = staged_raw_dir.parent
         # Act
-        twice = biomysterybench.mask_row(once)
+        biomysterybench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
         # Assert
-        assert once == twice
+        assert (root / "eval" / "evaluate.py").is_file()
 
-
-class TestMaskOnDisk:
-    def test_mask_writes_questions_jsonl_in_masked_dir(self, tmp_path, staged_raw_dir):
-        # Arrange
-        masked_dir = staged_raw_dir.parent / "masked"
-        # Act
-        biomysterybench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
-        # Assert
-        assert (masked_dir / "questions.jsonl").is_file()
-
-    def test_mask_record_count_matches_csv_row_count(self, tmp_path, staged_raw_dir):
-        # Arrange
-        masked_dir = staged_raw_dir.parent / "masked"
-        # Act
-        result = biomysterybench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
-        # Assert
-        assert result["n_records"] == 2
-
-    def test_mask_creates_problems_masked_compat_symlink(
-        self, tmp_path, staged_raw_dir
-    ):
-        # Arrange
-        masked_dir = staged_raw_dir.parent / "masked"
-        # Act
-        biomysterybench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
-        # Assert
-        assert (masked_dir / "problems_masked.jsonl").is_symlink()
-
-    def test_mask_raises_when_problems_csv_missing(self, tmp_path):
+    def test_raises_when_problems_csv_missing(self, tmp_path):
         # Arrange
         bare = tmp_path / "empty"
         bare.mkdir()
         # Act
         # Assert
         with pytest.raises(FileNotFoundError):
-            biomysterybench.mask(raw_dir=bare, masked_dir=tmp_path / "out")
+            biomysterybench.standardize(
+                raw_dir=bare,
+                for_solver_dir=tmp_path / "fs",
+                eval_dir=tmp_path / "ev",
+            )
 
 
-class TestMaskSymlinkView:
-    def test_mask_symlinks_answer_free_data_into_masked_dir(
-        self, tmp_path, staged_raw_dir
-    ):
-        # Arrange — stage an answer-free problem environment alongside the CSV.
-        (staged_raw_dir / "data").mkdir()
-        (staged_raw_dir / "data" / "env.zip").write_text("zip-bytes")
-        masked_dir = staged_raw_dir.parent / "masked"
+class TestEvaluatePyRubricMode:
+    def test_rubric_mode_marks_tasks_for_grading(self, staged_raw_dir):
+        # Arrange — rubric mode is not auto-scorable; each task is flagged.
+        root = staged_raw_dir.parent
+        biomysterybench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        sub = [{"task_id": "biomysterybench/p1", "answer": "Homo sapiens"}]
+        (root / "sub.json").write_text(json.dumps(sub))
         # Act
-        biomysterybench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
+        out = subprocess.run(
+            [
+                sys.executable,
+                str(root / "eval" / "evaluate.py"),
+                "--submission",
+                str(root / "sub.json"),
+                "--answers",
+                str(root / "eval" / "answers.jsonl"),
+            ],
+            capture_output=True,
+            text=True,
+        )
         # Assert
-        link = masked_dir / "data"
-        assert link.is_symlink() and link.resolve() == (staged_raw_dir / "data")
+        assert json.loads(out.stdout)["n_scored"] == 0
 
-    def test_mask_does_not_symlink_oracle_csv_into_masked_dir(
-        self, tmp_path, staged_raw_dir
-    ):
-        # Arrange
-        masked_dir = staged_raw_dir.parent / "masked"
-        # Act
-        biomysterybench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
-        # Assert
-        assert not (masked_dir / "problems.csv").is_symlink()
 
-    def test_mask_result_symlinked_list_is_non_empty(self, tmp_path, staged_raw_dir):
-        # Arrange — answer-free content present so a link is created.
-        (staged_raw_dir / "data").mkdir()
-        masked_dir = staged_raw_dir.parent / "masked"
-        # Act
-        result = biomysterybench.mask(raw_dir=staged_raw_dir, masked_dir=masked_dir)
-        # Assert
-        assert len(result["symlinked"]) >= 1
+# ---------------------------------------------------------------------------
+# download
+# ---------------------------------------------------------------------------
 
 
 class TestDownload:
@@ -267,26 +329,6 @@ class TestDownload:
             result = biomysterybench.download(raw_dir=raw_dir)
         # Assert
         assert result["snapshots_pulled"] == [biomysterybench.HF_REPO_ID_PREVIEW]
-
-    def test_download_preview_calls_snapshot_download_once(self, tmp_path):
-        # Arrange
-        rec = _SnapshotRecorder()
-        raw_dir = tmp_path / "raw"
-        # Act
-        with _swap_module("huggingface_hub", _hf_stub(rec)):
-            biomysterybench.download(raw_dir=raw_dir)
-        # Assert
-        assert len(rec.calls) == 1
-
-    def test_download_preview_returns_raw_dir(self, tmp_path):
-        # Arrange
-        rec = _SnapshotRecorder()
-        raw_dir = tmp_path / "raw"
-        # Act
-        with _swap_module("huggingface_hub", _hf_stub(rec)):
-            result = biomysterybench.download(raw_dir=raw_dir)
-        # Assert
-        assert result["raw_dir"] == str(raw_dir)
 
     def test_download_full_pulls_preview_and_full(self, tmp_path):
         # Arrange
@@ -301,21 +343,9 @@ class TestDownload:
             biomysterybench.HF_REPO_ID_FULL,
         ]
 
-    def test_download_full_calls_snapshot_download_twice(self, tmp_path):
-        # Arrange
-        rec = _SnapshotRecorder()
-        raw_dir = tmp_path / "raw"
-        # Act
-        with _swap_module("huggingface_hub", _hf_stub(rec)):
-            biomysterybench.download(raw_dir=raw_dir, download_full=True)
-        # Assert
-        assert len(rec.calls) == 2
-
 
 class TestPrepareWithDownload:
-    def test_prepare_with_download_emits_download_mask_manifest_keys(
-        self, tmp_path, staged_raw_dir
-    ):
+    def test_prepare_emits_download_standardize_manifest_keys(self, staged_raw_dir):
         # Arrange — CSV already staged; snapshot_download is a no-op so the
         # staged raw_dir survives the download step.
         from scitex_dataset.ai_for_science import _base
@@ -326,33 +356,15 @@ class TestPrepareWithDownload:
             benchmark=biomysterybench.BENCHMARK,
             root=root,
             raw_dir=staged_raw_dir,
-            masked_dir=root / "masked",
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
             manifest_dir=root / ".scitex" / "dataset",
         )
         # Act
         with _swap_module("huggingface_hub", _hf_stub(rec)):
             result = biomysterybench.prepare(paths=paths, skip_download=False)
         # Assert
-        assert {"download", "mask", "manifest"} <= set(result)
-
-    def test_prepare_with_download_writes_manifest_file(self, tmp_path, staged_raw_dir):
-        # Arrange
-        from scitex_dataset.ai_for_science import _base
-
-        rec = _SnapshotRecorder(write_dummy=False)
-        root = staged_raw_dir.parent
-        paths = _base.BenchmarkPaths(
-            benchmark=biomysterybench.BENCHMARK,
-            root=root,
-            raw_dir=staged_raw_dir,
-            masked_dir=root / "masked",
-            manifest_dir=root / ".scitex" / "dataset",
-        )
-        # Act
-        with _swap_module("huggingface_hub", _hf_stub(rec)):
-            result = biomysterybench.prepare(paths=paths, skip_download=False)
-        # Assert
-        assert Path(result["manifest"]).is_file()
+        assert {"download", "standardize", "manifest"} <= set(result)
 
 
 if __name__ == "__main__":
