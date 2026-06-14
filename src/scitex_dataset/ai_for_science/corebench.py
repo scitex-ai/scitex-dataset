@@ -117,41 +117,44 @@ _CHECKSUMS_FILENAME = ".checksums.json"
 def _split_record(rec: dict) -> tuple[list[dict], list[dict]]:
     """Split one oracle record into (tasks, answers) row lists.
 
-    Each ``rec["results"]`` entry is a single ``{question_text:
-    answer_value}`` pair → one task + one answer. The positional index
-    selects the difficulty tier (hard/medium/easy, then ``tier_<i>``).
-    Tasks carry the uniform ``{task_id, benchmark, prompt, data}`` keys
-    only — no answer-bearing fields. Answers carry the matching
-    ``task_id``, the ``{"value": ...}`` payload, and capsule meta.
+    Each ``rec["results"]`` entry is a ``{question_text: answer_value}``
+    dict for one difficulty tier — and may hold MORE THAN ONE question
+    (CoreBench tasks pose 1–8 questions per tier). Every question becomes
+    its own standardized task so each answer stays a scalar (matching the
+    per-question metric): ``corebench/<cid>__<difficulty>__q<j>``. The
+    positional index selects the tier (hard/medium/easy, then
+    ``tier_<i>``). Tasks carry the uniform ``{task_id, benchmark, prompt,
+    data}`` keys only — no answer-bearing fields. Answers carry the
+    matching ``task_id``, the ``{"value": ...}`` payload, and meta.
     """
     cid = rec["capsule_id"]
     tasks: list[dict] = []
     answers: list[dict] = []
     for i, result_dict in enumerate(rec.get("results", [])):
         difficulty = DIFFICULTY_TIERS[i] if i < 3 else f"tier_{i}"
-        task_id = f"corebench/{cid}__{difficulty}"
-        # ``result_dict`` is a single {question_text: answer_value} pair.
-        ((question_text, answer_value),) = result_dict.items()
-        tasks.append(
-            {
-                "task_id": task_id,
-                "benchmark": BENCHMARK,
-                "prompt": rec["task_prompt"] + "\n\nQuestion: " + question_text,
-                "data": f"./capsules/{cid}.tar.gz",
-            }
-        )
-        answers.append(
-            {
-                "task_id": task_id,
-                "answer": {"value": answer_value},
-                "meta": {
-                    "capsule_id": cid,
-                    "difficulty": difficulty,
-                    "field": rec.get("field"),
-                    "language": rec.get("language"),
-                },
-            }
-        )
+        for j, (question_text, answer_value) in enumerate(result_dict.items()):
+            task_id = f"corebench/{cid}__{difficulty}__q{j}"
+            tasks.append(
+                {
+                    "task_id": task_id,
+                    "benchmark": BENCHMARK,
+                    "prompt": rec["task_prompt"] + "\n\nQuestion: " + question_text,
+                    "data": f"./capsules/{cid}.tar.gz",
+                }
+            )
+            answers.append(
+                {
+                    "task_id": task_id,
+                    "answer": {"value": answer_value},
+                    "meta": {
+                        "capsule_id": cid,
+                        "difficulty": difficulty,
+                        "question": question_text,
+                        "field": rec.get("field"),
+                        "language": rec.get("language"),
+                    },
+                }
+            )
     return tasks, answers
 
 
