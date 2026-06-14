@@ -383,8 +383,8 @@ class TestDownloadChecksumSkip:
         # Assert
         assert result["n_fetched"] == 2
 
-    def test_second_run_skips_verified(self, tmp_path):
-        # Arrange — run once to populate the ledger, then run again.
+    def test_second_run_default_skips_by_existence(self, tmp_path):
+        # Arrange — default policy skips present files with NO hashing.
         rec = _HttpRecorder()
         raw_dir = tmp_path / "raw"
         with _swap_http_download(rec):
@@ -392,6 +392,20 @@ class TestDownloadChecksumSkip:
         # Act
         with _swap_http_download(rec):
             result = corebench.download(raw_dir=raw_dir, capsule_ids=["111", "222"])
+        # Assert
+        assert result["n_have"] == 2
+
+    def test_second_run_skips_verified_when_opt_in(self, tmp_path):
+        # Arrange — verify_integrity re-checks sha256 against the ledger.
+        rec = _HttpRecorder()
+        raw_dir = tmp_path / "raw"
+        with _swap_http_download(rec):
+            corebench.download(raw_dir=raw_dir, capsule_ids=["111", "222"])
+        # Act
+        with _swap_http_download(rec):
+            result = corebench.download(
+                raw_dir=raw_dir, capsule_ids=["111", "222"], verify_integrity=True
+            )
         # Assert
         assert result["n_skipped_verified"] == 2
 
@@ -407,8 +421,9 @@ class TestDownloadChecksumSkip:
         # Assert
         assert result["n_fetched"] == 0
 
-    def test_tampered_capsule_is_refetched(self, tmp_path):
-        # Arrange — corrupt a verified file so its sha drifts.
+    def test_tampered_capsule_is_refetched_under_verify(self, tmp_path):
+        # Arrange — corrupt a verified file so its sha drifts (only the
+        # opt-in integrity pass detects it; default skip would not).
         rec = _HttpRecorder()
         raw_dir = tmp_path / "raw"
         with _swap_http_download(rec):
@@ -416,9 +431,25 @@ class TestDownloadChecksumSkip:
         (raw_dir / "capsules" / "111.tar.gz").write_bytes(b"TAMPERED")
         # Act
         with _swap_http_download(rec):
-            result = corebench.download(raw_dir=raw_dir, capsule_ids=["111", "222"])
+            result = corebench.download(
+                raw_dir=raw_dir, capsule_ids=["111", "222"], verify_integrity=True
+            )
         # Assert
         assert result["n_remismatch"] == 1
+
+    def test_force_refetches_existing(self, tmp_path):
+        # Arrange
+        rec = _HttpRecorder()
+        raw_dir = tmp_path / "raw"
+        with _swap_http_download(rec):
+            corebench.download(raw_dir=raw_dir, capsule_ids=["111", "222"])
+        # Act
+        with _swap_http_download(rec):
+            result = corebench.download(
+                raw_dir=raw_dir, capsule_ids=["111", "222"], force=True
+            )
+        # Assert
+        assert result["n_fetched"] == 2
 
     def test_download_writes_checksums_ledger(self, tmp_path):
         # Arrange

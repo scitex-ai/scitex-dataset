@@ -383,19 +383,27 @@ def download(
     raw_dir: Path,
     capsule_ids: Iterable[str] | None = None,
     base_url: str = SOURCE_URL,
+    verify_integrity: bool = False,
+    force: bool = False,
     **_,
 ) -> dict:
-    """Pull capsule tarballs into ``raw_dir/capsules/`` with integrity skip.
+    """Pull capsule tarballs into ``raw_dir/capsules/``; skip what's present.
 
     If ``capsule_ids`` is None the staged ``raw_dir/dataset/core_train.json``
     + ``raw_dir/core_test.json`` are consulted for the canonical 90-id list.
 
-    Integrity: ``raw_dir/.checksums.json`` records ``{relpath: sha256}``.
-    Before fetching a capsule, if the file already exists AND its
-    recorded sha256 matches the on-disk content → it's a verified skip
-    (``n_skipped_verified``). If it exists but the sha is missing or
-    mismatches → it is re-fetched (``n_remismatch``). After a successful
-    fetch the sha256 is recorded.
+    Skip policy (idempotent re-runs never re-download by default):
+
+    - **default** — any capsule already on disk (non-empty) is skipped
+      with NO hashing (``n_have``). Cheapest; what you want for re-runs.
+    - ``verify_integrity=True`` — an existing capsule is sha256-checked
+      against ``raw_dir/.checksums.json``; a match is a verified skip
+      (``n_skipped_verified``), a miss/drift is re-fetched
+      (``n_remismatch``). Reads each existing file once — opt-in.
+    - ``force=True`` — re-fetch everything regardless.
+
+    Every successful fetch records the file's sha256 into the ledger so
+    a later ``verify_integrity`` run has something to check against.
 
     HEAVY: ~13 GB across 90 tarballs. SLURM-only on shared compute;
     never call from a login node or CI.
@@ -429,15 +437,18 @@ def download(
         capsule_ids = ids
 
     checksums = _load_checksums(raw_dir)
-    n_skipped_verified = n_get = n_fail = n_remismatch = 0
+    n_have = n_skipped_verified = n_get = n_fail = n_remismatch = 0
     fails: list[str] = []
     for cid in capsule_ids:
         out = capsules_dir / f"{cid}.tar.gz"
         rel = out.relative_to(raw_dir).as_posix()
-        if out.exists() and out.stat().st_size > 0:
+        if out.exists() and out.stat().st_size > 0 and not force:
+            if not verify_integrity:
+                # Default: present → skip, no hashing.
+                n_have += 1
+                continue
             recorded = checksums.get(rel)
             if recorded is not None and recorded == sha256_file(out):
-                # Verified skip — content matches the recorded sha256.
                 n_skipped_verified += 1
                 continue
             # Present but unrecorded or drifted: re-fetch below.
@@ -457,6 +468,7 @@ def download(
     return {
         "raw_dir": str(raw_dir),
         "capsules_dir": str(capsules_dir),
+        "n_have": n_have,
         "n_skipped_verified": n_skipped_verified,
         "n_fetched": n_get,
         "n_remismatch": n_remismatch,
@@ -477,6 +489,8 @@ def prepare(
     version: str = "v0-unstamped",
     skip_download: bool = False,
     skip_inventory: bool = False,
+    verify_integrity: bool = False,
+    force: bool = False,
     **_,
 ) -> dict:
     """Run the full CORE-Bench preparation pipeline.
@@ -485,14 +499,19 @@ def prepare(
     ``MANIFEST.yaml``. If ``skip_download`` is True (default False), the
     capsule-tarball download step is skipped — useful when only the
     pure-Python standardize path is wanted (e.g. from CI where multi-GB
-    pulls are inappropriate).
+    pulls are inappropriate). ``verify_integrity`` / ``force`` are passed
+    to ``download`` (default: skip any capsule already on disk).
     """
     if paths is None:
         paths = resolve_paths(BENCHMARK, dataset_root=dataset_root)
 
     out: dict = {"benchmark": BENCHMARK, "paths": paths.as_dict()}
     if not skip_download:
-        out["download"] = download(raw_dir=paths.raw_dir)
+        out["download"] = download(
+            raw_dir=paths.raw_dir,
+            verify_integrity=verify_integrity,
+            force=force,
+        )
     if not skip_inventory:
         out["inventory"] = build_inventory(
             raw_dir=paths.raw_dir, for_solver_dir=paths.for_solver_dir

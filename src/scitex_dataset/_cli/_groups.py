@@ -327,13 +327,29 @@ def _agentic_bench_commands(source: str) -> list[click.Command]:
         help="Pull the full gated set instead of the small preview "
         "(where the benchmark distinguishes them, e.g. biomysterybench).",
     )
-    def _download_cmd(dataset_root, as_json, download_full):
+    @click.option(
+        "--verify-integrity",
+        is_flag=True,
+        help="Re-check existing files by sha256 before skipping (opt-in; "
+        "default skip is by existence, no hashing).",
+    )
+    @click.option(
+        "--force",
+        is_flag=True,
+        help="Re-download everything, ignoring what's already on disk.",
+    )
+    def _download_cmd(dataset_root, as_json, download_full, verify_integrity, force):
         """Placeholder docstring (overwritten below with the per-source example)."""
         from ..ai_for_science._base import resolve_paths
 
         paths = resolve_paths(module.BENCHMARK, dataset_root=dataset_root)
         try:
-            result = module.download(raw_dir=paths.raw_dir, download_full=download_full)
+            result = module.download(
+                raw_dir=paths.raw_dir,
+                download_full=download_full,
+                verify_integrity=verify_integrity,
+                force=force,
+            )
         except Exception as exc:
             click.echo(f"Error: {exc}", err=True)
             raise SystemExit(1)
@@ -398,7 +414,25 @@ def _agentic_bench_commands(source: str) -> list[click.Command]:
         is_flag=True,
         help="Pull the full gated set instead of the small preview.",
     )
-    def _prepare_cmd(dataset_root, as_json, version, skip_download, download_full):
+    @click.option(
+        "--verify-integrity",
+        is_flag=True,
+        help="Re-check existing files by sha256 before skipping (opt-in).",
+    )
+    @click.option(
+        "--force",
+        is_flag=True,
+        help="Re-download everything, ignoring what's already on disk.",
+    )
+    def _prepare_cmd(
+        dataset_root,
+        as_json,
+        version,
+        skip_download,
+        download_full,
+        verify_integrity,
+        force,
+    ):
         """Placeholder docstring (overwritten below with the per-source example)."""
         try:
             result = module.prepare(
@@ -406,6 +440,8 @@ def _agentic_bench_commands(source: str) -> list[click.Command]:
                 version=version,
                 skip_download=skip_download,
                 download_full=download_full,
+                verify_integrity=verify_integrity,
+                force=force,
             )
         except Exception as exc:
             click.echo(f"Error: {exc}", err=True)
