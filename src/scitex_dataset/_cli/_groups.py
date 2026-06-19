@@ -367,7 +367,21 @@ def _agentic_bench_commands(source: str) -> list[click.Command]:
 
     @click.command("standardize")
     @_common_paths_options
-    def _standardize_cmd(dataset_root, as_json):
+    @click.option(
+        "--only",
+        default=None,
+        help="Materialize ONLY this capsule's for_solver/ dir — accepts a "
+        "friendly id (capsule-NNN) or a native capsule id (e.g. "
+        "capsule-0201225), resolved via the index.jsonl mapper. The full "
+        "mapper is still written. Default: all capsules.",
+    )
+    @click.option(
+        "--force",
+        is_flag=True,
+        help="Re-extract capsules already present in for_solver/ (default "
+        "skips by existence).",
+    )
+    def _standardize_cmd(dataset_root, as_json, only, force):
         """Placeholder docstring (overwritten below with the per-source example)."""
         from ..ai_for_science._base import resolve_paths
 
@@ -377,6 +391,8 @@ def _agentic_bench_commands(source: str) -> list[click.Command]:
                 raw_dir=paths.raw_dir,
                 for_solver_dir=paths.for_solver_dir,
                 eval_dir=paths.eval_dir,
+                only=only,
+                force=force,
             )
         except Exception as exc:
             click.echo(f"Error: {exc}", err=True)
@@ -388,10 +404,12 @@ def _agentic_bench_commands(source: str) -> list[click.Command]:
 
     _standardize_cmd.help = (
         f"Read the {source} raw/ snapshot; write the agent-visible "
-        f"for_solver/ view (uniform tasks.jsonl, no answers) + the "
-        f"operator eval/ view (answers.jsonl + evaluate.py).\n\n\b\n"
-        f"Example:\n"
+        f"for_solver/ view (per-capsule dirs + index.jsonl mapper, no "
+        f"answers) + the operator eval/ view (answers.jsonl + "
+        f"evaluate.py).\n\n\b\nExample:\n"
         f"  $ scitex-dataset ai-for-science {source} standardize\n"
+        f"  $ scitex-dataset ai-for-science {source} standardize "
+        f"--only capsule-0201225\n"
         f"  $ scitex-dataset ai-for-science {source} standardize --json"
     )
 

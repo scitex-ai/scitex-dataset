@@ -10,6 +10,7 @@ duration of each test.
 import json
 import subprocess
 import sys
+import tarfile
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -80,9 +81,25 @@ def _make_test_record():
     }
 
 
+def _write_capsule_targz(path: Path, cid: str) -> None:
+    """Write a minimal real ``.tar.gz`` for capsule ``cid`` at ``path``.
+
+    The per-capsule materializer EXTRACTS each capsule's archive, so the
+    test fixtures must be genuine tarballs (not placeholder text).
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    scratch = path.parent / f"_scratch_{cid}"
+    (scratch / "code").mkdir(parents=True, exist_ok=True)
+    (scratch / "code" / "main.py").write_text(f"# {cid}\nprint('hi')\n")
+    (scratch / "ReadMe").write_text(f"{cid} readme\n")
+    with tarfile.open(path, "w:gz") as tf:
+        tf.add(scratch / "code" / "main.py", arcname="code/main.py")
+        tf.add(scratch / "ReadMe", arcname="ReadMe")
+
+
 @pytest.fixture
 def staged_raw_dir(tmp_path):
-    """Lay out raw/ with the oracle JSONs staged where download leaves them."""
+    """Lay out raw/ with oracle JSONs + real capsule tarballs to extract."""
     base = tmp_path / "ai-for-science" / "corebench" / "raw"
     (base / "dataset").mkdir(parents=True)
     (base / "dataset" / "core_train.json").write_text(
@@ -90,12 +107,26 @@ def staged_raw_dir(tmp_path):
     )
     (base / "core_test.json").write_text(json.dumps([_make_test_record()]))
     (base / "capsules").mkdir()
-    (base / "capsules" / "capsule-1111111.tar.gz").write_text("tar")
+    _write_capsule_targz(
+        base / "capsules" / "capsule-1111111.tar.gz", "capsule-1111111"
+    )
+    _write_capsule_targz(
+        base / "capsules" / "capsule-2222222.tar.gz", "capsule-2222222"
+    )
     return base
 
 
 def _read_jsonl(path):
     return [json.loads(line) for line in path.read_text().splitlines() if line]
+
+
+def _all_task_ids(for_solver_dir):
+    """Collect task_ids across every per-capsule ``task.jsonl``."""
+    ids = set()
+    for task_file in for_solver_dir.glob("capsule-*/task.jsonl"):
+        for row in _read_jsonl(task_file):
+            ids.add(row["task_id"])
+    return ids
 
 
 # ---------------------------------------------------------------------------
@@ -104,7 +135,7 @@ def _read_jsonl(path):
 
 
 class TestStandardizeForSolver:
-    def test_standardize_writes_tasks_jsonl(self, staged_raw_dir):
+    def test_standardize_writes_index_mapper(self, staged_raw_dir):
         # Arrange
         root = staged_raw_dir.parent
         # Act
@@ -114,7 +145,33 @@ class TestStandardizeForSolver:
             eval_dir=root / "eval",
         )
         # Assert
-        assert (root / "for_solver" / "tasks.jsonl").is_file()
+        assert (root / "for_solver" / "index.jsonl").is_file()
+
+    def test_index_maps_native_id_to_friendly_id(self, staged_raw_dir):
+        # Arrange — capsule-1111111 sorts first, so it gets capsule-001.
+        root = staged_raw_dir.parent
+        corebench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        index = _read_jsonl(root / "for_solver" / "index.jsonl")
+        row = next(r for r in index if r["native_id"] == "capsule-1111111")
+        # Assert
+        assert row["friendly_id"] == "capsule-001"
+
+    def test_standardize_writes_per_capsule_task_jsonl(self, staged_raw_dir):
+        # Arrange
+        root = staged_raw_dir.parent
+        # Act
+        corebench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Assert
+        assert (root / "for_solver" / "capsule-001" / "task.jsonl").is_file()
 
     def test_tasks_have_exactly_uniform_keys(self, staged_raw_dir):
         # Arrange
@@ -125,7 +182,7 @@ class TestStandardizeForSolver:
             eval_dir=root / "eval",
         )
         # Act
-        tasks = _read_jsonl(root / "for_solver" / "tasks.jsonl")
+        tasks = _read_jsonl(root / "for_solver" / "capsule-001" / "task.jsonl")
         # Assert
         assert all(set(t) == {"task_id", "benchmark", "prompt", "data"} for t in tasks)
 
@@ -138,7 +195,7 @@ class TestStandardizeForSolver:
             eval_dir=root / "eval",
         )
         # Act
-        raw_text = (root / "for_solver" / "tasks.jsonl").read_text()
+        raw_text = (root / "for_solver" / "capsule-001" / "task.jsonl").read_text()
         # Assert
         assert "0.81" not in raw_text
 
@@ -151,9 +208,36 @@ class TestStandardizeForSolver:
             eval_dir=root / "eval",
         )
         # Act
-        ids = {t["task_id"] for t in _read_jsonl(root / "for_solver" / "tasks.jsonl")}
+        ids = _all_task_ids(root / "for_solver")
         # Assert
         assert "corebench/capsule-1111111__hard__q0" in ids
+
+    def test_task_data_points_at_extracted_input(self, staged_raw_dir):
+        # Arrange
+        root = staged_raw_dir.parent
+        corebench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        tasks = _read_jsonl(root / "for_solver" / "capsule-001" / "task.jsonl")
+        # Act
+        data_values = {t["data"] for t in tasks}
+        # Assert
+        assert data_values == {"./input"}
+
+    def test_capsule_archive_extracted_into_input(self, staged_raw_dir):
+        # Arrange
+        root = staged_raw_dir.parent
+        corebench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        extracted = root / "for_solver" / "capsule-001" / "input" / "code" / "main.py"
+        # Assert
+        assert extracted.is_file()
 
     def test_task_prompt_appends_question_text(self, staged_raw_dir):
         # Arrange
@@ -163,13 +247,13 @@ class TestStandardizeForSolver:
             for_solver_dir=root / "for_solver",
             eval_dir=root / "eval",
         )
-        tasks = _read_jsonl(root / "for_solver" / "tasks.jsonl")
+        tasks = _read_jsonl(root / "for_solver" / "capsule-001" / "task.jsonl")
         # Act
         hard = next(t for t in tasks if t["task_id"].endswith("__hard__q0"))
         # Assert
         assert hard["prompt"].endswith("Question: What is the AUC?")
 
-    def test_standardize_writes_submission_schema(self, staged_raw_dir):
+    def test_standardize_writes_submission_schema_per_capsule(self, staged_raw_dir):
         # Arrange
         root = staged_raw_dir.parent
         # Act
@@ -179,9 +263,11 @@ class TestStandardizeForSolver:
             eval_dir=root / "eval",
         )
         # Assert
-        assert (root / "for_solver" / "submission.schema.json").is_file()
+        assert (
+            root / "for_solver" / "capsule-001" / "submission.schema.json"
+        ).is_file()
 
-    def test_standardize_symlinks_capsules_dir(self, staged_raw_dir):
+    def test_standardize_writes_capsule_readme(self, staged_raw_dir):
         # Arrange
         root = staged_raw_dir.parent
         # Act
@@ -191,12 +277,25 @@ class TestStandardizeForSolver:
             eval_dir=root / "eval",
         )
         # Assert
-        link = root / "for_solver" / "capsules"
-        assert link.is_symlink() and link.resolve() == (staged_raw_dir / "capsules")
+        assert (root / "for_solver" / "capsule-001" / "README.md").is_file()
 
-    def test_standardize_does_not_symlink_oracle_dataset_dir(self, staged_raw_dir):
-        # Arrange — only ``capsules`` is data-linked; the answer-bearing
-        # ``dataset`` dir must never reach the for_solver view.
+    def test_only_native_id_materializes_single_capsule(self, staged_raw_dir):
+        # Arrange — request only the test-split capsule by native id.
+        root = staged_raw_dir.parent
+        # Act
+        corebench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+            only="capsule-2222222",
+        )
+        # Assert — capsule-2222222 sorts second → capsule-002 only.
+        assert (root / "for_solver" / "capsule-002").is_dir() and not (
+            root / "for_solver" / "capsule-001"
+        ).exists()
+
+    def test_standardize_does_not_expose_oracle_dataset_dir(self, staged_raw_dir):
+        # Arrange — the answer-bearing ``dataset`` dir must never appear.
         root = staged_raw_dir.parent
         # Act
         corebench.standardize(
@@ -247,9 +346,7 @@ class TestStandardizeEval:
             for_solver_dir=root / "for_solver",
             eval_dir=root / "eval",
         )
-        task_ids = {
-            t["task_id"] for t in _read_jsonl(root / "for_solver" / "tasks.jsonl")
-        }
+        task_ids = _all_task_ids(root / "for_solver")
         # Act
         answer_ids = {
             a["task_id"] for a in _read_jsonl(root / "eval" / "answers.jsonl")

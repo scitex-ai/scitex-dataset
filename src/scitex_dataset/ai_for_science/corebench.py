@@ -48,7 +48,11 @@ from typing import Iterable, Optional
 
 from ._base import BenchmarkPaths, resolve_paths
 from ._manifest import sha256_file, write_manifest
-from ._standardize import render_evaluate_py, write_eval, write_for_solver
+from ._standardize import (
+    render_evaluate_py,
+    write_eval,
+    write_for_solver_per_capsule,
+)
 
 # Canonical benchmark identity.
 BENCHMARK = "corebench"
@@ -163,6 +167,8 @@ def standardize(
     raw_dir: Path,
     for_solver_dir: Path,
     eval_dir: Path,
+    only: str | None = None,
+    force: bool = False,
     **_,
 ) -> dict:
     """Split the oracle JSONs into the for_solver + eval views.
@@ -171,9 +177,19 @@ def standardize(
     ``dataset/core_train.json`` and ``core_test.json`` — either from a
     prior ``download(...)`` or hand-staged by the operator. The two
     record lists are concatenated (train first, then test); each
-    ``results`` entry becomes one task (leak-safe) + one answer. The
-    whole ``raw/capsules`` dir is symlinked once into ``for_solver``;
-    each task's ``data`` points inside it.
+    ``results`` entry becomes one task (leak-safe) + one answer.
+
+    ``for_solver`` is written in the PER-CAPSULE shape: one self-contained
+    ``capsule-NNN/`` dir per native capsule (friendly id), each holding
+    the EXTRACTED capsule archive in ``input/``, a ``task.jsonl`` of only
+    that capsule's rows, the uniform submission schema/example, and a
+    README — plus a root ``index.jsonl`` MAPPER (friendly_id ↔ native_id).
+    An agent binds exactly one ``capsule-NNN/`` dir.
+
+    ``only`` (a friendly ``capsule-NNN`` id OR a native capsule id, e.g.
+    ``capsule-0201225``) materializes just that one capsule's dir; the
+    mapper is always written in full. ``force`` re-extracts capsules that
+    are already present (default skips them).
     """
     train = raw_dir.joinpath(*_ORACLE_TRAIN_RELPATH)
     test = raw_dir.joinpath(*_ORACLE_TEST_RELPATH)
@@ -196,11 +212,12 @@ def standardize(
             answers.extend(rec_answers)
         counts.append(len(tasks) - before)
 
-    fs = write_for_solver(
+    fs = write_for_solver_per_capsule(
         for_solver_dir=for_solver_dir,
         tasks=tasks,
         raw_dir=raw_dir,
-        data_links=["capsules"],
+        only=only,
+        force=force,
     )
     ev = write_eval(
         eval_dir=eval_dir,
@@ -523,6 +540,7 @@ def prepare(
         raw_dir=paths.raw_dir,
         for_solver_dir=paths.for_solver_dir,
         eval_dir=paths.eval_dir,
+        force=force,
     )
 
     manifest_path = write_manifest(
@@ -532,7 +550,7 @@ def prepare(
         version=version,
         source_url=SOURCE_URL,
         benchmark=BENCHMARK,
-        tracked_paths=[Path(out["standardize"]["for_solver"]["tasks"])],
+        tracked_paths=[Path(out["standardize"]["for_solver"]["index"])],
         tracked_root=paths.for_solver_dir,
         mask_seed="",  # standardize is deterministic / seed-free
     )
