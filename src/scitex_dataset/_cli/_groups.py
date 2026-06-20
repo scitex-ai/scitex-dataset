@@ -11,7 +11,7 @@ on tree-vs-compound-leaf).
 
 Agentic-bench sources (``ai-for-science``: corebench / bixbench /
 biomysterybench) use a different verb tree (``download | prepare |
-mask``) because the agentic pipeline is multi-step rather than a
+standardize``) because the agentic pipeline is multi-step rather than a
 single fetch. Their groups are built by ``_make_agentic_bench_group``;
 the catalog/ondemand path goes through ``make_fetch_command``.
 """
@@ -73,7 +73,7 @@ def _make_dataset_group(source: str) -> click.Group:
         _grp.add_command(_hf_info_command())
         _grp.add_command(_hf_download_file_command())
     elif source in AGENTIC_BENCH_SOURCES:
-        # Agentic benchmarks use download | prepare | mask, not fetch.
+        # Agentic benchmarks use download | prepare | standardize, not fetch.
         for cmd in _agentic_bench_commands(source):
             _grp.add_command(cmd)
     else:
@@ -271,7 +271,7 @@ def _hf_download_file_command() -> click.Command:
 
 
 # ---------------------------------------------------------------------------
-# Agentic AI-for-science benchmarks — download | prepare | mask verb tree.
+# Agentic AI-for-science benchmarks — download | prepare | standardize verb tree.
 # ---------------------------------------------------------------------------
 
 
@@ -279,9 +279,7 @@ def _agentic_bench_module(source: str):
     """Return the ``scitex_dataset.ai_for_science.<source>`` module."""
     import importlib
 
-    return importlib.import_module(
-        f"..ai_for_science.{source}", package=__package__
-    )
+    return importlib.import_module(f"..ai_for_science.{source}", package=__package__)
 
 
 def _emit_result(as_json: bool, result: dict, headline: str) -> None:
@@ -290,27 +288,21 @@ def _emit_result(as_json: bool, result: dict, headline: str) -> None:
         click.echo(json.dumps(result, indent=2, default=str))
         return
     click.echo(headline)
-    for key in ("output", "manifest", "capsule_dir"):
+    for key in ("output", "manifest", "raw_dir", "for_solver_dir", "eval_dir"):
         if key in result:
             click.echo(f"  {key}: {result[key]}")
-    if "n_records" in result:
-        click.echo(f"  n_records: {result['n_records']}")
+    if "n_tasks" in result:
+        click.echo(f"  n_tasks: {result['n_tasks']}")
 
 
 def _common_paths_options(f):
-    """Attach the four standard --*-root / --paths options to a click cmd."""
-    f = click.option(
-        "--oracle-root",
-        type=click.Path(),
-        default=None,
-        help="Operator-private oracle root (default: $SCITEX_ORACLES_ROOT or "
-        "~/.scitex/oracles).",
-    )(f)
+    """Attach the standard --dataset-root / --json options to a click cmd."""
     f = click.option(
         "--dataset-root",
         type=click.Path(),
         default=None,
-        help="Dataset output root (default: $SCITEX_DATASET_ROOT or "
+        help="Dataset root holding ai-for-science/ (default: "
+        "$SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or "
         "~/.scitex/dataset).",
     )(f)
     f = click.option(
@@ -323,23 +315,40 @@ def _common_paths_options(f):
 
 
 def _agentic_bench_commands(source: str) -> list[click.Command]:
-    """Build [download, prepare, mask] click commands for one cohort."""
+    """Build [download, prepare, standardize] click commands for one benchmark."""
     module = _agentic_bench_module(source)
 
     @click.command("download")
     @_common_paths_options
-    def _download_cmd(oracle_root, dataset_root, as_json):
+    @click.option(
+        "--full",
+        "download_full",
+        is_flag=True,
+        help="Pull the full gated set instead of the small preview "
+        "(where the benchmark distinguishes them, e.g. biomysterybench).",
+    )
+    @click.option(
+        "--verify-integrity",
+        is_flag=True,
+        help="Re-check existing files by sha256 before skipping (opt-in; "
+        "default skip is by existence, no hashing).",
+    )
+    @click.option(
+        "--force",
+        is_flag=True,
+        help="Re-download everything, ignoring what's already on disk.",
+    )
+    def _download_cmd(dataset_root, as_json, download_full, verify_integrity, force):
         """Placeholder docstring (overwritten below with the per-source example)."""
         from ..ai_for_science._base import resolve_paths
 
-        paths = resolve_paths(
-            module.COHORT_DIR,
-            oracle_root=oracle_root,
-            dataset_root=dataset_root,
-        )
+        paths = resolve_paths(module.BENCHMARK, dataset_root=dataset_root)
         try:
             result = module.download(
-                oracle_dir=paths.oracle_dir, capsule_dir=paths.capsule_dir
+                raw_dir=paths.raw_dir,
+                download_full=download_full,
+                verify_integrity=verify_integrity,
+                force=force,
             )
         except Exception as exc:
             click.echo(f"Error: {exc}", err=True)
@@ -348,42 +357,60 @@ def _agentic_bench_commands(source: str) -> list[click.Command]:
         _emit_result(as_json, result, f"Downloaded {source}.")
 
     _download_cmd.help = (
-        f"Fetch upstream artifacts for {source} into oracle + capsule "
-        f"dirs.\n\nWARNING: capsule downloads are multi-GB. Run on "
-        f"SLURM, not a login node or CI.\n\n\b\nExample:\n"
+        f"Fetch the upstream {source} snapshot into raw/ as-is.\n\n"
+        f"WARNING: downloads are multi-GB. Run on SLURM, not a login "
+        f"node or CI.\n\n\b\nExample:\n"
         f"  $ scitex-dataset ai-for-science {source} download\n"
         f"  $ scitex-dataset ai-for-science {source} download "
-        f"--oracle-root ~/.scitex/oracles --dataset-root /scratch/datasets"
+        f"--full --dataset-root /scratch/datasets"
     )
 
-    @click.command("mask")
+    @click.command("standardize")
     @_common_paths_options
-    def _mask_cmd(oracle_root, dataset_root, as_json):
+    @click.option(
+        "--only",
+        default=None,
+        help="Materialize ONLY this capsule's for_solver/ dir — accepts a "
+        "friendly id (capsule-NNN) or a native capsule id (e.g. "
+        "capsule-0201225), resolved via the index.jsonl mapper. The full "
+        "mapper is still written. Default: all capsules.",
+    )
+    @click.option(
+        "--force",
+        is_flag=True,
+        help="Re-extract capsules already present in for_solver/ (default "
+        "skips by existence).",
+    )
+    def _standardize_cmd(dataset_root, as_json, only, force):
         """Placeholder docstring (overwritten below with the per-source example)."""
         from ..ai_for_science._base import resolve_paths
 
-        paths = resolve_paths(
-            module.COHORT_DIR,
-            oracle_root=oracle_root,
-            dataset_root=dataset_root,
-        )
+        paths = resolve_paths(module.BENCHMARK, dataset_root=dataset_root)
         try:
-            result = module.mask(
-                oracle_dir=paths.oracle_dir,
-                benchmark_dir=paths.benchmark_dir,
+            result = module.standardize(
+                raw_dir=paths.raw_dir,
+                for_solver_dir=paths.for_solver_dir,
+                eval_dir=paths.eval_dir,
+                only=only,
+                force=force,
             )
         except Exception as exc:
             click.echo(f"Error: {exc}", err=True)
             raise SystemExit(1)
         result["paths"] = paths.as_dict()
-        _emit_result(as_json, result, f"Masked {source}.")
+        result["for_solver_dir"] = str(paths.for_solver_dir)
+        result["eval_dir"] = str(paths.eval_dir)
+        _emit_result(as_json, result, f"Standardized {source}.")
 
-    _mask_cmd.help = (
-        f"Read {source} oracle artifacts; write the agent-visible "
-        f"masked questions file (oracle answer values nulled).\n\n\b\n"
-        f"Example:\n"
-        f"  $ scitex-dataset ai-for-science {source} mask\n"
-        f"  $ scitex-dataset ai-for-science {source} mask --json"
+    _standardize_cmd.help = (
+        f"Read the {source} raw/ snapshot; write the agent-visible "
+        f"for_solver/ view (per-capsule dirs + index.jsonl mapper, no "
+        f"answers) + the operator eval/ view (answers.jsonl + "
+        f"evaluate.py).\n\n\b\nExample:\n"
+        f"  $ scitex-dataset ai-for-science {source} standardize\n"
+        f"  $ scitex-dataset ai-for-science {source} standardize "
+        f"--only capsule-0201225\n"
+        f"  $ scitex-dataset ai-for-science {source} standardize --json"
     )
 
     @click.command("prepare")
@@ -397,16 +424,42 @@ def _agentic_bench_commands(source: str) -> list[click.Command]:
     @click.option(
         "--skip-download",
         is_flag=True,
-        help="Skip the upstream pull (oracle artifacts already staged).",
+        help="Skip the upstream pull (raw/ already staged).",
     )
-    def _prepare_cmd(oracle_root, dataset_root, as_json, version, skip_download):
+    @click.option(
+        "--full",
+        "download_full",
+        is_flag=True,
+        help="Pull the full gated set instead of the small preview.",
+    )
+    @click.option(
+        "--verify-integrity",
+        is_flag=True,
+        help="Re-check existing files by sha256 before skipping (opt-in).",
+    )
+    @click.option(
+        "--force",
+        is_flag=True,
+        help="Re-download everything, ignoring what's already on disk.",
+    )
+    def _prepare_cmd(
+        dataset_root,
+        as_json,
+        version,
+        skip_download,
+        download_full,
+        verify_integrity,
+        force,
+    ):
         """Placeholder docstring (overwritten below with the per-source example)."""
         try:
             result = module.prepare(
-                oracle_root=oracle_root,
                 dataset_root=dataset_root,
                 version=version,
                 skip_download=skip_download,
+                download_full=download_full,
+                verify_integrity=verify_integrity,
+                force=force,
             )
         except Exception as exc:
             click.echo(f"Error: {exc}", err=True)
@@ -414,16 +467,16 @@ def _agentic_bench_commands(source: str) -> list[click.Command]:
         _emit_result(as_json, result, f"Prepared {source}.")
 
     _prepare_cmd.help = (
-        f"Prepare {source}: download + mask + emit "
-        f".scitex/dataset/MANIFEST.yaml (id + version + sha256 + "
-        f"mask-seed).\n\nWARNING: includes the multi-GB download step "
-        f"unless --skip-download is given. SLURM-only on shared "
-        f"compute.\n\n\b\nExample:\n"
+        f"Prepare {source}: download (raw/) + standardize "
+        f"(for_solver/ + eval/) + emit .scitex/dataset/MANIFEST.yaml "
+        f"(id + version + sha256 + mask-seed).\n\nWARNING: includes the "
+        f"multi-GB download step unless --skip-download is given. "
+        f"SLURM-only on shared compute.\n\n\b\nExample:\n"
         f"  $ scitex-dataset ai-for-science {source} prepare --skip-download\n"
-        f"  $ scitex-dataset ai-for-science {source} prepare --version v1.0"
+        f"  $ scitex-dataset ai-for-science {source} prepare --full --version v1.0"
     )
 
-    return [_download_cmd, _prepare_cmd, _mask_cmd]
+    return [_download_cmd, _prepare_cmd, _standardize_cmd]
 
 
 __all__ = ["register_domain_groups"]

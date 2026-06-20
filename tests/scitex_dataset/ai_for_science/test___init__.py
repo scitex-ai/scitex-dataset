@@ -7,9 +7,7 @@ from scitex_dataset import ai_for_science
 
 
 class TestPackageSurface:
-    @pytest.mark.parametrize(
-        "name", ["corebench", "bixbench", "biomysterybench"]
-    )
+    @pytest.mark.parametrize("name", ["corebench", "bixbench", "biomysterybench"])
     def test_benchmark_submodule_is_importable(self, name):
         # Arrange
         module = ai_for_science
@@ -18,20 +16,16 @@ class TestPackageSurface:
         # Assert
         assert attr is not None
 
-    @pytest.mark.parametrize(
-        "name", ["corebench", "bixbench", "biomysterybench"]
-    )
-    def test_benchmark_submodule_exposes_mask_callable(self, name):
+    @pytest.mark.parametrize("name", ["corebench", "bixbench", "biomysterybench"])
+    def test_benchmark_submodule_exposes_standardize_callable(self, name):
         # Arrange
         module = getattr(ai_for_science, name)
         # Act
-        mask = getattr(module, "mask", None)
+        standardize = getattr(module, "standardize", None)
         # Assert
-        assert callable(mask)
+        assert callable(standardize)
 
-    @pytest.mark.parametrize(
-        "name", ["corebench", "bixbench", "biomysterybench"]
-    )
+    @pytest.mark.parametrize("name", ["corebench", "bixbench", "biomysterybench"])
     def test_benchmark_submodule_exposes_download_callable(self, name):
         # Arrange
         module = getattr(ai_for_science, name)
@@ -40,9 +34,7 @@ class TestPackageSurface:
         # Assert
         assert callable(download)
 
-    @pytest.mark.parametrize(
-        "name", ["corebench", "bixbench", "biomysterybench"]
-    )
+    @pytest.mark.parametrize("name", ["corebench", "bixbench", "biomysterybench"])
     def test_benchmark_submodule_exposes_prepare_callable(self, name):
         # Arrange
         module = getattr(ai_for_science, name)
@@ -51,16 +43,14 @@ class TestPackageSurface:
         # Assert
         assert callable(prepare)
 
-    @pytest.mark.parametrize(
-        "name", ["corebench", "bixbench", "biomysterybench"]
-    )
-    def test_benchmark_submodule_declares_cohort_dir_prefix(self, name):
+    @pytest.mark.parametrize("name", ["corebench", "bixbench", "biomysterybench"])
+    def test_benchmark_submodule_declares_benchmark_identity(self, name):
         # Arrange
         module = getattr(ai_for_science, name)
         # Act
-        cohort_dir = getattr(module, "COHORT_DIR", "")
+        benchmark = getattr(module, "BENCHMARK", "")
         # Assert
-        assert cohort_dir.startswith("cohort_")
+        assert benchmark == name
 
     def test_resolve_paths_is_reexported_from_package(self):
         # Arrange
@@ -78,13 +68,37 @@ class TestPackageSurface:
         # Assert
         assert callable(attr)
 
+    def test_domain_is_reexported_from_package(self):
+        # Arrange
+        module = ai_for_science
+        # Act
+        domain = getattr(module, "DOMAIN", None)
+        # Assert
+        assert domain == "ai-for-science"
 
-class TestPackageRootMaskAliases:
     @pytest.mark.parametrize(
         "name",
-        ["corebench_mask", "bixbench_mask", "biomysterybench_mask"],
+        ["DEFAULT_BENCHMARK_DIR", "DEFAULT_CAPSULE_DIR", "DEFAULT_ORACLE_DIR"],
     )
-    def test_mask_alias_appears_in_package_root_all(self, name):
+    def test_retired_default_dir_exports_are_gone(self, name):
+        # Arrange
+        module = ai_for_science
+        # Act
+        attr = getattr(module, name, None)
+        # Assert
+        assert attr is None
+
+
+class TestPackageRootStandardizeAliases:
+    @pytest.mark.parametrize(
+        "name",
+        [
+            "corebench_standardize",
+            "bixbench_standardize",
+            "biomysterybench_standardize",
+        ],
+    )
+    def test_standardize_alias_appears_in_package_root_all(self, name):
         # Arrange
         import scitex_dataset
 
@@ -95,9 +109,13 @@ class TestPackageRootMaskAliases:
 
     @pytest.mark.parametrize(
         "name",
-        ["corebench_mask", "bixbench_mask", "biomysterybench_mask"],
+        [
+            "corebench_standardize",
+            "bixbench_standardize",
+            "biomysterybench_standardize",
+        ],
     )
-    def test_mask_alias_is_callable_on_package_root(self, name):
+    def test_standardize_alias_is_callable_on_package_root(self, name):
         # Arrange
         import scitex_dataset
 
@@ -108,9 +126,7 @@ class TestPackageRootMaskAliases:
 
 
 class TestSourceRegistryEntries:
-    @pytest.mark.parametrize(
-        "src", ["corebench", "bixbench", "biomysterybench"]
-    )
+    @pytest.mark.parametrize("src", ["corebench", "bixbench", "biomysterybench"])
     def test_source_appears_in_agentic_bench_sources_list(self, src):
         # Arrange
         from scitex_dataset._sources import AGENTIC_BENCH_SOURCES
@@ -120,9 +136,7 @@ class TestSourceRegistryEntries:
         # Assert
         assert present
 
-    @pytest.mark.parametrize(
-        "src", ["corebench", "bixbench", "biomysterybench"]
-    )
+    @pytest.mark.parametrize("src", ["corebench", "bixbench", "biomysterybench"])
     def test_source_info_records_ai_for_science_domain(self, src):
         # Arrange
         from scitex_dataset._sources import SOURCE_INFO
@@ -132,9 +146,7 @@ class TestSourceRegistryEntries:
         # Assert
         assert domain == "ai-for-science"
 
-    @pytest.mark.parametrize(
-        "src", ["corebench", "bixbench", "biomysterybench"]
-    )
+    @pytest.mark.parametrize("src", ["corebench", "bixbench", "biomysterybench"])
     def test_source_info_records_agentic_bench_kind(self, src):
         # Arrange
         from scitex_dataset._sources import SOURCE_INFO

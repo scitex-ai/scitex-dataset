@@ -47,9 +47,7 @@ class TestDomainGroupWiring:
         # Assert
         assert "biomysterybench" in result.output
 
-    @pytest.mark.parametrize(
-        "bench", ["corebench", "bixbench", "biomysterybench"]
-    )
+    @pytest.mark.parametrize("bench", ["corebench", "bixbench", "biomysterybench"])
     def test_benchmark_help_lists_download_verb(self, runner, bench):
         # Arrange
         cli = main
@@ -58,9 +56,7 @@ class TestDomainGroupWiring:
         # Assert
         assert "download" in result.output
 
-    @pytest.mark.parametrize(
-        "bench", ["corebench", "bixbench", "biomysterybench"]
-    )
+    @pytest.mark.parametrize("bench", ["corebench", "bixbench", "biomysterybench"])
     def test_benchmark_help_lists_prepare_verb(self, runner, bench):
         # Arrange
         cli = main
@@ -69,27 +65,44 @@ class TestDomainGroupWiring:
         # Assert
         assert "prepare" in result.output
 
-    @pytest.mark.parametrize(
-        "bench", ["corebench", "bixbench", "biomysterybench"]
-    )
-    def test_benchmark_help_lists_mask_verb(self, runner, bench):
+    @pytest.mark.parametrize("bench", ["corebench", "bixbench", "biomysterybench"])
+    def test_benchmark_help_lists_standardize_verb(self, runner, bench):
         # Arrange
         cli = main
         # Act
         result = runner.invoke(cli, ["ai-for-science", bench, "-h"])
         # Assert
-        assert "mask" in result.output
+        assert "standardize" in result.output
 
 
-class TestMaskCli:
-    def test_corebench_mask_missing_oracle_exits_nonzero(self, runner, tmp_path):
-        # Arrange — point oracle/dataset roots at an empty tmp dir
+def _stage_bixbench_raw(dataset_root):
+    """Stage a one-record BixBench raw/ snapshot under the dataset root."""
+    raw_dir = dataset_root / "ai-for-science" / "bixbench" / "raw"
+    raw_dir.mkdir(parents=True)
+    (raw_dir / "BixBench.jsonl").write_text(
+        json.dumps(
+            {
+                "short_id": "x",
+                "question": "q?",
+                "data_folder": "CapsuleFolder-x.zip",
+                "answer": "secret",
+                "ideal": "i",
+                "canary": "c",
+                "hypothesis": "h",
+            }
+        )
+        + "\n"
+    )
+    return raw_dir
+
+
+class TestStandardizeCli:
+    def test_corebench_standardize_missing_raw_exits_nonzero(self, runner, tmp_path):
+        # Arrange — point the dataset root at an empty tmp dir
         args = [
             "ai-for-science",
             "corebench",
-            "mask",
-            "--oracle-root",
-            str(tmp_path / "oracles"),
+            "standardize",
             "--dataset-root",
             str(tmp_path / "dataset"),
         ]
@@ -98,37 +111,16 @@ class TestMaskCli:
         # Assert
         assert result.exit_code != 0
 
-    def test_bixbench_mask_with_staged_oracle_exits_zero(
-        self, runner, tmp_path
-    ):
+    def test_bixbench_standardize_with_staged_raw_exits_zero(self, runner, tmp_path):
         # Arrange
-        oracle_root = tmp_path / "oracles"
-        oracle_dir = oracle_root / "cohort_b_bixbench"
-        oracle_dir.mkdir(parents=True)
-        (oracle_dir / "BixBench.jsonl").write_text(
-            json.dumps(
-                {
-                    "id": "x",
-                    "question": "q?",
-                    "answer": "secret",
-                    "ideal": "i",
-                    "result": "r",
-                    "distractors": [],
-                    "paper": "p",
-                    "canary": "c",
-                    "hypothesis": "h",
-                }
-            )
-            + "\n"
-        )
+        dataset_root = tmp_path / "dataset"
+        _stage_bixbench_raw(dataset_root)
         args = [
             "ai-for-science",
             "bixbench",
-            "mask",
-            "--oracle-root",
-            str(oracle_root),
+            "standardize",
             "--dataset-root",
-            str(tmp_path / "dataset"),
+            str(dataset_root),
             "--json",
         ]
         # Act
@@ -136,44 +128,23 @@ class TestMaskCli:
         # Assert
         assert result.exit_code == 0
 
-    def test_bixbench_mask_emits_one_record_in_json_output(
-        self, runner, tmp_path
-    ):
+    def test_bixbench_standardize_emits_one_task_in_json_output(self, runner, tmp_path):
         # Arrange
-        oracle_root = tmp_path / "oracles"
-        oracle_dir = oracle_root / "cohort_b_bixbench"
-        oracle_dir.mkdir(parents=True)
-        (oracle_dir / "BixBench.jsonl").write_text(
-            json.dumps(
-                {
-                    "id": "x",
-                    "question": "q?",
-                    "answer": "secret",
-                    "ideal": "i",
-                    "result": "r",
-                    "distractors": [],
-                    "paper": "p",
-                    "canary": "c",
-                    "hypothesis": "h",
-                }
-            )
-            + "\n"
-        )
+        dataset_root = tmp_path / "dataset"
+        _stage_bixbench_raw(dataset_root)
         args = [
             "ai-for-science",
             "bixbench",
-            "mask",
-            "--oracle-root",
-            str(oracle_root),
+            "standardize",
             "--dataset-root",
-            str(tmp_path / "dataset"),
+            str(dataset_root),
             "--json",
         ]
         result = runner.invoke(main, args)
         # Act
         payload = json.loads(result.output)
         # Assert
-        assert payload["n_records"] == 1
+        assert payload["n_tasks"] == 1
 
 
 if __name__ == "__main__":

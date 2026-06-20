@@ -28,12 +28,13 @@ Usage:
     >>> db.build()  # Fetch all sources and index
     >>> results = db.search("alzheimer EEG", min_subjects=20)
 
-    >>> # Prepare an agentic-benchmark cohort (mask only — safe, fast)
+    >>> # Prepare an agentic benchmark (standardize only — safe, fast)
     >>> from scitex_dataset import ai_for_science
-    >>> paths = ai_for_science.resolve_paths("cohort_a_corebench")
-    >>> ai_for_science.corebench.mask(
-    ...     oracle_dir=paths.oracle_dir,
-    ...     benchmark_dir=paths.benchmark_dir,
+    >>> paths = ai_for_science.resolve_paths("corebench")
+    >>> ai_for_science.corebench.standardize(
+    ...     raw_dir=paths.raw_dir,
+    ...     for_solver_dir=paths.for_solver_dir,
+    ...     eval_dir=paths.eval_dir,
     ... )
 """
 
@@ -66,11 +67,11 @@ from . import (
 # tool a matching Python callable for the audit-mcp-tools § 6 parity
 # check. See _api.py for the explicit list.
 from ._api import (  # noqa: F401
-    biomysterybench_mask,
-    bixbench_mask,
+    biomysterybench_standardize,
+    bixbench_standardize,
     chembl_fetch,
     clinicaltrials_fetch,
-    corebench_mask,
+    corebench_standardize,
     dandi_fetch,
     download_dataset,
     figshare_fetch,
@@ -171,10 +172,10 @@ __all__ = [
     # Unified dispatcher (issue #36)
     "download_dataset",
     # Agentic AI-for-science benchmark cohorts (MCP parity with
-    # ``dataset_<bench>_mask`` tools)
-    "corebench_mask",
-    "bixbench_mask",
-    "biomysterybench_mask",
+    # ``dataset_<bench>_standardize`` tools)
+    "corebench_standardize",
+    "bixbench_standardize",
+    "biomysterybench_standardize",
 ]
 
 # EOF

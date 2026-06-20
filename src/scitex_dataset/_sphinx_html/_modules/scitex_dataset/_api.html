@@ -118,6 +118,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.download_dataset"><code class="docutils literal notranslate"><span class="pre">download_dataset()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.corebench_mask"><code class="docutils literal notranslate"><span class="pre">corebench_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.bixbench_mask"><code class="docutils literal notranslate"><span class="pre">bixbench_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.biomysterybench_mask"><code class="docutils literal notranslate"><span class="pre">biomysterybench_mask()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
@@ -300,6 +303,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.pharmacology.moleculenet</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_all_datasets</span> <span class="k">as</span> <span class="n">moleculenet_fetch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.pharmacology.moleculenet</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_dataset</span> <span class="k">as</span> <span class="n">moleculenet_format</span>
 
+<span class="c1"># Agentic AI-for-science benchmark cohorts. Each ``mask`` is the</span>
+<span class="c1"># read-only pure-Python verb (safe over MCP); ``download`` /</span>
+<span class="c1"># ``prepare`` are CLI-only on purpose (multi-GB pulls belong on SLURM</span>
+<span class="c1"># compute nodes, not an MCP client).</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.ai_for_science.biomysterybench</span><span class="w"> </span><span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">biomysterybench_mask</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.ai_for_science.bixbench</span><span class="w"> </span><span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">bixbench_mask</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.ai_for_science.corebench</span><span class="w"> </span><span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">corebench_mask</span>
+
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;openneuro_fetch&quot;</span><span class="p">,</span>
     <span class="s2">&quot;openneuro_format&quot;</span><span class="p">,</span>
@@ -332,6 +343,10 @@
     <span class="s2">&quot;huggingface_search&quot;</span><span class="p">,</span>
     <span class="s2">&quot;huggingface_info&quot;</span><span class="p">,</span>
     <span class="s2">&quot;huggingface_download_file&quot;</span><span class="p">,</span>
+    <span class="c1"># Agentic AI-for-science benchmark cohorts (mask-only over MCP)</span>
+    <span class="s2">&quot;corebench_mask&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bixbench_mask&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;biomysterybench_mask&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 

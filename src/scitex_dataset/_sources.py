@@ -13,8 +13,9 @@ Three lists exist on purpose, by CLI shape:
   enumeration). HuggingFace is the only one today. Verbs: ``fetch``,
   ``search``, ``info``, ``download-file``.
 - ``AGENTIC_BENCH_SOURCES`` — agentic AI-for-science benchmark cohorts
-  whose pipeline is ``download → prepare → mask`` (oracle answers nulled
-  before the agent ever sees the dataset). Categorically distinct from
+  whose pipeline is ``download → prepare → standardize`` (oracle answers
+  split into an operator-only eval view before the agent ever sees the
+  dataset). Categorically distinct from
   the raw catalog/ondemand sources; they emit a provenance
   ``MANIFEST.yaml`` so consumers can pin a specific snapshot.
 
@@ -41,9 +42,10 @@ ONDEMAND_SOURCES = [
 ]
 
 # Agentic AI-for-science benchmark cohorts. Each has a multi-verb
-# pipeline (``download``, ``prepare``, ``mask``) rather than a single
-# ``fetch`` — the upstream artifacts carry ground-truth answers and must
-# be masked before being made agent-visible. See
+# pipeline (``download``, ``prepare``, ``standardize``) rather than a
+# single ``fetch`` — the upstream artifacts carry ground-truth answers
+# and must be split into a leak-safe for_solver view + an operator-only
+# eval view before being made agent-visible. See
 # ``ai_for_science/__init__.py`` for the contract every benchmark module
 # implements.
 AGENTIC_BENCH_SOURCES = [

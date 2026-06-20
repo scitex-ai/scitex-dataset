@@ -120,6 +120,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.download_dataset"><code class="docutils literal notranslate"><span class="pre">download_dataset()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.corebench_mask"><code class="docutils literal notranslate"><span class="pre">corebench_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.bixbench_mask"><code class="docutils literal notranslate"><span class="pre">bixbench_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.biomysterybench_mask"><code class="docutils literal notranslate"><span class="pre">biomysterybench_mask()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
@@ -256,11 +259,16 @@
 <span id="scitex-dataset-api-reference"></span><h1>scitex_dataset API Reference<a class="headerlink" href="#module-scitex_dataset" title="Link to this heading"></a></h1>
 <p>SciTeX Dataset - Unified interface for scientific dataset discovery.</p>
 <p>Domains:
-- neuroscience: OpenNeuro, DANDI, PhysioNet
-- general: Scientific Data, Zenodo
-- biology: GEO (Gene Expression Omnibus)
-- pharmacology: ChEMBL
-- medical: ClinicalTrials.gov</p>
+- neuroscience:    OpenNeuro, DANDI, PhysioNet
+- general:         Scientific Data, Zenodo, Figshare, OpenML, HuggingFace
+- biology:         GEO (Gene Expression Omnibus)
+- pharmacology:    ChEMBL, MoleculeNet
+- medical:         ClinicalTrials.gov
+- ai-for-science:  CORE-Bench, BixBench, BioMysteryBench (agentic</p>
+<blockquote>
+<div><p>reproducibility / bioinformatics / biology cohorts —
+<code class="docutils literal notranslate"><span class="pre">download</span> <span class="pre">|</span> <span class="pre">prepare</span> <span class="pre">|</span> <span class="pre">mask</span></code> verb tree)</p>
+</div></blockquote>
 <dl>
 <dt>Usage:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">neuroscience</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">datasets</span> <span class="o">=</span> <span class="n">neuroscience</span><span class="o">.</span><span class="n">fetch_all_datasets</span><span class="p">(</span><span class="n">max_datasets</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -274,6 +282,15 @@
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">database</span> <span class="k">as</span> <span class="n">db</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>  <span class="c1"># Fetch all sources and index</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;alzheimer EEG&quot;</span><span class="p">,</span> <span class="n">min_subjects</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Prepare an agentic benchmark (mask only — safe, fast)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">ai_for_science</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">ai_for_science</span><span class="o">.</span><span class="n">resolve_paths</span><span class="p">(</span><span class="s2">&quot;corebench&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ai_for_science</span><span class="o">.</span><span class="n">corebench</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">raw_dir</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">raw_dir</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">masked_dir</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">masked_dir</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
 </dd>
@@ -753,6 +770,53 @@ dict).</p>
 <li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">source</span></code> is not in the registry.</p></li>
 <li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><strong>NotImplementedError</strong></a> – If the matched source has no download adapter wired up yet.</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_dataset.corebench_mask">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">corebench_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masked_dir</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.corebench_mask" title="Link to this definition"></a></dt>
+<dd><p>Mask the oracle JSONs and build the masked view in <code class="docutils literal notranslate"><span class="pre">masked_dir</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">raw_dir</span></code> must already contain the upstream-pristine
+<code class="docutils literal notranslate"><span class="pre">dataset/core_train.json</span></code> and <code class="docutils literal notranslate"><span class="pre">core_test.json</span></code> — either from a
+prior <code class="docutils literal notranslate"><span class="pre">download(...)</span></code> or hand-staged by the operator. The two
+record lists are concatenated (train first, then test) into a
+single 90-record <code class="docutils literal notranslate"><span class="pre">questions.json</span></code> under <code class="docutils literal notranslate"><span class="pre">masked_dir</span></code>, then the
+answer-free capsule content is symlinked alongside.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_dataset.bixbench_mask">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">bixbench_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masked_dir</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.bixbench_mask" title="Link to this definition"></a></dt>
+<dd><p>Read the oracle manifest, build the masked view in <code class="docutils literal notranslate"><span class="pre">masked_dir</span></code>.</p>
+<p>Output is JSONL: one record per line, <code class="docutils literal notranslate"><span class="pre">sort_keys=True</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ensure_ascii=False</span></code> for deterministic byte output across runs.
+Symlinks the answer-free capsule content into <code class="docutils literal notranslate"><span class="pre">masked_dir</span></code> and
+recreates the legacy <code class="docutils literal notranslate"><span class="pre">BixBench_masked.jsonl</span></code> backward-compat link.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_dataset.biomysterybench_mask">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">biomysterybench_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masked_dir</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.biomysterybench_mask" title="Link to this definition"></a></dt>
+<dd><p>Read <code class="docutils literal notranslate"><span class="pre">raw_dir/problems.csv</span></code>, build the masked view in <code class="docutils literal notranslate"><span class="pre">masked_dir</span></code>.</p>
+<p>Writes <code class="docutils literal notranslate"><span class="pre">questions.jsonl</span></code> (JSONL, <code class="docutils literal notranslate"><span class="pre">sort_keys=True</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ensure_ascii=False</span></code> — symmetric with the other benchmarks) and
+symlinks the answer-free upstream content (problem environments)
+into <code class="docutils literal notranslate"><span class="pre">masked_dir</span></code> so the agent gets the data without the rubric.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
