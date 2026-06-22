@@ -654,4 +654,182 @@ class TestNotebookOutputStrip:
         assert "print('AUC = 0.94')" in source
 
 
+# ---------------------------------------------------------------------------
+# Running-log / output leak strip + value-verify guard (any depth, any cohort)
+# ---------------------------------------------------------------------------
+
+
+def _build_leaky_capsule(tmp_path: Path, *, value_in_code: bool = False):
+    """A capsule whose archive ships author run-logs/outputs at several
+    depths (nested ``code/dump`` + ``code/log``, top-level ``results/``, and a
+    loose ``data/*_log.csv``) plus decoys that must be KEPT (``catalog.csv``,
+    ``input.csv``, ``log_utils.py``). The task's answer is ``0.931818``."""
+    raw = tmp_path / "leak" / "raw"
+    members = {
+        "code/main.py": "x = 1\nprint('run')\n",
+        "code/log_utils.py": "def log():\n    return 1\n",
+        "code/dump/log_evaluate.txt": "eval loss = 1.469021\n",
+        "code/log/train_log.txt": "acc = 0.931818\n",
+        "results/output.txt": "final = 0.7569591\n",
+        "data/feature_selection_log.csv": "score,0.5551234\n",
+        "data/catalog.csv": "id,name\n1,foo\n",
+        "data/input.csv": "a,b\n1,2\n",
+    }
+    if value_in_code:
+        members["code/main.py"] = "ANSWER = 0.931818\nprint('run')\n"
+    _make_archive(raw / "capsules" / "capsule-leak1.tar.gz", members)
+    tasks = [
+        {
+            "task_id": "leak/capsule-leak1__hard__q0",
+            "benchmark": "leak",
+            "prompt": "Q",
+            "data": "./capsules/capsule-leak1.tar.gz",
+        }
+    ]
+    answer_values = {"leak/capsule-leak1__hard__q0": 0.931818}
+    for_solver = tmp_path / "leak" / "for_solver"
+    return raw, for_solver, tasks, answer_values
+
+
+@pytest.fixture
+def leak_input(tmp_path):
+    raw, for_solver, tasks, answer_values = _build_leaky_capsule(tmp_path)
+    _standardize.write_for_solver_per_capsule(
+        for_solver_dir=for_solver,
+        tasks=tasks,
+        raw_dir=raw,
+        answer_values=answer_values,
+    )
+    return for_solver / "capsule-001" / "input"
+
+
+class TestRunningLogLeakStrip:
+    def test_nested_dump_dir_removed(self, leak_input):
+        # Arrange
+        target = leak_input / "code" / "dump"
+        # Act
+        present = target.exists()
+        # Assert
+        assert not present
+
+    def test_nested_log_dir_removed(self, leak_input):
+        # Arrange
+        target = leak_input / "code" / "log"
+        # Act
+        present = target.exists()
+        # Assert
+        assert not present
+
+    def test_top_level_results_dir_removed(self, leak_input):
+        # Arrange
+        target = leak_input / "results"
+        # Act
+        present = target.exists()
+        # Assert
+        assert not present
+
+    def test_loose_log_file_in_data_removed(self, leak_input):
+        # Arrange
+        target = leak_input / "data" / "feature_selection_log.csv"
+        # Act
+        present = target.exists()
+        # Assert
+        assert not present
+
+    def test_catalog_csv_is_kept(self, leak_input):
+        # Arrange
+        target = leak_input / "data" / "catalog.csv"
+        # Act
+        present = target.is_file()
+        # Assert
+        assert present
+
+    def test_plain_input_csv_is_kept(self, leak_input):
+        # Arrange
+        target = leak_input / "data" / "input.csv"
+        # Act
+        present = target.is_file()
+        # Assert
+        assert present
+
+    def test_log_named_code_file_is_kept(self, leak_input):
+        # Arrange
+        target = leak_input / "code" / "log_utils.py"
+        # Act
+        present = target.is_file()
+        # Assert
+        assert present
+
+    def test_code_main_is_kept(self, leak_input):
+        # Arrange
+        target = leak_input / "code" / "main.py"
+        # Act
+        present = target.is_file()
+        # Assert
+        assert present
+
+    def test_no_answer_value_survives_anywhere(self, leak_input):
+        # Arrange
+        files = [p for p in leak_input.rglob("*") if p.is_file()]
+        # Act
+        blob = "".join(p.read_text(errors="ignore") for p in files)
+        # Assert
+        assert "0.931818" not in blob
+
+
+class TestValueLeakGuard:
+    def test_guard_masks_value_in_kept_file(self, tmp_path):
+        # Arrange
+        raw, for_solver, tasks, answer_values = _build_leaky_capsule(
+            tmp_path, value_in_code=True
+        )
+        # Act
+        _standardize.write_for_solver_per_capsule(
+            for_solver_dir=for_solver,
+            tasks=tasks,
+            raw_dir=raw,
+            answer_values=answer_values,
+        )
+        main = (for_solver / "capsule-001" / "input" / "code" / "main.py").read_text()
+        # Assert — value redacted in place; file kept (not raised, not removed).
+        assert "0.931818" not in main and _standardize._VALUE_REDACTION in main
+
+    def test_assert_backstop_raises_on_residual_value(self, tmp_path):
+        # Arrange — a high-precision value left behind in a text file.
+        d = tmp_path / "resid"
+        d.mkdir()
+        (d / "leftover.txt").write_text("final score = 0.931818\n")
+        # Act
+        # Assert
+        with pytest.raises(_standardize.AnswerLeakError):
+            _standardize._assert_no_value_leak(d, [0.931818], capsule="c")
+
+    def test_guard_ignores_low_information_integer_answer(self, tmp_path):
+        # Arrange — two top-level dirs so input/ is not de-nested; 1000 is the
+        # answer, hard-coded in a KEPT code file.
+        raw = tmp_path / "intc" / "raw"
+        _make_archive(
+            raw / "capsules" / "capsule-int1.tar.gz",
+            {"code/main.py": "BATCH = 1000\nprint('x')\n", "data/x.csv": "a\n1\n"},
+        )
+        tasks = [
+            {
+                "task_id": "intc/capsule-int1__hard__q0",
+                "benchmark": "intc",
+                "prompt": "Q",
+                "data": "./capsules/capsule-int1.tar.gz",
+            }
+        ]
+        for_solver = tmp_path / "intc" / "for_solver"
+        # Act — 1000 is too generic to be a leak signal, so this must not raise.
+        _standardize.write_for_solver_per_capsule(
+            for_solver_dir=for_solver,
+            tasks=tasks,
+            raw_dir=raw,
+            answer_values={"intc/capsule-int1__hard__q0": 1000},
+        )
+        # Assert
+        assert (for_solver / "capsule-001" / "input" / "code" / "main.py").is_file()
+
+
 # EOF

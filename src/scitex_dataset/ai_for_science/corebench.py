@@ -212,12 +212,18 @@ def standardize(
             answers.extend(rec_answers)
         counts.append(len(tasks) - before)
 
+    answer_values = {
+        a["task_id"]: a["answer"]["value"]
+        for a in answers
+        if isinstance(a.get("answer"), dict) and "value" in a["answer"]
+    }
     fs = write_for_solver_per_capsule(
         for_solver_dir=for_solver_dir,
         tasks=tasks,
         raw_dir=raw_dir,
         only=only,
         force=force,
+        answer_values=answer_values,
     )
     ev = write_eval(
         eval_dir=eval_dir,
