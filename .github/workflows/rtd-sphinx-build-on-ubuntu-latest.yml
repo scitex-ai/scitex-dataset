@@ -36,7 +36,11 @@ jobs:
             sphinx-build -b html docs/sphinx docs/sphinx/_build/html
           fi
 
-      - name: Refresh src/scitex_dataset/_sphinx_html/
+      - name: Refresh src/scitex_dataset/_sphinx_html/ (develop push only)
+        # main is PR-only — its _sphinx_html/ bundle arrives via the
+        # develop -> main PR. Direct bot-pushes to main are inhibited
+        # so the branch history stays linear-via-PR.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
         run: |
           rm -rf src/scitex_dataset/_sphinx_html
           cp -rf docs/sphinx/_build/html src/scitex_dataset/_sphinx_html
