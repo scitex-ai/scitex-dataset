@@ -155,6 +155,132 @@ class TestStandardizeCli:
         assert payload["n_tasks"] == 1
 
 
+def _stage_corebench_eval(dataset_root):
+    """Stage a one-answer corebench eval/answers.jsonl under the dataset root."""
+    eval_dir = dataset_root / "ai-for-science" / "corebench" / "eval"
+    eval_dir.mkdir(parents=True)
+    (eval_dir / "answers.jsonl").write_text(
+        json.dumps(
+            {
+                "task_id": "corebench/capsule-1__hard__q0",
+                "answer": {"value": 0.9996},
+            }
+        )
+        + "\n"
+    )
+    return eval_dir
+
+
+class TestValidateCli:
+    def test_help_lists_validate_verb(self, runner):
+        # Arrange
+        cli = main
+        # Act
+        result = runner.invoke(cli, ["ai-for-science", "corebench", "-h"])
+        # Assert
+        assert "validate" in result.output
+
+    def test_valid_submission_exits_zero(self, runner, tmp_path):
+        # Arrange
+        sub = tmp_path / "sub.json"
+        sub.write_text(
+            json.dumps(
+                [{"task_id": "corebench/capsule-1__hard__q0", "answer": 0.9996}]
+            )
+        )
+        args = [
+            "ai-for-science",
+            "corebench",
+            "validate",
+            "--submission",
+            str(sub),
+            "--dataset-root",
+            str(tmp_path / "dataset"),
+        ]
+        # Act
+        result = runner.invoke(main, args)
+        # Assert
+        assert result.exit_code == 0
+
+    def test_invalid_submission_exits_nonzero(self, runner, tmp_path):
+        # Arrange — a bad task_id makes it structurally invalid.
+        sub = tmp_path / "sub.json"
+        sub.write_text(json.dumps([{"task_id": "bixbench/x", "answer": 1}]))
+        args = [
+            "ai-for-science",
+            "corebench",
+            "validate",
+            "--submission",
+            str(sub),
+            "--dataset-root",
+            str(tmp_path / "dataset"),
+        ]
+        # Act
+        result = runner.invoke(main, args)
+        # Assert
+        assert result.exit_code != 0
+
+
+class TestScoreCli:
+    def test_help_lists_score_verb(self, runner):
+        # Arrange
+        cli = main
+        # Act
+        result = runner.invoke(cli, ["ai-for-science", "corebench", "-h"])
+        # Assert
+        assert "score" in result.output
+
+    def test_score_emits_verdict_in_json(self, runner, tmp_path):
+        # Arrange
+        dataset_root = tmp_path / "dataset"
+        _stage_corebench_eval(dataset_root)
+        sub = tmp_path / "sub.json"
+        sub.write_text(
+            json.dumps(
+                [{"task_id": "corebench/capsule-1__hard__q0", "answer": 0.99956}]
+            )
+        )
+        args = [
+            "ai-for-science",
+            "corebench",
+            "score",
+            "--submission",
+            str(sub),
+            "--dataset-root",
+            str(dataset_root),
+            "--json",
+        ]
+        result = runner.invoke(main, args)
+        # Act
+        payload = json.loads(result.output)
+        # Assert
+        assert payload[0]["verdict"] == "correct"
+
+    def test_score_exits_zero(self, runner, tmp_path):
+        # Arrange
+        dataset_root = tmp_path / "dataset"
+        _stage_corebench_eval(dataset_root)
+        sub = tmp_path / "sub.json"
+        sub.write_text(
+            json.dumps(
+                [{"task_id": "corebench/capsule-1__hard__q0", "answer": 0.99956}]
+            )
+        )
+        args = [
+            "ai-for-science",
+            "corebench",
+            "score",
+            "--submission",
+            str(sub),
+            "--dataset-root",
+            str(dataset_root),
+        ]
+        # Act
+        result = runner.invoke(main, args)
+        # Assert
+        assert result.exit_code == 0
+
+
 if __name__ == "__main__":
     import os
 

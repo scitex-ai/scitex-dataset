@@ -52,11 +52,13 @@ from __future__ import annotations
 from . import biomysterybench, bixbench, corebench
 from ._base import DOMAIN, BenchmarkPaths, resolve_paths
 from ._manifest import MANIFEST_FILENAME, ManifestEntry, write_manifest
+from ._score import score_submission
 from ._standardize import (
     UNIFORM_SUBMISSION_SCHEMA,
     write_eval,
     write_for_solver,
 )
+from ._validate import validate_submission
 
 __all__ = [
     # Submodules (the three benchmarks)
@@ -75,6 +77,9 @@ __all__ = [
     "UNIFORM_SUBMISSION_SCHEMA",
     "write_for_solver",
     "write_eval",
+    # Submission validation + scoring
+    "validate_submission",
+    "score_submission",
 ]
 
 # EOF
