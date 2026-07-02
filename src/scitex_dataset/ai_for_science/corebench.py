@@ -41,13 +41,19 @@ from __future__ import annotations
 
 import json
 import os
-import urllib.request
 from collections import Counter
 from pathlib import Path
 from typing import Iterable, Optional
 
 from ._base import BenchmarkPaths, resolve_paths
-from ._manifest import sha256_file, write_manifest
+from ._corebench_download import (
+    SOURCE_URL,
+    _ORACLE_TEST_RELPATH,
+    _ORACLE_TRAIN_RELPATH,
+    bootstrap_oracle,
+    download,
+)
+from ._manifest import write_manifest
 from ._standardize import (
     render_evaluate_py,
     write_eval,
@@ -58,7 +64,6 @@ from ._standardize import (
 BENCHMARK = "corebench"
 COHORT_ID = "corebench"
 COHORT_NAME = "CORE-Bench"
-SOURCE_URL = "https://corebench.cs.princeton.edu"
 
 # Difficulty tier labels in the order they appear in the upstream
 # ``results`` arrays (per CORE-Bench paper: each capsule has
@@ -92,24 +97,18 @@ _DATA_EXTS = (
     ".xlsx",
 )
 
-# Oracle source layout — staged under raw_dir by the operator:
+# Oracle source layout on disk — bootstrapped into raw_dir by
+# ``download(...)`` (see :mod:`._corebench_download`). The relpaths
+# ``_ORACLE_TRAIN_RELPATH`` / ``_ORACLE_TEST_RELPATH`` are imported from
+# that module; the readers below consume them:
 #   <raw_dir>/dataset/core_train.json   (plaintext)
 #   <raw_dir>/core_test.json            (decrypted from .gpg)
-_ORACLE_TRAIN_RELPATH = ("dataset", "core_train.json")
-_ORACLE_TEST_RELPATH = ("core_test.json",)
 
 # Capsule tarballs are the only raw content symlinked into for_solver/;
 # the whole ``raw/capsules`` dir is linked once (not per-task) and each
-# task's ``data`` points inside it.
-
-# Bulk capsule subdirs under raw_dir.
-_CAPSULES_SUBDIR = "capsules"
+# task's ``data`` points inside it. Extracted trees (for inventory
+# file-counting) land under this subdir.
 _EXTRACTED_SUBDIR = "capsules_extracted"
-
-# sha256 ledger recording the integrity of fetched capsule tarballs.
-# Lives in operator-private raw_dir so re-runs can skip already-verified
-# files and re-fetch any that drifted.
-_CHECKSUMS_FILENAME = ".checksums.json"
 
 
 # ---------------------------------------------------------------------------
@@ -197,7 +196,8 @@ def standardize(
     if missing:
         raise FileNotFoundError(
             f"corebench: oracle source(s) not found: {missing}. "
-            "Run download(...) or stage the oracle JSONs manually."
+            "Run `corebench download` first — it bootstraps the oracle "
+            "manifests (fetch + gpg-decrypt) into raw/."
         )
 
     tasks: list[dict] = []
@@ -329,7 +329,11 @@ def build_inventory(
     test = raw_dir.joinpath(*_ORACLE_TEST_RELPATH)
     missing = [str(p) for p in (train, test) if not p.is_file()]
     if missing:
-        raise FileNotFoundError(f"corebench: oracle source(s) not found: {missing}.")
+        raise FileNotFoundError(
+            f"corebench: oracle source(s) not found: {missing}. "
+            "Run `corebench download` first — it bootstraps the oracle "
+            "manifests (fetch + gpg-decrypt) into raw/."
+        )
 
     capsule_cache = raw_dir / _EXTRACTED_SUBDIR
     train_entries = json.loads(train.read_text(encoding="utf-8"))
@@ -362,145 +366,11 @@ def build_inventory(
 
 
 # ---------------------------------------------------------------------------
-# Download — network. Pulls capsule tarballs into ``raw_dir/capsules/``.
-# The oracle JSONs are NOT fetched here (they're operator-side artifacts
-# the operator stages separately, by design); callers stage them under
-# ``raw_dir`` before calling ``prepare``.
+# Download — network. The oracle bootstrap + capsule-tarball fetch live in
+# :mod:`._corebench_download` (kept there for the 512-line-per-file guard);
+# ``download`` and ``bootstrap_oracle`` are re-exported at module top so
+# ``corebench.download`` / ``corebench.bootstrap_oracle`` stay callable.
 # ---------------------------------------------------------------------------
-
-
-def _capsule_url(base_url: str, capsule_id: str) -> str:
-    return f"{base_url}/capsules/{capsule_id}.tar.gz"
-
-
-def _http_download(url: str, dest: Path) -> None:
-    """Fetch ``url`` to ``dest`` via stdlib urllib.
-
-    Streams in 1 MiB chunks so multi-MB tarballs don't peak memory.
-    Caller is responsible for ``dest.parent.mkdir(exist_ok=True)``.
-    """
-    with urllib.request.urlopen(url) as resp, dest.open("wb") as fh:
-        while True:
-            chunk = resp.read(1024 * 1024)
-            if not chunk:
-                break
-            fh.write(chunk)
-
-
-def _load_checksums(raw_dir: Path) -> dict:
-    """Read ``raw_dir/.checksums.json`` ({relpath: sha256}); {} if absent."""
-    ledger = raw_dir / _CHECKSUMS_FILENAME
-    if not ledger.is_file():
-        return {}
-    try:
-        return json.loads(ledger.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):  # pragma: no cover — corrupt ledger
-        return {}
-
-
-def _save_checksums(raw_dir: Path, checksums: dict) -> None:
-    """Write the sha256 ledger back to ``raw_dir/.checksums.json``."""
-    ledger = raw_dir / _CHECKSUMS_FILENAME
-    ledger.write_text(json.dumps(checksums, indent=2, sort_keys=True), encoding="utf-8")
-
-
-def download(
-    *,
-    raw_dir: Path,
-    capsule_ids: Iterable[str] | None = None,
-    base_url: str = SOURCE_URL,
-    verify_integrity: bool = False,
-    force: bool = False,
-    **_,
-) -> dict:
-    """Pull capsule tarballs into ``raw_dir/capsules/``; skip what's present.
-
-    If ``capsule_ids`` is None the staged ``raw_dir/dataset/core_train.json``
-    + ``raw_dir/core_test.json`` are consulted for the canonical 90-id list.
-
-    Skip policy (idempotent re-runs never re-download by default):
-
-    - **default** — any capsule already on disk (non-empty) is skipped
-      with NO hashing (``n_have``). Cheapest; what you want for re-runs.
-    - ``verify_integrity=True`` — an existing capsule is sha256-checked
-      against ``raw_dir/.checksums.json``; a match is a verified skip
-      (``n_skipped_verified``), a miss/drift is re-fetched
-      (``n_remismatch``). Reads each existing file once — opt-in.
-    - ``force=True`` — re-fetch everything regardless.
-
-    Every successful fetch records the file's sha256 into the ledger so
-    a later ``verify_integrity`` run has something to check against.
-
-    HEAVY: ~13 GB across 90 tarballs. SLURM-only on shared compute;
-    never call from a login node or CI.
-    """
-    capsules_dir = raw_dir / _CAPSULES_SUBDIR
-    capsules_dir.mkdir(parents=True, exist_ok=True)
-
-    if capsule_ids is None:
-        train = raw_dir.joinpath(*_ORACLE_TRAIN_RELPATH)
-        test = raw_dir.joinpath(*_ORACLE_TEST_RELPATH)
-        missing = [str(p) for p in (train, test) if not p.is_file()]
-        if missing:
-            raise FileNotFoundError(
-                f"corebench.download: capsule_ids not given AND oracle "
-                f"manifests missing: {missing}. Either pass capsule_ids "
-                "explicitly or stage the oracle JSONs first."
-            )
-        seen: set[str] = set()
-        ids: list[str] = []
-        for entry in json.loads(train.read_text(encoding="utf-8")):
-            cid = entry["capsule_id"]
-            if cid not in seen:
-                seen.add(cid)
-                ids.append(cid)
-        for entry in json.loads(test.read_text(encoding="utf-8")):
-            cid = entry["capsule_id"]
-            if cid not in seen:
-                seen.add(cid)
-                ids.append(cid)
-        ids.sort()
-        capsule_ids = ids
-
-    checksums = _load_checksums(raw_dir)
-    n_have = n_skipped_verified = n_get = n_fail = n_remismatch = 0
-    fails: list[str] = []
-    for cid in capsule_ids:
-        out = capsules_dir / f"{cid}.tar.gz"
-        rel = out.relative_to(raw_dir).as_posix()
-        if out.exists() and out.stat().st_size > 0 and not force:
-            if not verify_integrity:
-                # Default: present → skip, no hashing.
-                n_have += 1
-                continue
-            recorded = checksums.get(rel)
-            if recorded is not None and recorded == sha256_file(out):
-                n_skipped_verified += 1
-                continue
-            # Present but unrecorded or drifted: re-fetch below.
-            n_remismatch += 1
-        url = _capsule_url(base_url, cid)
-        try:
-            _http_download(url, out)
-            checksums[rel] = sha256_file(out)
-            n_get += 1
-        except Exception as exc:  # pragma: no cover — network path
-            if out.exists():
-                out.unlink()
-            n_fail += 1
-            fails.append(f"{cid}: {exc!r}")
-
-    _save_checksums(raw_dir, checksums)
-    return {
-        "raw_dir": str(raw_dir),
-        "capsules_dir": str(capsules_dir),
-        "n_have": n_have,
-        "n_skipped_verified": n_skipped_verified,
-        "n_fetched": n_get,
-        "n_remismatch": n_remismatch,
-        "n_failed": n_fail,
-        "failures": fails,
-    }
 
 
 # ---------------------------------------------------------------------------
@@ -573,6 +443,7 @@ __all__ = [
     "DEFAULT_MODE",
     "PAPER_IDENTITY_FIELDS",
     "build_inventory",
+    "bootstrap_oracle",
     "download",
     "standardize",
     "prepare",

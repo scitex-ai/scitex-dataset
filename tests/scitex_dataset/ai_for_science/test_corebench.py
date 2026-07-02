@@ -2,9 +2,11 @@
 """Tests for ai_for_science.corebench standardize + inventory + download.
 
 PA-306 compliance: no ``unittest.mock``, no ``monkeypatch``. The network
-download uses the module-level ``corebench._http_download`` helper, which
-we replace with a hand-rolled stub via attribute save/restore for the
-duration of each test.
+download uses the module-level ``_corebench_download._http_download``
+helper, which we replace with a hand-rolled stub via attribute
+save/restore for the duration of each test. (The capsule fetch + oracle
+bootstrap moved to ``_corebench_download``; ``corebench.download`` is a
+re-export, so the seam lives on that module.)
 """
 
 import json
@@ -16,22 +18,22 @@ from pathlib import Path
 
 import pytest
 
-from scitex_dataset.ai_for_science import corebench
+from scitex_dataset.ai_for_science import _corebench_download, corebench
 
 # ---------------------------------------------------------------------------
-# Network seam — swap corebench._http_download (no unittest.mock)
+# Network seam — swap _corebench_download._http_download (no unittest.mock)
 # ---------------------------------------------------------------------------
 
 
 @contextmanager
 def _swap_http_download(replacement):
-    """Replace ``corebench._http_download`` for the duration of the block."""
-    saved = corebench._http_download
-    corebench._http_download = replacement  # type: ignore[assignment]
+    """Replace ``_corebench_download._http_download`` for the block."""
+    saved = _corebench_download._http_download
+    _corebench_download._http_download = replacement  # type: ignore[assignment]
     try:
         yield
     finally:
-        corebench._http_download = saved  # type: ignore[assignment]
+        _corebench_download._http_download = saved  # type: ignore[assignment]
 
 
 class _HttpRecorder:
@@ -558,14 +560,16 @@ class TestDownloadChecksumSkip:
         # Assert
         assert (raw_dir / ".checksums.json").is_file()
 
-    def test_download_raises_when_capsule_ids_none_and_oracle_missing(self, tmp_path):
-        # Arrange
-        bare_raw = tmp_path / "empty-raw"
-        bare_raw.mkdir()
+    def test_explicit_capsule_ids_never_touch_oracle_urls(self, tmp_path):
+        # Arrange — an explicit id list must stay oracle-free (no upstream
+        # raw.githubusercontent.com fetch, no gpg).
+        rec = _HttpRecorder()
+        raw_dir = tmp_path / "raw"
         # Act
+        with _swap_http_download(rec):
+            corebench.download(raw_dir=raw_dir, capsule_ids=["111", "222"])
         # Assert
-        with pytest.raises(FileNotFoundError):
-            corebench.download(raw_dir=bare_raw)
+        assert all("githubusercontent" not in url for url, _ in rec.calls)
 
 
 # ---------------------------------------------------------------------------
