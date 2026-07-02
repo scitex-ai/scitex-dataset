@@ -325,7 +325,18 @@ def _agentic_bench_commands(source: str) -> list[click.Command]:
         "download_full",
         is_flag=True,
         help="Pull the full gated set instead of the small preview "
-        "(where the benchmark distinguishes them, e.g. biomysterybench).",
+        "(where the benchmark distinguishes them, e.g. biomysterybench). "
+        "For corebench, the full set is the oracle-driven 90-capsule "
+        "run: it bootstraps the answer manifests (fetch + gpg-decrypt) "
+        "then fetches every capsule tarball.",
+    )
+    @click.option(
+        "--capsule-ids",
+        default=None,
+        help="corebench only: comma-separated NATIVE capsule ids (e.g. "
+        "capsule-0201225,capsule-0238624) to fetch just those tarballs "
+        "from the CDN — the oracle URLs are never touched. Overrides the "
+        "oracle-driven full run.",
     )
     @click.option(
         "--verify-integrity",
@@ -338,18 +349,27 @@ def _agentic_bench_commands(source: str) -> list[click.Command]:
         is_flag=True,
         help="Re-download everything, ignoring what's already on disk.",
     )
-    def _download_cmd(dataset_root, as_json, download_full, verify_integrity, force):
+    def _download_cmd(
+        dataset_root, as_json, download_full, capsule_ids, verify_integrity, force
+    ):
         """Placeholder docstring (overwritten below with the per-source example)."""
         from ..ai_for_science._base import resolve_paths
 
         paths = resolve_paths(module.BENCHMARK, dataset_root=dataset_root)
+        kwargs = dict(
+            raw_dir=paths.raw_dir,
+            download_full=download_full,
+            verify_integrity=verify_integrity,
+            force=force,
+        )
+        if capsule_ids:
+            # corebench's download() takes an explicit capsule_ids list;
+            # siblings absorb the extra kwarg via **_ (harmless when unset).
+            kwargs["capsule_ids"] = [
+                cid.strip() for cid in capsule_ids.split(",") if cid.strip()
+            ]
         try:
-            result = module.download(
-                raw_dir=paths.raw_dir,
-                download_full=download_full,
-                verify_integrity=verify_integrity,
-                force=force,
-            )
+            result = module.download(**kwargs)
         except Exception as exc:
             click.echo(f"Error: {exc}", err=True)
             raise SystemExit(1)
