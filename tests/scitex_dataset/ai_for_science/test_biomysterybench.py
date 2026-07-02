@@ -5,6 +5,13 @@ PA-306 compliance: no ``unittest.mock``, no ``monkeypatch``.
 ``snapshot_download`` is imported lazily inside ``download(...)`` from
 ``huggingface_hub``, so we swap a hand-rolled stub module into
 ``sys.modules['huggingface_hub']`` for the duration of the test.
+
+``standardize`` writes the PER-CAPSULE ``for_solver/`` layout: a root
+``index.jsonl`` mapper plus one self-contained ``capsule-NNN/`` dir per
+problem that ships a ``data/<id>.zip`` environment (holding the EXTRACTED
+archive under ``input/``). A problem with no environment has ``data: null``
+and materializes no capsule. Fixtures therefore stage REAL ``.zip``
+archives under ``raw/data/`` for the problems that should materialize.
 """
 
 import io
@@ -12,6 +19,7 @@ import json
 import subprocess
 import sys
 import types
+import zipfile
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -103,6 +111,21 @@ def _sample_rows():
     ]
 
 
+def _write_env_zip(path: Path) -> None:
+    """Write a REAL per-problem environment ``.zip`` at ``path``.
+
+    The per-capsule materializer EXTRACTS each problem's ``data/<id>.zip``
+    into its ``capsule-NNN/input/``, so the fixture must be a genuine zip.
+    A ``results/`` entry exercises the answer-leak strip.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(path, "w") as zf:
+        zf.writestr("env/run.py", "# scaffold\nprint('hi')\n")
+        zf.writestr("env/reads.fastq", "@r1\nACGT\n+\n!!!!\n")
+        # Authors' original output — an answer leak that must be stripped.
+        zf.writestr("results/answer.txt", "the answer is here\n")
+
+
 @pytest.fixture
 def staged_raw_dir(tmp_path):
     """Stage the upstream snapshot the way download(...) leaves raw/."""
@@ -112,17 +135,32 @@ def staged_raw_dir(tmp_path):
     return base
 
 
+def _stage_env_zips(raw_dir: Path, ids: list[str]) -> None:
+    """Stage a real ``raw/data/<id>.zip`` environment for each id."""
+    for rid in ids:
+        _write_env_zip(raw_dir / "data" / f"{rid}.zip")
+
+
 def _read_jsonl(path):
     return [json.loads(line) for line in path.read_text().splitlines() if line]
 
 
+def _all_task_ids(for_solver_dir):
+    """Collect task_ids across every per-capsule ``task.jsonl``."""
+    ids = set()
+    for task_file in for_solver_dir.glob("capsule-*/task.jsonl"):
+        for row in _read_jsonl(task_file):
+            ids.add(row["task_id"])
+    return ids
+
+
 # ---------------------------------------------------------------------------
-# standardize — for_solver tasks + eval answers (rubric mode)
+# standardize — per-capsule for_solver view + eval answers (rubric mode)
 # ---------------------------------------------------------------------------
 
 
 class TestStandardize:
-    def test_writes_tasks_jsonl(self, staged_raw_dir):
+    def test_writes_index_mapper(self, staged_raw_dir):
         # Arrange
         root = staged_raw_dir.parent
         # Act
@@ -132,10 +170,24 @@ class TestStandardize:
             eval_dir=root / "eval",
         )
         # Assert
-        assert (root / "for_solver" / "tasks.jsonl").is_file()
+        assert (root / "for_solver" / "index.jsonl").is_file()
+
+    def test_writes_per_capsule_task_jsonl(self, staged_raw_dir):
+        # Arrange — stage both environments so both capsules materialize.
+        _stage_env_zips(staged_raw_dir, ["p1", "p2"])
+        root = staged_raw_dir.parent
+        # Act
+        biomysterybench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Assert
+        assert (root / "for_solver" / "capsule-001" / "task.jsonl").is_file()
 
     def test_tasks_have_exactly_uniform_keys(self, staged_raw_dir):
         # Arrange
+        _stage_env_zips(staged_raw_dir, ["p1", "p2"])
         root = staged_raw_dir.parent
         biomysterybench.standardize(
             raw_dir=staged_raw_dir,
@@ -143,12 +195,13 @@ class TestStandardize:
             eval_dir=root / "eval",
         )
         # Act
-        tasks = _read_jsonl(root / "for_solver" / "tasks.jsonl")
+        tasks = _read_jsonl(root / "for_solver" / "capsule-001" / "task.jsonl")
         # Assert
         assert all(set(t) == {"task_id", "benchmark", "prompt", "data"} for t in tasks)
 
     def test_tasks_carry_no_rubric_text(self, staged_raw_dir):
         # Arrange — the rubric "BRCA1" must not leak into for_solver tasks.
+        _stage_env_zips(staged_raw_dir, ["p1", "p2"])
         root = staged_raw_dir.parent
         biomysterybench.standardize(
             raw_dir=staged_raw_dir,
@@ -156,12 +209,15 @@ class TestStandardize:
             eval_dir=root / "eval",
         )
         # Act
-        raw_text = (root / "for_solver" / "tasks.jsonl").read_text()
+        joined = "".join(
+            f.read_text() for f in (root / "for_solver").glob("capsule-*/task.jsonl")
+        )
         # Assert
-        assert "BRCA1" not in raw_text
+        assert "BRCA1" not in joined
 
     def test_task_id_prefixes_benchmark(self, staged_raw_dir):
         # Arrange
+        _stage_env_zips(staged_raw_dir, ["p1", "p2"])
         root = staged_raw_dir.parent
         biomysterybench.standardize(
             raw_dir=staged_raw_dir,
@@ -169,12 +225,13 @@ class TestStandardize:
             eval_dir=root / "eval",
         )
         # Act
-        ids = {t["task_id"] for t in _read_jsonl(root / "for_solver" / "tasks.jsonl")}
+        ids = _all_task_ids(root / "for_solver")
         # Assert
         assert "biomysterybench/p1" in ids
 
-    def test_data_is_null_when_no_environment(self, staged_raw_dir):
-        # Arrange — no raw/data dir staged, so each task's data is null.
+    def test_no_capsule_materialized_when_no_environment(self, staged_raw_dir):
+        # Arrange — no raw/data dir staged, so each task's data is null and
+        # no capsule is materialized (the mapper is written empty).
         root = staged_raw_dir.parent
         biomysterybench.standardize(
             raw_dir=staged_raw_dir,
@@ -182,42 +239,44 @@ class TestStandardize:
             eval_dir=root / "eval",
         )
         # Act
-        tasks = _read_jsonl(root / "for_solver" / "tasks.jsonl")
+        index = _read_jsonl(root / "for_solver" / "index.jsonl")
+        capsule_dirs = list((root / "for_solver").glob("capsule-*"))
         # Assert
-        assert all(t["data"] is None for t in tasks)
+        assert index == [] and capsule_dirs == []
 
-    def test_data_points_at_zip_when_environment_present(self, staged_raw_dir):
-        # Arrange — stage raw/data/p1.zip so p1's task data is set.
-        (staged_raw_dir / "data").mkdir()
-        (staged_raw_dir / "data" / "p1.zip").write_text("zip-bytes")
+    def test_environment_extracted_into_input_when_present(self, staged_raw_dir):
+        # Arrange — stage raw/data/p1.zip so p1's capsule materializes.
+        _stage_env_zips(staged_raw_dir, ["p1"])
         root = staged_raw_dir.parent
         biomysterybench.standardize(
             raw_dir=staged_raw_dir,
             for_solver_dir=root / "for_solver",
             eval_dir=root / "eval",
         )
-        # Act
-        tasks = _read_jsonl(root / "for_solver" / "tasks.jsonl")
-        p1 = next(t for t in tasks if t["task_id"] == "biomysterybench/p1")
+        # Act — p1 sorts first → capsule-001; its archive is EXTRACTED.
+        extracted = root / "for_solver" / "capsule-001" / "input" / "env" / "run.py"
+        tasks = _read_jsonl(root / "for_solver" / "capsule-001" / "task.jsonl")
         # Assert
-        assert p1["data"] == "./data/p1.zip"
+        assert extracted.is_file() and {t["data"] for t in tasks} == {"./input"}
 
-    def test_data_dir_symlinked_into_for_solver(self, staged_raw_dir):
+    def test_leak_dir_stripped_from_input(self, staged_raw_dir):
+        # Arrange — the authors' results/ output must not ship to the agent.
+        _stage_env_zips(staged_raw_dir, ["p1"])
+        root = staged_raw_dir.parent
+        # Act
+        biomysterybench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Assert
+        assert not (
+            root / "for_solver" / "capsule-001" / "input" / "results"
+        ).exists()
+
+    def test_oracle_csv_not_exposed(self, staged_raw_dir):
         # Arrange
-        (staged_raw_dir / "data").mkdir()
-        root = staged_raw_dir.parent
-        # Act
-        biomysterybench.standardize(
-            raw_dir=staged_raw_dir,
-            for_solver_dir=root / "for_solver",
-            eval_dir=root / "eval",
-        )
-        # Assert
-        link = root / "for_solver" / "data"
-        assert link.is_symlink() and link.resolve() == (staged_raw_dir / "data")
-
-    def test_oracle_csv_not_symlinked(self, staged_raw_dir):
-        # Arrange
+        _stage_env_zips(staged_raw_dir, ["p1"])
         root = staged_raw_dir.parent
         # Act
         biomysterybench.standardize(
@@ -229,16 +288,15 @@ class TestStandardize:
         assert not (root / "for_solver" / "problems.csv").exists()
 
     def test_answer_ids_match_task_ids(self, staged_raw_dir):
-        # Arrange
+        # Arrange — stage both environments so every task materializes.
+        _stage_env_zips(staged_raw_dir, ["p1", "p2"])
         root = staged_raw_dir.parent
         biomysterybench.standardize(
             raw_dir=staged_raw_dir,
             for_solver_dir=root / "for_solver",
             eval_dir=root / "eval",
         )
-        task_ids = {
-            t["task_id"] for t in _read_jsonl(root / "for_solver" / "tasks.jsonl")
-        }
+        task_ids = _all_task_ids(root / "for_solver")
         # Act
         answer_ids = {
             a["task_id"] for a in _read_jsonl(root / "eval" / "answers.jsonl")
@@ -346,10 +404,11 @@ class TestDownload:
 
 class TestPrepareWithDownload:
     def test_prepare_emits_download_standardize_manifest_keys(self, staged_raw_dir):
-        # Arrange — CSV already staged; snapshot_download is a no-op so the
-        # staged raw_dir survives the download step.
+        # Arrange — CSV + env zips already staged; snapshot_download is a
+        # no-op so the staged raw_dir survives the download step.
         from scitex_dataset.ai_for_science import _base
 
+        _stage_env_zips(staged_raw_dir, ["p1", "p2"])
         rec = _SnapshotRecorder(write_dummy=False)
         root = staged_raw_dir.parent
         paths = _base.BenchmarkPaths(
