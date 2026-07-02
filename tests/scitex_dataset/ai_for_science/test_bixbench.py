@@ -80,6 +80,9 @@ def _sample_record():
         "question": "Which gene rises?",
         "hypothesis": "Truncating ASXL1 alters expression.",
         "short_id": "sh1",
+        # question_id is UNIQUE per question (``<short_id>-qN``) and is the
+        # real task key; short_id alone is capsule-scoped.
+        "question_id": "sh1-q1",
         "data_folder": "CapsuleFolder-abc.zip",
         "canary": "CANARY-SENTINEL",
         # Oracle fields that must stay out of the for_solver view:
@@ -111,6 +114,48 @@ def staged_raw_dir(tmp_path):
     base.mkdir(parents=True)
     (base / "BixBench.jsonl").write_text(json.dumps(_sample_record()) + "\n")
     _write_capsule_zip(base / "CapsuleFolder-abc.zip")
+    return base
+
+
+def _multi_question_records():
+    """Two questions of ONE real capsule: SAME short_id + data_folder, but
+    DISTINCT question_id (``bix-1-q1``, ``bix-1-q2``).
+
+    This is the real-schema shape that regressed: BixBench.jsonl has 205
+    question rows across only 54 short_ids, so keying task_id on short_id
+    collapsed sibling questions. Keying on question_id keeps them distinct
+    while ``data_folder`` still groups both into ONE capsule dir.
+    """
+    return [
+        {
+            "id": "a32935af",
+            "question": "What is the adjusted p-value?",
+            "short_id": "bix-1",
+            "question_id": "bix-1-q1",
+            "data_folder": "CapsuleFolder-shared.zip",
+            "answer": "0.0002",
+            "ideal": "0.0002",
+        },
+        {
+            "id": "e40e8b38",
+            "question": "What is the fold change?",
+            "short_id": "bix-1",
+            "question_id": "bix-1-q2",
+            "data_folder": "CapsuleFolder-shared.zip",
+            "answer": "1.9E-05",
+            "ideal": "1.9E-05",
+        },
+    ]
+
+
+@pytest.fixture
+def multi_question_raw_dir(tmp_path):
+    """Stage a single capsule that carries TWO distinct questions."""
+    base = tmp_path / "ai-for-science" / "bixbench" / "raw"
+    base.mkdir(parents=True)
+    lines = "\n".join(json.dumps(r) for r in _multi_question_records()) + "\n"
+    (base / "BixBench.jsonl").write_text(lines)
+    _write_capsule_zip(base / "CapsuleFolder-shared.zip")
     return base
 
 
@@ -207,8 +252,26 @@ class TestStandardize:
         )
         # Act
         tasks = _read_jsonl(root / "for_solver" / "capsule-001" / "task.jsonl")
-        # Assert
-        assert tasks[0]["task_id"] == "bixbench/sh1"
+        # Assert — keyed on the UNIQUE question_id, not the capsule short_id.
+        assert tasks[0]["task_id"] == "bixbench/sh1-q1"
+
+    def test_task_id_keyed_on_question_id_not_short_id(self, staged_raw_dir):
+        # Arrange — short_id "sh1" is capsule-scoped; question_id "sh1-q1" is
+        # the unique per-question key. The task_id must use question_id so
+        # sibling questions never collapse onto the same id.
+        root = staged_raw_dir.parent
+        bixbench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        task_ids = {
+            t["task_id"]
+            for t in _read_jsonl(root / "for_solver" / "capsule-001" / "task.jsonl")
+        }
+        # Assert — keyed on question_id ("sh1-q1"), never the bare short_id.
+        assert task_ids == {"bixbench/sh1-q1"}
 
     def test_task_data_points_at_extracted_input(self, staged_raw_dir):
         # Arrange
@@ -308,6 +371,82 @@ class TestStandardize:
             )
 
 
+class TestMultiQuestionCapsule:
+    """One capsule, two questions (shared short_id + data_folder, distinct
+    question_id) must stay two joined tasks — the regression this fix closes."""
+
+    def test_two_questions_yield_two_distinct_task_ids(self, multi_question_raw_dir):
+        # Arrange
+        root = multi_question_raw_dir.parent
+        bixbench.standardize(
+            raw_dir=multi_question_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        task_ids = _all_task_ids(root / "for_solver")
+        # Assert — NOT collapsed onto a single short_id-keyed task.
+        assert task_ids == {"bixbench/bix-1-q1", "bixbench/bix-1-q2"}
+
+    def test_both_questions_land_in_one_capsule_dir(self, multi_question_raw_dir):
+        # Arrange — shared data_folder ⇒ one native capsule ⇒ one capsule dir.
+        root = multi_question_raw_dir.parent
+        bixbench.standardize(
+            raw_dir=multi_question_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        capsule_dirs = sorted((root / "for_solver").glob("capsule-*"))
+        # Assert
+        assert [p.name for p in capsule_dirs] == ["capsule-001"]
+
+    def test_capsule_task_jsonl_carries_both_questions(self, multi_question_raw_dir):
+        # Arrange
+        root = multi_question_raw_dir.parent
+        bixbench.standardize(
+            raw_dir=multi_question_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        rows = _read_jsonl(root / "for_solver" / "capsule-001" / "task.jsonl")
+        # Assert — both questions in the SAME capsule's task.jsonl.
+        assert {r["task_id"] for r in rows} == {
+            "bixbench/bix-1-q1",
+            "bixbench/bix-1-q2",
+        }
+
+    def test_index_lists_both_task_ids_for_capsule(self, multi_question_raw_dir):
+        # Arrange
+        root = multi_question_raw_dir.parent
+        bixbench.standardize(
+            raw_dir=multi_question_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        index = _read_jsonl(root / "for_solver" / "index.jsonl")
+        row = next(r for r in index if r["friendly_id"] == "capsule-001")
+        # Assert
+        assert set(row["task_ids"]) == {"bixbench/bix-1-q1", "bixbench/bix-1-q2"}
+
+    def test_eval_answers_carry_both_task_ids(self, multi_question_raw_dir):
+        # Arrange — for_solver + eval stay joined on the question_id key.
+        root = multi_question_raw_dir.parent
+        bixbench.standardize(
+            raw_dir=multi_question_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        answer_ids = {
+            a["task_id"] for a in _read_jsonl(root / "eval" / "answers.jsonl")
+        }
+        # Assert
+        assert answer_ids == {"bixbench/bix-1-q1", "bixbench/bix-1-q2"}
+
+
 class TestEvaluatePyRoundTrip:
     def test_correct_string_submission_scores_one(self, staged_raw_dir):
         # Arrange — string mode: submit the exact oracle answer.
@@ -317,7 +456,7 @@ class TestEvaluatePyRoundTrip:
             for_solver_dir=root / "for_solver",
             eval_dir=root / "eval",
         )
-        sub = [{"task_id": "bixbench/sh1", "answer": "ASXL1"}]
+        sub = [{"task_id": "bixbench/sh1-q1", "answer": "ASXL1"}]
         (root / "good.json").write_text(json.dumps(sub))
         # Act
         out = subprocess.run(
@@ -343,7 +482,7 @@ class TestEvaluatePyRoundTrip:
             for_solver_dir=root / "for_solver",
             eval_dir=root / "eval",
         )
-        sub = [{"task_id": "bixbench/sh1", "answer": "totally wrong"}]
+        sub = [{"task_id": "bixbench/sh1-q1", "answer": "totally wrong"}]
         (root / "bad.json").write_text(json.dumps(sub))
         # Act
         out = subprocess.run(

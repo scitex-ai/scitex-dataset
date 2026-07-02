@@ -80,9 +80,14 @@ def standardize(
     """Read the oracle manifest, build the for_solver + eval views.
 
     Each upstream record becomes one leak-safe task (``{task_id,
-    benchmark, prompt, data}``) + one answer (``{answer, ideal}``). Each
+    benchmark, prompt, data}``) + one answer (``{answer, ideal}``). The
+    ``task_id`` is keyed on the record's UNIQUE ``question_id``
+    (``bixbench/<short_id>-qN``), NOT the capsule-scoped ``short_id`` —
+    a single capsule holds multiple questions that share one ``short_id``,
+    so keying on ``short_id`` would collapse distinct questions. Each
     task's ``data`` points at its ``data_folder`` archive (e.g.
-    ``CapsuleFolder-<uuid>.zip``).
+    ``CapsuleFolder-<uuid>.zip``); a capsule's multiple questions still
+    group into ONE ``capsule-NNN/`` dir via ``data_folder``.
 
     ``for_solver`` is written in the PER-CAPSULE shape: one self-contained
     ``capsule-NNN/`` dir per native capsule (friendly id), each holding
@@ -110,7 +115,12 @@ def standardize(
             if not line:
                 continue
             rec = json.loads(line)
-            task_id = f"bixbench/{rec['short_id']}"
+            # ``question_id`` is UNIQUE per question (``<short_id>-qN``);
+            # ``short_id`` is CAPSULE-scoped and shared by every question in
+            # a capsule, so keying on it collapses distinct questions (205
+            # questions → 54 short_ids). Key task_id on question_id so every
+            # question stays a distinct task in BOTH for_solver and eval.
+            task_id = f"bixbench/{rec['question_id']}"
             data_folder = rec.get("data_folder")
             tasks.append(
                 {
