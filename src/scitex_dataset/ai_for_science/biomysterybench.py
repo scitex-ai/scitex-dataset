@@ -16,17 +16,21 @@ Pipeline (raw → {for_solver, eval} contract — see :mod:`._base`):
    the full set when ``download_full=True`` AND HF access is granted,
    storing the upstream tree *as-is* under ``raw_dir`` (answers and all).
    ``raw_dir`` is operator-private and never mounted into a capsule.
-2. ``standardize(...)`` — read ``raw_dir/problems.csv``, split into a
-   uniform leak-safe ``for_solver/tasks.jsonl`` (no rubric) and an
-   operator-side ``eval/answers.jsonl`` (carrying the rubric) +
-   ``eval/evaluate.py``. Each task's ``data`` points at
-   ``data/<id>.zip`` if present, symlinked answer-free into
-   ``for_solver``. ``for_solver`` is the agent-visible view mounted
-   read-only; ``eval`` is operator-only.
+2. ``standardize(...)`` — read ``raw_dir/problems.csv``, split into the
+   PER-CAPSULE agent-visible ``for_solver/`` view (one self-contained
+   ``capsule-NNN/`` dir per problem that ships an environment — the
+   EXTRACTED ``data/<id>.zip`` in ``input/``, a ``task.jsonl`` of only
+   that problem's row, the uniform submission schema/example, and a
+   README — plus a root ``index.jsonl`` MAPPER of friendly_id ↔ native_id,
+   no rubric) and an operator-side ``eval/answers.jsonl`` (carrying the
+   rubric) + ``eval/evaluate.py``. A problem's ``data`` points at
+   ``data/<id>.zip`` when present (extracted into its ``capsule-NNN/
+   input/``), else ``null`` (no capsule materialized). An agent binds
+   exactly one ``capsule-NNN/`` dir; ``eval`` is operator-only.
 
 NOTE on compute: the preview is small (~11 MB), the full set is multi-
 GB and must run on SLURM. ``standardize(...)`` is pure-Python on a small
-CSV plus symlink creation and safe to run anywhere.
+CSV plus per-capsule archive extraction and safe to run anywhere.
 """
 
 from __future__ import annotations
@@ -87,9 +91,21 @@ def standardize(
     Each CSV row becomes one leak-safe task (``{task_id, benchmark,
     prompt, data}``) + one answer (``{rubric}``). A task's ``data``
     points at ``data/<id>.zip`` when that environment exists under
-    ``raw/data``, else ``null``. The whole ``raw/data`` dir is symlinked
-    answer-free into ``for_solver`` when present. The rubric stays in
-    operator-only ``eval/answers.jsonl``.
+    ``raw/data``, else ``null``. The rubric stays in operator-only
+    ``eval/answers.jsonl``.
+
+    ``for_solver`` is written in the PER-CAPSULE shape: one self-contained
+    ``capsule-NNN/`` dir per problem that ships a ``data/<id>.zip``
+    environment (friendly id), each holding the EXTRACTED archive in
+    ``input/``, a ``task.jsonl`` of only that problem's row, the uniform
+    submission schema/example, and a README — plus a root ``index.jsonl``
+    MAPPER (friendly_id ↔ native_id). An agent binds exactly one
+    ``capsule-NNN/`` dir. A problem with ``data: null`` (no environment)
+    materializes no capsule.
+
+    ``only`` (a friendly ``capsule-NNN`` id OR a native capsule id)
+    materializes just that one capsule's dir; the mapper is always written
+    in full. ``force`` re-extracts capsules already present.
     """
     src = raw_dir / "problems.csv"
     if not src.is_file():
@@ -245,7 +261,7 @@ def prepare(
         version=version,
         source_url=SOURCE_URL,
         benchmark=BENCHMARK,
-        tracked_paths=[Path(out["standardize"]["for_solver"]["tasks"])],
+        tracked_paths=[Path(out["standardize"]["for_solver"]["index"])],
         tracked_root=paths.for_solver_dir,
         mask_seed="",
     )
