@@ -2,6 +2,7 @@
 """CLI smoke tests for the ai-for-science domain (no network)."""
 
 import json
+import zipfile
 
 import pytest
 from click.testing import CliRunner
@@ -76,7 +77,12 @@ class TestDomainGroupWiring:
 
 
 def _stage_bixbench_raw(dataset_root):
-    """Stage a one-record BixBench raw/ snapshot under the dataset root."""
+    """Stage a one-record BixBench raw/ snapshot under the dataset root.
+
+    ``standardize`` writes the per-capsule layout: the record's
+    ``data_folder`` archive is EXTRACTED into ``capsule-NNN/input/``, so a
+    REAL ``.zip`` must sit at the path ``data`` points at.
+    """
     raw_dir = dataset_root / "ai-for-science" / "bixbench" / "raw"
     raw_dir.mkdir(parents=True)
     (raw_dir / "BixBench.jsonl").write_text(
@@ -93,6 +99,8 @@ def _stage_bixbench_raw(dataset_root):
         )
         + "\n"
     )
+    with zipfile.ZipFile(raw_dir / "CapsuleFolder-x.zip", "w") as zf:
+        zf.writestr("notebook/analysis.py", "# scaffold\n")
     return raw_dir
 
 

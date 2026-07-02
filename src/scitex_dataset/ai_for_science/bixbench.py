@@ -16,16 +16,21 @@ Pipeline (raw → {for_solver, eval} contract — see :mod:`._base`):
    ``raw_dir`` exactly as-is (capsule dirs + the answer-bearing
    ``BixBench.jsonl``). ``raw_dir`` is operator-private and never
    mounted.
-2. ``standardize(...)`` — read ``raw_dir/BixBench.jsonl``, split into a
-   uniform leak-safe ``for_solver/tasks.jsonl`` (no answers) and an
+2. ``standardize(...)`` — read ``raw_dir/BixBench.jsonl``, split into the
+   PER-CAPSULE agent-visible ``for_solver/`` view (one self-contained
+   ``capsule-NNN/`` dir per native capsule — the EXTRACTED capsule archive
+   in ``input/``, a ``task.jsonl`` of only that capsule's rows, the
+   uniform submission schema/example, and a README — plus a root
+   ``index.jsonl`` MAPPER of friendly_id ↔ native_id, no answers) and an
    operator-side ``eval/answers.jsonl`` + ``eval/evaluate.py``. Each
-   task's ``data`` points at the relevant ``CapsuleFolder-<uuid>.zip``,
-   symlinked answer-free into ``for_solver``. ``for_solver`` is the
-   agent-visible view mounted read-only; ``eval`` is operator-only.
+   record's ``data_folder`` (e.g. ``CapsuleFolder-<uuid>.zip``) is the
+   capsule archive that gets extracted into its ``capsule-NNN/input/``. An
+   agent binds exactly one ``capsule-NNN/`` dir; ``eval`` is operator-only.
 
 NOTE on compute: the HF snapshot is ~16 GB across 67 files; SLURM-only
 on shared compute. ``standardize(...)`` is pure-Python on the 205-record
-JSONL (~285 KB) plus symlink creation and safe to run anywhere.
+JSONL (~285 KB) plus per-capsule archive extraction and safe to run
+anywhere.
 """
 
 from __future__ import annotations
@@ -76,10 +81,20 @@ def standardize(
 
     Each upstream record becomes one leak-safe task (``{task_id,
     benchmark, prompt, data}``) + one answer (``{answer, ideal}``). Each
-    task's ``data`` points at its ``data_folder`` (e.g.
-    ``CapsuleFolder-<uuid>.zip``); the distinct ``data_folder`` values
-    are symlinked answer-free into ``for_solver``. Output JSONL is
-    ``sort_keys=True`` / ``ensure_ascii=False`` for deterministic bytes.
+    task's ``data`` points at its ``data_folder`` archive (e.g.
+    ``CapsuleFolder-<uuid>.zip``).
+
+    ``for_solver`` is written in the PER-CAPSULE shape: one self-contained
+    ``capsule-NNN/`` dir per native capsule (friendly id), each holding
+    the EXTRACTED capsule archive in ``input/``, a ``task.jsonl`` of only
+    that capsule's rows, the uniform submission schema/example, and a
+    README — plus a root ``index.jsonl`` MAPPER (friendly_id ↔ native_id).
+    An agent binds exactly one ``capsule-NNN/`` dir. Records with no
+    ``data_folder`` have ``data: null`` and materialize no capsule.
+
+    ``only`` (a friendly ``capsule-NNN`` id OR a native capsule id)
+    materializes just that one capsule's dir; the mapper is always written
+    in full. ``force`` re-extracts capsules already present.
     """
     src = raw_dir / ORACLE_MANIFEST_NAME
     if not src.is_file():
@@ -89,8 +104,6 @@ def standardize(
 
     tasks: list[dict] = []
     answers: list[dict] = []
-    data_links: list[str] = []
-    seen_links: set[str] = set()
     with src.open("r", encoding="utf-8") as fin:
         for line in fin:
             line = line.strip()
@@ -116,9 +129,6 @@ def standardize(
                     },
                 }
             )
-            if data_folder and data_folder not in seen_links:
-                seen_links.add(data_folder)
-                data_links.append(data_folder)
 
     fs = write_for_solver_per_capsule(
         for_solver_dir=for_solver_dir,
@@ -225,7 +235,7 @@ def prepare(
         version=version,
         source_url=SOURCE_URL,
         benchmark=BENCHMARK,
-        tracked_paths=[Path(out["standardize"]["for_solver"]["tasks"])],
+        tracked_paths=[Path(out["standardize"]["for_solver"]["index"])],
         tracked_root=paths.for_solver_dir,
         mask_seed="",
     )

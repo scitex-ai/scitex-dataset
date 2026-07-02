@@ -5,12 +5,19 @@ PA-306 compliance: no ``unittest.mock``, no ``monkeypatch``.
 ``snapshot_download`` is imported lazily inside ``download(...)`` from
 ``huggingface_hub``, so we swap a hand-rolled stub module into
 ``sys.modules['huggingface_hub']`` for the duration of the test.
+
+``standardize`` writes the PER-CAPSULE ``for_solver/`` layout: a root
+``index.jsonl`` mapper plus one self-contained ``capsule-NNN/`` dir per
+native capsule (holding the EXTRACTED archive under ``input/``). The
+fixtures therefore stage a REAL ``.zip`` archive at the path each record's
+``data`` points at, so the materializer can extract it.
 """
 
 import json
 import subprocess
 import sys
 import types
+import zipfile
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -73,12 +80,28 @@ def _sample_record():
         "question": "Which gene rises?",
         "hypothesis": "Truncating ASXL1 alters expression.",
         "short_id": "sh1",
-        "data_folder": "CapsuleFolder-abc",
+        "data_folder": "CapsuleFolder-abc.zip",
         "canary": "CANARY-SENTINEL",
         # Oracle fields that must stay out of the for_solver view:
         "answer": "ASXL1",
         "ideal": "gene X",
     }
+
+
+def _write_capsule_zip(path: Path) -> None:
+    """Write a REAL ``.zip`` capsule archive at ``path``.
+
+    The per-capsule materializer EXTRACTS each record's ``data`` archive,
+    so the fixture must be a genuine zip (not a bare directory). A
+    ``results/`` entry is included to exercise the answer-leak strip — it
+    must NOT survive into the extracted ``input/``.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(path, "w") as zf:
+        zf.writestr("notebook/analysis.py", "# scaffold\nprint('hi')\n")
+        zf.writestr("data/matrix.csv", "a,b\n1,2\n")
+        # Authors' original output — an answer leak that must be stripped.
+        zf.writestr("results/summary.txt", "the answer is here\n")
 
 
 @pytest.fixture
@@ -87,7 +110,7 @@ def staged_raw_dir(tmp_path):
     base = tmp_path / "ai-for-science" / "bixbench" / "raw"
     base.mkdir(parents=True)
     (base / "BixBench.jsonl").write_text(json.dumps(_sample_record()) + "\n")
-    (base / "CapsuleFolder-abc").mkdir()
+    _write_capsule_zip(base / "CapsuleFolder-abc.zip")
     return base
 
 
@@ -95,13 +118,22 @@ def _read_jsonl(path):
     return [json.loads(line) for line in path.read_text().splitlines() if line]
 
 
+def _all_task_ids(for_solver_dir):
+    """Collect task_ids across every per-capsule ``task.jsonl``."""
+    ids = set()
+    for task_file in for_solver_dir.glob("capsule-*/task.jsonl"):
+        for row in _read_jsonl(task_file):
+            ids.add(row["task_id"])
+    return ids
+
+
 # ---------------------------------------------------------------------------
-# standardize — for_solver tasks + eval answers
+# standardize — per-capsule for_solver view + eval answers
 # ---------------------------------------------------------------------------
 
 
 class TestStandardize:
-    def test_writes_tasks_jsonl(self, staged_raw_dir):
+    def test_writes_index_mapper(self, staged_raw_dir):
         # Arrange
         root = staged_raw_dir.parent
         # Act
@@ -111,7 +143,33 @@ class TestStandardize:
             eval_dir=root / "eval",
         )
         # Assert
-        assert (root / "for_solver" / "tasks.jsonl").is_file()
+        assert (root / "for_solver" / "index.jsonl").is_file()
+
+    def test_writes_per_capsule_task_jsonl(self, staged_raw_dir):
+        # Arrange
+        root = staged_raw_dir.parent
+        # Act
+        bixbench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Assert
+        assert (root / "for_solver" / "capsule-001" / "task.jsonl").is_file()
+
+    def test_index_maps_native_id_to_friendly_id(self, staged_raw_dir):
+        # Arrange
+        root = staged_raw_dir.parent
+        bixbench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        index = _read_jsonl(root / "for_solver" / "index.jsonl")
+        row = next(r for r in index if r["native_id"] == "CapsuleFolder-abc")
+        # Assert
+        assert row["friendly_id"] == "capsule-001"
 
     def test_tasks_have_exactly_uniform_keys(self, staged_raw_dir):
         # Arrange
@@ -122,7 +180,7 @@ class TestStandardize:
             eval_dir=root / "eval",
         )
         # Act
-        tasks = _read_jsonl(root / "for_solver" / "tasks.jsonl")
+        tasks = _read_jsonl(root / "for_solver" / "capsule-001" / "task.jsonl")
         # Assert
         assert all(set(t) == {"task_id", "benchmark", "prompt", "data"} for t in tasks)
 
@@ -135,7 +193,7 @@ class TestStandardize:
             eval_dir=root / "eval",
         )
         # Act
-        raw_text = (root / "for_solver" / "tasks.jsonl").read_text()
+        raw_text = (root / "for_solver" / "capsule-001" / "task.jsonl").read_text()
         # Assert
         assert "ASXL1" not in raw_text
 
@@ -148,12 +206,42 @@ class TestStandardize:
             eval_dir=root / "eval",
         )
         # Act
-        tasks = _read_jsonl(root / "for_solver" / "tasks.jsonl")
+        tasks = _read_jsonl(root / "for_solver" / "capsule-001" / "task.jsonl")
         # Assert
         assert tasks[0]["task_id"] == "bixbench/sh1"
 
-    def test_data_folder_symlinked_into_for_solver(self, staged_raw_dir):
+    def test_task_data_points_at_extracted_input(self, staged_raw_dir):
         # Arrange
+        root = staged_raw_dir.parent
+        bixbench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        tasks = _read_jsonl(root / "for_solver" / "capsule-001" / "task.jsonl")
+        # Act
+        data_values = {t["data"] for t in tasks}
+        # Assert
+        assert data_values == {"./input"}
+
+    def test_capsule_archive_extracted_into_input(self, staged_raw_dir):
+        # Arrange — the archive is extracted into capsule-001/input/, not a
+        # symlink to raw/ (the old flat layout). Scaffold files survive.
+        root = staged_raw_dir.parent
+        bixbench.standardize(
+            raw_dir=staged_raw_dir,
+            for_solver_dir=root / "for_solver",
+            eval_dir=root / "eval",
+        )
+        # Act
+        extracted = (
+            root / "for_solver" / "capsule-001" / "input" / "notebook" / "analysis.py"
+        )
+        # Assert
+        assert extracted.is_file()
+
+    def test_leak_dir_stripped_from_input(self, staged_raw_dir):
+        # Arrange — the authors' results/ output must not ship to the agent.
         root = staged_raw_dir.parent
         # Act
         bixbench.standardize(
@@ -162,12 +250,11 @@ class TestStandardize:
             eval_dir=root / "eval",
         )
         # Assert
-        link = root / "for_solver" / "CapsuleFolder-abc"
-        assert link.is_symlink() and link.resolve() == (
-            staged_raw_dir / "CapsuleFolder-abc"
-        )
+        assert not (
+            root / "for_solver" / "capsule-001" / "input" / "results"
+        ).exists()
 
-    def test_oracle_manifest_not_symlinked(self, staged_raw_dir):
+    def test_oracle_manifest_not_exposed(self, staged_raw_dir):
         # Arrange
         root = staged_raw_dir.parent
         # Act
@@ -187,9 +274,7 @@ class TestStandardize:
             for_solver_dir=root / "for_solver",
             eval_dir=root / "eval",
         )
-        task_ids = {
-            t["task_id"] for t in _read_jsonl(root / "for_solver" / "tasks.jsonl")
-        }
+        task_ids = _all_task_ids(root / "for_solver")
         # Act
         answer_ids = {
             a["task_id"] for a in _read_jsonl(root / "eval" / "answers.jsonl")
@@ -307,8 +392,8 @@ class TestDownload:
 
 class TestPrepareWithDownload:
     def test_prepare_emits_download_standardize_manifest_keys(self, staged_raw_dir):
-        # Arrange — JSONL already staged; snapshot_download is a no-op so
-        # the staged raw_dir survives the download step.
+        # Arrange — JSONL + capsule zip already staged; snapshot_download is
+        # a no-op so the staged raw_dir survives the download step.
         from scitex_dataset.ai_for_science import _base
 
         rec = _SnapshotRecorder(write_dummy=False)
