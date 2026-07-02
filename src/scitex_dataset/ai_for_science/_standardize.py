@@ -9,11 +9,25 @@ oracle (which *has* answers) into two derived views with a UNIFORM
 on-disk contract, so the experiment harness treats all benchmarks
 identically:
 
-- ``for_solver/`` — the AGENT view (leak-safe). A ``tasks.jsonl`` of
-  ``{task_id, benchmark, prompt, data}`` records (NO answers), a
-  ``submission.schema.json`` describing the agent's expected output, a
-  ``submission.example.json`` one-row example, and relative symlinks to
-  the answer-free problem data under ``raw/``.
+- ``for_solver/`` — the AGENT view (leak-safe). Two shapes are
+  supported:
+
+  * the FLAT shape (:func:`write_for_solver`) — a global ``tasks.jsonl``
+    of ``{task_id, benchmark, prompt, data}`` records (NO answers), a
+    ``submission.schema.json``, a one-row ``submission.example.json``,
+    and relative symlinks to the answer-free problem data under
+    ``raw/``;
+  * the PER-CAPSULE shape (:func:`write_for_solver_per_capsule`) — one
+    self-contained ``capsule-NNN/`` dir per native capsule (FRIENDLY id,
+    human-communicable) holding the EXTRACTED problem archive in
+    ``input/``, a ``task.jsonl`` of ONLY that capsule's rows (each
+    ``data`` rewritten to ``./input``), a copied
+    ``submission.schema.json``, a ``submission.example.json`` pre-filled
+    with this capsule's real ``task_id``(s), and a plain-language
+    ``README.md``. A root ``index.jsonl`` MAPPER (operator-facing, never
+    mounted) records every friendly_id → native_id assignment. An agent
+    binds EXACTLY one ``capsule-NNN/`` dir so no sibling capsule (and no
+    answer) is ever reachable.
 - ``eval/`` — the OPERATOR view (never mounted). An ``answers.jsonl``
   keyed by the same ``task_id`` as ``tasks.jsonl`` plus a stdlib-only
   ``evaluate.py`` CLI scorer. The scorer is answer-free logic — the
@@ -31,6 +45,8 @@ from __future__ import annotations
 import json
 import os
 import stat
+import tarfile
+import zipfile
 from pathlib import Path
 
 # The uniform submission contract: an array of objects, each carrying the
@@ -289,6 +305,300 @@ def write_for_solver(
     }
 
 
+# ---------------------------------------------------------------------------
+# Per-capsule materializer — one self-contained, friendly-id'd dir per
+# native capsule, plus a root index.jsonl MAPPER. This is the shape an
+# agent binds (EXACTLY one capsule-NNN/ dir, never the whole tree).
+# ---------------------------------------------------------------------------
+
+# Archive suffixes recognised for extraction, longest first so the
+# compound ``.tar.gz`` wins over a bare ``.gz`` when stripping the id.
+_ARCHIVE_SUFFIXES = (".tar.gz", ".tgz", ".tar", ".zip")
+
+# Files copied/written into every per-capsule dir.
+_TASK_FILENAME = "task.jsonl"
+_INPUT_SUBDIR = "input"
+_INDEX_FILENAME = "index.jsonl"
+_README_FILENAME = "README.md"
+_SCHEMA_FILENAME = "submission.schema.json"
+_EXAMPLE_FILENAME = "submission.example.json"
+
+
+def friendly_capsule_id(index: int) -> str:
+    """Return the deterministic friendly dir name for a 0-based position.
+
+    Friendly ids are ``capsule-NNN`` zero-padded to 3 digits and 1-based
+    (``index=0`` → ``capsule-001``), assigned over the native capsule ids
+    sorted ascending PER BENCHMARK.
+    """
+    return f"capsule-{index + 1:03d}"
+
+
+def _native_capsule_id(data: str | None) -> str | None:
+    """Derive the native capsule id from a task's ``data`` archive path.
+
+    ``data`` points at the capsule's archive, e.g.
+    ``"./capsules/capsule-0201225.tar.gz"`` →  ``"capsule-0201225"``.
+    The leading directory and any recognised archive suffix are stripped.
+    Returns ``None`` when ``data`` is falsy (task has no bound archive).
+    """
+    if not data:
+        return None
+    name = Path(data).name
+    for suffix in _ARCHIVE_SUFFIXES:
+        if name.endswith(suffix):
+            return name[: -len(suffix)]
+    return name
+
+
+def build_capsule_index(tasks: list[dict]) -> list[dict]:
+    """Group ``tasks`` by native capsule and assign friendly ids.
+
+    Tasks are grouped by the native capsule id derived from each row's
+    ``data`` archive path; the distinct native ids are sorted ascending
+    and given ``capsule-NNN`` friendly ids in that order. Returns one
+    mapper row per capsule, in friendly-id order::
+
+        {"friendly_id", "native_id", "benchmark", "task_ids", "dir"}
+
+    This is computed from the FULL task list (independent of any ``only``
+    filter) so the mapper is always complete. Tasks whose ``data`` yields
+    no capsule id are skipped (they have nothing to materialize).
+    """
+    grouped: dict[str, list[dict]] = {}
+    for task in tasks:
+        native = _native_capsule_id(task.get("data"))
+        if native is None:
+            continue
+        grouped.setdefault(native, []).append(task)
+
+    index: list[dict] = []
+    for position, native in enumerate(sorted(grouped)):
+        friendly = friendly_capsule_id(position)
+        rows = grouped[native]
+        index.append(
+            {
+                "friendly_id": friendly,
+                "native_id": native,
+                "benchmark": rows[0].get("benchmark"),
+                "task_ids": [r["task_id"] for r in rows],
+                "dir": friendly,
+            }
+        )
+    return index
+
+
+def _resolve_only(only: str, index: list[dict]) -> dict:
+    """Resolve an ``--only`` selector (friendly OR native id) to its row.
+
+    Raises ``KeyError`` if it matches neither a ``friendly_id`` nor a
+    ``native_id`` in the mapper.
+    """
+    for row in index:
+        if only in (row["friendly_id"], row["native_id"]):
+            return row
+    raise KeyError(
+        f"--only {only!r} matched no capsule (neither a friendly_id "
+        f"capsule-NNN nor a native capsule id) in the {len(index)}-capsule index."
+    )
+
+
+def _extract_archive(archive_path: Path, dest_dir: Path) -> None:
+    """Extract ``archive_path`` into ``dest_dir`` (stdlib, by extension).
+
+    ``.tar.gz`` / ``.tgz`` / ``.tar`` go through :mod:`tarfile`; ``.zip``
+    through :mod:`zipfile`. ``dest_dir`` is created fresh by the caller.
+    Raises ``FileNotFoundError`` if the archive is missing (fail loud:
+    a selected capsule with no archive on disk is an operator error),
+    and ``ValueError`` for an unrecognised suffix.
+    """
+    if not archive_path.is_file():
+        raise FileNotFoundError(
+            f"capsule archive not found (or is a dangling symlink): {archive_path}"
+        )
+    name = archive_path.name
+    if name.endswith((".tar.gz", ".tgz", ".tar")):
+        with tarfile.open(archive_path, "r:*") as tf:
+            tf.extractall(dest_dir)
+    elif name.endswith(".zip"):
+        with zipfile.ZipFile(archive_path) as zf:
+            zf.extractall(dest_dir)
+    else:
+        raise ValueError(
+            f"unrecognised archive suffix for {archive_path} "
+            f"(expected one of {_ARCHIVE_SUFFIXES})."
+        )
+
+
+def _render_capsule_readme(
+    *, friendly_id: str, benchmark: str | None, task_ids: list[str]
+) -> str:
+    """Return plain-language submission instructions for one capsule.
+
+    Names the capsule by its FRIENDLY id, lists the exact ``task_id``(s)
+    to answer, states the uniform JSON-array submission contract, and
+    points at ``submission.example.json`` + the extracted ``input/`` dir.
+    """
+    bench = benchmark or "this benchmark"
+    id_lines = "\n".join(f"- `{tid}`" for tid in task_ids)
+    return f"""# {friendly_id}
+
+This directory is one self-contained {bench} task capsule. Everything
+you need is inside it; no other capsule is referenced.
+
+## What to do
+
+1. The problem's code and data are EXTRACTED under `{_INPUT_SUBDIR}/`.
+   Read `{_INPUT_SUBDIR}/` and work the task described in `{_TASK_FILENAME}`.
+2. Answer the following task id(s):
+
+{id_lines}
+
+## How to submit
+
+Write a single JSON file: an ARRAY of objects, one per task id above,
+each shaped `{{"task_id": "<id>", "answer": <your answer>}}` — exactly
+the contract in `{_SCHEMA_FILENAME}`. A ready-to-edit template with the
+real task id(s) filled in is in `{_EXAMPLE_FILENAME}`; replace each
+`"<your answer here>"` with your answer and keep the `task_id` values
+unchanged.
+"""
+
+
+def write_for_solver_per_capsule(
+    *,
+    for_solver_dir: Path,
+    tasks: list[dict],
+    raw_dir: Path,
+    only: str | None = None,
+    force: bool = False,
+) -> dict:
+    """Write the per-capsule, friendly-id'd ``for_solver/`` view + mapper.
+
+    Groups ``tasks`` by native capsule (via each row's ``data`` archive
+    path), assigns deterministic ``capsule-NNN`` friendly ids over the
+    sorted native ids, and writes the operator-facing mapper
+    ``for_solver/index.jsonl`` (one row per capsule — ALWAYS the full set,
+    regardless of ``only``). Then, for each materialized capsule, creates
+    a self-contained ``for_solver/capsule-NNN/`` dir holding:
+
+    - ``input/``                  — the raw archive EXTRACTED here;
+    - ``task.jsonl``              — ONLY this capsule's task rows, each
+                                row's ``data`` rewritten to ``"./input"``;
+    - ``submission.schema.json``  — the uniform submission schema;
+    - ``submission.example.json`` — pre-filled with THIS capsule's real
+                                task_id(s) + placeholder answers;
+    - ``README.md``               — plain-language instructions.
+
+    ``only`` (friendly id ``capsule-NNN`` OR a native capsule id)
+    restricts materialization to a single capsule's dir; the mapper is
+    still written in full. Default materializes every capsule.
+
+    Idempotent: an existing ``capsule-NNN/input`` is skipped unless
+    ``force=True``, which removes and re-extracts the capsule dir.
+
+    ``raw_dir`` is the operator-private snapshot root; each capsule's
+    archive is resolved as ``raw_dir / <data-relative-to-for_solver>``.
+    """
+    for_solver_dir.mkdir(parents=True, exist_ok=True)
+
+    index = build_capsule_index(tasks)
+    index_path = for_solver_dir / _INDEX_FILENAME
+    with index_path.open("w", encoding="utf-8", newline="\n") as fh:
+        for row in index:
+            fh.write(json.dumps(row, sort_keys=True, ensure_ascii=False))
+            fh.write("\n")
+
+    if only is not None:
+        selected = [_resolve_only(only, index)]
+    else:
+        selected = index
+
+    # Re-group tasks by native id once so each capsule writes only its own.
+    by_native: dict[str, list[dict]] = {}
+    for task in tasks:
+        native = _native_capsule_id(task.get("data"))
+        if native is not None:
+            by_native.setdefault(native, []).append(task)
+
+    materialized: list[str] = []
+    skipped: list[str] = []
+    for row in selected:
+        native = row["native_id"]
+        capsule_dir = for_solver_dir / row["dir"]
+        input_dir = capsule_dir / _INPUT_SUBDIR
+        rows = by_native[native]
+
+        # The archive path is shared across this capsule's rows.
+        archive_rel = rows[0]["data"]
+        archive_path = (raw_dir / archive_rel).resolve()
+
+        if input_dir.exists() and not force:
+            skipped.append(str(capsule_dir))
+            continue
+        if force and input_dir.exists():
+            _rmtree(input_dir)
+
+        capsule_dir.mkdir(parents=True, exist_ok=True)
+        input_dir.mkdir(parents=True, exist_ok=True)
+        _extract_archive(archive_path, input_dir)
+
+        # task.jsonl — this capsule's rows only, data rewritten to ./input.
+        capsule_tasks = [{**task, "data": f"./{_INPUT_SUBDIR}"} for task in rows]
+        task_path = capsule_dir / _TASK_FILENAME
+        with task_path.open("w", encoding="utf-8", newline="\n") as fh:
+            for task in capsule_tasks:
+                fh.write(json.dumps(task, sort_keys=True, ensure_ascii=False))
+                fh.write("\n")
+
+        # Uniform schema, copied into every capsule dir.
+        (capsule_dir / _SCHEMA_FILENAME).write_text(
+            json.dumps(UNIFORM_SUBMISSION_SCHEMA, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+
+        # Example pre-filled with this capsule's real task_id(s).
+        (capsule_dir / _EXAMPLE_FILENAME).write_text(
+            json.dumps(
+                [
+                    {"task_id": tid, "answer": "<your answer here>"}
+                    for tid in row["task_ids"]
+                ],
+                indent=2,
+                sort_keys=True,
+            ),
+            encoding="utf-8",
+        )
+
+        # Plain-language instructions, friendly id in the human-facing text.
+        (capsule_dir / _README_FILENAME).write_text(
+            _render_capsule_readme(
+                friendly_id=row["friendly_id"],
+                benchmark=row["benchmark"],
+                task_ids=row["task_ids"],
+            ),
+            encoding="utf-8",
+        )
+        materialized.append(str(capsule_dir))
+
+    return {
+        "index": str(index_path),
+        "n_capsules": len(index),
+        "n_materialized": len(materialized),
+        "n_skipped": len(skipped),
+        "materialized": materialized,
+        "skipped": skipped,
+        "only": only,
+    }
+
+
+def _rmtree(path: Path) -> None:
+    """Recursively remove a directory tree (stdlib ``shutil`` lazy import)."""
+    import shutil
+
+    shutil.rmtree(path)
+
+
 def write_eval(
     *,
     eval_dir: Path,
@@ -333,6 +643,9 @@ __all__ = [
     "EVALUATE_PY",
     "render_evaluate_py",
     "write_for_solver",
+    "write_for_solver_per_capsule",
+    "build_capsule_index",
+    "friendly_capsule_id",
     "write_eval",
 ]
 
