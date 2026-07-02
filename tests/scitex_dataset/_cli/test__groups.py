@@ -156,6 +156,287 @@ class TestStandardizeCli:
         assert payload["n_tasks"] == 1
 
 
+def _stage_corebench_eval(dataset_root):
+    """Stage a one-answer corebench eval/answers.jsonl under the dataset root."""
+    eval_dir = dataset_root / "ai-for-science" / "corebench" / "eval"
+    eval_dir.mkdir(parents=True)
+    (eval_dir / "answers.jsonl").write_text(
+        json.dumps(
+            {
+                "task_id": "corebench/capsule-1__hard__q0",
+                "answer": {"value": 0.9996},
+            }
+        )
+        + "\n"
+    )
+    return eval_dir
+
+
+class TestValidateCli:
+    def test_help_lists_validate_verb(self, runner):
+        # Arrange
+        cli = main
+        # Act
+        result = runner.invoke(cli, ["ai-for-science", "corebench", "-h"])
+        # Assert
+        assert "validate" in result.output
+
+    def test_valid_submission_exits_zero(self, runner, tmp_path):
+        # Arrange
+        sub = tmp_path / "sub.json"
+        sub.write_text(
+            json.dumps(
+                [{"task_id": "corebench/capsule-1__hard__q0", "answer": 0.9996}]
+            )
+        )
+        args = [
+            "ai-for-science",
+            "corebench",
+            "validate",
+            "--submission",
+            str(sub),
+            "--dataset-root",
+            str(tmp_path / "dataset"),
+        ]
+        # Act
+        result = runner.invoke(main, args)
+        # Assert
+        assert result.exit_code == 0
+
+    def test_invalid_submission_exits_nonzero(self, runner, tmp_path):
+        # Arrange — a bad task_id makes it structurally invalid.
+        sub = tmp_path / "sub.json"
+        sub.write_text(json.dumps([{"task_id": "bixbench/x", "answer": 1}]))
+        args = [
+            "ai-for-science",
+            "corebench",
+            "validate",
+            "--submission",
+            str(sub),
+            "--dataset-root",
+            str(tmp_path / "dataset"),
+        ]
+        # Act
+        result = runner.invoke(main, args)
+        # Assert
+        assert result.exit_code != 0
+
+
+class TestScoreCli:
+    def test_help_lists_score_verb(self, runner):
+        # Arrange
+        cli = main
+        # Act
+        result = runner.invoke(cli, ["ai-for-science", "corebench", "-h"])
+        # Assert
+        assert "score" in result.output
+
+    def test_score_emits_verdict_in_json(self, runner, tmp_path):
+        # Arrange
+        dataset_root = tmp_path / "dataset"
+        _stage_corebench_eval(dataset_root)
+        sub = tmp_path / "sub.json"
+        sub.write_text(
+            json.dumps(
+                [{"task_id": "corebench/capsule-1__hard__q0", "answer": 0.99956}]
+            )
+        )
+        args = [
+            "ai-for-science",
+            "corebench",
+            "score",
+            "--submission",
+            str(sub),
+            "--dataset-root",
+            str(dataset_root),
+            "--json",
+        ]
+        result = runner.invoke(main, args)
+        # Act
+        payload = json.loads(result.output)
+        # Assert
+        assert payload[0]["verdict"] == "correct"
+
+    def test_score_exits_zero(self, runner, tmp_path):
+        # Arrange
+        dataset_root = tmp_path / "dataset"
+        _stage_corebench_eval(dataset_root)
+        sub = tmp_path / "sub.json"
+        sub.write_text(
+            json.dumps(
+                [{"task_id": "corebench/capsule-1__hard__q0", "answer": 0.99956}]
+            )
+        )
+        args = [
+            "ai-for-science",
+            "corebench",
+            "score",
+            "--submission",
+            str(sub),
+            "--dataset-root",
+            str(dataset_root),
+        ]
+        # Act
+        result = runner.invoke(main, args)
+        # Assert
+        assert result.exit_code == 0
+
+    def test_score_missing_oracle_exits_nonzero(self, runner, tmp_path):
+        # Arrange — no eval/answers.jsonl staged, so the oracle open raises
+        # a FileNotFoundError (an OSError) the handler maps to exit 1.
+        sub = tmp_path / "sub.json"
+        sub.write_text(
+            json.dumps(
+                [{"task_id": "corebench/capsule-1__hard__q0", "answer": 0.99956}]
+            )
+        )
+        args = [
+            "ai-for-science",
+            "corebench",
+            "score",
+            "--submission",
+            str(sub),
+            "--dataset-root",
+            str(tmp_path / "dataset"),
+        ]
+        # Act
+        result = runner.invoke(main, args)
+        # Assert
+        assert result.exit_code != 0
+
+
+class TestValidateJsonCli:
+    def test_valid_submission_json_reports_ok(self, runner, tmp_path):
+        # Arrange
+        sub = tmp_path / "sub.json"
+        sub.write_text(
+            json.dumps(
+                [{"task_id": "corebench/capsule-1__hard__q0", "answer": 0.9996}]
+            )
+        )
+        args = [
+            "ai-for-science",
+            "corebench",
+            "validate",
+            "--submission",
+            str(sub),
+            "--dataset-root",
+            str(tmp_path / "dataset"),
+            "--json",
+        ]
+        result = runner.invoke(main, args)
+        # Act
+        payload = json.loads(result.output)
+        # Assert
+        assert payload["ok"] is True
+
+
+class TestEmitResultAndPrepareCli:
+    def test_standardize_human_output_names_the_benchmark(self, runner, tmp_path):
+        # Arrange — no --json exercises the human-readable _emit_result path.
+        dataset_root = tmp_path / "dataset"
+        _stage_bixbench_raw(dataset_root)
+        args = [
+            "ai-for-science",
+            "bixbench",
+            "standardize",
+            "--dataset-root",
+            str(dataset_root),
+        ]
+        # Act
+        result = runner.invoke(main, args)
+        # Assert
+        assert "Standardized bixbench." in result.output
+
+    def test_prepare_skip_download_exits_zero(self, runner, tmp_path):
+        # Arrange — prepare with --skip-download is fully offline.
+        dataset_root = tmp_path / "dataset"
+        _stage_bixbench_raw(dataset_root)
+        args = [
+            "ai-for-science",
+            "bixbench",
+            "prepare",
+            "--skip-download",
+            "--dataset-root",
+            str(dataset_root),
+        ]
+        # Act
+        result = runner.invoke(main, args)
+        # Assert
+        assert result.exit_code == 0
+
+
+# ---------------------------------------------------------------------------
+# download CLI — exercised with a swapped _http_download (no network),
+# following the test_corebench save/restore seam idiom (no mocks). The
+# fetch helper lives in _corebench_download after the per-capsule split.
+# ---------------------------------------------------------------------------
+
+from contextlib import contextmanager  # noqa: E402
+
+from scitex_dataset.ai_for_science import _corebench_download  # noqa: E402
+
+
+@contextmanager
+def _swap_http_download(replacement):
+    saved = _corebench_download._http_download
+    _corebench_download._http_download = replacement  # type: ignore[assignment]
+    try:
+        yield
+    finally:
+        _corebench_download._http_download = saved  # type: ignore[assignment]
+
+
+class TestDownloadCli:
+    def test_capsule_ids_download_exits_zero(self, runner, tmp_path):
+        # Arrange — fetch two explicit capsule ids; the network seam writes
+        # deterministic bytes so nothing leaves the machine.
+        from pathlib import Path
+
+        def _fake_fetch(url, dest):
+            Path(dest).write_bytes(b"capsule-bytes")
+
+        args = [
+            "ai-for-science",
+            "corebench",
+            "download",
+            "--capsule-ids",
+            "capsule-111,capsule-222",
+            "--dataset-root",
+            str(tmp_path / "dataset"),
+            "--json",
+        ]
+        # Act
+        with _swap_http_download(_fake_fetch):
+            result = runner.invoke(main, args)
+        # Assert
+        assert result.exit_code == 0
+
+    def test_capsule_ids_download_reports_fetched_count(self, runner, tmp_path):
+        # Arrange
+        from pathlib import Path
+
+        def _fake_fetch(url, dest):
+            Path(dest).write_bytes(b"capsule-bytes")
+
+        args = [
+            "ai-for-science",
+            "corebench",
+            "download",
+            "--capsule-ids",
+            "capsule-111,capsule-222",
+            "--dataset-root",
+            str(tmp_path / "dataset"),
+            "--json",
+        ]
+        with _swap_http_download(_fake_fetch):
+            result = runner.invoke(main, args)
+        # Act
+        payload = json.loads(result.output)
+        # Assert
+        assert payload["n_fetched"] == 2
+
+
 if __name__ == "__main__":
     import os
 
