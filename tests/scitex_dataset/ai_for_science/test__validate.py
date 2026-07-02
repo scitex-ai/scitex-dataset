@@ -229,6 +229,54 @@ class TestExpectedTaskIdsFromForSolver:
         # Assert
         assert ids is None
 
+    def test_index_skips_blank_and_bad_lines(self, tmp_path):
+        # Arrange — a blank line and a malformed JSON line are skipped.
+        idx = tmp_path / "index.jsonl"
+        idx.write_text(
+            "\n"
+            "{not json\n"
+            + json.dumps({"task_ids": ["corebench/a__hard__q0"]})
+            + "\n"
+        )
+        # Act
+        ids = _validate.expected_task_ids_from_for_solver(tmp_path)
+        # Assert
+        assert ids == ["corebench/a__hard__q0"]
+
+
+class TestTaskIdEdgeShapes:
+    def test_prefix_only_empty_rest_is_bad(self):
+        # Arrange — the prefix is present but there is no id after it.
+        sub = [{"task_id": "corebench/", "answer": 1}]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        assert any(e["kind"] == "bad_task_id" for e in result["errors"])
+
+    def test_empty_native_segment_is_bad(self):
+        # Arrange — the <native> segment before __ is empty.
+        sub = [{"task_id": "corebench/__hard__q0", "answer": 1}]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        assert any(e["kind"] == "bad_task_id" for e in result["errors"])
+
+    def test_non_qN_question_segment_is_bad(self):
+        # Arrange — the trailing segment must be q<digits>.
+        sub = [{"task_id": "corebench/cap__hard__x0", "answer": 1}]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        assert any(e["kind"] == "bad_task_id" for e in result["errors"])
+
+    def test_non_object_item_is_wrong_type(self):
+        # Arrange — a bare scalar where an object is required.
+        sub = [123]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        assert any(e["kind"] == "wrong_type" for e in result["errors"])
+
 
 if __name__ == "__main__":
     import os
