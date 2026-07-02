@@ -89,6 +89,7 @@ def _stage_bixbench_raw(dataset_root):
         json.dumps(
             {
                 "short_id": "x",
+                "question_id": "x-q1",
                 "question": "q?",
                 "data_folder": "CapsuleFolder-x.zip",
                 "answer": "secret",
