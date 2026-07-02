@@ -35,7 +35,11 @@ from pathlib import Path
 
 from ._base import BenchmarkPaths, resolve_paths
 from ._manifest import write_manifest
-from ._standardize import render_evaluate_py, write_eval, write_for_solver
+from ._standardize import (
+    render_evaluate_py,
+    write_eval,
+    write_for_solver_per_capsule,
+)
 
 # Canonical benchmark identity.
 BENCHMARK = "bixbench"
@@ -64,6 +68,8 @@ def standardize(
     raw_dir: Path,
     for_solver_dir: Path,
     eval_dir: Path,
+    only: str | None = None,
+    force: bool = False,
     **_,
 ) -> dict:
     """Read the oracle manifest, build the for_solver + eval views.
@@ -114,11 +120,12 @@ def standardize(
                 seen_links.add(data_folder)
                 data_links.append(data_folder)
 
-    fs = write_for_solver(
+    fs = write_for_solver_per_capsule(
         for_solver_dir=for_solver_dir,
         tasks=tasks,
         raw_dir=raw_dir,
-        data_links=data_links,
+        only=only,
+        force=force,
     )
     ev = write_eval(
         eval_dir=eval_dir,
