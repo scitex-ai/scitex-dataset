@@ -54,6 +54,7 @@ from ._corebench_download import (
     download,
 )
 from ._manifest import write_manifest
+from ._sources import register_capsule_sources
 from ._standardize import (
     render_evaluate_py,
     write_eval,
@@ -230,9 +231,11 @@ def standardize(
         answers=answers,
         evaluate_py_source=render_evaluate_py(DEFAULT_MODE),
     )
+    sr = register_capsule_sources(tasks=tasks, raw_dir=raw_dir, eval_dir=eval_dir)
     return {
         "for_solver": fs,
         "eval": ev,
+        "sources": sr,
         "n_tasks": len(tasks),
         "n_train": counts[0],
         "n_test": counts[1],
