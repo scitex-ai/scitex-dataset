@@ -72,6 +72,9 @@ all = [
 [project.scripts]
 scitex-dataset = "scitex_dataset._cli:main"
 
+[project.entry-points."scitex_dev.gate.checks"]
+scitex-dataset = "scitex_dataset._gate_plugin:provide"
+
 [project.entry-points."scitex_dev.docs"]
 scitex-dataset = "scitex_dataset"
 
