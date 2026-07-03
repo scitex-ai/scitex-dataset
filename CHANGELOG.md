@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-07-03
+
+### Added
+- Submission-gate plugin provider for `scitex-dev gate` — registers a
+  `pre-submission` `GateCheck` (`id="dataset-submission-format"`) under the
+  `scitex_dev.gate.checks` entry-point group. It locates the bound capsule's
+  submission file (`submission/submission.json` by default; overridable via
+  the gate config's `submission_file`) and runs the oracle-free
+  `validate_submission`, mapping the result to a `GateResult` +
+  format-specific `Finding` fix-hints. benchmark + expected task_ids are
+  read from the capsule's own `task.jsonl` (per-capsule), with a
+  structure-only fallback when absent. The check is fail-closed and the
+  plugin shim defers its `scitex_dev.gate` import, so importing
+  `scitex_dataset` never requires scitex-dev to be installed.
+
 ## [0.6.0] - 2026-07-03
 
 ### Added
