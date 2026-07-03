@@ -6,14 +6,20 @@ trees on disk. Covers the doc denylist, the source/doc split, the
 filesystem snapshot, and the ``sources.jsonl`` writer (incl. idempotence).
 """
 
+import io
 import json
+import tarfile
+import zipfile
 from pathlib import Path
 
 import pytest
 
 from scitex_dataset.ai_for_science._sources import (
+    _denest_single_top,
     classify_capsule_sources,
     is_doc_source,
+    list_archive_members,
+    register_capsule_sources,
     snapshot_relpaths,
     write_sources,
 )
@@ -212,3 +218,212 @@ class TestWriteSources:
         write_sources(eval_dir=eval_dir, capsule_sources=[])
         # Assert
         assert (eval_dir / "sources.jsonl").read_text(encoding="utf-8") == ""
+
+
+# ---------------------------------------------------------------------------
+# Archive helpers (real .tar.gz / .zip on disk — no mocks)
+# ---------------------------------------------------------------------------
+
+
+def _write_targz(archive_path: Path, files: dict) -> None:
+    with tarfile.open(archive_path, "w:gz") as tf:
+        for arcname, content in files.items():
+            data = content.encode("utf-8")
+            info = tarfile.TarInfo(name=arcname)
+            info.size = len(data)
+            tf.addfile(info, io.BytesIO(data))
+
+
+def _write_zip(archive_path: Path, files: dict) -> None:
+    with zipfile.ZipFile(archive_path, "w") as zf:
+        for arcname, content in files.items():
+            zf.writestr(arcname, content)
+
+
+_MEMBER_FILES = {
+    "data/raw.csv": "x",
+    "code/main.py": "y",
+    "results/out.csv": "z",
+    "README.md": "doc",
+}
+
+
+# ---------------------------------------------------------------------------
+# list_archive_members — member listing without extraction
+# ---------------------------------------------------------------------------
+
+
+class TestListArchiveMembers:
+    @pytest.mark.parametrize(
+        "suffix, writer",
+        [(".tar.gz", _write_targz), (".zip", _write_zip)],
+    )
+    def test_lists_sorted_file_members_without_dir_entries(
+        self, tmp_path, suffix, writer
+    ):
+        # Arrange
+        archive = tmp_path / f"cap{suffix}"
+        writer(archive, _MEMBER_FILES)
+        # Act
+        members = list_archive_members(archive)
+        # Assert
+        assert members == [
+            "README.md",
+            "code/main.py",
+            "data/raw.csv",
+            "results/out.csv",
+        ]
+
+    def test_missing_archive_raises_file_not_found(self, tmp_path):
+        # Arrange
+        archive = tmp_path / "absent.tar.gz"
+        # Act
+        call = lambda: list_archive_members(archive)  # noqa: E731
+        # Assert
+        with pytest.raises(FileNotFoundError):
+            call()
+
+    def test_unrecognised_suffix_raises_value_error(self, tmp_path):
+        # Arrange
+        archive = tmp_path / "cap.rar"
+        archive.write_text("not-an-archive", encoding="utf-8")
+        # Act
+        call = lambda: list_archive_members(archive)  # noqa: E731
+        # Assert
+        with pytest.raises(ValueError):
+            call()
+
+
+# ---------------------------------------------------------------------------
+# _denest_single_top — member-list de-nesting
+# ---------------------------------------------------------------------------
+
+
+class TestDenestSingleTop:
+    def test_single_wrapping_dir_is_denested(self):
+        # Arrange
+        names = ["cap-1/data/x.csv", "cap-1/README.md"]
+        # Act
+        out = _denest_single_top(names)
+        # Assert
+        assert out == ["README.md", "data/x.csv"]
+
+    def test_multiple_top_segments_are_unchanged(self):
+        # Arrange
+        names = ["data/x", "code/y"]
+        # Act
+        out = _denest_single_top(names)
+        # Assert
+        assert out == ["code/y", "data/x"]
+
+    def test_top_level_file_blocks_denest(self):
+        # Arrange — one top FILE + one top dir: not a single wrapping dir.
+        names = ["foo.txt", "bar/baz"]
+        # Act
+        out = _denest_single_top(names)
+        # Assert
+        assert out == ["bar/baz", "foo.txt"]
+
+    def test_empty_names_returns_empty(self):
+        # Arrange
+        names = []
+        # Act
+        out = _denest_single_top(names)
+        # Assert
+        assert out == []
+
+
+# ---------------------------------------------------------------------------
+# register_capsule_sources — raw-archive member listing in the callers
+# ---------------------------------------------------------------------------
+
+
+def _register_fixture(tmp_path, *, with_missing=False):
+    """Build a raw_dir with a real wrapped archive + tasks; return context."""
+    raw_dir = tmp_path / "raw"
+    (raw_dir / "capsules").mkdir(parents=True)
+    _write_targz(
+        raw_dir / "capsules" / "cap-1.tar.gz",
+        {
+            "cap-1/data/raw.csv": "x",
+            "cap-1/code/main.py": "y",
+            "cap-1/results/out.csv": "z",
+            "cap-1/README.md": "doc",
+            "cap-1/REPRODUCING.md": "doc",
+        },
+    )
+    tasks = [
+        {
+            "task_id": "corebench/cap-1__hard__q0",
+            "benchmark": "corebench",
+            "prompt": "p",
+            "data": "./capsules/cap-1.tar.gz",
+        }
+    ]
+    if with_missing:
+        tasks.append(
+            {
+                "task_id": "corebench/cap-2__hard__q0",
+                "benchmark": "corebench",
+                "prompt": "p",
+                "data": "./capsules/cap-2.tar.gz",  # archive not written
+            }
+        )
+    eval_dir = tmp_path / "eval"
+    return raw_dir, tasks, eval_dir
+
+
+def _written_rows(eval_dir):
+    lines = (eval_dir / "sources.jsonl").read_text(encoding="utf-8").splitlines()
+    return [json.loads(line) for line in lines]
+
+
+class TestRegisterCapsuleSources:
+    def test_register_writes_one_parseable_row_per_present_capsule(self, tmp_path):
+        # Arrange
+        raw_dir, tasks, eval_dir = _register_fixture(tmp_path)
+        # Act
+        register_capsule_sources(tasks=tasks, raw_dir=raw_dir, eval_dir=eval_dir)
+        # Assert
+        assert len(_written_rows(eval_dir)) == 1
+
+    def test_register_excludes_readme_and_reproducing_docs(self, tmp_path):
+        # Arrange
+        raw_dir, tasks, eval_dir = _register_fixture(tmp_path)
+        # Act
+        register_capsule_sources(tasks=tasks, raw_dir=raw_dir, eval_dir=eval_dir)
+        # Assert
+        assert _written_rows(eval_dir)[0]["excluded_docs"] == [
+            "README.md",
+            "REPRODUCING.md",
+        ]
+
+    def test_register_keeps_data_code_and_results_as_sources(self, tmp_path):
+        # Arrange
+        raw_dir, tasks, eval_dir = _register_fixture(tmp_path)
+        # Act
+        register_capsule_sources(tasks=tasks, raw_dir=raw_dir, eval_dir=eval_dir)
+        # Assert
+        assert _written_rows(eval_dir)[0]["sources"] == [
+            "code/main.py",
+            "data/raw.csv",
+            "results/out.csv",
+        ]
+
+    def test_register_reports_missing_archive_native_id(self, tmp_path):
+        # Arrange
+        raw_dir, tasks, eval_dir = _register_fixture(tmp_path, with_missing=True)
+        # Act
+        ret = register_capsule_sources(
+            tasks=tasks, raw_dir=raw_dir, eval_dir=eval_dir
+        )
+        # Assert
+        assert ret["missing"] == ["cap-2"]
+
+    def test_register_omits_missing_capsule_from_sources_jsonl(self, tmp_path):
+        # Arrange
+        raw_dir, tasks, eval_dir = _register_fixture(tmp_path, with_missing=True)
+        # Act
+        register_capsule_sources(tasks=tasks, raw_dir=raw_dir, eval_dir=eval_dir)
+        # Assert
+        assert [r["native_id"] for r in _written_rows(eval_dir)] == ["cap-1"]
