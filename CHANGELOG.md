@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-07-03
+
+### Added
+- `score_submission()` API + `score` CLI verb — host-side submission grading
+  primitive with a 5-way verdict (correct / wrong / abstain / malformed /
+  needs_rubric) and numeric (Student-t 95% prediction interval with sig-fig
+  fallback), string, and order-insensitive set-equality evaluators.
+- `validate_submission()` API + `validate` CLI verb — oracle-free structural
+  schema conformance for a submission, pairing with the scorer.
+- CORE-Bench `download --full` oracle bootstrap — auto-fetch + GPG-decrypt of
+  `core_train` / `core_test` into the operator-private `raw/` (never mounted),
+  with a sha256 checksum ledger for resumable re-runs.
+- Per-capsule **source registration** — host-side `eval/sources.jsonl` marking
+  each capsule's legitimate sources (raw problem data/code + the computed
+  output of running the analysis, captured from the pristine raw archive) and
+  excluding README / REPRODUCING / paper docs, closing the README
+  score-table grounding leak.
+
+### Changed
+- `for_solver/` standardized into the per-capsule contract — one
+  self-contained `capsule-NNN/` dir (extracted `input/`, `task.jsonl`, uniform
+  submission schema/example, README) plus a root `index.jsonl` mapper
+  (`friendly_id` ↔ `native_id`) — across CORE-Bench, BixBench, and
+  BioMysteryBench.
+
+### Fixed
+- BixBench `task_id` now keys on the unique `question_id` (all 205 questions)
+  instead of the capsule `short_id`, which collapsed them to 54.
+- CI test failures on `develop` from the incomplete per-capsule migration.
+
 ## [0.3.1] - 2026-03-29
 
 ### Fixed
