@@ -732,3 +732,4 @@ src/scitex_dataset/_sphinx_html/__intersphinx_cache__/
 # legitimately committed; the canonical dev venv lives elsewhere.
 /test-venv/
 /.venv-test/
+/.worktrees/
