@@ -48,7 +48,7 @@ from pathlib import Path
 from typing import Any
 
 from ._sigfig import is_close_sigfig
-from ._validate import validate_submission
+from ._validate import WARN_KINDS, validate_submission
 
 # Canonical abstention protocol (ported from clew ``_is_agent_abstention``).
 _ABSTAIN_ANSWER_TEXT = "cannot determine from available evidence"
@@ -227,9 +227,11 @@ def _load_submission(
     The ``global_malformed_kind``, when not None, applies to EVERY
     oracle task (the submission as a whole is ungradeable):
     ``no_submission`` (missing file / None), ``unparseable`` (not JSON),
-    ``empty`` (parsed empty array), ``schema_invalid`` (fails
-    :func:`._validate.validate_submission`). A usable submission returns
-    ``(rows, None)``.
+    ``empty`` (parsed empty array), ``schema_invalid`` (fails the
+    STRUCTURAL :func:`._validate.validate_submission` checks — a
+    ``missing_reason`` finding is excluded here, since a reasonless null
+    is graded per-row as ``empty`` rather than failing the whole
+    submission). A usable submission returns ``(rows, None)``.
     """
     if submission is None:
         return None, "no_submission"
@@ -247,7 +249,19 @@ def _load_submission(
     if isinstance(data, list) and len(data) == 0:
         return data, "empty"
     result = validate_submission(benchmark, data)
-    if not result["ok"]:
+    # ``missing_reason`` (a null answer with no reason) is NOT a global
+    # structural failure for GRADING: the per-row logic below classifies
+    # such a bare null as ``empty`` (one ungradeable row, not a whole
+    # ungradeable submission). Only genuinely structural errors (wrong
+    # type, bad task_id, wrong count, …) mark the submission
+    # ``schema_invalid``. The pre-submission GATE, by contrast, DOES reject
+    # on ``missing_reason`` — it is a hard error in ``result["ok"]``.
+    structural = [
+        e
+        for e in result["errors"]
+        if e["kind"] not in WARN_KINDS and e["kind"] != "missing_reason"
+    ]
+    if structural:
         return (data if isinstance(data, list) else None), "schema_invalid"
     return data, None
 

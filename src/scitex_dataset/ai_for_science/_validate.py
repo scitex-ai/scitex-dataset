@@ -24,6 +24,8 @@ Checks performed (per the operator-locked spec):
   ``answer`` field (``missing_field`` / ``wrong_type``);
 - ``task_id`` must carry the benchmark prefix and, for corebench, the
   ``<native>__<difficulty>__q<N>`` shape (``bad_task_id``);
+- a null ``answer`` must carry a non-empty ``reason`` — honest
+  abstention, no silent no-answer (``missing_reason``);
 - array length vs the expected task count, when ``expected_task_ids``
   is supplied (``wrong_count``);
 - any key beyond ``task_id`` / ``answer`` / ``reason`` is reported as a
@@ -176,6 +178,24 @@ def validate_submission(
 
         if "answer" not in item:
             errors.append(_err(path, "missing_field", "item is missing 'answer'"))
+        elif item["answer"] is None:
+            # Honest-abstention contract: a null answer MUST carry a
+            # non-empty, actionable reason. A missing ``reason`` key,
+            # ``reason: null``, ``""``, or a whitespace-only reason is a
+            # SILENT no-answer — forbidden. (An answered claim keeps
+            # ``reason`` optional; this only fires when answer is null.)
+            reason = item.get("reason")
+            if not (isinstance(reason, str) and reason.strip()):
+                tid = item.get("task_id")
+                label = tid if isinstance(tid, str) else path
+                errors.append(
+                    _err(
+                        f"{path}.reason",
+                        "missing_reason",
+                        f"question {label}: answer is null but has no reason "
+                        "— honest abstention requires a one-line reason",
+                    )
+                )
 
         for key in item:
             if key not in _KNOWN_ITEM_KEYS:
