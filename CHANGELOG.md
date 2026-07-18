@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-07-19
+
 ### Changed
 - `validate_submission` now enforces the honest-abstention half of the
   submission contract: an entry whose `answer` is `null` MUST carry a
