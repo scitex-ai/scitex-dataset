@@ -213,8 +213,10 @@ class TestExpectedTaskIdsFromForSolver:
         # Arrange — a for_solver index.jsonl (agent-visible, not the oracle).
         idx = tmp_path / "index.jsonl"
         idx.write_text(
-            json.dumps({"task_ids": ["corebench/a__hard__q0"]}) + "\n"
-            + json.dumps({"task_ids": ["corebench/b__hard__q0"]}) + "\n"
+            json.dumps({"task_ids": ["corebench/a__hard__q0"]})
+            + "\n"
+            + json.dumps({"task_ids": ["corebench/b__hard__q0"]})
+            + "\n"
         )
         # Act
         ids = _validate.expected_task_ids_from_for_solver(tmp_path)
@@ -233,10 +235,7 @@ class TestExpectedTaskIdsFromForSolver:
         # Arrange — a blank line and a malformed JSON line are skipped.
         idx = tmp_path / "index.jsonl"
         idx.write_text(
-            "\n"
-            "{not json\n"
-            + json.dumps({"task_ids": ["corebench/a__hard__q0"]})
-            + "\n"
+            "\n{not json\n" + json.dumps({"task_ids": ["corebench/a__hard__q0"]}) + "\n"
         )
         # Act
         ids = _validate.expected_task_ids_from_for_solver(tmp_path)
@@ -276,6 +275,147 @@ class TestTaskIdEdgeShapes:
         result = validate_submission("corebench", sub)
         # Assert
         assert any(e["kind"] == "wrong_type" for e in result["errors"])
+
+
+# ---------------------------------------------------------------------------
+# Honest abstention — a null answer MUST carry a non-empty reason
+# ---------------------------------------------------------------------------
+
+
+class TestReasonOnNull:
+    """The submission contract: ``answer: null`` requires a non-empty
+    ``reason`` (honest abstention; silent no-answer is forbidden)."""
+
+    def test_null_answer_with_reason_is_ok(self):
+        # Arrange — (a) the honest-abstention case: null + actionable reason.
+        sub = [
+            {
+                "task_id": "corebench/capsule-1__hard__q0",
+                "answer": None,
+                "reason": "agent abstained: OCR fallback failed on figure 3",
+            }
+        ]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        assert result["ok"] is True
+
+    def test_null_answer_missing_reason_is_not_ok(self):
+        # Arrange — (b) null answer with NO reason key at all.
+        sub = [{"task_id": "corebench/capsule-1__hard__q0", "answer": None}]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        assert result["ok"] is False
+
+    def test_null_answer_missing_reason_kind_is_missing_reason(self):
+        # Arrange — (b) the finding kind names the reason-on-null rule.
+        sub = [{"task_id": "corebench/capsule-1__hard__q0", "answer": None}]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        assert any(e["kind"] == "missing_reason" for e in result["errors"])
+
+    def test_null_answer_missing_reason_message_names_question(self):
+        # Arrange — the per-entry finding names the offending task_id.
+        sub = [{"task_id": "corebench/capsule-1__hard__q0", "answer": None}]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        assert any(
+            e["kind"] == "missing_reason"
+            and "corebench/capsule-1__hard__q0" in e["message"]
+            for e in result["errors"]
+        )
+
+    def test_null_answer_empty_reason_is_not_ok(self):
+        # Arrange — (c) reason present but empty string.
+        sub = [
+            {"task_id": "corebench/capsule-1__hard__q0", "answer": None, "reason": ""}
+        ]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        assert result["ok"] is False
+
+    def test_null_answer_whitespace_reason_is_not_ok(self):
+        # Arrange — (c) reason is whitespace-only → empty after strip().
+        sub = [
+            {
+                "task_id": "corebench/capsule-1__hard__q0",
+                "answer": None,
+                "reason": "   \t\n",
+            }
+        ]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        assert result["ok"] is False
+
+    def test_null_answer_null_reason_is_not_ok(self):
+        # Arrange — (c) reason present but null.
+        sub = [
+            {"task_id": "corebench/capsule-1__hard__q0", "answer": None, "reason": None}
+        ]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        assert result["ok"] is False
+
+    def test_non_null_answer_without_reason_is_ok(self):
+        # Arrange — (d) an answered claim never needs a reason.
+        sub = [{"task_id": "corebench/capsule-1__hard__q0", "answer": "0.94"}]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        assert result["ok"] is True
+
+    def test_non_null_answer_without_reason_has_no_missing_reason(self):
+        # Arrange — (d) reason stays optional for answered claims.
+        sub = [{"task_id": "corebench/capsule-1__hard__q0", "answer": "0.94"}]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        assert not any(e["kind"] == "missing_reason" for e in result["errors"])
+
+    def test_mixed_answered_and_null_with_reason_is_ok(self):
+        # Arrange — (e) a fully-valid mixed submission.
+        sub = [
+            {"task_id": "corebench/capsule-1__hard__q0", "answer": "0.94"},
+            {
+                "task_id": "corebench/capsule-1__hard__q1",
+                "answer": None,
+                "reason": "agent abstained: source file not reproducible",
+            },
+        ]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        assert result["ok"] is True
+
+    def test_null_answer_missing_reason_flags_only_the_offender(self):
+        # Arrange — (e-inverse) only the reasonless null is flagged, once.
+        sub = [
+            {"task_id": "corebench/capsule-1__hard__q0", "answer": "0.94"},
+            {"task_id": "corebench/capsule-1__hard__q1", "answer": None},
+        ]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        offenders = [e for e in result["errors"] if e["kind"] == "missing_reason"]
+        assert len(offenders) == 1
+
+    def test_null_answer_missing_reason_offender_names_that_entry(self):
+        # Arrange — the single offender's message names the reasonless task_id.
+        sub = [
+            {"task_id": "corebench/capsule-1__hard__q0", "answer": "0.94"},
+            {"task_id": "corebench/capsule-1__hard__q1", "answer": None},
+        ]
+        # Act
+        result = validate_submission("corebench", sub)
+        # Assert
+        offenders = [e for e in result["errors"] if e["kind"] == "missing_reason"]
+        assert "corebench/capsule-1__hard__q1" in offenders[0]["message"]
 
 
 if __name__ == "__main__":

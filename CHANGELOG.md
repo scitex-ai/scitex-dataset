@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- `validate_submission` now enforces the honest-abstention half of the
+  submission contract: an entry whose `answer` is `null` MUST carry a
+  non-empty `reason`. A missing `reason` key, `reason: null`, `""`, or a
+  whitespace-only reason yields a hard `missing_reason` finding naming the
+  offending `task_id` (`ok=False`); previously such reasonless nulls were
+  silently accepted. Answered (non-null) claims are unaffected — `reason`
+  stays optional there. The `dataset-submission-format` pre-submission gate
+  inherits the rule (with a `missing_reason` fix-hint), closing the gap
+  where the gate accepted silent no-answers.
+
 ## [0.7.0] - 2026-07-03
 
 ### Added

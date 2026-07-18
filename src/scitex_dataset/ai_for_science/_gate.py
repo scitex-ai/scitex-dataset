@@ -45,6 +45,11 @@ FIX_HINTS: dict[str, str] = {
         "of objects."
     ),
     "missing_field": "Each item needs both 'task_id' and 'answer'.",
+    "missing_reason": (
+        "A null answer must carry a non-empty 'reason' naming the proximal "
+        "cause (honest abstention) — add a one-line reason, or provide an "
+        "answer."
+    ),
     "bad_task_id": (
         "Use the exact task_id(s) from this capsule's task.jsonl / "
         "submission.example.json."

@@ -266,6 +266,31 @@ class TestVerdictMalformed:
         # Assert
         assert recs[0]["malformed_kind"] == "empty"
 
+    def test_reasonless_null_does_not_invalidate_sibling_row(self, tmp_path):
+        # Arrange — a 2-task oracle; q0 answered correctly, q1 a reasonless
+        # null. The reasonless null is a per-row 'empty', NOT a global
+        # schema_invalid — so q0 must still score on its own. (Guards the
+        # scorer against the validator's new missing_reason hard error.)
+        ans = _write_answers(
+            tmp_path / "answers.jsonl",
+            [
+                {
+                    "task_id": "corebench/capsule-1__hard__q0",
+                    "answer": {"value": 0.9996},
+                },
+                {"task_id": "corebench/capsule-1__hard__q1", "answer": {"value": 0.5}},
+            ],
+        )
+        sub = [
+            {"task_id": "corebench/capsule-1__hard__q0", "answer": 0.99956},
+            {"task_id": "corebench/capsule-1__hard__q1", "answer": None},
+        ]
+        # Act
+        recs = score_submission("corebench", sub, answers=ans)
+        # Assert
+        q0 = next(r for r in recs if r["task_id"] == "corebench/capsule-1__hard__q0")
+        assert q0["verdict"] == "correct"
+
     def test_schema_invalid_is_schema_invalid(self, tmp_path):
         # Arrange — a non-empty submission that fails structural validation.
         ans = _one_numeric_answers(tmp_path)
@@ -451,8 +476,10 @@ class TestLoadOracleEdges:
         p.write_text(
             "\n"
             "{not json\n"
-            + json.dumps([1, 2]) + "\n"
-            + json.dumps({"task_id": 5, "answer": {"value": 1}}) + "\n"
+            + json.dumps([1, 2])
+            + "\n"
+            + json.dumps({"task_id": 5, "answer": {"value": 1}})
+            + "\n"
             + json.dumps(
                 {"task_id": "corebench/capsule-1__hard__q0", "answer": {"value": 1}}
             )
