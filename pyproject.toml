@@ -67,6 +67,10 @@ docs = [
 all = [
     "scitex-dataset[mcp]",
     "scitex-dataset[huggingface]",
+    # PS-221 closure: every public extra is a subset of `all`, so
+    # `pip install scitex-dataset[all]` pulls everything public.
+    "scitex-dataset[dev]",
+    "scitex-dataset[docs]",
 ]
 
 [project.scripts]
