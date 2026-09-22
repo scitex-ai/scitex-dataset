@@ -315,14 +315,14 @@ def mcp_doctor() -> None:
 
     try:
         import fastmcp
-
-        click.secho("  OK ", fg="green", nl=False)
-        click.echo(f"fastmcp {fastmcp.__version__}")
     except ImportError:
         click.secho("  NG ", fg="red", nl=False)
         click.echo("fastmcp not installed")
         click.echo("     Install: pip install scitex-dataset[mcp]")
         return
+
+    click.secho("  OK ", fg="green", nl=False)
+    click.echo(f"fastmcp {fastmcp.__version__}")
 
     try:
         from .._mcp.server import mcp as mcp_server

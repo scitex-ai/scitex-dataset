@@ -20,12 +20,13 @@ This adapter ships three functions in the per-source convention:
 - :func:`gin_download` — git clone + per-file HTTPS GET; idempotent;
   resumable; per-file byte logging
 
-Optional `datalad` mode is wired through
-:func:`scitex_dev.try_import_optional`; if `datalad` (and its
-`git-annex` backend) is installed, the adapter delegates to
-``datalad.api.get`` for resumable, parallel annex retrieval. Otherwise
-the pure-HTTPS path is used. No silent fallback: the install hint is
-surfaced via :func:`scitex_dev.last_install_hint`.
+Optional `datalad` mode is probed with a plain guarded import (there is
+no ``scitex-dataset[datalad]`` pip extra — the ecosystem allows only
+all/dev/docs extras); if `datalad` (and its `git-annex` backend) is
+installed, the adapter delegates to ``datalad.api.get`` for resumable,
+parallel annex retrieval. Otherwise the pure-HTTPS path is used.
+No silent fallback: an explicit ``prefer="datalad"`` request raises
+with a ``pip install datalad`` remedy.
 
 References
 ----------
@@ -50,13 +51,10 @@ import httpx as _httpx  # noqa: N812
 from httpx import HTTPError as _HTTPError
 
 try:
-    from scitex_dev import supports_return_as, try_import_optional
+    from scitex_dev import supports_return_as
 except ImportError:  # pragma: no cover — only when scitex_dev is absent
     def supports_return_as(fn):  # type: ignore[misc]
         return fn
-
-    def try_import_optional(*_a, **_k):  # type: ignore[misc]
-        return None
 
 from .._config import runtime_dir as _runtime_dir, user_root as _user_root
 
@@ -367,7 +365,8 @@ def gin_download(
         Source branch for the ``/raw/`` URL.
     prefer : {"auto", "https", "datalad"}, default ``"auto"``
         Backend selector. ``"datalad"`` requires the optional
-        ``datalad`` extra; ``"auto"`` uses ``datalad`` if importable,
+        ``datalad`` dependency (``pip install datalad`` — there is no
+        pip extra for it); ``"auto"`` uses ``datalad`` if importable,
         else ``"https"``.  No silent fallback: an explicit
         ``"datalad"`` request raises if the optional dep is missing.
     metadata_only : bool, default ``False``
@@ -387,8 +386,7 @@ def gin_download(
     ------
     ImportError
         If ``prefer="datalad"`` is explicit and the optional dep is
-        missing; the install hint can be read via
-        :func:`scitex_dev.last_install_hint`.
+        missing; install it with ``pip install datalad``.
     """
     owner, repo = _split_repo_id(repo_id)
     dest_root = _resolve_local_dir(repo_id, local_dir=local_dir)
@@ -400,25 +398,22 @@ def gin_download(
             logger.info(msg)
 
     # ----- backend selection ------------------------------------------------
+    # NOTE: `datalad` is an optional dependency with NO pip extra — the
+    # ecosystem allows only all/dev/docs extras, so there is no
+    # `scitex-dataset[datalad]` to name. The PyPI distribution is
+    # `datalad`, and the remedy below names exactly that.
     backend = prefer
-    if prefer == "auto":
-        datalad = try_import_optional(
-            "datalad.api",
-            extra="datalad",
-            pkg="scitex-dataset",
-        )
-        backend = "datalad" if datalad is not None else "https"
-    elif prefer == "datalad":
-        datalad = try_import_optional(
-            "datalad.api",
-            extra="datalad",
-            pkg="scitex-dataset",
-        )
-        if datalad is None:
+    if prefer in ("auto", "datalad"):
+        try:
+            from datalad import api as _datalad_api
+        except ImportError:
+            _datalad_api = None
+        if prefer == "datalad" and _datalad_api is None:
             raise ImportError(
-                "prefer='datalad' requires the optional datalad extra. "
-                "Install with: pip install 'scitex-dataset[datalad]'"
+                "prefer='datalad' requires the optional datalad dependency. "
+                "Install with: pip install datalad"
             )
+        backend = "datalad" if _datalad_api is not None else "https"
 
     # ----- (1) metadata clone ----------------------------------------------
     if not (repo_dir / ".git").exists():
