@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-dataset"
-version = "0.7.1"
+version = "0.8.0"
 description = "Multi-domain scientific dataset fetcher — neuroscience, biology, pharmacology, medical (OpenNeuro, DANDI, PhysioNet, GEO, ChEMBL, ClinicalTrials.gov)"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -37,6 +37,7 @@ classifiers = [
 dependencies = [
     "httpx>=0.24.0",
     "click>=8.0.0",
+    "pydantic>=2.5",
     # HARD dependency, not an extra. The dataset index is `scitex_dev.store`
     # — there is no local fallback and nothing to degrade to, so a lean
     # install that lacked it would import fine and fail at the first search.

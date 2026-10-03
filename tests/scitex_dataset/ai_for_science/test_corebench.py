@@ -131,6 +131,90 @@ def _all_task_ids(for_solver_dir):
     return ids
 
 
+def _reference_record(results):
+    """Invented reference runs; never a real benchmark oracle."""
+    return {
+        "capsule_id": "capsule-1111111",
+        "task_prompt": "Run the supplied analysis.",
+        "results": results,
+    }
+
+
+class TestQuestionReferenceIdentity:
+    def test_three_reference_runs_are_one_question_with_all_samples(self):
+        tasks, answers = corebench._split_record(
+            _reference_record([{"Score?": 12.34}, {"Score?": 12.35}, {"Score?": 12.33}])
+        )
+
+        assert len(tasks) == 1
+        assert len({answer["task_id"] for answer in answers}) == 1
+        assert [answer["answer"]["value"] for answer in answers] == [12.34, 12.35, 12.33]
+        assert [answer["meta"]["reference_run_index"] for answer in answers] == [0, 1, 2]
+        assert all(answer["task_id"] == tasks[0]["task_id"] for answer in answers)
+        assert all(answer["meta"]["schema"] == "corebench-question-references-v1" for answer in answers)
+        assert all("difficulty" not in answer["meta"] for answer in answers)
+        assert all(set(task) == {"task_id", "benchmark", "prompt", "data"} for task in tasks)
+        assert "12.34" not in json.dumps(tasks)
+
+    def test_question_identity_survives_run_and_dictionary_reordering(self):
+        first = _reference_record([{"A?": 1, "B?": 4}, {"B?": 5, "A?": 2}])
+        reordered = _reference_record([{"A?": 2, "B?": 5}, {"B?": 4, "A?": 1}])
+
+        tasks, answers = corebench._split_record(first)
+        new_tasks, new_answers = corebench._split_record(reordered)
+
+        assert len(tasks) == 2
+        assert tasks == new_tasks
+        old_samples = sorted((row["task_id"], row["answer"]["value"]) for row in answers)
+        new_samples = sorted((row["task_id"], row["answer"]["value"]) for row in new_answers)
+        assert old_samples == new_samples
+
+    def test_adding_reference_keeps_assignment_and_duplicate_samples(self):
+        tasks, _ = corebench._split_record(_reference_record([{"A?": 10}]))
+        extended_tasks, answers = corebench._split_record(
+            _reference_record([{"A?": 10}, {"A?": 10}, {"A?": 11}])
+        )
+
+        assert tasks == extended_tasks
+        assert [row["answer"]["value"] for row in answers] == [10, 10, 11]
+        assert all(row["meta"]["reference_count"] == 3 for row in answers)
+
+    def test_missing_question_in_a_run_is_reported_without_imputation(self):
+        tasks, answers = corebench._split_record(
+            _reference_record([{"A?": 1, "B?": 9}, {"B?": 8}, {"A?": 2, "B?": 7}])
+        )
+
+        a_refs = [row for row in answers if row["meta"]["question"] == "A?"]
+        b_refs = [row for row in answers if row["meta"]["question"] == "B?"]
+        assert len(tasks) == 2
+        assert [row["answer"]["value"] for row in a_refs] == [1, 2]
+        assert all(row["meta"]["missing_reference_run_indexes"] == [1] for row in a_refs)
+        assert all(row["meta"]["reference_runs_total"] == 3 for row in answers)
+        assert all(row["meta"]["missing_reference_run_indexes"] == [] for row in b_refs)
+
+    @pytest.mark.parametrize("results", [None, [], [None], [1], [{"": 1}], [{}]])
+    def test_invalid_reference_source_refuses_instead_of_dropping(self, results):
+        with pytest.raises(ValueError, match="corebench:"):
+            corebench._split_record(_reference_record(results))
+
+    def test_exact_question_keys_are_not_normalised_or_answer_dependent(self):
+        tasks, _ = corebench._split_record(_reference_record([{"A?": 1, " A?": 2}]))
+        changed_answers, _ = corebench._split_record(
+            _reference_record([{"A?": 100, " A?": None}])
+        )
+
+        assert len({task["task_id"] for task in tasks}) == 2
+        assert tasks == changed_answers
+
+    def test_invalid_utf8_question_key_has_a_payload_free_diagnostic(self):
+        with pytest.raises(ValueError, match="question key must be valid UTF-8") as error:
+            corebench._split_record(
+                _reference_record([{"\ud800": 123456789}])
+            )
+
+        assert "123456789" not in str(error.value)
+
+
 # ---------------------------------------------------------------------------
 # standardize — for_solver tasks (leak-safe uniform schema)
 # ---------------------------------------------------------------------------
@@ -201,7 +285,7 @@ class TestStandardizeForSolver:
         # Assert
         assert "0.81" not in raw_text
 
-    def test_task_id_uses_difficulty_tier(self, staged_raw_dir):
+    def test_task_id_uses_stable_question_identity(self, staged_raw_dir):
         # Arrange
         root = staged_raw_dir.parent
         corebench.standardize(
@@ -212,7 +296,9 @@ class TestStandardizeForSolver:
         # Act
         ids = _all_task_ids(root / "for_solver")
         # Assert
-        assert "corebench/capsule-1111111__hard__q0" in ids
+        assert corebench._question_task_id("capsule-1111111", "What is the AUC?") in ids
+        assert all("__question_" in task_id for task_id in ids)
+        assert all("__hard__" not in task_id for task_id in ids)
 
     def test_task_data_points_at_extracted_input(self, staged_raw_dir):
         # Arrange
@@ -251,9 +337,10 @@ class TestStandardizeForSolver:
         )
         tasks = _read_jsonl(root / "for_solver" / "capsule-001" / "task.jsonl")
         # Act
-        hard = next(t for t in tasks if t["task_id"].endswith("__hard__q0"))
+        task_id = corebench._question_task_id("capsule-1111111", "What is the AUC?")
+        task = next(t for t in tasks if t["task_id"] == task_id)
         # Assert
-        assert hard["prompt"].endswith("Question: What is the AUC?")
+        assert task["prompt"].endswith("Question: What is the AUC?")
 
     def test_standardize_writes_submission_schema_per_capsule(self, staged_raw_dir):
         # Arrange
@@ -328,6 +415,41 @@ class TestStandardizeForSolver:
 
 
 class TestStandardizeEval:
+    def test_one_question_retains_all_private_references_and_one_public_assignment(self, staged_raw_dir):
+        (staged_raw_dir / "dataset" / "core_train.json").write_text(
+            json.dumps([_reference_record([{"Score?": 12.34}, {"Score?": 12.35}, {"Score?": 12.33}])])
+        )
+        (staged_raw_dir / "core_test.json").write_text("[]")
+        root = staged_raw_dir.parent
+
+        result = corebench.standardize(
+            raw_dir=staged_raw_dir, for_solver_dir=root / "for_solver", eval_dir=root / "eval"
+        )
+        tasks = _read_jsonl(root / "for_solver" / "capsule-001" / "task.jsonl")
+        answers = _read_jsonl(root / "eval" / "answers.jsonl")
+        example = json.loads((root / "for_solver" / "capsule-001" / "submission.example.json").read_text())
+
+        assert result["n_tasks"] == len(tasks) == len(example) == 1
+        assert result["n_reference_samples"] == len(answers) == 3
+        assert [row["answer"]["value"] for row in answers] == [12.34, 12.35, 12.33]
+        assert {row["task_id"] for row in answers} == {tasks[0]["task_id"]}
+        assert "12.34" not in json.dumps(tasks + example)
+        assert "source_identity" not in tasks[0]
+
+    def test_duplicate_question_records_refuse_before_materialization(self, staged_raw_dir):
+        record = _reference_record([{"Score?": 12.34}])
+        (staged_raw_dir / "dataset" / "core_train.json").write_text(json.dumps([record, record]))
+        (staged_raw_dir / "core_test.json").write_text("[]")
+        root = staged_raw_dir.parent
+
+        with pytest.raises(ValueError, match="duplicate assigned question identity"):
+            corebench.standardize(
+                raw_dir=staged_raw_dir, for_solver_dir=root / "for_solver", eval_dir=root / "eval"
+            )
+
+        assert not (root / "for_solver").exists()
+        assert not (root / "eval").exists()
+
     def test_standardize_writes_answers_jsonl(self, staged_raw_dir):
         # Arrange
         root = staged_raw_dir.parent
@@ -366,9 +488,10 @@ class TestStandardizeEval:
         )
         answers = _read_jsonl(root / "eval" / "answers.jsonl")
         # Act
-        hard = next(a for a in answers if a["task_id"].endswith("__hard__q0"))
+        task_id = corebench._question_task_id("capsule-1111111", "What is the AUC?")
+        answer = next(a for a in answers if a["task_id"] == task_id)
         # Assert
-        assert hard["answer"] == {"value": 0.81}
+        assert answer["answer"] == {"value": 0.81}
 
     def test_standardize_writes_evaluate_py(self, staged_raw_dir):
         # Arrange
@@ -464,6 +587,23 @@ class TestBuildInventory:
         )
         # Assert
         assert result["summary"]["n_capsules_train"] == 1
+
+    def test_inventory_counts_questions_not_reference_runs(self, staged_raw_dir):
+        (staged_raw_dir / "dataset" / "core_train.json").write_text(
+            json.dumps([_reference_record([{"Score?": 1}, {"Score?": 2}, {"Score?": 3}])])
+        )
+        (staged_raw_dir / "core_test.json").write_text("[]")
+
+        result = corebench.build_inventory(
+            raw_dir=staged_raw_dir, for_solver_dir=staged_raw_dir.parent / "for_solver"
+        )
+        inventory = json.loads(Path(result["output"]).read_text())
+
+        assert result["summary"]["n_tasks_total"] == 1
+        assert result["summary"]["n_reference_samples"] == 3
+        assert result["summary"]["by_difficulty"] == {}
+        assert inventory["tasks"][0]["reference_count"] == 3
+        assert inventory["tasks"][0]["difficulty"] is None
 
 
 # ---------------------------------------------------------------------------
@@ -592,6 +732,21 @@ def _paths_for(staged_raw_dir):
 
 
 class TestPrepare:
+    def test_legacy_refusal_preserves_historical_inventory_even_with_force(self, staged_raw_dir):
+        paths = _paths_for(staged_raw_dir)
+        paths.for_solver_dir.mkdir()
+        inventory = paths.for_solver_dir / "inventory.json"
+        old_inventory = b'{"historical": "original question units"}\n'
+        inventory.write_bytes(old_inventory)
+
+        with pytest.raises(ValueError, match="legacy cache"):
+            corebench.prepare(paths=paths, skip_download=True, force=True)
+
+        assert inventory.read_bytes() == old_inventory
+        assert list(paths.for_solver_dir.iterdir()) == [inventory]
+        assert not paths.eval_dir.exists()
+        assert not paths.manifest_dir.exists()
+
     def test_prepare_skip_download_emits_manifest_yaml(self, staged_raw_dir):
         # Arrange
         paths = _paths_for(staged_raw_dir)
@@ -617,6 +772,31 @@ class TestPrepare:
             result = corebench.prepare(paths=paths, skip_download=False)
         # Assert
         assert {"download", "inventory", "standardize", "manifest"} <= set(result)
+
+    def test_prepare_download_and_materialization_selectors_reach_their_scopes(self, staged_raw_dir):
+        paths = _paths_for(staged_raw_dir)
+
+        result = corebench.prepare(
+            paths=paths,
+            capsule_ids=["capsule-2222222"],
+            only="capsule-2222222",
+        )
+
+        assert result["download"]["n_have"] == 1
+        assert result["download"]["n_fetched"] == 0
+        assert "oracle" not in result["download"]
+        assert (paths.for_solver_dir / "capsule-002").is_dir()
+        assert not (paths.for_solver_dir / "capsule-001").exists()
+        assert len(_read_jsonl(paths.for_solver_dir / "index.jsonl")) == 2
+
+    def test_prepare_unknown_selector_refuses_before_effects(self, staged_raw_dir):
+        paths = _paths_for(staged_raw_dir)
+
+        with pytest.raises(TypeError, match="capsule_id"):
+            corebench.prepare(paths=paths, capsule_id="capsule-2222222")
+
+        assert not paths.for_solver_dir.exists()
+        assert not (paths.raw_dir / ".checksums.json").exists()
 
 
 if __name__ == "__main__":

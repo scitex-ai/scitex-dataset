@@ -299,14 +299,14 @@ def test_fail_closed_on_corrupt_task_jsonl(tmp_path):
     assert result["passed"] is False
 
 
-def test_fail_closed_finding_kind_is_check_error(tmp_path):
-    # Arrange — same corrupt task.jsonl triggers the fail-closed guard.
+def test_corrupt_public_metadata_has_attributable_assignment_error(tmp_path):
+    # Corrupt public metadata is classified without exposing its contents.
     (tmp_path / "task.jsonl").write_text("{not json at all\n", encoding="utf-8")
     _write_submission(tmp_path, _valid_items())
     # Act
     kinds = [f["kind"] for f in build_gate_result(tmp_path, {})["findings"]]
     # Assert
-    assert kinds == ["check_error"]
+    assert kinds == ["invalid_assignment"]
 
 
 @pytest.mark.parametrize("kind", list(_gate.FIX_HINTS))
@@ -328,3 +328,177 @@ def test_check_id_is_dataset_submission_format():
     assert value == "dataset-submission-format"
 
 # EOF
+
+
+class TestTypedGateCallerContract:
+    @staticmethod
+    def task(workdir, *, answer_type=None, task_id=_TASK_ID_A, benchmark="corebench"):
+        row = {"task_id": task_id}
+        if benchmark is not None:
+            row["benchmark"] = benchmark
+        if answer_type is not None:
+            row["answer_type"] = answer_type
+        (workdir / "task.jsonl").write_text(json.dumps(row) + "\n")
+
+    @pytest.mark.parametrize("declared,answer", [("number", 0), ("integer", -1), ("string", "0.94"), ("boolean", False), ("list", [0, None]), ("object", {"x": True})])
+    def test_declared_public_type_valid_value_passes(self, tmp_path, declared, answer):
+        self.task(tmp_path, answer_type=declared)
+        _write_submission(tmp_path, [{"task_id": _TASK_ID_A, "answer": answer}])
+        assert build_gate_result(tmp_path, {})["passed"] is True
+
+    @pytest.mark.parametrize("declared,answer", [("number", "0.94"), ("number", True), ("integer", 1.0), ("string", 1), ("boolean", 1), ("list", {"x": 0}), ("object", [0])])
+    def test_declared_public_type_wrong_value_fails_without_coercion(self, tmp_path, declared, answer):
+        self.task(tmp_path, answer_type=declared)
+        _write_submission(tmp_path, [{"task_id": _TASK_ID_A, "answer": answer}])
+        result = build_gate_result(tmp_path, {})
+        assert result["passed"] is False
+        finding = next(f for f in result["findings"] if f["kind"] == "wrong_answer_type")
+        assert finding["severity"] == "error"
+        assert "$[0].answer" in finding["message"]
+        assert _TASK_ID_A in finding["message"]
+        assert declared in finding["fix_hint"]
+
+    def test_typed_null_with_reason_preserves_honest_abstention(self, tmp_path):
+        self.task(tmp_path, answer_type="number")
+        _write_submission(tmp_path, [{"task_id": _TASK_ID_A, "answer": None, "reason": "agent abstained: unavailable source"}])
+        assert build_gate_result(tmp_path, {})["passed"] is True
+
+    def test_undeclared_json_and_extra_warning_remain_supported(self, tmp_path):
+        self.task(tmp_path)
+        _write_submission(tmp_path, [{"task_id": _TASK_ID_A, "answer": {"x": [0, True]}, "confidence": 0.5}])
+        result = build_gate_result(tmp_path, {})
+        assert result["passed"] is True
+        assert next(f for f in result["findings"] if f["kind"] == "unknown_field")["severity"] == "warning"
+
+    def test_duplicate_submission_cannot_hide_missing_task(self, tmp_path):
+        _write_capsule(tmp_path)
+        _write_submission(tmp_path, [{"task_id": _TASK_ID_A, "answer": 0}, {"task_id": _TASK_ID_A, "answer": 1}])
+        result = build_gate_result(tmp_path, {})
+        assert result["passed"] is False
+        kinds = {f["kind"] for f in result["findings"]}
+        assert {"duplicate_task_id", "missing_task_id"}.issubset(kinds)
+        assert all(f["fix_hint"] for f in result["findings"])
+
+    def test_unknown_submission_id_cannot_replace_selected_peer(self, tmp_path):
+        self.task(tmp_path)
+        _write_submission(tmp_path, [{"task_id": _TASK_ID_B, "answer": 0}])
+        result = build_gate_result(tmp_path, {})
+        assert result["passed"] is False
+        assert {"unknown_task_id", "missing_task_id"}.issubset({f["kind"] for f in result["findings"]})
+
+    def test_multiple_capsule_candidates_are_refused_not_first_selected(self, tmp_path):
+        for name in ["capsule-001", "capsule-002"]:
+            child = tmp_path / name
+            child.mkdir()
+            self.task(child)
+        _write_submission(tmp_path, [{"task_id": _TASK_ID_A, "answer": 0}])
+        result = build_gate_result(tmp_path, {})
+        assert result["passed"] is False
+        assert [f["kind"] for f in result["findings"]] == ["ambiguous_capsule"]
+        assert result["findings"][0]["fix_hint"]
+
+    def test_direct_bound_task_scope_is_authoritative(self, tmp_path):
+        self.task(tmp_path)
+        child = tmp_path / "capsule-001"
+        child.mkdir()
+        self.task(child, task_id=_TASK_ID_B)
+        _write_submission(tmp_path, [{"task_id": _TASK_ID_A, "answer": 0}])
+        assert build_gate_result(tmp_path, {})["passed"] is True
+
+    def test_no_task_metadata_explicitly_reports_shape_only(self, tmp_path):
+        _write_submission(tmp_path, [{"task_id": _TASK_ID_A, "answer": 0}])
+        result = build_gate_result(tmp_path, {"benchmark": "corebench"})
+        assert result["passed"] is True
+        assert any(f["kind"] == "shape_only" and f["severity"] == "info" for f in result["findings"])
+
+    def test_mixed_public_benchmark_declarations_refuse(self, tmp_path):
+        rows = [{"task_id": _TASK_ID_A, "benchmark": "corebench"}, {"task_id": _TASK_ID_B, "benchmark": "bixbench"}]
+        (tmp_path / "task.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
+        _write_submission(tmp_path, _valid_items())
+        result = build_gate_result(tmp_path, {})
+        assert result["passed"] is False
+        assert any(f["kind"] == "invalid_assignment" for f in result["findings"])
+
+    def test_public_missing_benchmark_can_use_explicit_config(self, tmp_path):
+        self.task(tmp_path, benchmark=None)
+        _write_submission(tmp_path, [{"task_id": _TASK_ID_A, "answer": 0}])
+        assert build_gate_result(tmp_path, {"benchmark": "corebench"})["passed"] is True
+
+    def test_missing_benchmark_without_config_does_not_guess(self, tmp_path):
+        self.task(tmp_path, benchmark=None)
+        _write_submission(tmp_path, [{"task_id": _TASK_ID_A, "answer": 0}])
+        result = build_gate_result(tmp_path, {})
+        assert result["passed"] is False
+        assert any(f["kind"] == "invalid_assignment" for f in result["findings"])
+
+    def test_public_invalid_benchmark_type_is_diagnosed(self, tmp_path):
+        self.task(tmp_path, benchmark=1)
+        _write_submission(tmp_path, [{"task_id": _TASK_ID_A, "answer": 0}])
+        result = build_gate_result(tmp_path, {})
+        assert result["passed"] is False
+        assert any(f["kind"] == "invalid_assignment" for f in result["findings"])
+
+    def test_duplicate_public_task_rows_are_not_deduplicated(self, tmp_path):
+        _write_capsule(tmp_path, task_ids=[_TASK_ID_A, _TASK_ID_A])
+        _write_submission(tmp_path, [{"task_id": _TASK_ID_A, "answer": 0}])
+        result = build_gate_result(tmp_path, {})
+        assert result["passed"] is False
+        assert any(f["kind"] == "duplicate_assignment" for f in result["findings"])
+
+    def test_feedback_and_dataclass_shape_never_echo_answer_payload(self, tmp_path):
+        marker = "PRIVATE_ORACLE_SENTINEL_NOT_A_HINT"
+        self.task(tmp_path, answer_type="number")
+        _write_submission(tmp_path, [{"task_id": _TASK_ID_A, "answer": marker}])
+        result = build_gate_result(tmp_path, {})
+        assert result["passed"] is False
+        assert marker not in json.dumps(result)
+        for finding in result["findings"]:
+            assert set(finding) == {"check_id", "kind", "message", "severity", "fix_hint"}
+
+    def test_unexpected_exception_payload_is_sanitized_and_fail_closed(self, tmp_path):
+        marker = "PRIVATE_EXCEPTION_PAYLOAD_NOT_A_HINT"
+        class InvalidWorkdir:
+            def __fspath__(self):
+                raise RuntimeError(marker)
+        result = build_gate_result(InvalidWorkdir(), {})
+        assert result["passed"] is False
+        assert result["findings"][0]["kind"] == "check_error"
+        assert marker not in json.dumps(result)
+
+
+class TestPublicBenchmarkMetadata:
+    def test_same_declared_benchmark_is_carried_by_public_loader(self, tmp_path):
+        from scitex_dataset.ai_for_science._validate import read_public_task_contract
+        _write_capsule(tmp_path)
+        contract = read_public_task_contract(tmp_path)
+        assert contract["ok"] is True
+        assert contract["benchmark"] == "corebench"
+
+    def test_all_omitted_benchmarks_stay_unknown_in_public_loader(self, tmp_path):
+        from scitex_dataset.ai_for_science._validate import read_public_task_contract
+        rows = [{"task_id": _TASK_ID_A}, {"task_id": _TASK_ID_B}]
+        (tmp_path / "task.jsonl").write_text("".join(json.dumps(row) + "\n" for row in rows))
+        contract = read_public_task_contract(tmp_path)
+        assert contract["ok"] is True
+        assert contract["benchmark"] is None
+
+    def test_mixed_declared_and_omitted_benchmarks_are_not_guessed(self, tmp_path):
+        from scitex_dataset.ai_for_science._validate import read_public_task_contract
+        rows = [{"task_id": _TASK_ID_A, "benchmark": "corebench"}, {"task_id": _TASK_ID_B}]
+        (tmp_path / "task.jsonl").write_text("".join(json.dumps(row) + "\n" for row in rows))
+        contract = read_public_task_contract(tmp_path)
+        assert contract["ok"] is False
+        assert any(e["kind"] == "invalid_assignment" and e["field"] == "benchmark" for e in contract["errors"])
+
+    @pytest.mark.parametrize("benchmark", [None, "", "   ", 1])
+    def test_explicit_malformed_public_benchmark_refuses(self, tmp_path, benchmark):
+        from scitex_dataset.ai_for_science._validate import read_public_task_contract
+        (tmp_path / "task.jsonl").write_text(json.dumps({"task_id": _TASK_ID_A, "benchmark": benchmark}) + "\n")
+        assert read_public_task_contract(tmp_path)["ok"] is False
+
+    @pytest.mark.parametrize("benchmark", [1, False, "   "])
+    def test_bad_explicit_config_is_not_silently_treated_as_unknown(self, tmp_path, benchmark):
+        _write_submission(tmp_path, [{"task_id": _TASK_ID_A, "answer": 0}])
+        result = build_gate_result(tmp_path, {"benchmark": benchmark})
+        assert result["passed"] is False
+        assert result["findings"][0]["kind"] == "invalid_assignment"

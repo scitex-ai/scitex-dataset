@@ -76,6 +76,7 @@ def standardize(
     eval_dir: Path,
     only: str | None = None,
     force: bool = False,
+    source_identity: dict | None = None,
     **_,
 ) -> dict:
     """Read the oracle manifest, build the for_solver + eval views.
@@ -147,6 +148,7 @@ def standardize(
         raw_dir=raw_dir,
         only=only,
         force=force,
+        source_identity=source_identity,
     )
     ev = write_eval(
         eval_dir=eval_dir,
@@ -173,6 +175,7 @@ def download(
     raw_dir: Path,
     hf_token: str | None = None,
     max_workers: int = 4,
+    revision: str | None = None,
     **_,
 ) -> dict:
     """Pull the BixBench HF snapshot into ``raw_dir`` exactly as-is.
@@ -203,11 +206,13 @@ def download(
         local_dir=str(raw_dir),
         max_workers=max_workers,
         token=hf_token,
+        **({"revision": revision} if revision is not None else {}),
     )
     return {
         "raw_dir": str(raw_dir),
         "snapshots_pulled": [HF_REPO_ID],
         "resolved": str(resolved),
+        "requested_revision": revision,
     }
 
 
@@ -222,23 +227,39 @@ def prepare(
     dataset_root: Path | str | None = None,
     version: str = "v0-unstamped",
     skip_download: bool = False,
+    only: str | None = None,
+    force: bool = False,
+    hf_token: str | None = None,
+    max_workers: int = 4,
+    revision: str | None = None,
     **_,
 ) -> dict:
     """Run the full BixBench preparation pipeline.
 
     Set ``skip_download=True`` to skip the HF snapshot pull (useful if
     the upstream manifest has already been hand-staged under ``raw_dir``).
+    ``only`` selects materialization, not acquisition of the HF snapshot.
+    ``revision`` is forwarded to HF; use an immutable commit for a pinned
+    source. The returned requested revision is not a resolved-commit receipt.
     """
     if paths is None:
         paths = resolve_paths(BENCHMARK, dataset_root=dataset_root)
 
     out: dict = {"benchmark": BENCHMARK, "paths": paths.as_dict()}
     if not skip_download:
-        out["download"] = download(raw_dir=paths.raw_dir)
+        out["download"] = download(
+            raw_dir=paths.raw_dir,
+            hf_token=hf_token,
+            max_workers=max_workers,
+            revision=revision,
+        )
     out["standardize"] = standardize(
         raw_dir=paths.raw_dir,
         for_solver_dir=paths.for_solver_dir,
         eval_dir=paths.eval_dir,
+        only=only,
+        force=force,
+        source_identity={"repo_id": HF_REPO_ID, "requested_revision": revision},
     )
 
     manifest_path = write_manifest(

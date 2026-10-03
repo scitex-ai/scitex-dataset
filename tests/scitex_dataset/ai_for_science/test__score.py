@@ -230,8 +230,11 @@ class TestVerdictMalformed:
         assert recs[0]["malformed_kind"] == "no_submission"
 
     def test_missing_task_is_no_submission(self, tmp_path):
-        # Arrange — a valid submission that omits the oracle's task.
-        ans = _one_numeric_answers(tmp_path)
+        # A valid partial submission omits one assigned oracle task.
+        ans = _write_answers(tmp_path / "answers.jsonl", [
+            {"task_id": "corebench/capsule-1__hard__q0", "answer": {"value": 0.9996}},
+            {"task_id": "corebench/capsule-9__hard__q0", "answer": {"value": 1.0}},
+        ])
         sub = [{"task_id": "corebench/capsule-9__hard__q0", "answer": 1.0}]
         # Act
         recs = score_submission("corebench", sub, answers=ans)
@@ -535,7 +538,7 @@ class TestWholeSubmissionAndFamilies:
         # Assert
         assert recs[0]["verdict"] == "malformed"
 
-    def test_unsupported_expected_type_is_malformed(self, tmp_path):
+    def test_unsupported_expected_type_is_invalid_reference(self, tmp_path):
         # Arrange — a nested-dict oracle value matches no eval family.
         ans = _write_answers(
             tmp_path / "answers.jsonl",
@@ -550,7 +553,150 @@ class TestWholeSubmissionAndFamilies:
         # Act
         recs = score_submission("corebench", sub, answers=ans)
         # Assert
-        assert recs[0]["verdict"] == "malformed"
+        assert recs[0]["verdict"] == "invalid_reference"
+        assert recs[0]["reference_error_kind"] == "unsupported_reference_type"
+
+
+class TestReferenceIntegrity:
+    def test_strict_default_refuses_missing_answer_field(self, tmp_path):
+        tid = "corebench/capsule-1__hard__q0"
+        path = _write_answers(tmp_path / "answers.jsonl", [{"task_id": tid}])
+        with pytest.raises(_score.OracleIntegrityError) as error:
+            score_submission("corebench", [{"task_id": tid, "answer": 5}], answers=path)
+        assert error.value.diagnostics == [{"line": 1, "kind": "missing_answer_field"}]
+
+    def test_present_null_reference_is_not_missing_answer_field(self, tmp_path):
+        tid = "corebench/capsule-1__hard__q0"
+        path = _write_answers(tmp_path / "answers.jsonl", [{"task_id": tid, "answer": None}])
+        row = score_submission("corebench", [{"task_id": tid, "answer": 5}], answers=path)[0]
+        assert row["verdict"] == "invalid_reference"
+        assert "oracle_diagnostics" not in row
+
+    def test_tolerant_missing_field_has_payload_free_diagnostics(self, tmp_path):
+        tid = "corebench/capsule-1__hard__q0"
+        path = _write_answers(tmp_path / "answers.jsonl", [
+            {"task_id": tid}, {"task_id": tid, "answer": {"value": 5}}])
+        rows = score_submission("corebench", [{"task_id": tid, "answer": 5}],
+                                answers=path, strict_oracle=False)
+        assert rows[0]["verdict"] == "correct"
+        assert rows[0]["oracle_integrity"] == "invalid"
+        assert rows[0]["oracle_diagnostics"] == [{"line": 1, "kind": "missing_answer_field"}]
+
+    @pytest.mark.parametrize("has_valid", [False, True])
+    def test_public_default_refuses_malformed_oracle_records(self, tmp_path, has_valid):
+        path = tmp_path / "answers.jsonl"
+        tid = "corebench/capsule-1__hard__q0"
+        valid = json.dumps({"task_id": tid, "answer": {"value": 0.9996}}) + "\n"
+        path.write_text((valid if has_valid else "") + "not json\n[]\n")
+        with pytest.raises(_score.OracleIntegrityError) as error:
+            score_submission("corebench", [{"task_id": tid, "answer": 0.9996}], answers=path)
+        assert len(error.value.diagnostics) == 2
+        assert "0.9996" not in str(error.value)
+
+    @pytest.mark.parametrize("has_valid", [False, True])
+    def test_explicit_tolerant_public_mode_is_diagnostic_only(self, tmp_path, has_valid):
+        path = tmp_path / "answers.jsonl"
+        tid = "corebench/capsule-1__hard__q0"
+        valid = json.dumps({"task_id": tid, "answer": {"value": 0.9996}}) + "\n"
+        path.write_text((valid if has_valid else "") + "not json\n[]\n")
+        rows = score_submission("corebench", [{"task_id": tid, "answer": 0.9996}],
+                                answers=path, strict_oracle=False)
+        diagnostics = []
+        _score._load_oracle(path, diagnostics=diagnostics)
+        assert len(diagnostics) == 2
+        if has_valid:
+            assert len(rows) == 1 and rows[0]["verdict"] == "correct"
+            assert rows[0]["oracle_integrity"] == "invalid"
+            assert rows[0]["oracle_diagnostics"] == diagnostics
+        else:
+            # Empty results in this explicit diagnostic mode are NOT a score
+            # or a complete-assignment/oracle qualification.
+            assert rows == []
+
+    @pytest.mark.parametrize("invalid", [None, True, "not numeric", "nan", float("inf")])
+    def test_invalid_numeric_reference_is_not_dropped(self, tmp_path, invalid):
+        tid = "corebench/capsule-1__hard__q0"
+        path = _write_answers(tmp_path / "answers.jsonl", [
+            {"task_id": tid, "answer": {"value": value}}
+            for value in (0.9996, invalid, 0.9996)
+        ])
+        row = score_submission("corebench", [{"task_id": tid, "answer": 0.9996}],
+                               answers=path)[0]
+        assert row["verdict"] == "invalid_reference"
+        assert row["n_references"] == 3
+        assert row["reference_error_kind"] == "invalid_numeric_reference"
+
+    @pytest.mark.parametrize("invalid", [True, "nan", "inf", 10 ** 400])
+    def test_invalid_numeric_submission_is_malformed(self, tmp_path, invalid):
+        tid = "corebench/capsule-1__hard__q0"
+        path = _one_numeric_answers(tmp_path)
+        row = score_submission("corebench", [{"task_id": tid, "answer": invalid}],
+                               answers=path)[0]
+        assert row["verdict"] == "malformed"
+        assert row["malformed_kind"] == "invalid_numeric_answer"
+
+    def test_arithmetic_reference_failure_preserves_valid_peer(self, tmp_path):
+        bad = "corebench/capsule-1__hard__q0"
+        good = "corebench/capsule-1__hard__q1"
+        path = _write_answers(tmp_path / "answers.jsonl", [
+            {"task_id": bad, "answer": {"value": 1e308}},
+            {"task_id": bad, "answer": {"value": -1e308}},
+            {"task_id": good, "answer": {"value": 0.9996}},
+        ])
+        rows = score_submission("corebench", [
+            {"task_id": bad, "answer": 0}, {"task_id": good, "answer": 0.9996}
+        ], answers=path)
+        assert [r["verdict"] for r in rows] == ["invalid_reference", "correct"]
+        assert rows[0]["reference_error_kind"] == "numeric_reference_arithmetic"
+
+    def test_oracle_tolerant_diagnostics_and_opt_in_strict_refusal(self, tmp_path):
+        path = _one_numeric_answers(tmp_path)
+        with path.open("a") as fh:
+            fh.write("not json\n[]\n")
+        diagnostics = []
+        oracle = _score._load_oracle(path, diagnostics=diagnostics)
+        assert len(oracle) == 1
+        assert diagnostics == [{"line": 2, "kind": "unparseable_record"},
+                               {"line": 3, "kind": "record_not_object"}]
+        with pytest.raises(_score.OracleIntegrityError) as caught:
+            score_submission("corebench", [], answers=path, strict_oracle=True)
+        assert caught.value.diagnostics == diagnostics
+        assert "0.9996" not in str(caught.value)
+
+    def test_partial_submission_keeps_missing_assigned_question(self, tmp_path):
+        tids = ["corebench/capsule-1__hard__q0", "corebench/capsule-1__hard__q1"]
+        path = _write_answers(tmp_path / "answers.jsonl", [
+            {"task_id": tid, "answer": {"value": 0.9996}} for tid in tids
+        ])
+        rows = score_submission("corebench", [{"task_id": tids[0], "answer": 0.9996}],
+                                answers=path)
+        assert [r["verdict"] for r in rows] == ["correct", "malformed"]
+        assert rows[1]["malformed_kind"] == "no_submission"
+
+    def test_unassigned_well_formed_id_is_not_alias_joined(self, tmp_path):
+        path = _one_numeric_answers(tmp_path)
+        row = score_submission("corebench", [
+            {"task_id": "corebench/capsule-1__hard__q99", "answer": 0.9996}
+        ], answers=path)[0]
+        assert row["verdict"] == "malformed"
+        assert row["malformed_kind"] == "schema_invalid"
+
+    def test_explicit_public_assignment_selects_oracle_scope(self, tmp_path):
+        tids = ["corebench/capsule-1__hard__q0", "corebench/capsule-1__hard__q1"]
+        path = _write_answers(tmp_path / "answers.jsonl", [
+            {"task_id": tid, "answer": {"value": 5}} for tid in tids])
+        rows = score_submission("corebench", [{"task_id": tids[0], "answer": 5}],
+                                answers=path, expected_task_ids=[tids[0]],
+                                expected_answer_types={tids[0]: "number"})
+        assert len(rows) == 1 and rows[0]["verdict"] == "correct"
+
+    def test_public_answer_type_not_derived_from_reference(self, tmp_path):
+        tid = "corebench/capsule-1__hard__q0"
+        path = _one_numeric_answers(tmp_path)
+        row = score_submission("corebench", [{"task_id": tid, "answer": "0.9996"}],
+                               answers=path, expected_answer_types={tid: "number"})[0]
+        assert row["verdict"] == "malformed"
+        assert row["malformed_kind"] == "schema_invalid"
 
 
 if __name__ == "__main__":

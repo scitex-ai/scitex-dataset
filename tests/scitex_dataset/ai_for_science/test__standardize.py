@@ -536,17 +536,17 @@ class TestIdempotencyAndForce:
         # Assert
         assert result["n_materialized"] == 0
 
-    def test_force_reextracts_a_clobbered_capsule(self, materialized):
-        # Arrange — clobber an extracted file, then force re-extract.
+    def test_force_preserves_and_refuses_a_clobbered_capsule(self, materialized):
+        # Changed historical materializations must survive even --force.
         _, for_solver, raw, tasks, _ = materialized
         victim = for_solver / "capsule-001" / "input" / "code" / "main.py"
         victim.write_text("TAMPERED\n")
         # Act
-        _standardize.write_for_solver_per_capsule(
-            for_solver_dir=for_solver, tasks=tasks, raw_dir=raw, force=True
-        )
-        # Assert
-        assert "print('a')" in victim.read_text()
+        with pytest.raises(_standardize.StaleMaterializationError):
+            _standardize.write_for_solver_per_capsule(
+                for_solver_dir=for_solver, tasks=tasks, raw_dir=raw, force=True
+            )
+        assert victim.read_text() == "TAMPERED\n"
 
 
 class TestArchiveExtraction:
@@ -830,6 +830,328 @@ class TestValueLeakGuard:
         )
         # Assert
         assert (for_solver / "capsule-001" / "input" / "code" / "main.py").is_file()
+
+
+def _generated_result(tmp_path, answers, submission, *, mode="numeric"):
+    script = tmp_path / "evaluate.py"
+    script.write_text(_standardize.render_evaluate_py(mode))
+    oracle = tmp_path / "answers.jsonl"
+    oracle.write_text("".join(json.dumps(row) + "\n" for row in answers))
+    submitted = tmp_path / "submission.json"
+    submitted.write_text(json.dumps(submission))
+    process = subprocess.run([sys.executable, str(script), "--submission",
+                              str(submitted), "--answers", str(oracle)],
+                             capture_output=True, text=True, timeout=3)
+    assert process.returncode == 0, process.stderr
+    return json.loads(process.stdout)
+
+
+class TestGeneratedReferenceContract:
+    def test_repeated_references_have_one_explicit_ungradeable_question(self, tmp_path):
+        rows = [{"task_id": "synthetic/q1", "answer": {"value": value}}
+                for value in (3.1, 3.2, 3.3)]
+        rows.append({"task_id": "synthetic/q2", "answer": {"value": 5}})
+        result = _generated_result(tmp_path, rows, [
+            {"task_id": "synthetic/q1", "answer": 3.3},
+            {"task_id": "synthetic/q2", "answer": 5}])
+        assert result["n"] == 2
+        assert result["n_scored"] == result["n_correct"] == 1
+        assert result["n_ungradeable"] == 1
+        assert result["per_task"][0]["status"] == "needs_reference_policy"
+        assert result["per_task"][0]["n_references"] == 3
+        assert "correct" not in result["per_task"][0]
+
+    @pytest.mark.parametrize("value", [None, True, "nan", "inf", 10 ** 400])
+    def test_invalid_reference_is_not_invalid_solver_answer(self, tmp_path, value):
+        result = _generated_result(tmp_path, [
+            {"task_id": "synthetic/q1", "answer": {"value": value}},
+            {"task_id": "synthetic/q2", "answer": {"value": 5}}
+        ], [{"task_id": "synthetic/q1", "answer": 5},
+            {"task_id": "synthetic/q2", "answer": 5}])
+        assert result["per_task"][0]["status"] == "invalid_reference"
+        assert result["n"] == 2 and result["n_scored"] == 1
+        assert result["per_task"][1]["correct"] is True
+
+    @pytest.mark.parametrize("value", [True, "nan", "inf", 10 ** 400])
+    def test_invalid_numeric_submission_remains_malformed(self, tmp_path, value):
+        result = _generated_result(tmp_path, [
+            {"task_id": "synthetic/q1", "answer": {"value": 5}}
+        ], [{"task_id": "synthetic/q1", "answer": value}])
+        assert result["per_task"][0]["status"] == "malformed"
+        assert result["per_task"][0]["correct"] is False
+        assert result["n"] == 1 and result["n_scored"] == 1
+        assert result["n_correct"] == 0 and result["score"] == 0
+
+    def test_missing_numeric_submission_remains_denominator_failure(self, tmp_path):
+        result = _generated_result(tmp_path, [
+            {"task_id": "synthetic/q1", "answer": {"value": 5}},
+            {"task_id": "synthetic/q2", "answer": {"value": 5}}
+        ], [{"task_id": "synthetic/q2", "answer": 5}])
+        assert result["per_task"][0]["status"] == "no_submission"
+        assert result["per_task"][0]["correct"] is False
+        assert result["n"] == result["n_scored"] == 2
+        assert result["score"] == 0.5 and result["n_ungradeable"] == 0
+
+    def test_ungradeable_assignment_has_no_measured_score(self, tmp_path):
+        result = _generated_result(tmp_path, [
+            {"task_id": "synthetic/q1", "answer": {"value": 5}},
+            {"task_id": "synthetic/q1", "answer": {"value": 6}}
+        ], [{"task_id": "synthetic/q1", "answer": 5}])
+        assert result["n"] == result["n_ungradeable"] == 1
+        assert result["n_scored"] == 0 and result["score"] is None
+
+    def test_single_reference_keeps_scalar_tolerance(self, tmp_path):
+        result = _generated_result(tmp_path, [
+            {"task_id": "synthetic/q1", "answer": {"value": 1000}},
+            {"task_id": "synthetic/q2", "answer": {"value": 0}}
+        ], [{"task_id": "synthetic/q1", "answer": 1000.5},
+            {"task_id": "synthetic/q2", "answer": 0.0005}])
+        assert result["n_scored"] == result["n_correct"] == 2
+
+    def test_duplicate_submission_refuses_instead_of_last_wins(self, tmp_path):
+        script = tmp_path / "evaluate.py"
+        script.write_text(_standardize.render_evaluate_py("numeric"))
+        oracle = tmp_path / "answers.jsonl"
+        oracle.write_text(json.dumps({"task_id": "synthetic/q1", "answer": {"value": 5}}))
+        submitted = tmp_path / "submission.json"
+        submitted.write_text(json.dumps([
+            {"task_id": "synthetic/q1", "answer": 0},
+            {"task_id": "synthetic/q1", "answer": 5}]))
+        result = subprocess.run([sys.executable, str(script), "--submission", str(submitted),
+                                 "--answers", str(oracle)], capture_output=True, text=True,
+                                timeout=3)
+        assert result.returncode != 0
+        assert "duplicate submission task_id" in result.stderr
+        assert not result.stdout
+
+
+class TestGeneratedStringSubmissionContract:
+    @pytest.mark.parametrize("submission,status", [
+        ([], "no_submission"),
+        ([{"task_id": "synthetic/q1", "answer": None}], "malformed"),
+    ])
+    def test_absent_null_remains_graded_failure(self, tmp_path, submission, status):
+        result = _generated_result(tmp_path, [
+            {"task_id": "synthetic/q1", "answer": {"value": "none"}}
+        ], submission, mode="string")
+        row = result["per_task"][0]
+        assert row.get("status") == status
+        assert row["correct"] is False
+        assert result["n"] == result["n_scored"] == 1
+        assert result["n_correct"] == result["n_ungradeable"] == 0
+        assert result["score"] == 0.0
+
+    @pytest.mark.parametrize("expected,submitted", [
+        ("none", "none"),
+        ("Mixed CASE Answer", "\n mixed  case\tanswer \n"),
+        ("42", "42"),
+        ("true", True),
+        ("42", 42),
+        ("1.5", 1.5),
+        ("['x']", ["x"]),
+        ("{'x': 'y'}", {"x": "y"}),
+    ])
+    def test_nonnull_answer_keeps_original_coercion_case_whitespace_policy(self, tmp_path,
+                                                                         expected, submitted):
+        result = _generated_result(tmp_path, [
+            {"task_id": "synthetic/q1", "answer": {"value": expected}}
+        ], [{"task_id": "synthetic/q1", "answer": submitted}], mode="string")
+        assert result["per_task"][0]["correct"] is True
+        assert result["n"] == result["n_scored"] == result["n_correct"] == 1
+        assert result["score"] == 1.0
+
+
+class TestGeneratedStringReferenceContract:
+    def test_missing_reference_answer_field_refuses_without_payload(self, tmp_path):
+        script = tmp_path / "evaluate.py"
+        script.write_text(_standardize.render_evaluate_py("string"))
+        oracle = tmp_path / "answers.jsonl"
+        sentinel = "synthetic-private-reference-do-not-print"
+        oracle.write_text(json.dumps({"task_id": "synthetic/q1", "meta": sentinel}))
+        submitted = tmp_path / "submission.json"
+        submitted.write_text(json.dumps([{"task_id": "synthetic/q1", "answer": "none"}]))
+        result = subprocess.run([sys.executable, str(script), "--submission", str(submitted),
+                                 "--answers", str(oracle)], capture_output=True, text=True,
+                                timeout=3)
+        assert result.returncode != 0
+        assert "reference record missing answer field" in result.stderr
+        assert sentinel not in result.stderr
+        assert not result.stdout
+
+    def test_present_null_string_reference_is_ungradeable(self, tmp_path):
+        result = _generated_result(tmp_path, [
+            {"task_id": "synthetic/q1", "answer": None}
+        ], [{"task_id": "synthetic/q1", "answer": "none"}], mode="string")
+        row = result["per_task"][0]
+        assert row.get("status") == "invalid_reference"
+        assert "correct" not in row
+        assert result["n"] == result["n_ungradeable"] == 1
+        assert result["n_scored"] == 0 and result["score"] is None
+
+    def test_actual_literal_none_reference_and_answer_remain_correct(self, tmp_path):
+        result = _generated_result(tmp_path, [
+            {"task_id": "synthetic/q1", "answer": "none"}
+        ], [{"task_id": "synthetic/q1", "answer": "none"}], mode="string")
+        assert result["per_task"][0]["correct"] is True
+        assert result["n"] == result["n_scored"] == result["n_correct"] == 1
+        assert result["score"] == 1.0
+
+
+class TestGeneratedNullReferenceWrapperContract:
+    @pytest.mark.parametrize("payload", [{"value": None}, {"answer": None, "ideal": None}])
+    def test_all_null_recognized_wrapper_is_ungradeable(self, tmp_path, payload):
+        result = _generated_result(tmp_path, [
+            {"task_id": "synthetic/q1", "answer": payload}
+        ], [{"task_id": "synthetic/q1", "answer": str(payload)}], mode="string")
+        assert result["per_task"][0].get("status") == "invalid_reference"
+        assert "correct" not in result["per_task"][0]
+        assert result["n"] == result["n_ungradeable"] == 1
+        assert result["n_scored"] == 0 and result["score"] is None
+
+    @pytest.mark.parametrize("payload,submitted", [
+        ({"answer": None, "ideal": "none"}, "none"),
+        ({"unrecognized": "benign-value"}, "{'unrecognized': 'benign-value'}"),
+    ])
+    def test_nonnull_fallback_and_nonwrapper_dict_policy_are_preserved(self, tmp_path,
+                                                                   payload, submitted):
+        result = _generated_result(tmp_path, [
+            {"task_id": "synthetic/q1", "answer": payload}
+        ], [{"task_id": "synthetic/q1", "answer": submitted}], mode="string")
+        assert result["per_task"][0]["correct"] is True
+        assert result["n"] == result["n_scored"] == result["n_correct"] == 1
+        assert result["score"] == 1.0
+
+
+def _materialized_bytes(root):
+    return {path.relative_to(root).as_posix(): path.read_bytes()
+            for path in root.rglob("*") if path.is_file()}
+
+
+class TestMaterializationIdentity:
+    @pytest.mark.parametrize("force", [False, True])
+    def test_legacy_root_refuses_before_mapper_or_purge(self, two_capsule, force):
+        _, fs, raw, tasks = two_capsule
+        fs.mkdir()
+        (fs / "tasks.jsonl").write_text("historical output\n")
+        before = _materialized_bytes(fs)
+        with pytest.raises(_standardize.StaleMaterializationError):
+            _standardize.write_for_solver_per_capsule(
+                for_solver_dir=fs, tasks=tasks, raw_dir=raw, force=force)
+        assert _materialized_bytes(fs) == before
+
+    @pytest.mark.parametrize("change", ["tasks", "archive", "mapper", "ledger", "source", "references"])
+    def test_stale_cache_is_preserved_even_force(self, materialized, change):
+        _, fs, raw, tasks, _ = materialized
+        identity = None
+        references = None
+        if change == "tasks":
+            tasks = [{**row, "prompt": "changed assignment"} for row in tasks]
+        elif change == "archive":
+            _make_archive(raw / "capsules/capsule-aaa111.tar.gz",
+                          {"code/main.py": "print('changed')\n"})
+        elif change == "mapper":
+            (fs / "index.jsonl").write_text("historical mapper changed\n")
+        elif change == "ledger":
+            (fs / ".materialization-identity.json").write_text("[]")
+        elif change == "source":
+            identity = {"revision": "changed"}
+        else:
+            references = {tasks[0]["task_id"]: [0.111111]}
+        before = _materialized_bytes(fs)
+        with pytest.raises(_standardize.StaleMaterializationError):
+            _standardize.write_for_solver_per_capsule(
+                for_solver_dir=fs, tasks=tasks, raw_dir=raw, force=True,
+                source_identity=identity, reference_values=references)
+        assert _materialized_bytes(fs) == before
+
+    def test_changed_friendly_mapping_preserves_existing_capsules(self, materialized):
+        _, fs, raw, tasks, _ = materialized
+        changed = [row for row in tasks if "bbb222" in row["task_id"]]
+        before = _materialized_bytes(fs)
+        with pytest.raises(_standardize.StaleMaterializationError):
+            _standardize.write_for_solver_per_capsule(
+                for_solver_dir=fs, tasks=changed, raw_dir=raw, force=True)
+        assert _materialized_bytes(fs) == before
+
+    def test_only_does_not_require_unselected_archive(self, two_capsule):
+        _, fs, raw, tasks = two_capsule
+        (raw / "capsules/capsule-bbb222.tar.gz").unlink()
+        result = _standardize.write_for_solver_per_capsule(
+            for_solver_dir=fs, tasks=tasks, raw_dir=raw, only="capsule-001")
+        assert result["n_materialized"] == 1
+
+    def test_private_identity_remains_outside_solver_capsules(self, two_capsule):
+        _, fs, raw, tasks = two_capsule
+        source = {"revision": "private-source-identity"}
+        result = _standardize.write_for_solver_per_capsule(
+            for_solver_dir=fs, tasks=tasks, raw_dir=raw, source_identity=source)
+        ledger_path = Path(result["identity_ledger"])
+        assert ledger_path.stat().st_mode & 0o777 == 0o600
+        assert json.loads(ledger_path.read_text())["source_identity"] == source
+        for cap in (fs / "capsule-001", fs / "capsule-002"):
+            assert b"private-source-identity" not in b"".join(_materialized_bytes(cap).values())
+
+    def test_operator_inventory_survives_qualified_reuse(self, materialized):
+        _, fs, raw, tasks, _ = materialized
+        inventory = fs / "inventory.json"
+        inventory.write_text('{"operator_metadata": true}\n')
+        result = _standardize.write_for_solver_per_capsule(
+            for_solver_dir=fs, tasks=tasks, raw_dir=raw)
+        assert result["n_skipped"] == 2
+        assert inventory.read_text() == '{"operator_metadata": true}\n'
+
+    @pytest.mark.parametrize("value", [float("nan"), float("inf"), 10 ** 400])
+    def test_invalid_masking_reference_refuses_before_outputs(self, two_capsule, value):
+        _, fs, raw, tasks = two_capsule
+        tid = next(row["task_id"] for row in tasks if "aaa111" in row["task_id"])
+        with pytest.raises(_standardize.InvalidReferenceSourceError):
+            _standardize.write_for_solver_per_capsule(
+                for_solver_dir=fs, tasks=tasks, raw_dir=raw,
+                reference_values={tid: [value]})
+        assert not fs.exists()
+
+
+class TestPublicAnswerSchemaAndReferenceSamples:
+    def test_schema_is_derived_only_from_public_answer_type(self):
+        tasks = [{"task_id": "synthetic/q1", "answer_type": "number"},
+                 {"task_id": "synthetic/q2", "answer_type": "list"},
+                 {"task_id": "synthetic/q3"}]
+        schema = _standardize.submission_schema_for_tasks(tasks)
+        assert len(schema["items"]["allOf"]) == 2
+        assert schema["items"]["allOf"][0]["then"]["properties"]["answer"]["type"] == ["number", "null"]
+        assert schema["items"]["allOf"][1]["then"]["properties"]["answer"]["type"] == ["array", "null"]
+        assert schema["items"]["properties"]["answer"] == {}
+
+    def test_bad_declaration_refuses_before_output(self, two_capsule):
+        _, fs, raw, tasks = two_capsule
+        tasks[0]["answer_type"] = "derived-from-oracle"
+        with pytest.raises(ValueError, match="answer_type"):
+            _standardize.write_for_solver_per_capsule(
+                for_solver_dir=fs, tasks=tasks, raw_dir=raw)
+        assert not fs.exists()
+
+    def test_all_reference_samples_reach_existing_value_guard(self, tmp_path):
+        raw, fs, tasks, _ = _build_leaky_capsule(tmp_path)
+        tid = tasks[0]["task_id"]
+        _standardize.write_for_solver_per_capsule(
+            for_solver_dir=fs, tasks=tasks, raw_dir=raw,
+            reference_values={tid: [0.111111, 0.931818]})
+        contents = b"".join(_materialized_bytes(fs / "capsule-001/input").values())
+        assert b"0.931818" not in contents
+
+    def test_list_valued_answer_is_one_reference_sample(self, tmp_path):
+        raw = tmp_path / "raw"
+        fs = tmp_path / "solver"
+        value = ["distinctive-ref-one", "distinctive-ref-two"]
+        _make_archive(raw / "capsule-list.tar.gz", {"code/main.py": str(value)})
+        tasks = [{"task_id": "synthetic/q1", "benchmark": "synthetic",
+                  "prompt": "p", "data": "./capsule-list.tar.gz"}]
+        _standardize.write_for_solver_per_capsule(
+            for_solver_dir=fs, tasks=tasks, raw_dir=raw,
+            reference_values={"synthetic/q1": [value]})
+        body = (fs / "capsule-001/input/main.py").read_text()
+        assert str(value) not in body
+        assert _standardize._VALUE_REDACTION in body
 
 
 # EOF

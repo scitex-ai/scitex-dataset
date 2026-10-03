@@ -85,6 +85,7 @@ def standardize(
     eval_dir: Path,
     only: str | None = None,
     force: bool = False,
+    source_identity: dict | None = None,
     **_,
 ) -> dict:
     """Read ``raw_dir/problems.csv``, build the for_solver + eval views.
@@ -145,6 +146,7 @@ def standardize(
         raw_dir=raw_dir,
         only=only,
         force=force,
+        source_identity=source_identity,
     )
     ev = write_eval(
         eval_dir=eval_dir,
@@ -172,14 +174,15 @@ def download(
     download_full: bool = False,
     hf_token: str | None = None,
     max_workers: int = 4,
+    revision: str | None = None,
     **_,
 ) -> dict:
     """Pull the BMB HF snapshot into ``raw_dir`` exactly as-is.
 
-    Preview snapshot (~11 MB, public) is always attempted. When
-    ``download_full=True`` and HF access is granted the full set
-    (~159 GB, gated) is pulled afterwards. ``huggingface_hub`` is
-    required. No file is relocated — the answer-bearing artifacts stay
+    Preview snapshot (~11 MB, public) is the default. With
+    ``download_full=True`` the full set (~159 GB, gated) is acquired in
+    ``raw_dir/variants/full`` without merging with retained preview files.
+    ``huggingface_hub`` is required. The answer-bearing artifacts stay
     in the operator-private ``raw_dir`` and leak-prevention happens at
     ``standardize`` time (only ``for_solver`` is ever mounted).
     """
@@ -191,34 +194,28 @@ def download(
             "Install with: pip install 'scitex-dataset[huggingface]'"
         ) from exc
 
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    pulled: list[str] = []
+    snapshot_dir = raw_dir / "variants" / "full" if download_full else raw_dir
+    snapshot_dir.mkdir(parents=True, exist_ok=True)
+    repo_id = HF_REPO_ID_FULL if download_full else HF_REPO_ID_PREVIEW
 
     # snapshot_download already does per-file etag/sha skip natively, so
     # re-runs only re-pull files whose upstream content changed — no
     # extra integrity bookkeeping needed on our side.
     snapshot_download(
-        repo_id=HF_REPO_ID_PREVIEW,
+        repo_id=repo_id,
         repo_type=HF_REPO_TYPE,
-        local_dir=str(raw_dir),
+        local_dir=str(snapshot_dir),
         max_workers=max_workers,
         token=hf_token,
+        **({"revision": revision} if revision is not None else {}),
     )
-    pulled.append(HF_REPO_ID_PREVIEW)
-
-    if download_full:
-        snapshot_download(
-            repo_id=HF_REPO_ID_FULL,
-            repo_type=HF_REPO_TYPE,
-            local_dir=str(raw_dir),
-            max_workers=max_workers,
-            token=hf_token,
-        )
-        pulled.append(HF_REPO_ID_FULL)
 
     return {
-        "raw_dir": str(raw_dir),
-        "snapshots_pulled": pulled,
+        "raw_dir": str(snapshot_dir),
+        "snapshots_pulled": [repo_id],
+        "source_url": f"https://huggingface.co/datasets/{repo_id}",
+        "variant": "full" if download_full else "preview",
+        "requested_revision": revision,
     }
 
 
@@ -234,27 +231,53 @@ def prepare(
     version: str = "v0-unstamped",
     skip_download: bool = False,
     download_full: bool = False,
+    only: str | None = None,
+    force: bool = False,
+    hf_token: str | None = None,
+    max_workers: int = 4,
+    revision: str | None = None,
     **_,
 ) -> dict:
     """Run the full BioMysteryBench preparation pipeline.
 
-    Pass ``download_full=True`` to attempt the gated 159 GB set after
-    the preview. Pass ``skip_download=True`` to skip both HF pulls if
-    the upstream CSV has already been hand-staged under ``raw_dir``.
+    Pass ``download_full=True`` to acquire the gated 159 GB set in an
+    isolated full-variant directory. ``skip_download=True`` reads a
+    hand-staged preview under ``raw_dir`` or full under
+    ``raw_dir/variants/full``. ``only`` selects materialization, not HF
+    acquisition. ``revision`` is a requested source revision, not proof
+    that a mutable name resolved to a particular upstream commit.
     """
     if paths is None:
         paths = resolve_paths(BENCHMARK, dataset_root=dataset_root)
 
+    acquisition_raw_dir = paths.raw_dir
+    snapshot_dir = paths.raw_dir / "variants" / "full" if download_full else paths.raw_dir
+    if download_full:
+        variant_root = paths.root / "variants" / "full"
+        paths = BenchmarkPaths(
+            benchmark=BENCHMARK,
+            root=variant_root,
+            raw_dir=snapshot_dir,
+            for_solver_dir=variant_root / "for_solver",
+            eval_dir=variant_root / "eval",
+            manifest_dir=paths.manifest_dir / "variants" / "full",
+        )
     out: dict = {"benchmark": BENCHMARK, "paths": paths.as_dict()}
     if not skip_download:
         out["download"] = download(
-            raw_dir=paths.raw_dir,
+            raw_dir=acquisition_raw_dir,
             download_full=download_full,
+            hf_token=hf_token,
+            max_workers=max_workers,
+            revision=revision,
         )
     out["standardize"] = standardize(
-        raw_dir=paths.raw_dir,
+        raw_dir=snapshot_dir,
         for_solver_dir=paths.for_solver_dir,
         eval_dir=paths.eval_dir,
+        only=only,
+        force=force,
+        source_identity={"repo_id": HF_REPO_ID_FULL if download_full else HF_REPO_ID_PREVIEW, "variant": "full" if download_full else "preview", "requested_revision": revision},
     )
 
     manifest_path = write_manifest(
@@ -262,7 +285,7 @@ def prepare(
         id=COHORT_ID,
         name=COHORT_NAME,
         version=version,
-        source_url=SOURCE_URL,
+        source_url=f"https://huggingface.co/datasets/{HF_REPO_ID_FULL if download_full else HF_REPO_ID_PREVIEW}",
         benchmark=BENCHMARK,
         tracked_paths=[Path(out["standardize"]["for_solver"]["index"])],
         tracked_root=paths.for_solver_dir,

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Tests for ai_for_science._validate (structural, ORACLE-FREE validator).
 
-No mocks / monkeypatch: every check uses real submission objects and,
-for the oracle-free proof, a real tmp dir with NO answers.jsonl present.
+Checks use real submission objects and synthetic public assignment files.
+CLI controls use real Click dispatch without an oracle, download or scorer.
 """
 
 import json
@@ -231,16 +231,16 @@ class TestExpectedTaskIdsFromForSolver:
         # Assert
         assert ids is None
 
-    def test_index_skips_blank_and_bad_lines(self, tmp_path):
-        # Arrange — a blank line and a malformed JSON line are skipped.
+    def test_index_reports_bad_lines_and_ignores_blank_separators(self, tmp_path):
+        # Malformed present metadata must not silently disable membership.
         idx = tmp_path / "index.jsonl"
         idx.write_text(
             "\n{not json\n" + json.dumps({"task_ids": ["corebench/a__hard__q0"]}) + "\n"
         )
-        # Act
-        ids = _validate.expected_task_ids_from_for_solver(tmp_path)
-        # Assert
-        assert ids == ["corebench/a__hard__q0"]
+        with pytest.raises(_validate.PublicTaskContractError) as caught:
+            _validate.expected_task_ids_from_for_solver(tmp_path)
+        assert caught.value.errors[0]["kind"] == "invalid_assignment"
+        assert caught.value.errors[0]["path"] == "$assignment[2]"
 
 
 class TestTaskIdEdgeShapes:
@@ -416,6 +416,237 @@ class TestReasonOnNull:
         # Assert
         offenders = [e for e in result["errors"] if e["kind"] == "missing_reason"]
         assert "corebench/capsule-1__hard__q1" in offenders[0]["message"]
+
+
+# Additive operator320/324 controls: public identity/type feedback only.
+_NEW_A = "corebench/capsule-1__question_" + "a" * 64
+_NEW_B = "corebench/capsule-1__question_" + "b" * 64
+_NEW_C = "corebench/capsule-1__question_" + "c" * 64
+
+
+class TestExactSelectedMembership:
+    def test_duplicate_cannot_hide_missing_peer(self):
+        result = validate_submission("corebench", [{"task_id": _NEW_A, "answer": 0}, {"task_id": _NEW_A, "answer": 1}], expected_task_ids=[_NEW_A, _NEW_B])
+        assert result["ok"] is False
+        assert {e["kind"] for e in result["errors"]} == {"duplicate_task_id", "missing_task_id"}
+        assert next(e for e in result["errors"] if e["kind"] == "missing_task_id")["task_id"] == _NEW_B
+
+    def test_unknown_cannot_replace_assigned_peer(self):
+        result = validate_submission("corebench", [{"task_id": _NEW_A, "answer": 0}, {"task_id": _NEW_C, "answer": 1}], expected_task_ids=[_NEW_A, _NEW_B])
+        assert result["ok"] is False
+        assert {e["kind"] for e in result["errors"]} == {"unknown_task_id", "missing_task_id"}
+
+    def test_reordered_distinct_tasks_are_valid(self):
+        result = validate_submission("corebench", [{"task_id": _NEW_B, "answer": 0}, {"task_id": _NEW_A, "answer": 1}], expected_task_ids=[_NEW_A, _NEW_B])
+        assert result == {"ok": True, "errors": []}
+
+    def test_legacy_id_never_aliases_new_question_id(self):
+        result = validate_submission("corebench", _valid_corebench_sub(), expected_task_ids=[_NEW_A])
+        assert result["ok"] is False
+        assert {e["kind"] for e in result["errors"]} == {"unknown_task_id", "missing_task_id"}
+
+    def test_duplicate_assignment_is_not_silently_deduplicated(self):
+        result = validate_submission("corebench", [{"task_id": _NEW_A, "answer": 1}], expected_task_ids=[_NEW_A, _NEW_A])
+        assert any(e["kind"] == "duplicate_assignment" for e in result["errors"])
+
+    def test_empty_assignment_is_checked(self):
+        assert validate_submission("corebench", [], expected_task_ids=[]) == {"ok": True, "errors": []}
+        result = validate_submission("corebench", [{"task_id": _NEW_A, "answer": 0}], expected_task_ids=[])
+        assert result["ok"] is False
+        assert any(e["kind"] == "unknown_task_id" for e in result["errors"])
+
+    def test_host_partial_mode_leaves_missing_status_to_scorer(self):
+        result = validate_submission("corebench", [{"task_id": _NEW_A, "answer": 0}], expected_task_ids=[_NEW_A, _NEW_B], require_complete=False)
+        assert result == {"ok": True, "errors": []}
+
+    def test_host_partial_mode_still_checks_membership_and_duplicates(self):
+        result = validate_submission("corebench", [{"task_id": _NEW_C, "answer": 0}, {"task_id": _NEW_C, "answer": 1}], expected_task_ids=[_NEW_A], require_complete=False)
+        assert {e["kind"] for e in result["errors"]} == {"unknown_task_id", "duplicate_task_id"}
+
+    @pytest.mark.parametrize("task_id", ["corebench/capsule-1__question_a", "corebench/__question_" + "a" * 64, "corebench/cap__question_" + "g" * 64])
+    def test_new_question_id_requires_native_and_full_hex_digest(self, task_id):
+        result = validate_submission("corebench", [{"task_id": task_id, "answer": 0}])
+        assert any(e["kind"] == "bad_task_id" for e in result["errors"])
+
+
+class TestStrictPublicAnswerTypes:
+    @pytest.mark.parametrize("answer", [0, -2, 1.5, "0.94", False, [0, None, "x"], {"value": [0, True], "metadata": None}])
+    def test_undeclared_json_payloads_and_extra_fields_are_unchanged(self, answer):
+        import copy
+        sub = [{"task_id": _NEW_A, "answer": answer, "extra": {"keep": True}}]
+        before = copy.deepcopy(sub)
+        result = validate_submission("corebench", sub)
+        assert result["ok"] is True
+        assert [e["kind"] for e in result["errors"]] == ["unknown_field"]
+        assert sub == before
+        assert type(sub[0]["answer"]) is type(before[0]["answer"])
+
+    @pytest.mark.parametrize("declared,answer", [("number", 0), ("number", -1.25), ("integer", 0), ("string", "0.94"), ("boolean", False), ("list", [0, {"x": True}]), ("object", {"x": [0, None]}), ("json", {"x": False})])
+    def test_explicit_public_type_accepts_its_supported_value(self, declared, answer):
+        result = validate_submission("corebench", [{"task_id": _NEW_A, "answer": answer}], expected_answer_types={_NEW_A: declared})
+        assert result == {"ok": True, "errors": []}
+
+    @pytest.mark.parametrize("declared,answer", [("number", "0.94"), ("number", True), ("integer", 1.0), ("integer", False), ("string", 1), ("boolean", 1), ("list", {"x": 0}), ("object", [0])])
+    def test_declared_type_never_coerces_scientific_answer(self, declared, answer):
+        sub = [{"task_id": _NEW_A, "answer": answer}]
+        result = validate_submission("corebench", sub, expected_answer_types={_NEW_A: declared})
+        assert result["ok"] is False
+        assert any(e["kind"] == "wrong_answer_type" and e["field"] == "answer" and e["task_id"] == _NEW_A for e in result["errors"])
+        assert type(sub[0]["answer"]) is type(answer)
+
+    @pytest.mark.parametrize("answer", [(1, 2), {1: "x"}, {"nested": float("nan")}, float("inf")])
+    def test_non_json_or_nonfinite_payloads_are_format_errors(self, answer):
+        result = validate_submission("corebench", [{"task_id": _NEW_A, "answer": answer}])
+        assert result["ok"] is False
+        assert any(e["kind"] == "wrong_type" and e["path"] == "$[0].answer" for e in result["errors"])
+
+    def test_typed_null_preserves_original_reason_protocol(self):
+        result = validate_submission("corebench", [{"task_id": _NEW_A, "answer": None, "reason": "agent abstained: unavailable input"}], expected_answer_types={_NEW_A: "number"})
+        assert result == {"ok": True, "errors": []}
+
+    def test_answered_reason_keeps_legacy_optional_json_behavior(self):
+        result = validate_submission("corebench", [{"task_id": _NEW_A, "answer": 0, "reason": {"note": "kept"}}])
+        assert result == {"ok": True, "errors": []}
+
+    def test_invalid_public_type_is_assignment_error_even_for_null(self):
+        result = validate_submission("corebench", [{"task_id": _NEW_A, "answer": None, "reason": "agent abstained: unavailable"}], expected_answer_types={_NEW_A: "guess-from-reference"})
+        assert result["ok"] is False
+        assert any(e["kind"] == "invalid_assignment" for e in result["errors"])
+
+    def test_feedback_never_echoes_submitted_answer(self):
+        marker = "PRIVATE_ORACLE_SENTINEL_NOT_A_HINT"
+        result = validate_submission("corebench", [{"task_id": _NEW_A, "answer": marker}], expected_answer_types={_NEW_A: "number"})
+        feedback = json.dumps(result)
+        assert marker not in feedback
+        assert "number" in feedback
+        assert "input" not in result["errors"][0]
+
+
+class TestPublicSelectedTaskContract:
+    def test_selected_task_file_takes_precedence_over_catalog(self, tmp_path):
+        (tmp_path / "task.jsonl").write_text(json.dumps({"task_id": _NEW_A, "answer_type": "number"}) + "\n")
+        (tmp_path / "index.jsonl").write_text(json.dumps({"task_ids": [_NEW_B]}) + "\n")
+        contract = _validate.read_public_task_contract(tmp_path)
+        assert contract["ok"] is True
+        assert contract["scope"] == "selected"
+        assert contract["task_ids"] == [_NEW_A]
+        assert contract["answer_types"] == {_NEW_A: "number"}
+        assert _validate.expected_task_ids_from_for_solver(tmp_path) == [_NEW_A]
+
+    def test_absent_type_truthfully_defaults_to_json(self, tmp_path):
+        p = tmp_path / "task.jsonl"
+        p.write_text(json.dumps({"task_id": _NEW_A, "question": "synthetic public question", "input": {}, "output": {}}) + "\n")
+        contract = _validate.read_public_task_contract(p)
+        assert contract["ok"] is True
+        assert contract["answer_types"] == {_NEW_A: "json"}
+
+    @pytest.mark.parametrize("row", [[], {"task_id": 1}, {"task_id": _NEW_A, "answer_type": "numeric-from-oracle"}, {"wrong": "field"}])
+    def test_malformed_public_task_rows_are_attributed(self, tmp_path, row):
+        p = tmp_path / "task.jsonl"
+        p.write_text(json.dumps(row) + "\n")
+        contract = _validate.read_public_task_contract(p)
+        assert contract["ok"] is False
+        assert contract["errors"][0]["kind"] == "invalid_assignment"
+        assert contract["errors"][0]["path"].startswith("$assignment[1]")
+
+    @pytest.mark.parametrize("row", [[], {"task_ids": "not-a-list"}, {"task_ids": [1]}, {}])
+    def test_malformed_public_index_rows_are_attributed(self, tmp_path, row):
+        (tmp_path / "index.jsonl").write_text(json.dumps(row) + "\n")
+        contract = _validate.read_public_task_contract(tmp_path)
+        assert contract["ok"] is False
+        assert any(e["kind"] == "invalid_assignment" for e in contract["errors"])
+
+    def test_duplicate_assignment_rows_are_not_lost(self, tmp_path):
+        p = tmp_path / "task.jsonl"
+        p.write_text((json.dumps({"task_id": _NEW_A}) + "\n") * 2)
+        contract = _validate.read_public_task_contract(p)
+        assert contract["ok"] is False
+        assert contract["task_ids"] == [_NEW_A, _NEW_A]
+        assert any(e["kind"] == "duplicate_assignment" for e in contract["errors"])
+
+    def test_blank_lines_are_not_missing_or_bad_records(self, tmp_path):
+        p = tmp_path / "task.jsonl"
+        p.write_text("\n\n" + json.dumps({"task_id": _NEW_A}) + "\n\n")
+        contract = _validate.read_public_task_contract(p)
+        assert contract["ok"] is True
+        assert contract["task_ids"] == [_NEW_A]
+
+    def test_explicit_empty_assignment_stays_empty(self, tmp_path):
+        (tmp_path / "task.jsonl").write_text("\n")
+        assert _validate.expected_task_ids_from_for_solver(tmp_path) == []
+
+    def test_evaluator_filename_is_refused_without_reading_values(self, tmp_path):
+        p = tmp_path / "answers.jsonl"
+        p.write_text("PRIVATE_ORACLE_SENTINEL_NOT_A_HINT")
+        result = _validate.read_public_task_contract(p)
+        assert result["ok"] is False
+        assert "PRIVATE_ORACLE_SENTINEL_NOT_A_HINT" not in json.dumps(result)
+
+
+class TestValidateCli:
+    @staticmethod
+    def invoke(tmp_path, sub, *, tasks=None):
+        from types import SimpleNamespace
+        from click.testing import CliRunner
+        from scitex_dataset._cli._agentic import _make_validate_command
+        p = tmp_path / "submission.json"
+        p.write_text(json.dumps(sub))
+        args = ["--dataset-root", str(tmp_path), "--submission", str(p), "--json"]
+        if tasks is not None:
+            args += ["--tasks", str(tasks)]
+        return CliRunner().invoke(_make_validate_command("corebench", SimpleNamespace(BENCHMARK="corebench")), args)
+
+    def test_selected_scope_checks_only_selected_ids(self, tmp_path):
+        tasks = tmp_path / "task.jsonl"
+        tasks.write_text(json.dumps({"task_id": _NEW_A}) + "\n")
+        result = self.invoke(tmp_path, [{"task_id": _NEW_A, "answer": 0}], tasks=tasks)
+        assert result.exit_code == 0, result.output
+        parsed = json.loads(result.output)
+        assert parsed["ok"] is True
+        assert parsed["validation_scope"] == "selected"
+        assert parsed["validation_contract"] == _validate.VALIDATION_CONTRACT
+
+    def test_missing_default_metadata_explicitly_reports_shape_only(self, tmp_path):
+        result = self.invoke(tmp_path, [{"task_id": _NEW_A, "answer": 0}])
+        assert result.exit_code == 0, result.output
+        parsed = json.loads(result.output)
+        assert parsed["validation_scope"] == "shape-only"
+        assert any(e["kind"] == "shape_only" for e in parsed["errors"])
+
+    def test_explicit_missing_assignment_is_hard_error(self, tmp_path):
+        result = self.invoke(tmp_path, [{"task_id": _NEW_A, "answer": 0}], tasks=tmp_path / "missing" / "task.jsonl")
+        assert result.exit_code == 1
+        parsed = json.loads(result.output)
+        assert parsed["ok"] is False
+        assert parsed["validation_scope"] == "invalid-assignment"
+
+    def test_malformed_default_index_never_becomes_shape_only(self, tmp_path):
+        directory = tmp_path / "ai-for-science" / "corebench" / "for_solver"
+        directory.mkdir(parents=True)
+        (directory / "index.jsonl").write_text("{not json\n")
+        result = self.invoke(tmp_path, [{"task_id": _NEW_A, "answer": 0}])
+        assert result.exit_code == 1
+        parsed = json.loads(result.output)
+        assert parsed["validation_scope"] == "invalid-assignment"
+        assert not any(e["kind"] == "shape_only" for e in parsed["errors"])
+
+    def test_public_numeric_type_repair_feedback_is_oracle_free(self, tmp_path):
+        tasks = tmp_path / "task.jsonl"
+        tasks.write_text(json.dumps({"task_id": _NEW_A, "answer_type": "number"}) + "\n")
+        marker = "PRIVATE_ORACLE_SENTINEL_NOT_A_HINT"
+        result = self.invoke(tmp_path, [{"task_id": _NEW_A, "answer": marker}], tasks=tasks)
+        assert result.exit_code == 1
+        parsed = json.loads(result.output)
+        assert any(e["kind"] == "wrong_answer_type" for e in parsed["errors"])
+        assert marker not in result.output
+
+    def test_default_catalog_scope_is_truthfully_labeled(self, tmp_path):
+        directory = tmp_path / "ai-for-science" / "corebench" / "for_solver"
+        directory.mkdir(parents=True)
+        (directory / "index.jsonl").write_text(json.dumps({"task_ids": [_NEW_A, _NEW_B]}) + "\n")
+        result = self.invoke(tmp_path, [{"task_id": _NEW_A, "answer": 0}, {"task_id": _NEW_B, "answer": 1}])
+        assert result.exit_code == 0, result.output
+        assert json.loads(result.output)["validation_scope"] == "catalog"
 
 
 if __name__ == "__main__":

@@ -388,7 +388,7 @@ class TestDownload:
         # Assert
         assert result["snapshots_pulled"] == [biomysterybench.HF_REPO_ID_PREVIEW]
 
-    def test_download_full_pulls_preview_and_full(self, tmp_path):
+    def test_download_full_pulls_only_full_into_isolated_namespace(self, tmp_path):
         # Arrange
         rec = _SnapshotRecorder()
         raw_dir = tmp_path / "raw"
@@ -397,9 +397,10 @@ class TestDownload:
             result = biomysterybench.download(raw_dir=raw_dir, download_full=True)
         # Assert
         assert result["snapshots_pulled"] == [
-            biomysterybench.HF_REPO_ID_PREVIEW,
             biomysterybench.HF_REPO_ID_FULL,
         ]
+        assert Path(result["raw_dir"]) == raw_dir / "variants" / "full"
+        assert len(rec.calls) == 1
 
 
 class TestPrepareWithDownload:
