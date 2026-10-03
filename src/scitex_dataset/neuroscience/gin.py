@@ -398,10 +398,8 @@ def gin_download(
             logger.info(msg)
 
     # ----- backend selection ------------------------------------------------
-    # NOTE: `datalad` is an optional dependency with NO pip extra — the
-    # ecosystem allows only all/dev/docs extras, so there is no
-    # `scitex-dataset[datalad]` to name. The PyPI distribution is
-    # `datalad`, and the remedy below names exactly that.
+    # `datalad` is optional and has no scitex-dataset package extra.
+    # Install the `datalad` distribution directly when selecting that backend.
     backend = prefer
     if prefer in ("auto", "datalad"):
         try:
