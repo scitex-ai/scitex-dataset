@@ -4,6 +4,10 @@
 - **Date:** 2026-06-23
 - **Scope:** `scitex_dataset.ai_for_science` (corebench / bixbench / biomysterybench)
 
+## Status
+
+Accepted.
+
 ## Context
 
 CoreBench and similar *reproducibility* benchmarks ship the original authors'

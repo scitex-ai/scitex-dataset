@@ -16,6 +16,7 @@
 <p align="center">
   <a href="https://pypi.org/project/scitex-dataset/"><img src="https://img.shields.io/pypi/v/scitex-dataset?label=pypi" alt="pypi"></a>
   <a href="https://pypi.org/project/scitex-dataset/"><img src="https://img.shields.io/pypi/pyversions/scitex-dataset?label=python" alt="python"></a>
+  <a href="https://scitex-dataset.readthedocs.io/en/latest/"><img src="https://img.shields.io/readthedocs/scitex-dataset?label=docs" alt="docs"></a>
   <a href="https://github.com/ywatanabe1989/scitex-dataset/actions/workflows/rtd-sphinx-build-on-ubuntu-latest.yml"><img src="https://img.shields.io/github/actions/workflow/status/ywatanabe1989/scitex-dataset/rtd-sphinx-build-on-ubuntu-latest.yml?branch=develop&label=docs" alt="docs"></a>
 </p>
 <p align="center">
@@ -31,7 +32,7 @@
 | # | Problem | Solution |
 |---|---------|----------|
 | 1 | **Public dataset repositories balkanized** -- OpenNeuro (BIDS) + DANDI (NWB) + PhysioNet (WFDB) + Zenodo (generic) + GEO / ChEMBL / ClinicalTrials — different APIs, auth, download tools | **Unified fetcher** -- `stx.dataset.neuroscience.openneuro.fetch_all_datasets()` same call shape across all; local FTS5 search across metadata |
-| 2 | **"Download this BIDS dataset" means reading DataLad docs first** -- the barrier is tooling, not knowledge | **One-line fetch** -- no DataLad setup; the module handles auth, resumption, checksums transparently |
+| 2 | **DataLad setup required** — fetching one BIDS dataset means reading DataLad docs first; the barrier is tooling, not knowledge | **One-line fetch** -- no DataLad setup; the module handles auth, resumption, checksums transparently |
 
 ## Supported repositories
 
@@ -52,15 +53,45 @@
 
 <p align="center"><sub><b>Table 1.</b> Supported data repositories. Each source is queried via its public API; no authentication required for metadata access.</sub></p>
 
+## Demo
+
+```mermaid
+flowchart LR
+    Q["query<br/>'eeg motor imagery'"] --> A["scitex_dataset"]
+    A --> N["neuroscience/<br/>openneuro · dandi · physionet"]
+    A --> B["biology/<br/>geo · figshare · zenodo"]
+    A --> M["medical/<br/>clinicaltrials.gov"]
+    A --> P["pharmacology/<br/>chembl · moleculenet"]
+    A --> G["general/<br/>huggingface · openml"]
+    N & B & M & P & G --> F["filter_results()"]
+    F --> D["shared SciTeX store<br/>(database.py)"]
+    D --> O["DataFrame · JSON · download"]
+```
+
+<p align="center"><sub><b>Figure 1.</b> Query flow — one call fans out across domain fetchers, in-memory filtering, and the shared SciTeX store.</sub></p>
+
 ## Installation
+
+```bash
+uv pip install "scitex-dataset[all]"
+```
 
 Requires Python >= 3.10.
 
-```bash
-pip install scitex-dataset
-```
-
 > **MCP support**: `pip install scitex-dataset[mcp]`
+
+<details>
+<summary><strong>Per-feature extras</strong></summary>
+
+<br>
+
+| Extra | Provides |
+|-------|----------|
+| `mcp` | MCP server (`scitex-dataset mcp ...`, 20+ FastMCP tools) |
+| `huggingface` | HuggingFace Hub fetch/search/download (`huggingface-hub`) |
+| `all` | Everything above: `uv pip install "scitex-dataset[all]"` |
+
+</details>
 
 <details>
 <summary><strong>Targeting a specific Python (agent containers, system venvs, Spartan modules)</strong></summary>
@@ -100,26 +131,20 @@ See issue [#38](https://github.com/ywatanabe1989/scitex-dataset/issues/38).
 
 ## Architecture
 
+```mermaid
+flowchart LR
+    U["user code / agent"] --> P["Python API<br/>_api.py"]
+    U --> C["CLI<br/>scitex-dataset"]
+    C --> D["dispatch<br/>_sources.py"]
+    P --> D
+    M["MCP server<br/>_mcp/"] --> D
+    D --> N["domain fetchers<br/>neuroscience · biology · medical · pharmacology · general"]
+    N --> F["filter_results()"]
+    F --> S["shared SciTeX store<br/>database.py"]
+    S --> O["DataFrame · JSON · download"]
 ```
-scitex_dataset/
-├── __init__.py            ← public API (every *_fetch + filter/list_sources)
-├── __main__.py            ← `python -m scitex_dataset`
-├── _api.py                ← unified fetch dispatch
-├── _sources.py            ← source registry (id → fetcher)
-├── _config.py             ← PriorityConfig (cli > yaml > env > default)
-├── _branding.py           ← CLI banner / version helpers
-├── _index_schema.py       ← what a dataset record is (store Schema)
-├── database.py            ← the shared-store index (db_build / db_search)
-├── search.py              ← cross-source search + filter_results
-├── neuroscience/          ← openneuro, dandi, physionet
-├── biology/               ← geo, figshare, zenodo
-├── medical/               ← clinicaltrials.gov
-├── pharmacology/          ← chembl, moleculenet
-├── general/               ← huggingface, openml
-├── _cli/                  ← `scitex-dataset` CLI (Click groups)
-├── _mcp/                  ← MCP server tools
-└── _skills/               ← agent-facing skill files
-```
+
+<p align="center"><sub><b>Figure 2.</b> Module data flow — every interface funnels through the source registry into domain fetchers and the shared store.</sub></p>
 
 Sub-packages group fetchers by scientific domain; each leaf module
 exposes a `<source>_fetch(query, ...)` entry point registered in
@@ -248,21 +273,6 @@ scitex-dev skills export --package scitex-dataset  # Export to Claude Code
 | `data-sources` | All 11 supported repositories |
 
 </details>
-
-## Demo
-
-```mermaid
-flowchart LR
-    Q["query<br/>'eeg motor imagery'"] --> A["scitex_dataset"]
-    A --> N["neuroscience/<br/>openneuro · dandi · physionet"]
-    A --> B["biology/<br/>geo · figshare · zenodo"]
-    A --> M["medical/<br/>clinicaltrials.gov"]
-    A --> P["pharmacology/<br/>chembl · moleculenet"]
-    A --> G["general/<br/>huggingface · openml"]
-    N & B & M & P & G --> F["filter_results()"]
-    F --> D["shared SciTeX store<br/>(database.py)"]
-    D --> O["DataFrame · JSON · download"]
-```
 
 ## Part of SciTeX
 

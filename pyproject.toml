@@ -110,6 +110,10 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-v --tb=short"
 pythonpath = ["src"]
+markers = [
+    "smoke: fast CLI happy-path tests (<60s, runs on every PR)",
+    "e2e: end-to-end workflows (slow, gated by RUN_E2E=1)",
+]
 
 [tool.ruff]
 line-length = 88
