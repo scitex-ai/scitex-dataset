@@ -1,3 +1,10 @@
+---
+description: |
+  [TOPIC] AI-for-science benchmark workflow
+  [DETAILS] Prepare private evaluator references and isolated solver assignments; validate and score benchmark submissions.
+tags: [scitex-dataset-ai-for-science, scitex-dataset]
+---
+
 # AI-for-science benchmark workflow
 
 Use `scitex_dataset.ai_for_science` for CORE-Bench, BixBench and
