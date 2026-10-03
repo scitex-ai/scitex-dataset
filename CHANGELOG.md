@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-03
+
+### Fixed
+- CORE-Bench now assigns one task per exact question key and retains all
+  reference runs under that task ID. Reference positions no longer create
+  synthetic hard/medium/easy questions. Inventory counts questions and
+  reference samples separately.
+- Preparation forwards acquisition and materialization selectors explicitly.
+  HuggingFace revision requests are forwarded and reported as requested
+  revisions. BioMysteryBench full acquisition and outputs use separate
+  namespaces from preview; full no longer mixes both repositories.
+- Materialization checks source, mapping, archive and existing output identity
+  before changing cached outputs. Unqualified or changed caches refuse reuse,
+  including with `force`; prepare a fresh output root instead.
+- Host scoring rejects duplicate or unassigned submission IDs and reports
+  invalid numeric references separately from solver errors. Public host
+  scoring refuses malformed oracle records by default. Generated
+  evaluators retain repeated references and count missing/malformed answers as
+  failures when their references are gradeable.
+
+### Added
+- Strict Pydantic submission validation without coercion. Public task rows may
+  declare `answer_type`; validation and the submission gate use those public
+  declarations and selected task membership, with oracle-free repair feedback.
+  Missing assignment metadata is explicitly reported as shape-only validation.
+- Explicit generated-evaluator `invalid_reference` and
+  `needs_reference_policy` statuses. Multiple numeric/string references need a
+  defined aggregation policy; they are ungradeable in the generated evaluator.
+  An entirely ungradeable cohort reports `score: null`, rather than measured
+  zero. The host API's prediction-interval/significant-figure policy is unchanged.
+
+### Changed
+- CORE task IDs use the full SHA256 of the exact UTF-8 question key. Use fresh
+  assignments and outputs; old difficulty-bearing results are not migrated.
+  Consumers must group repeated private oracle rows into reference lists,
+  rather than overwrite them in a dictionary.
+
 ## [0.7.1] - 2026-07-19
 
 ### Changed

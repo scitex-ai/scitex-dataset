@@ -9,6 +9,7 @@ the unhashable fallback) and every verdict
 """
 
 import json
+from types import SimpleNamespace
 from pathlib import Path
 
 import pytest
@@ -229,14 +230,24 @@ class TestVerdictMalformed:
         # Assert
         assert recs[0]["malformed_kind"] == "no_submission"
 
-    def test_missing_task_is_no_submission(self, tmp_path):
-        # Arrange — a valid submission that omits the oracle's task.
-        ans = _one_numeric_answers(tmp_path)
-        sub = [{"task_id": "corebench/capsule-9__hard__q0", "answer": 1.0}]
+    @pytest.fixture
+    def _case_missing_task_is_no_submission(self, tmp_path):
+        """Shared isolated scenario; outcome assertions stay in test bodies."""
+        ans = _write_answers(tmp_path / 'answers.jsonl', [{'task_id': 'corebench/capsule-1__hard__q0', 'answer': {'value': 0.9996}}, {'task_id': 'corebench/capsule-9__hard__q0', 'answer': {'value': 1.0}}])
+        sub = [{'task_id': 'corebench/capsule-9__hard__q0', 'answer': 1.0}]
+
+        def run_case(*, capture_error=False):
+            recs = score_submission('corebench', sub, answers=ans)
+            return (recs,)
+        return run_case
+
+    def test_missing_task_is_no_submission(self, _case_missing_task_is_no_submission):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_missing_task_is_no_submission
         # Act
-        recs = score_submission("corebench", sub, answers=ans)
+        recs, = run_case()
         # Assert
-        assert recs[0]["malformed_kind"] == "no_submission"
+        assert recs[0]['malformed_kind'] == 'no_submission'
 
     def test_non_json_is_unparseable(self, tmp_path):
         # Arrange
@@ -535,22 +546,520 @@ class TestWholeSubmissionAndFamilies:
         # Assert
         assert recs[0]["verdict"] == "malformed"
 
-    def test_unsupported_expected_type_is_malformed(self, tmp_path):
-        # Arrange — a nested-dict oracle value matches no eval family.
-        ans = _write_answers(
-            tmp_path / "answers.jsonl",
-            [
-                {
-                    "task_id": "corebench/capsule-1__hard__q0",
-                    "answer": {"value": {"nested": 1}},
-                }
-            ],
-        )
-        sub = [{"task_id": "corebench/capsule-1__hard__q0", "answer": "x"}]
+    @pytest.fixture
+    def _case_unsupported_expected_type_is_invalid_reference(self, tmp_path):
+        """Shared isolated scenario; outcome assertions stay in test bodies."""
+        ans = _write_answers(tmp_path / 'answers.jsonl', [{'task_id': 'corebench/capsule-1__hard__q0', 'answer': {'value': {'nested': 1}}}])
+        sub = [{'task_id': 'corebench/capsule-1__hard__q0', 'answer': 'x'}]
+
+        def run_case(*, capture_error=False):
+            recs = score_submission('corebench', sub, answers=ans)
+            return (recs,)
+        return run_case
+
+    def test_unsupported_expected_type_is_invalid_reference_invalid_verdict(self, _case_unsupported_expected_type_is_invalid_reference):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_unsupported_expected_type_is_invalid_reference
         # Act
-        recs = score_submission("corebench", sub, answers=ans)
+        recs, = run_case()
         # Assert
-        assert recs[0]["verdict"] == "malformed"
+        assert recs[0]['verdict'] == 'invalid_reference'
+
+    def test_unsupported_expected_type_is_invalid_reference_unsupported_type_diagnostic(self, _case_unsupported_expected_type_is_invalid_reference):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_unsupported_expected_type_is_invalid_reference
+        # Act
+        recs, = run_case()
+        # Assert
+        assert recs[0]['reference_error_kind'] == 'unsupported_reference_type'
+
+
+class TestReferenceIntegrity:
+    @pytest.fixture
+    def _case_strict_default_refuses_missing_answer_field(self, tmp_path):
+        """Shared isolated scenario; outcome assertions stay in test bodies."""
+        tid = 'corebench/capsule-1__hard__q0'
+        path = _write_answers(tmp_path / 'answers.jsonl', [{'task_id': tid}])
+
+        def run_case(*, capture_error=False):
+            error = None
+            if capture_error:
+                try:
+                    score_submission('corebench', [{'task_id': tid, 'answer': 5}], answers=path)
+                except _score.OracleIntegrityError as captured:
+                    error = SimpleNamespace(value=captured)
+            else:
+                score_submission('corebench', [{'task_id': tid, 'answer': 5}], answers=path)
+            return (error,)
+        return run_case
+
+    def test_strict_default_refuses_missing_answer_field_raises_integrity_error(self, _case_strict_default_refuses_missing_answer_field):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_strict_default_refuses_missing_answer_field
+        # Act
+        ctx = pytest.raises(_score.OracleIntegrityError)
+        # Assert
+        with ctx:
+            run_case()
+
+    def test_strict_default_refuses_missing_answer_field_missing_field_diagnostic(self, _case_strict_default_refuses_missing_answer_field):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_strict_default_refuses_missing_answer_field
+        # Act
+        error, = run_case(capture_error=True)
+        # Assert
+        assert error.value.diagnostics == [{'line': 1, 'kind': 'missing_answer_field'}]
+
+    @pytest.fixture
+    def _case_present_null_reference_is_not_missing_answer_field(self, tmp_path):
+        """Shared isolated scenario; outcome assertions stay in test bodies."""
+        tid = 'corebench/capsule-1__hard__q0'
+        path = _write_answers(tmp_path / 'answers.jsonl', [{'task_id': tid, 'answer': None}])
+
+        def run_case(*, capture_error=False):
+            row = score_submission('corebench', [{'task_id': tid, 'answer': 5}], answers=path)[0]
+            return (row,)
+        return run_case
+
+    def test_present_null_reference_is_not_missing_answer_field_invalid_reference_verdict(self, _case_present_null_reference_is_not_missing_answer_field):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_present_null_reference_is_not_missing_answer_field
+        # Act
+        row, = run_case()
+        # Assert
+        assert row['verdict'] == 'invalid_reference'
+
+    def test_present_null_reference_is_not_missing_answer_field_no_missing_field_diagnostic(self, _case_present_null_reference_is_not_missing_answer_field):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_present_null_reference_is_not_missing_answer_field
+        # Act
+        row, = run_case()
+        # Assert
+        assert 'oracle_diagnostics' not in row
+
+    @pytest.fixture
+    def _case_tolerant_missing_field_has_payload_free_diagnostics(self, tmp_path):
+        """Shared isolated scenario; outcome assertions stay in test bodies."""
+        tid = 'corebench/capsule-1__hard__q0'
+        path = _write_answers(tmp_path / 'answers.jsonl', [{'task_id': tid}, {'task_id': tid, 'answer': {'value': 5}}])
+
+        def run_case(*, capture_error=False):
+            rows = score_submission('corebench', [{'task_id': tid, 'answer': 5}], answers=path, strict_oracle=False)
+            return (rows,)
+        return run_case
+
+    def test_tolerant_missing_field_has_payload_free_diagnostics_valid_peer_verdict(self, _case_tolerant_missing_field_has_payload_free_diagnostics):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_tolerant_missing_field_has_payload_free_diagnostics
+        # Act
+        rows, = run_case()
+        # Assert
+        assert rows[0]['verdict'] == 'correct'
+
+    def test_tolerant_missing_field_has_payload_free_diagnostics_invalid_integrity_flag(self, _case_tolerant_missing_field_has_payload_free_diagnostics):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_tolerant_missing_field_has_payload_free_diagnostics
+        # Act
+        rows, = run_case()
+        # Assert
+        assert rows[0]['oracle_integrity'] == 'invalid'
+
+    def test_tolerant_missing_field_has_payload_free_diagnostics_missing_field_diagnostic(self, _case_tolerant_missing_field_has_payload_free_diagnostics):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_tolerant_missing_field_has_payload_free_diagnostics
+        # Act
+        rows, = run_case()
+        # Assert
+        assert rows[0]['oracle_diagnostics'] == [{'line': 1, 'kind': 'missing_answer_field'}]
+
+    @pytest.fixture
+    def _case_public_default_refuses_malformed_oracle_records(self, tmp_path, has_valid):
+        """Shared isolated scenario; outcome assertions stay in test bodies."""
+        path = tmp_path / 'answers.jsonl'
+        tid = 'corebench/capsule-1__hard__q0'
+        valid = json.dumps({'task_id': tid, 'answer': {'value': 0.9996}}) + '\n'
+        path.write_text((valid if has_valid else '') + 'not json\n[]\n')
+
+        def run_case(*, capture_error=False):
+            error = None
+            if capture_error:
+                try:
+                    score_submission('corebench', [{'task_id': tid, 'answer': 0.9996}], answers=path)
+                except _score.OracleIntegrityError as captured:
+                    error = SimpleNamespace(value=captured)
+            else:
+                score_submission('corebench', [{'task_id': tid, 'answer': 0.9996}], answers=path)
+            return (error,)
+        return run_case
+
+    @pytest.mark.parametrize('has_valid', [False, True])
+    def test_public_default_refuses_malformed_oracle_records_raises_integrity_error(self, _case_public_default_refuses_malformed_oracle_records, has_valid):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_public_default_refuses_malformed_oracle_records
+        # Act
+        ctx = pytest.raises(_score.OracleIntegrityError)
+        # Assert
+        with ctx:
+            run_case()
+
+    @pytest.mark.parametrize('has_valid', [False, True])
+    def test_public_default_refuses_malformed_oracle_records_two_record_diagnostics(self, _case_public_default_refuses_malformed_oracle_records, has_valid):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_public_default_refuses_malformed_oracle_records
+        # Act
+        error, = run_case(capture_error=True)
+        # Assert
+        assert len(error.value.diagnostics) == 2
+
+    @pytest.mark.parametrize('has_valid', [False, True])
+    def test_public_default_refuses_malformed_oracle_records_private_payload_absent(self, _case_public_default_refuses_malformed_oracle_records, has_valid):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_public_default_refuses_malformed_oracle_records
+        # Act
+        error, = run_case(capture_error=True)
+        # Assert
+        assert '0.9996' not in str(error.value)
+
+    @pytest.fixture
+    def malformed_oracle_path(self, tmp_path):
+        path = tmp_path / "answers.jsonl"
+        return path
+
+    @pytest.mark.parametrize("has_valid", [False, True])
+    def test_explicit_tolerant_mode_reports_both_invalid_records(self, malformed_oracle_path, has_valid):
+        # Arrange
+        path = malformed_oracle_path
+        tid = "corebench/capsule-1__hard__q0"
+        valid = json.dumps({"task_id": tid, "answer": {"value": 0.9996}}) + "\n"
+        path.write_text((valid if has_valid else "") + "not json\n[]\n")
+        diagnostics = []
+        # Act
+        _score._load_oracle(path, diagnostics=diagnostics)
+        # Assert
+        assert len(diagnostics) == 2
+
+    @pytest.fixture
+    def _case_tolerant_mode_retains_the_valid_peer(self, malformed_oracle_path):
+        """Shared isolated scenario; outcome assertions stay in test bodies."""
+        path = malformed_oracle_path
+        tid = 'corebench/capsule-1__hard__q0'
+        valid = json.dumps({'task_id': tid, 'answer': {'value': 0.9996}}) + '\n'
+        path.write_text(valid + 'not json\n[]\n')
+        diagnostics = []
+        _score._load_oracle(path, diagnostics=diagnostics)
+
+        def run_case(*, capture_error=False):
+            rows = score_submission('corebench', [{'task_id': tid, 'answer': 0.9996}], answers=path, strict_oracle=False)
+            return (diagnostics, rows)
+        return run_case
+
+    def test_tolerant_mode_retains_the_valid_peer_valid_peer_verdict(self, _case_tolerant_mode_retains_the_valid_peer):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_tolerant_mode_retains_the_valid_peer
+        # Act
+        diagnostics, rows = run_case()
+        # Assert
+        assert len(rows) == 1 and rows[0]['verdict'] == 'correct'
+
+    def test_tolerant_mode_retains_the_valid_peer_invalid_integrity_flag(self, _case_tolerant_mode_retains_the_valid_peer):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_tolerant_mode_retains_the_valid_peer
+        # Act
+        diagnostics, rows = run_case()
+        # Assert
+        assert rows[0]['oracle_integrity'] == 'invalid'
+
+    def test_tolerant_mode_retains_the_valid_peer_record_diagnostics_retained(self, _case_tolerant_mode_retains_the_valid_peer):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_tolerant_mode_retains_the_valid_peer
+        # Act
+        diagnostics, rows = run_case()
+        # Assert
+        assert rows[0]['oracle_diagnostics'] == diagnostics
+
+    def test_tolerant_mode_without_valid_records_returns_no_score(self, malformed_oracle_path):
+        # Arrange
+        path = malformed_oracle_path
+        tid = "corebench/capsule-1__hard__q0"
+        path.write_text("not json\n[]\n")
+        # Act
+        rows = score_submission("corebench", [{"task_id": tid, "answer": 0.9996}], answers=path, strict_oracle=False)
+        # Assert
+        assert rows == []
+
+    @pytest.fixture
+    def appended_invalid_oracle_path(self, tmp_path):
+        path = _one_numeric_answers(tmp_path)
+        with path.open("a") as fh:
+            fh.write("not json\n[]\n")
+        yield path
+
+    def test_tolerant_oracle_retains_valid_group(self, appended_invalid_oracle_path):
+        # Arrange
+        path = appended_invalid_oracle_path
+        diagnostics = []
+        # Act
+        oracle = _score._load_oracle(path, diagnostics=diagnostics)
+        # Assert
+        assert len(oracle) == 1
+
+    def test_tolerant_oracle_attributes_invalid_record_diagnostics(self, appended_invalid_oracle_path):
+        # Arrange
+        path = appended_invalid_oracle_path
+        diagnostics = []
+        # Act
+        _score._load_oracle(path, diagnostics=diagnostics)
+        # Assert
+        assert diagnostics == [{"line": 2, "kind": "unparseable_record"},
+                               {"line": 3, "kind": "record_not_object"}]
+
+    def test_strict_oracle_refuses_appended_invalid_records(self, appended_invalid_oracle_path):
+        # Arrange
+        path = appended_invalid_oracle_path
+        # Act
+        ctx = pytest.raises(_score.OracleIntegrityError)
+        # Assert
+        with ctx:
+            score_submission("corebench", [], answers=path, strict_oracle=True)
+
+    @pytest.fixture
+    def _case_strict_oracle_retains_diagnostics_from_tolerant_reader(self, appended_invalid_oracle_path):
+        """Shared isolated scenario; outcome assertions stay in test bodies."""
+        path = appended_invalid_oracle_path
+        diagnostics = []
+        _score._load_oracle(path, diagnostics=diagnostics)
+
+        def run_case(*, capture_error=False):
+            caught = None
+            if capture_error:
+                try:
+                    score_submission('corebench', [], answers=path, strict_oracle=True)
+                except _score.OracleIntegrityError as captured:
+                    caught = SimpleNamespace(value=captured)
+            else:
+                score_submission('corebench', [], answers=path, strict_oracle=True)
+            return (caught, diagnostics)
+        return run_case
+
+    def test_strict_oracle_retains_diagnostics_from_tolerant_reader_raises_integrity_error(self, _case_strict_oracle_retains_diagnostics_from_tolerant_reader):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_strict_oracle_retains_diagnostics_from_tolerant_reader
+        # Act
+        ctx = pytest.raises(_score.OracleIntegrityError)
+        # Assert
+        with ctx:
+            run_case()
+
+    def test_strict_oracle_retains_diagnostics_from_tolerant_reader_record_diagnostics_retained(self, _case_strict_oracle_retains_diagnostics_from_tolerant_reader):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_strict_oracle_retains_diagnostics_from_tolerant_reader
+        # Act
+        caught, diagnostics = run_case(capture_error=True)
+        # Assert
+        assert caught.value.diagnostics == diagnostics
+
+    def test_strict_oracle_retains_diagnostics_from_tolerant_reader_private_payload_absent(self, _case_strict_oracle_retains_diagnostics_from_tolerant_reader):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_strict_oracle_retains_diagnostics_from_tolerant_reader
+        # Act
+        caught, diagnostics = run_case(capture_error=True)
+        # Assert
+        assert '0.9996' not in str(caught.value)
+
+    @pytest.fixture
+    def _case_invalid_numeric_reference_is_not_dropped(self, tmp_path, invalid):
+        """Shared isolated scenario; outcome assertions stay in test bodies."""
+        tid = 'corebench/capsule-1__hard__q0'
+        path = _write_answers(tmp_path / 'answers.jsonl', [{'task_id': tid, 'answer': {'value': value}} for value in (0.9996, invalid, 0.9996)])
+
+        def run_case(*, capture_error=False):
+            row = score_submission('corebench', [{'task_id': tid, 'answer': 0.9996}], answers=path)[0]
+            return (row,)
+        return run_case
+
+    @pytest.mark.parametrize('invalid', [None, True, 'not numeric', 'nan', float('inf')])
+    def test_invalid_numeric_reference_is_not_dropped_invalid_reference_verdict(self, _case_invalid_numeric_reference_is_not_dropped, invalid):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_invalid_numeric_reference_is_not_dropped
+        # Act
+        row, = run_case()
+        # Assert
+        assert row['verdict'] == 'invalid_reference'
+
+    @pytest.mark.parametrize('invalid', [None, True, 'not numeric', 'nan', float('inf')])
+    def test_invalid_numeric_reference_is_not_dropped_all_sample_count(self, _case_invalid_numeric_reference_is_not_dropped, invalid):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_invalid_numeric_reference_is_not_dropped
+        # Act
+        row, = run_case()
+        # Assert
+        assert row['n_references'] == 3
+
+    @pytest.mark.parametrize('invalid', [None, True, 'not numeric', 'nan', float('inf')])
+    def test_invalid_numeric_reference_is_not_dropped_numeric_reference_diagnostic(self, _case_invalid_numeric_reference_is_not_dropped, invalid):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_invalid_numeric_reference_is_not_dropped
+        # Act
+        row, = run_case()
+        # Assert
+        assert row['reference_error_kind'] == 'invalid_numeric_reference'
+
+    @pytest.fixture
+    def _case_invalid_numeric_submission_is_malformed(self, tmp_path, invalid):
+        """Shared isolated scenario; outcome assertions stay in test bodies."""
+        tid = 'corebench/capsule-1__hard__q0'
+        path = _one_numeric_answers(tmp_path)
+
+        def run_case(*, capture_error=False):
+            row = score_submission('corebench', [{'task_id': tid, 'answer': invalid}], answers=path)[0]
+            return (row,)
+        return run_case
+
+    @pytest.mark.parametrize('invalid', [True, 'nan', 'inf', 10 ** 400])
+    def test_invalid_numeric_submission_is_malformed_malformed_verdict(self, _case_invalid_numeric_submission_is_malformed, invalid):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_invalid_numeric_submission_is_malformed
+        # Act
+        row, = run_case()
+        # Assert
+        assert row['verdict'] == 'malformed'
+
+    @pytest.mark.parametrize('invalid', [True, 'nan', 'inf', 10 ** 400])
+    def test_invalid_numeric_submission_is_malformed_numeric_answer_diagnostic(self, _case_invalid_numeric_submission_is_malformed, invalid):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_invalid_numeric_submission_is_malformed
+        # Act
+        row, = run_case()
+        # Assert
+        assert row['malformed_kind'] == 'invalid_numeric_answer'
+
+    @pytest.fixture
+    def _case_arithmetic_reference_failure_preserves_valid_peer(self, tmp_path):
+        """Shared isolated scenario; outcome assertions stay in test bodies."""
+        bad = 'corebench/capsule-1__hard__q0'
+        good = 'corebench/capsule-1__hard__q1'
+        path = _write_answers(tmp_path / 'answers.jsonl', [{'task_id': bad, 'answer': {'value': 1e+308}}, {'task_id': bad, 'answer': {'value': -1e+308}}, {'task_id': good, 'answer': {'value': 0.9996}}])
+
+        def run_case(*, capture_error=False):
+            rows = score_submission('corebench', [{'task_id': bad, 'answer': 0}, {'task_id': good, 'answer': 0.9996}], answers=path)
+            return (rows,)
+        return run_case
+
+    def test_arithmetic_reference_failure_preserves_valid_peer_both_task_verdicts(self, _case_arithmetic_reference_failure_preserves_valid_peer):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_arithmetic_reference_failure_preserves_valid_peer
+        # Act
+        rows, = run_case()
+        # Assert
+        assert [r['verdict'] for r in rows] == ['invalid_reference', 'correct']
+
+    def test_arithmetic_reference_failure_preserves_valid_peer_arithmetic_reference_diagnostic(self, _case_arithmetic_reference_failure_preserves_valid_peer):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_arithmetic_reference_failure_preserves_valid_peer
+        # Act
+        rows, = run_case()
+        # Assert
+        assert rows[0]['reference_error_kind'] == 'numeric_reference_arithmetic'
+
+
+    @pytest.fixture
+    def _case_partial_submission_keeps_missing_assigned_question(self, tmp_path):
+        """Shared isolated scenario; outcome assertions stay in test bodies."""
+        tids = ['corebench/capsule-1__hard__q0', 'corebench/capsule-1__hard__q1']
+        path = _write_answers(tmp_path / 'answers.jsonl', [{'task_id': tid, 'answer': {'value': 0.9996}} for tid in tids])
+
+        def run_case(*, capture_error=False):
+            rows = score_submission('corebench', [{'task_id': tids[0], 'answer': 0.9996}], answers=path)
+            return (rows,)
+        return run_case
+
+    def test_partial_submission_keeps_missing_assigned_question_both_task_verdicts(self, _case_partial_submission_keeps_missing_assigned_question):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_partial_submission_keeps_missing_assigned_question
+        # Act
+        rows, = run_case()
+        # Assert
+        assert [r['verdict'] for r in rows] == ['correct', 'malformed']
+
+    def test_partial_submission_keeps_missing_assigned_question_missing_question_diagnostic(self, _case_partial_submission_keeps_missing_assigned_question):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_partial_submission_keeps_missing_assigned_question
+        # Act
+        rows, = run_case()
+        # Assert
+        assert rows[1]['malformed_kind'] == 'no_submission'
+
+    @pytest.fixture
+    def _case_unassigned_well_formed_id_is_not_alias_joined(self, tmp_path):
+        """Shared isolated scenario; outcome assertions stay in test bodies."""
+        path = _one_numeric_answers(tmp_path)
+
+        def run_case(*, capture_error=False):
+            row = score_submission('corebench', [{'task_id': 'corebench/capsule-1__hard__q99', 'answer': 0.9996}], answers=path)[0]
+            return (row,)
+        return run_case
+
+    def test_unassigned_well_formed_id_is_not_alias_joined_malformed_verdict(self, _case_unassigned_well_formed_id_is_not_alias_joined):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_unassigned_well_formed_id_is_not_alias_joined
+        # Act
+        row, = run_case()
+        # Assert
+        assert row['verdict'] == 'malformed'
+
+    def test_unassigned_well_formed_id_is_not_alias_joined_schema_diagnostic(self, _case_unassigned_well_formed_id_is_not_alias_joined):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_unassigned_well_formed_id_is_not_alias_joined
+        # Act
+        row, = run_case()
+        # Assert
+        assert row['malformed_kind'] == 'schema_invalid'
+
+    @pytest.fixture
+    def _case_explicit_public_assignment_selects_oracle_scope(self, tmp_path):
+        """Shared isolated scenario; outcome assertions stay in test bodies."""
+        tids = ['corebench/capsule-1__hard__q0', 'corebench/capsule-1__hard__q1']
+        path = _write_answers(tmp_path / 'answers.jsonl', [{'task_id': tid, 'answer': {'value': 5}} for tid in tids])
+
+        def run_case(*, capture_error=False):
+            rows = score_submission('corebench', [{'task_id': tids[0], 'answer': 5}], answers=path, expected_task_ids=[tids[0]], expected_answer_types={tids[0]: 'number'})
+            return (rows,)
+        return run_case
+
+    def test_explicit_public_assignment_selects_oracle_scope(self, _case_explicit_public_assignment_selects_oracle_scope):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_explicit_public_assignment_selects_oracle_scope
+        # Act
+        rows, = run_case()
+        # Assert
+        assert len(rows) == 1 and rows[0]['verdict'] == 'correct'
+
+    @pytest.fixture
+    def _case_public_answer_type_not_derived_from_reference(self, tmp_path):
+        """Shared isolated scenario; outcome assertions stay in test bodies."""
+        tid = 'corebench/capsule-1__hard__q0'
+        path = _one_numeric_answers(tmp_path)
+
+        def run_case(*, capture_error=False):
+            row = score_submission('corebench', [{'task_id': tid, 'answer': '0.9996'}], answers=path, expected_answer_types={tid: 'number'})[0]
+            return (row,)
+        return run_case
+
+    def test_public_answer_type_not_derived_from_reference_malformed_verdict(self, _case_public_answer_type_not_derived_from_reference):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_public_answer_type_not_derived_from_reference
+        # Act
+        row, = run_case()
+        # Assert
+        assert row['verdict'] == 'malformed'
+
+    def test_public_answer_type_not_derived_from_reference_schema_diagnostic(self, _case_public_answer_type_not_derived_from_reference):
+        # Arrange: each scenario uses function-scoped inputs.
+        run_case = _case_public_answer_type_not_derived_from_reference
+        # Act
+        row, = run_case()
+        # Assert
+        assert row['malformed_kind'] == 'schema_invalid'
 
 
 if __name__ == "__main__":

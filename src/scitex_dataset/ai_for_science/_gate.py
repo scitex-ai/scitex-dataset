@@ -2,188 +2,129 @@
 # -*- coding: utf-8 -*-
 # File: src/scitex_dataset/ai_for_science/_gate.py
 
-"""Pure, scitex_dev-AGNOSTIC logic for the submission-format gate check.
+"""Pure, scitex_dev-agnostic, oracle-free submission-format gate.
 
-This module implements the whole decision of the scitex-dev
-``pre-submission`` gate ``dataset-submission-format`` WITHOUT importing
-``scitex_dev``. It imports only scitex-dataset internals (the shipped
-:func:`._validate.validate_submission`) and returns a plain dict that the
-thin plugin shim (:mod:`scitex_dataset._gate_plugin`) maps onto the
-frozen ``scitex_dev.gate`` dataclasses.
+Only the selected public task contract provides IDs, declared benchmark and
+optional answer types. Finding dataclass fields remain unchanged: public
+field/task/path guidance is rendered in message/fix_hint. A workdir containing
+its own task.jsonl is explicitly bound; otherwise exactly one capsule child
+may be discovered. Multiple candidates refuse rather than choosing the first.
 
-The check is structural and ORACLE-FREE — it never reads
-``eval/answers.jsonl``; it only validates the *shape* of a submission
-against the bound capsule's ``task.jsonl``. Its ``build_gate_result`` is
-FAIL-CLOSED: any unexpected exception is caught and reported as a
-``check_error`` finding rather than propagated.
+No-task fallback is explicitly shape-only, even with a configured benchmark.
+Malformed public metadata and unexpected errors fail closed; exception/input
+payloads are never copied into feedback. This does not score answers or set
+scientific precision, abstention, missingness or retry policy.
 """
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any, Mapping
 
-from ._validate import WARN_KINDS, validate_submission
+from ._validate import WARN_KINDS, read_public_task_contract, validate_submission
 
 CHECK_ID = "dataset-submission-format"
-
-# Format-specific remediation hints, keyed by the ``kind`` values that
-# ``validate_submission`` emits. NOT clew's @stx.session hint — these are
-# purely about the JSON submission-array contract.
 FIX_HINTS: dict[str, str] = {
-    "no_file": (
-        "Write your answers as a JSON array to `submission/submission.json` "
-        "in the capsule workdir (see submission.example.json)."
-    ),
-    "unparseable": (
-        "The submission file is not valid JSON — it must be a JSON array "
-        'of {"task_id", "answer"} objects.'
-    ),
-    "wrong_type": (
-        "Each item must be an object; the submission must be a JSON array "
-        "of objects."
-    ),
+    "no_file": "Write your JSON array to `submission/submission.json` in the capsule workdir (see submission.example.json).",
+    "unreadable": "Make the submission file readable UTF-8 JSON, then retry the format check.",
+    "unparseable": 'Write a JSON array of {"task_id", "answer"} objects.',
+    "wrong_type": "Use the declared public field types and supported JSON values; the submission must be an array of objects. No type coercion is performed.",
+    "wrong_answer_type": "Use the answer_type declared in public task.jsonl, or null with a nonempty reason to abstain. No type coercion is performed.",
     "missing_field": "Each item needs both 'task_id' and 'answer'.",
-    "missing_reason": (
-        "A null answer must carry a non-empty 'reason' naming the proximal "
-        "cause (honest abstention) — add a one-line reason, or provide an "
-        "answer."
-    ),
-    "bad_task_id": (
-        "Use the exact task_id(s) from this capsule's task.jsonl / "
-        "submission.example.json."
-    ),
-    "unknown_field": "Remove fields other than 'task_id', 'answer' (and 'reason').",
-    "wrong_count": (
-        "Submit exactly one item per task_id in this capsule (see task.jsonl)."
-    ),
+    "missing_reason": "A null answer requires a nonempty one-line reason naming the proximal cause, or provide an answer.",
+    "bad_task_id": "Use the exact task_id(s) from the selected task.jsonl/submission.example.json.",
+    "unknown_field": "Extra JSON fields are retained as warnings; you may remove unused fields other than task_id, answer and reason.",
+    "wrong_count": "Submit exactly one item per assigned task_id in this capsule.",
+    "duplicate_task_id": "Keep exactly one submission item per assigned task_id; retain every other assigned task or explicitly abstain.",
+    "unknown_task_id": "Use IDs from the selected public task.jsonl, not a different capsule or historical assignment.",
+    "missing_task_id": "Add the named assigned task once, with its answer or null plus a nonempty reason.",
+    "duplicate_assignment": "Repair duplicate IDs in the public assignment; do not silently deduplicate task or reference units.",
+    "invalid_assignment": "Use valid, consistent public task.jsonl metadata for the selected capsule. Do not substitute evaluator references.",
+    "missing_assignment": "Run the gate against the selected capsule containing public task.jsonl.",
+    "ambiguous_capsule": "Run the gate inside one selected capsule-NNN/ directory; do not pass a parent holding multiple capsules.",
+    "shape_only": "Run the gate against the selected capsule with public task.jsonl to check membership and declared answer types.",
 }
 
 
+class _AmbiguousCapsuleError(ValueError):
+    pass
+
+
 def _find_capsule_dir(workdir: Path) -> Path | None:
-    """Return the bound capsule dir (has a ``task.jsonl``), else ``None``.
+    """Honor a directly bound task file or discover one unambiguous child."""
+    if (workdir / "task.jsonl").is_file():
+        return workdir
+    candidates = [path for path in sorted(workdir.glob("capsule-*"))
+                  if path.is_dir() and (path / "task.jsonl").is_file()]
+    if len(candidates) > 1:
+        raise _AmbiguousCapsuleError("multiple public capsule task files")
+    return candidates[0] if candidates else None
 
-    Prefers ``workdir`` itself, then the ``capsule-*`` subdirs in sorted
-    order — the first one carrying a ``task.jsonl`` wins.
-    """
-    for candidate in [workdir, *sorted(workdir.glob("capsule-*"))]:
-        if (candidate / "task.jsonl").is_file():
-            return candidate
-    return None
+
+def _finding(kind: str, message: str, severity: str = "error", *, fix_hint: str | None = None) -> dict:
+    return {"check_id": CHECK_ID, "kind": kind, "message": message,
+            "severity": severity, "fix_hint": FIX_HINTS.get(kind, "Repair the public submission format and retry.") if fix_hint is None else fix_hint}
 
 
-def _read_task_rows(capsule_dir: Path) -> list[dict]:
-    """Parse the capsule's ``task.jsonl`` (one JSON object per line)."""
-    rows: list[dict] = []
-    text = (capsule_dir / "task.jsonl").read_text(encoding="utf-8")
-    for line in text.splitlines():
-        line = line.strip()
-        if not line:
+def _format_findings(errors: list[dict], *, benchmark_known: bool = True) -> list[dict]:
+    findings = []
+    for error in errors:
+        kind = error["kind"]
+        if not benchmark_known and kind == "bad_task_id":
             continue
-        rows.append(json.loads(line))
-    return rows
+        task = f" [task {error['task_id']}]" if "task_id" in error else ""
+        message = f"{error['path']}{task}: {error['message']}"
+        hint = FIX_HINTS.get(kind)
+        if kind == "wrong_answer_type":
+            # The validator message contains only the public declared type,
+            # never a reference or submitted answer value.
+            hint = error["message"]
+        findings.append(_finding(kind, message, "warning" if kind in WARN_KINDS else "error", fix_hint=hint))
+    return findings
 
 
 def build_gate_result(workdir: Any, config: Mapping | None) -> dict:
-    """Run the structural submission-format check; return a plain dict.
-
-    Returns ``{"passed": bool, "findings": [ {...}, ... ]}`` where each
-    finding carries ``check_id``, ``kind``, ``message``, ``severity`` and
-    ``fix_hint``. Wrapped in a fail-closed guard: any exception becomes a
-    single ``check_error`` finding with ``passed=False`` — never raised.
-    """
+    """Return GateResult-compatible fields without importing its engine."""
     try:
         workdir = Path(workdir)
         config = dict(config or {})
-
         capsule_dir = _find_capsule_dir(workdir)
-
         if capsule_dir is not None:
-            rows = _read_task_rows(capsule_dir)
-            benchmark = rows[0].get("benchmark") if rows else None
-            expected_task_ids = [r["task_id"] for r in rows if "task_id" in r]
+            contract = read_public_task_contract(capsule_dir)
+            if not contract["ok"]:
+                return {"passed": False, "findings": _format_findings(contract["errors"])}
+            benchmark = contract["benchmark"] or config.get("benchmark")
+            if not (isinstance(benchmark, str) and benchmark.strip()):
+                return {"passed": False, "findings": [_finding("invalid_assignment", "$assignment.benchmark: selected public tasks need a consistent benchmark declaration or explicit benchmark config")]}
+            expected_ids = contract["task_ids"]
+            expected_types = contract["answer_types"]
         else:
             benchmark = config.get("benchmark")
-            expected_task_ids = None
-
-        benchmark_known = benchmark is not None
-        benchmark_arg = benchmark or ""
-
+            expected_ids = expected_types = None
+        if benchmark is not None and not (isinstance(benchmark, str) and benchmark.strip()):
+            return {"passed": False, "findings": [_finding("invalid_assignment", "$config.benchmark: configured benchmark must be a nonempty string")]}
+        benchmark_known = isinstance(benchmark, str) and bool(benchmark.strip())
+        benchmark_arg = benchmark if benchmark_known else ""
         override = config.get("submission_file")
-        if override:
-            rel_names = [override]
-        else:
-            # `submission/submission.json` is the canonical default (matches
-            # the paper's benchmark convention → zero cohort config);
-            # `submission.json` at the root is a tolerant fallback.
-            rel_names = ["submission/submission.json", "submission.json"]
-
-        search_roots = [workdir]
+        rel_names = [override] if override else ["submission/submission.json", "submission.json"]
+        roots = [workdir]
         if capsule_dir is not None and capsule_dir != workdir:
-            search_roots.append(capsule_dir)
-        candidates = [root / name for name in rel_names for root in search_roots]
-        default_path = workdir / rel_names[0]
-        submission_path = next(
-            (c for c in candidates if c.exists()), default_path
-        )
-
-        result = validate_submission(
-            benchmark_arg, submission_path, expected_task_ids=expected_task_ids
-        )
-
-        findings: list[dict] = []
-        emitted_unknown_info = False
-        for e in result["errors"]:
-            kind = e["kind"]
-            if not benchmark_known and kind == "bad_task_id":
-                if not emitted_unknown_info:
-                    findings.append(
-                        {
-                            "check_id": CHECK_ID,
-                            "kind": "benchmark_unknown",
-                            "message": (
-                                "capsule task.jsonl not found; validated "
-                                "structure only (task_id shape unchecked)"
-                            ),
-                            "severity": "info",
-                            "fix_hint": (
-                                "run the gate against the bound capsule-NNN/ "
-                                "workdir so task.jsonl is present"
-                            ),
-                        }
-                    )
-                    emitted_unknown_info = True
-                continue
-            severity = "warning" if kind in WARN_KINDS else "error"
-            findings.append(
-                {
-                    "check_id": CHECK_ID,
-                    "kind": kind,
-                    "message": e["message"],
-                    "severity": severity,
-                    "fix_hint": FIX_HINTS.get(kind, ""),
-                }
-            )
-
-        passed = not any(f["severity"] == "error" for f in findings)
-        return {"passed": passed, "findings": findings}
-    except Exception as exc:  # noqa: BLE001 — FAIL-CLOSED by contract.
-        return {
-            "passed": False,
-            "findings": [
-                {
-                    "check_id": CHECK_ID,
-                    "kind": "check_error",
-                    "message": str(exc),
-                    "severity": "error",
-                    "fix_hint": (
-                        "internal gate error; inspect the capsule workdir + "
-                        "submission file"
-                    ),
-                }
-            ],
-        }
+            roots.append(capsule_dir)
+        candidates = [root / name for name in rel_names for root in roots]
+        submission_path = next((path for path in candidates if path.exists()), workdir / rel_names[0])
+        result = validate_submission(benchmark_arg, submission_path,
+                                     expected_task_ids=expected_ids,
+                                     expected_answer_types=expected_types)
+        findings = _format_findings(result["errors"], benchmark_known=benchmark_known)
+        if capsule_dir is None:
+            findings.append(_finding("shape_only", "No public task.jsonl: checked JSON structure and any configured benchmark syntax only; selected membership and public answer types were not checked.", "info"))
+            if not benchmark_known:
+                findings.append(_finding("benchmark_unknown", "No public benchmark declaration or config: task_id benchmark syntax was not checked.", "info", fix_hint=FIX_HINTS["shape_only"]))
+        return {"passed": not any(f["severity"] == "error" for f in findings), "findings": findings}
+    except _AmbiguousCapsuleError:
+        return {"passed": False, "findings": [_finding("ambiguous_capsule", "Multiple capsule task files found; selected assignment is ambiguous.")]}
+    except Exception:  # noqa: BLE001 — fail closed, without exception payloads.
+        return {"passed": False, "findings": [_finding("check_error", "Submission-format gate could not complete; no answer or exception payload was exposed.", fix_hint="Inspect the public capsule metadata and submission file; retry only after resolving the format or access error.")]}
 
 
 __all__ = ["CHECK_ID", "FIX_HINTS", "build_gate_result"]

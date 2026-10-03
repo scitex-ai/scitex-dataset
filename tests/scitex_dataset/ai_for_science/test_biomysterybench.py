@@ -46,6 +46,15 @@ def _swap_module(name: str, replacement):
             sys.modules[name] = saved
 
 
+@pytest.fixture
+def full_biomystery_snapshot(tmp_path):
+    """Function-scoped original synthetic workflow; records facts without assertions."""
+    rec = _SnapshotRecorder()
+    raw_dir = tmp_path / 'raw'
+    with _swap_module('huggingface_hub', _hf_stub(rec)):
+        result = biomysterybench.download(raw_dir=raw_dir, download_full=True)
+    return {'raw_dir': raw_dir, 'rec': rec, 'result': result, 'tmp_path': tmp_path}
+
 class _SnapshotRecorder:
     """Records snapshot_download calls and writes a dummy file per pull."""
 
@@ -388,18 +397,38 @@ class TestDownload:
         # Assert
         assert result["snapshots_pulled"] == [biomysterybench.HF_REPO_ID_PREVIEW]
 
-    def test_download_full_pulls_preview_and_full(self, tmp_path):
+    def test_download_full_pulls_only_full_repository(self, full_biomystery_snapshot):
         # Arrange
-        rec = _SnapshotRecorder()
-        raw_dir = tmp_path / "raw"
+        observed = full_biomystery_snapshot
         # Act
-        with _swap_module("huggingface_hub", _hf_stub(rec)):
-            result = biomysterybench.download(raw_dir=raw_dir, download_full=True)
+        raw_dir = observed['raw_dir']
+        rec = observed['rec']
+        result = observed['result']
+        tmp_path = observed['tmp_path']
         # Assert
-        assert result["snapshots_pulled"] == [
-            biomysterybench.HF_REPO_ID_PREVIEW,
-            biomysterybench.HF_REPO_ID_FULL,
-        ]
+        assert result['snapshots_pulled'] == [biomysterybench.HF_REPO_ID_FULL]
+
+    def test_download_full_uses_isolated_raw_namespace(self, full_biomystery_snapshot):
+        # Arrange
+        observed = full_biomystery_snapshot
+        # Act
+        raw_dir = observed['raw_dir']
+        rec = observed['rec']
+        result = observed['result']
+        tmp_path = observed['tmp_path']
+        # Assert
+        assert Path(result['raw_dir']) == raw_dir / 'variants' / 'full'
+
+    def test_download_full_calls_snapshot_collaborator_once(self, full_biomystery_snapshot):
+        # Arrange
+        observed = full_biomystery_snapshot
+        # Act
+        raw_dir = observed['raw_dir']
+        rec = observed['rec']
+        result = observed['result']
+        tmp_path = observed['tmp_path']
+        # Assert
+        assert len(rec.calls) == 1
 
 
 class TestPrepareWithDownload:

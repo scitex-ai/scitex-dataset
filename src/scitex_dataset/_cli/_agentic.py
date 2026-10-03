@@ -21,7 +21,7 @@ file owns a single responsibility and stays well under the line budget.
   exit when the submission is invalid.
 - ``score`` — CORRECTNESS scoring against the operator oracle
   (:func:`..ai_for_science._score.score_submission`); one record per
-  task with a 5-way verdict.
+  task with attributable answer-format and reference failures.
 """
 
 from __future__ import annotations
@@ -156,8 +156,8 @@ def _make_standardize_command(source: str, module) -> click.Command:
     @click.option(
         "--force",
         is_flag=True,
-        help="Re-extract capsules already present in for_solver/ (default "
-        "skips by existence).",
+        help="Re-extract only identity-qualified existing capsules. Changed or "
+        "unstamped source/content requires fresh output destinations.",
     )
     def _standardize_cmd(dataset_root, as_json, only, force):
         """Placeholder docstring (overwritten below with the per-source example)."""
@@ -221,7 +221,9 @@ def _make_prepare_command(source: str, module) -> click.Command:
     @click.option(
         "--force",
         is_flag=True,
-        help="Re-download everything, ignoring what's already on disk.",
+        help="Force acquisition where supported and re-extract only "
+        "identity-qualified capsules. Source/content changes require fresh "
+        "output destinations.",
     )
     def _prepare_cmd(
         dataset_root,
@@ -268,38 +270,70 @@ def _make_validate_command(source: str, module) -> click.Command:
         type=click.Path(),
         help="Path to the agent submission JSON (the uniform array).",
     )
-    def _validate_cmd(dataset_root, as_json, submission):
+    @click.option(
+        "--tasks",
+        type=click.Path(),
+        default=None,
+        help="Selected public task.jsonl or capsule directory. Without this, "
+        "use the whole for_solver index; missing metadata is labeled shape-only.",
+    )
+    def _validate_cmd(dataset_root, as_json, submission, tasks):
         """Placeholder docstring (overwritten below with the per-source example)."""
         from ..ai_for_science._base import resolve_paths
         from ..ai_for_science._validate import (
-            expected_task_ids_from_for_solver,
+            VALIDATION_CONTRACT,
+            read_public_task_contract,
             validate_submission,
         )
 
         paths = resolve_paths(module.BENCHMARK, dataset_root=dataset_root)
-        expected = expected_task_ids_from_for_solver(paths.for_solver_dir)
-        result = validate_submission(
-            module.BENCHMARK, submission, expected_task_ids=expected
-        )
-        if as_json:
-            click.echo(json.dumps(result, indent=2, default=str))
+        contract = read_public_task_contract(tasks or paths.for_solver_dir)
+        if contract["ok"]:
+            result = validate_submission(
+                module.BENCHMARK,
+                submission,
+                expected_task_ids=contract["task_ids"],
+                expected_answer_types=contract["answer_types"],
+            )
+            scope = contract["scope"]
+        elif tasks is None and all(
+            err["kind"] == "missing_assignment" for err in contract["errors"]
+        ):
+            result = validate_submission(module.BENCHMARK, submission)
+            result["errors"].append({
+                "path": "$assignment",
+                "kind": "shape_only",
+                "message": "No public assignment metadata: only JSON shape/ID "
+                "syntax checked; selected membership and declared answer types "
+                "were not checked. Supply --tasks task.jsonl.",
+            })
+            scope = "shape-only"
         else:
-            if result["ok"]:
-                click.echo(f"OK: {source} submission is structurally valid.")
-            else:
-                click.echo(f"INVALID: {source} submission has errors:")
+            result = {"ok": False, "errors": contract["errors"]}
+            scope = "invalid-assignment"
+        result["validation_contract"] = VALIDATION_CONTRACT
+        result["validation_scope"] = scope
+        if as_json:
+            click.echo(json.dumps(result, indent=2))
+        else:
+            state = "OK" if result["ok"] else "INVALID"
+            click.echo(f"{state}: {source} submission validation ({scope}).")
             for err in result["errors"]:
-                click.echo(f"  [{err['kind']}] {err['path']}: {err['message']}")
+                label = f" [{err['task_id']}]" if "task_id" in err else ""
+                click.echo(f"  [{err['kind']}] {err['path']}{label}: {err['message']}")
         if not result["ok"]:
             raise SystemExit(1)
 
     _validate_cmd.help = (
-        f"Structurally validate a {source} submission (ORACLE-FREE, "
-        f"host-side): required fields, task_id shape, and array length "
-        f"vs the for_solver index. Non-zero exit if invalid.\n\n\b\n"
-        f"Example:\n"
+        f"Validate a {source} submission without an oracle: strict JSON types, "
+        f"required fields, unique IDs and exact public assignment membership. "
+        f"Use --tasks for a selected capsule. Optional public answer_type "
+        f"declarations are checked without coercion; absent declarations accept "
+        f"supported JSON. The default index covers the whole catalog; missing "
+        f"default metadata is explicitly shape-only. This never grades answers."
+        f"\n\n\b\nExample:\n"
         f"  $ scitex-dataset ai-for-science {source} validate "
-        f"--submission sub.json\n"
+        f"--submission sub.json --tasks for_solver/capsule/task.jsonl\n"
         f"  $ scitex-dataset ai-for-science {source} validate "
         f"--submission sub.json --json"
     )
@@ -342,8 +376,10 @@ def _make_score_command(source: str, module) -> click.Command:
     _score_cmd.help = (
         f"Score a {source} submission against the operator oracle "
         f"(eval/answers.jsonl; host-side only). Emits one record per "
-        f"task with a 5-way verdict (correct/wrong/abstain/malformed/"
-        f"needs_rubric).\n\n\b\nExample:\n"
+        f"task: correct, wrong, abstain, malformed, needs_rubric or "
+        f"invalid_reference. Malformed records include format failure kinds "
+        f"such as schema_invalid; invalid references are not scientific "
+        f"wrong answers.\n\n\b\nExample:\n"
         f"  $ scitex-dataset ai-for-science {source} score "
         f"--submission sub.json\n"
         f"  $ scitex-dataset ai-for-science {source} score "

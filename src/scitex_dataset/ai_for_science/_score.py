@@ -10,7 +10,7 @@ oracle task::
 
     [{"task_id", "submitted", "expected", "verdict", "malformed_kind"?, "hint"?}]
 
-``verdict`` is one of five values:
+``verdict`` identifies a solver outcome or an evaluator qualification error:
 
 - ``correct`` / ``wrong`` — an eval-family comparison of a schema-valid,
   non-abstain, gradeable answer;
@@ -23,6 +23,8 @@ oracle task::
 - ``needs_rubric`` — a rubric-family task (BioMysteryBench) the
   mechanical scorer cannot grade; carries a ``hint``. NEVER fabricated
   into correct/wrong and NEVER folded into abstain.
+- ``invalid_reference`` — an ungradeable evaluator reference, not a
+  malformed solver answer or a measured scientific failure.
 
 Eval families dispatch on the oracle expected-answer type (mirroring
 paper-scitex-clew ``_score_a.py`` at ``2bc727526``):
@@ -95,24 +97,23 @@ def _native_from_task_id(task_id: Any) -> str | None:
 
 
 def _to_float(x: Any) -> float | None:
-    """Coerce ``x`` to float, or ``None`` if it is not numeric."""
+    """Coerce legacy numeric strings to a finite float; never accept bool."""
     if isinstance(x, bool):
         return None
-    if isinstance(x, (int, float)):
-        return float(x)
-    if isinstance(x, str):
-        try:
-            return float(x.strip())
-        except ValueError:
-            return None
-    return None
+    if not isinstance(x, (int, float, str)):
+        return None
+    try:
+        value = float(x.strip() if isinstance(x, str) else x)
+    except (ValueError, OverflowError):
+        return None
+    return value if math.isfinite(value) else None
 
 
 # ---------------------------------------------------------------------------
-# Eval families — the CANONICAL comparators. score_submission and the
-# bundled evaluate.py agree on numeric/string; set-equality is added here
-# as a first-class 4th family (evaluate.py's set mode is a follow-up,
-# blocked by the 512-line edit guard on _standardize.py — see PR notes).
+# API comparators: pooled-reference PI / sig-fig fallback, edge-trimmed
+# strings and set equality. The generated evaluator is a DISTINCT policy:
+# scalar 1e-3 numeric tolerance and internal-whitespace normalization. Its
+# numeric mode refuses multiple references until a policy is selected.
 # ---------------------------------------------------------------------------
 
 
@@ -126,13 +127,19 @@ def score_numeric(values: list[float], reported: float) -> bool:
     n = len(values)
     if n == 0:
         return False
+    if _to_float(reported) is None or any(_to_float(v) is None for v in values):
+        raise ValueError("numeric comparison requires finite representable values")
     if n == 1:
         return is_close_sigfig(reported, values[0])
     mean = sum(values) / n
     var = sum((v - mean) ** 2 for v in values) / (n - 1)
+    if not math.isfinite(mean) or not math.isfinite(var):
+        raise ValueError("numeric reference statistics are not representable")
     sd = math.sqrt(var)
     t = _t_crit_95(n - 1)
     half = t * sd * math.sqrt(1 + 1 / n)
+    if not math.isfinite(half):
+        raise ValueError("numeric reference interval is not representable")
     if half == 0:
         return is_close_sigfig(reported, mean)
     return mean - half <= reported <= mean + half
@@ -189,38 +196,63 @@ def _is_rubric(payload: Any, benchmark: str) -> bool:
     return benchmark == "biomysterybench"
 
 
-def _load_oracle(answers: Path | str) -> dict[str, list[Any]]:
+class OracleIntegrityError(ValueError):
+    """Strict oracle parsing refused; diagnostics contain no reference values."""
+
+    def __init__(self, diagnostics: list[dict]):
+        self.diagnostics = diagnostics
+        super().__init__("invalid oracle records; inspect line/kind diagnostics")
+
+
+def _load_oracle(
+    answers: Path | str, *, diagnostics: list[dict] | None = None, strict: bool = False
+) -> dict[str, list[Any]]:
     """Load ``answers.jsonl`` into ``{full_task_id: [answer_payload, ...]}``.
 
     ``answers`` may be the ``answers.jsonl`` file itself or a directory
     holding it (the eval dir). Records are grouped by FULL ``task_id``
     preserving first-seen order, so a task_id repeated across N oracle
     lines yields N reference values for the numeric prediction interval.
+    Legacy tolerant parsing remains the default. Qualification callers may
+    request ``strict=True``; otherwise discarded-record diagnostics can be
+    collected without copying private answer values. A required ``answer``
+    field must be present; present null remains an explicit reference value.
     """
     p = Path(answers)
     if p.is_dir():
         p = p / "answers.jsonl"
     grouped: dict[str, list[Any]] = {}
+    issues: list[dict] = []
     with p.open(encoding="utf-8") as fh:
-        for line in fh:
+        for line_number, line in enumerate(fh, 1):
             line = line.strip()
             if not line:
                 continue
             try:
                 obj = json.loads(line)
             except json.JSONDecodeError:
+                issues.append({"line": line_number, "kind": "unparseable_record"})
                 continue
             if not isinstance(obj, dict):
+                issues.append({"line": line_number, "kind": "record_not_object"})
                 continue
             tid = obj.get("task_id")
-            if not isinstance(tid, str):
+            if not isinstance(tid, str) or not tid.strip():
+                issues.append({"line": line_number, "kind": "invalid_task_id"})
                 continue
-            grouped.setdefault(tid, []).append(obj.get("answer"))
+            if "answer" not in obj:
+                issues.append({"line": line_number, "kind": "missing_answer_field"})
+                continue
+            grouped.setdefault(tid, []).append(obj["answer"])
+    if diagnostics is not None:
+        diagnostics.extend(issues)
+    if strict and issues:
+        raise OracleIntegrityError(issues)
     return grouped
 
 
 def _load_submission(
-    benchmark: str, submission: Any
+    benchmark: str, submission: Any, *, expected_task_ids=None, expected_answer_types=None
 ) -> tuple[list | None, str | None]:
     """Return ``(rows, global_malformed_kind)`` for the submission.
 
@@ -248,7 +280,11 @@ def _load_submission(
 
     if isinstance(data, list) and len(data) == 0:
         return data, "empty"
-    result = validate_submission(benchmark, data)
+    # A host scorer attributes missing rows per task, rather than treating a
+    # partial submission as a whole-submission formatting failure.
+    result = validate_submission(benchmark, data, expected_task_ids=expected_task_ids,
+                                 expected_answer_types=expected_answer_types,
+                                 require_complete=False)
     # ``missing_reason`` (a null answer with no reason) is NOT a global
     # structural failure for GRADING: the per-row logic below classifies
     # such a bare null as ``empty`` (one ungradeable row, not a whole
@@ -294,6 +330,9 @@ def score_submission(
     *,
     answers: Path | str | None = None,
     dataset_root: Path | str | None = None,
+    strict_oracle: bool = True,
+    expected_task_ids: list[str] | None = None,
+    expected_answer_types: dict[str, str] | None = None,
 ) -> list[dict]:
     """Score ``submission`` against the ``benchmark`` oracle answers.
 
@@ -303,14 +342,38 @@ def score_submission(
     is resolved from ``dataset_root`` via
     :func:`._base.resolve_paths`. Returns one record per oracle task_id,
     ordered by task_id.
+    The default ``strict_oracle=True`` refuses malformed oracle records
+    before scoring, preserving assignment/oracle integrity. Explicit
+    ``strict_oracle=False`` is diagnostic-only: discarded-record line/kind
+    diagnostics appear on surviving results, which do not qualify complete
+    oracle integrity or the assignment denominator. An all-invalid oracle
+    then returns no results; obtain its diagnostics with ``_load_oracle``.
+    Invalid numeric references are attributed per task as
+    ``invalid_reference``; submitted invalid numeric values are ``malformed``.
+    Optional ``expected_task_ids`` freezes a public selected assignment; only
+    those oracle tasks are scored, and all must be present in the supplied
+    oracle. ``expected_answer_types`` is an explicit PUBLIC task declaration,
+    never inferred from the oracle. Without a subset, the supplied oracle
+    defines the assignment scope.
     """
     if answers is None:
         from ._base import resolve_paths
 
         answers = resolve_paths(benchmark, dataset_root=dataset_root).eval_dir
 
-    oracle = _load_oracle(answers)
-    rows, global_kind = _load_submission(benchmark, submission)
+    oracle_diagnostics: list[dict] = []
+    oracle = _load_oracle(answers, diagnostics=oracle_diagnostics, strict=strict_oracle)
+    if expected_task_ids is not None:
+        if (not isinstance(expected_task_ids, list)
+                or any(not isinstance(tid, str) or not tid.strip() for tid in expected_task_ids)
+                or len(set(expected_task_ids)) != len(expected_task_ids)):
+            raise ValueError("selected assignment IDs must be nonempty unique strings")
+        if any(tid not in oracle for tid in expected_task_ids):
+            raise ValueError("selected assignment is absent from the supplied oracle")
+        oracle = {tid: oracle[tid] for tid in expected_task_ids}
+    rows, global_kind = _load_submission(benchmark, submission,
+                                        expected_task_ids=list(oracle),
+                                        expected_answer_types=expected_answer_types)
 
     by_id: dict[str, dict] = {}
     if global_kind is None and isinstance(rows, list):
@@ -327,6 +390,9 @@ def score_submission(
             "submitted": None,
             "expected": _expected_value(first),
         }
+        if oracle_diagnostics:
+            rec["oracle_diagnostics"] = oracle_diagnostics
+            rec["oracle_integrity"] = "invalid"
 
         # Whole-submission failure applies to every task uniformly.
         if global_kind is not None:
@@ -380,19 +446,33 @@ def score_submission(
             ok = score_string(sample, submitted)
             rec["verdict"] = "correct" if ok else "wrong"
         elif isinstance(sample, (int, float)):
-            nums = [f for f in (_to_float(v) for v in values) if f is not None]
+            nums = [_to_float(v) for v in values]
+            if any(v is None for v in nums):
+                rec["verdict"] = "invalid_reference"
+                rec["reference_error_kind"] = "invalid_numeric_reference"
+                rec["n_references"] = len(values)
+                results.append(rec)
+                continue
             rep = _to_float(submitted)
-            if rep is None or not nums:
+            if rep is None:
                 # Non-numeric answer to a numeric task: not gradeable.
                 rec["verdict"] = "malformed"
+                rec["malformed_kind"] = "invalid_numeric_answer"
             else:
-                ok = score_numeric(nums, rep)
-                rec["verdict"] = "correct" if ok else "wrong"
+                try:
+                    ok = score_numeric(nums, rep)
+                except (ArithmeticError, ValueError):
+                    rec["verdict"] = "invalid_reference"
+                    rec["reference_error_kind"] = "numeric_reference_arithmetic"
+                else:
+                    rec["verdict"] = "correct" if ok else "wrong"
+            rec["n_references"] = len(values)
         elif isinstance(sample, str):
             ok = score_string(sample, submitted)
             rec["verdict"] = "correct" if ok else "wrong"
         else:
-            rec["verdict"] = "malformed"
+            rec["verdict"] = "invalid_reference"
+            rec["reference_error_kind"] = "unsupported_reference_type"
         results.append(rec)
 
     return results

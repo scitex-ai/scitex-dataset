@@ -6,39 +6,40 @@
 
 CORE-Bench: 90 reproducibility-judging capsules from CodeOcean papers,
 hosted off-repo at ``https://corebench.cs.princeton.edu/capsules/``.
-Each capsule has 3 difficulty tiers (easy / medium / hard) — 90
-underlying papers × ~3 task variants per paper.
+Each capsule can pose several questions. The ``results`` dictionaries
+contain reference reruns of those questions, not difficulty variants.
 
 Pipeline (raw → {for_solver, eval} contract — see :mod:`._base`):
 
 1. ``download(...)`` — pull capsule tarballs (~13 GB) from the Princeton
    CDN into ``raw_dir/capsules/``, with sha256 integrity skip via
    ``raw_dir/.checksums.json``. The answer manifests
-   (``dataset/core_train.json`` + ``core_test.json``) are operator-side
-   artifacts staged into ``raw_dir`` separately (not fetched here).
-   ``raw_dir`` is operator-private and never mounted.
-2. ``build_inventory(...)`` — read the oracle manifests, write a
-   non-oracle ``inventory.json`` (task metadata only — capsule_id,
-   difficulty, language, field, file counts) into the agent-visible
-   ``for_solver_dir``.
-3. ``standardize(...)`` — split the oracle into a uniform leak-safe
-   ``for_solver/tasks.jsonl`` (no answers) + an operator-side
-   ``eval/answers.jsonl`` + ``eval/evaluate.py``. Each ``results`` entry
-   becomes one task; the per-tier difficulty disambiguates them. This is
-   exactly what the SAC capsule binds at ``/for_solver:ro``.
+   (``dataset/core_train.json`` + ``core_test.json``) are operator-side;
+   implicit capsule selection bootstraps them. Explicit ``capsule_ids``
+   leaves oracle acquisition to the caller. ``raw_dir`` is never mounted.
+2. ``standardize(...)`` — admit source/cache identity, then split the oracle
+   into a uniform answer-masked
+   per-capsule ``for_solver/`` view (no answers) and operator-side
+   ``eval/answers.jsonl`` + ``eval/evaluate.py``. One question creates
+    one task; all its reference samples share that task's identity.
+3. ``build_inventory(...)`` — after materialization admission, read the
+   oracle manifests and write ``inventory.json`` (capsule/question metadata,
+   language, field and file counts) outside the selected solver capsule.
 4. ``prepare(...)`` — runs the three above plus emits
    ``.scitex/dataset/MANIFEST.yaml`` with the snapshot id + version +
-   sha256 of the tasks file.
+   checksum of the mapper. Actual source/cache identity stays private.
 
 NOTE on compute: the capsule tarball download in ``download(...)`` is
 ~13 GB. Callers running on a SLURM cluster should ``sbatch`` it (or
 call ``prepare(...)`` from a batch script) — never on a login node.
-The ``standardize(...)`` step is pure-Python on JSON inputs (< 1 MB
-total) and safe to run anywhere.
+``standardize(...)`` uses staged JSON manifests and hashes/extracts selected
+capsule archives. Budget disk space and I/O for those archives; it performs
+no network acquisition itself.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from collections import Counter
@@ -66,11 +67,9 @@ BENCHMARK = "corebench"
 COHORT_ID = "corebench"
 COHORT_NAME = "CORE-Bench"
 
-# Difficulty tier labels in the order they appear in the upstream
-# ``results`` arrays (per CORE-Bench paper: each capsule has
-# hard/medium/easy variants; the ``results`` list is positionally
-# ordered).
+# Legacy export retained for callers; reference positions never select a tier.
 DIFFICULTY_TIERS = ("hard", "medium", "easy")
+REFERENCE_SCHEMA = "corebench-question-references-v1"
 
 # Default scorer mode baked into eval/evaluate.py — CORE-Bench answers
 # are numeric report values, scored within relative tolerance.
@@ -105,55 +104,80 @@ _DATA_EXTS = (
 #   <raw_dir>/dataset/core_train.json   (plaintext)
 #   <raw_dir>/core_test.json            (decrypted from .gpg)
 
-# Capsule tarballs are the only raw content symlinked into for_solver/;
-# the whole ``raw/capsules`` dir is linked once (not per-task) and each
-# task's ``data`` points inside it. Extracted trees (for inventory
-# file-counting) land under this subdir.
+# Optional pre-extracted trees for inventory file-counting live here.
+# Solver materialization extracts selected archives into per-capsule input/;
+# it does not bind the whole raw capsule directory.
 _EXTRACTED_SUBDIR = "capsules_extracted"
 
 
 # ---------------------------------------------------------------------------
-# Standardize — pure-Python; works without any network and without the
-# bulk capsule tarballs. This is what tests exercise.
+# Standardize — offline JSON processing plus staged archive identity checks
+# and selected input extraction. Tests use invented local archives.
 # ---------------------------------------------------------------------------
 
 
-def _split_record(rec: dict) -> tuple[list[dict], list[dict]]:
-    """Split one oracle record into (tasks, answers) row lists.
+def _question_task_id(capsule_id: str, question: str) -> str:
+    """Stable identity for an exact, unnormalised UTF-8 question key."""
+    try:
+        digest = hashlib.sha256(question.encode("utf-8")).hexdigest()
+    except UnicodeEncodeError:
+        raise ValueError("corebench: question key must be valid UTF-8") from None
+    return f"corebench/{capsule_id}__question_{digest}"
 
-    Each ``rec["results"]`` entry is a ``{question_text: answer_value}``
-    dict for one difficulty tier — and may hold MORE THAN ONE question
-    (CoreBench tasks pose 1–8 questions per tier). Every question becomes
-    its own standardized task so each answer stays a scalar (matching the
-    per-question metric): ``corebench/<cid>__<difficulty>__q<j>``. The
-    positional index selects the tier (hard/medium/easy, then
-    ``tier_<i>``). Tasks carry the uniform ``{task_id, benchmark, prompt,
-    data}`` keys only — no answer-bearing fields. Answers carry the
-    matching ``task_id``, the ``{"value": ...}`` payload, and meta.
+
+def _split_record(rec: dict) -> tuple[list[dict], list[dict]]:
+    """Create one assigned task per question and retain every scalar reference.
+
+    Reference rows repeat the SAME task ID. Their schema/run metadata is
+    evaluator-private. Missing keys are reported, never filled or discarded.
     """
-    cid = rec["capsule_id"]
+    if not isinstance(rec, dict):
+        raise ValueError("corebench: source record must be an object")
+    cid = rec.get("capsule_id")
+    if not isinstance(cid, str) or not cid or "/" in cid or "\\" in cid:
+        raise ValueError("corebench: capsule_id must be a nonempty path-free string")
+    if not isinstance(rec.get("task_prompt"), str):
+        raise ValueError("corebench: task_prompt must be a string")
+    results = rec.get("results")
+    if not isinstance(results, list) or not results:
+        raise ValueError("corebench: results must be a nonempty list of reference runs")
+    references: dict[str, list[tuple[int, object]]] = {}
+    for run_index, result_dict in enumerate(results):
+        if not isinstance(result_dict, dict):
+            raise ValueError(f"corebench: reference run {run_index} must be an object")
+        for question, value in result_dict.items():
+            if not isinstance(question, str) or not question:
+                raise ValueError(f"corebench: reference run {run_index} has an invalid question key")
+            references.setdefault(question, []).append((run_index, value))
+    if not references:
+        raise ValueError("corebench: reference runs contain no questions")
     tasks: list[dict] = []
     answers: list[dict] = []
-    for i, result_dict in enumerate(rec.get("results", [])):
-        difficulty = DIFFICULTY_TIERS[i] if i < 3 else f"tier_{i}"
-        for j, (question_text, answer_value) in enumerate(result_dict.items()):
-            task_id = f"corebench/{cid}__{difficulty}__q{j}"
-            tasks.append(
-                {
-                    "task_id": task_id,
-                    "benchmark": BENCHMARK,
-                    "prompt": rec["task_prompt"] + "\n\nQuestion: " + question_text,
-                    "data": f"./capsules/{cid}.tar.gz",
-                }
-            )
+    for question in sorted(references):
+        task_id = _question_task_id(cid, question)
+        samples = references[question]
+        missing_runs = sorted(set(range(len(results))) - {i for i, _ in samples})
+        tasks.append(
+            {
+                "task_id": task_id,
+                "benchmark": BENCHMARK,
+                "prompt": rec["task_prompt"] + "\n\nQuestion: " + question,
+                "data": f"./capsules/{cid}.tar.gz",
+            }
+        )
+        for run_index, value in samples:
             answers.append(
                 {
                     "task_id": task_id,
-                    "answer": {"value": answer_value},
+                    "answer": {"value": value},
                     "meta": {
+                        "schema": REFERENCE_SCHEMA,
                         "capsule_id": cid,
-                        "difficulty": difficulty,
-                        "question": question_text,
+                        "question": question,
+                        "reference_run_index": run_index,
+                        "reference_runs_total": len(results),
+                        "reference_count": len(samples),
+                        "missing_reference_run_indexes": missing_runs,
                         "field": rec.get("field"),
                         "language": rec.get("language"),
                     },
@@ -176,8 +200,8 @@ def standardize(
     ``raw_dir`` must already contain the upstream-pristine
     ``dataset/core_train.json`` and ``core_test.json`` — either from a
     prior ``download(...)`` or hand-staged by the operator. The two
-    record lists are concatenated (train first, then test); each
-    ``results`` entry becomes one task (leak-safe) + one answer.
+    record lists are concatenated (train first, then test). Each question
+    creates one task; each reference sample retains one private answer row.
 
     ``for_solver`` is written in the PER-CAPSULE shape: one self-contained
     ``capsule-NNN/`` dir per native capsule (friendly id), each holding
@@ -188,8 +212,9 @@ def standardize(
 
     ``only`` (a friendly ``capsule-NNN`` id OR a native capsule id, e.g.
     ``capsule-0201225``) materializes just that one capsule's dir; the
-    mapper is always written in full. ``force`` re-extracts capsules that
-    are already present (default skips them).
+    mapper remains complete. Existing capsules are reused or, with ``force``,
+    re-extracted only after source/cache identity admission. Changed or
+    unqualified outputs require a fresh destination.
     """
     train = raw_dir.joinpath(*_ORACLE_TRAIN_RELPATH)
     test = raw_dir.joinpath(*_ORACLE_TEST_RELPATH)
@@ -204,27 +229,41 @@ def standardize(
     tasks: list[dict] = []
     answers: list[dict] = []
     counts: list[int] = []
-    for src in (train, test):
-        records = json.loads(src.read_text(encoding="utf-8"))
+    source_manifests: list[dict] = []
+    for split, src in (("train", train), ("test", test)):
+        source_body = src.read_bytes()
+        records = json.loads(source_body)
+        if not isinstance(records, list):
+            raise ValueError(f"corebench: {split} source must contain a record list")
+        source_manifests.append({
+            "split": split, "path": src.relative_to(raw_dir).as_posix(),
+            "sha256": hashlib.sha256(source_body).hexdigest(), "bytes": len(source_body),
+        })
         before = len(tasks)
         for rec in records:
             rec_tasks, rec_answers = _split_record(rec)
             tasks.extend(rec_tasks)
             answers.extend(rec_answers)
         counts.append(len(tasks) - before)
+    if len({task["task_id"] for task in tasks}) != len(tasks):
+        raise ValueError("corebench: duplicate assigned question identity across records")
 
-    answer_values = {
-        a["task_id"]: a["answer"]["value"]
-        for a in answers
-        if isinstance(a.get("answer"), dict) and "value" in a["answer"]
-    }
+    # All samples remain available to the existing private leak guard.
+    reference_values: dict[str, list[object]] = {}
+    for answer in answers:
+        reference_values.setdefault(answer["task_id"], []).append(answer["answer"]["value"])
     fs = write_for_solver_per_capsule(
         for_solver_dir=for_solver_dir,
         tasks=tasks,
         raw_dir=raw_dir,
         only=only,
         force=force,
-        answer_values=answer_values,
+        reference_values=reference_values,
+        source_identity={
+            "schema": REFERENCE_SCHEMA,
+            "adapter_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "oracle_manifests": source_manifests,
+        },
     )
     ev = write_eval(
         eval_dir=eval_dir,
@@ -237,6 +276,11 @@ def standardize(
         "eval": ev,
         "sources": sr,
         "n_tasks": len(tasks),
+        "n_reference_samples": len(answers),
+        "reference_schema": REFERENCE_SCHEMA,
+        "n_questions_with_missing_reference_runs": len({
+            a["task_id"] for a in answers if a["meta"]["missing_reference_run_indexes"]
+        }),
         "n_train": counts[0],
         "n_test": counts[1],
         "default_mode": DEFAULT_MODE,
@@ -282,22 +326,20 @@ def _build_tasks(
 ) -> list[dict]:
     rows: list[dict] = []
     for entry in entries:
+        tasks, answers = _split_record(entry)
         cid = entry["capsule_id"]
         lang = entry.get("language", "Unknown")
         file_stats = _classify_capsule_files(capsule_cache / cid)
-        results = entry.get("results", [])
-        for i, r in enumerate(results):
-            difficulty = (
-                r.get("task_type")
-                or r.get("difficulty")
-                or (DIFFICULTY_TIERS[i] if i < len(DIFFICULTY_TIERS) else f"tier_{i}")
-            )
+        reference_counts = Counter(answer["task_id"] for answer in answers)
+        for task in tasks:
             rows.append(
                 {
-                    "task_id": f"{cid}__{difficulty}",
+                    "task_id": task["task_id"],
                     "paper_id": cid,
                     "split": split,
-                    "difficulty": difficulty,
+                    "difficulty": None,
+                    "reference_schema": REFERENCE_SCHEMA,
+                    "reference_count": reference_counts[task["task_id"]],
                     "primary_language": lang,
                     "field": entry.get("field"),
                     "n_python_files": file_stats["n_python_files"]
@@ -322,9 +364,9 @@ def build_inventory(
 ) -> dict:
     """Write ``for_solver_dir/inventory.json`` from the oracle JSONs.
 
-    The inventory contains only non-oracle metadata (no answer values),
-    so it is published in the agent-visible ``for_solver_dir`` alongside
-    the tasks file. File-level fields (``n_python_files`` etc.) are
+    The inventory contains metadata without answer values and stays at the
+    operator catalog root, outside the selected solver capsule bind.
+    File-level fields (``n_python_files`` etc.) are
     populated only if the capsule has been unpacked into
     ``raw_dir/capsules_extracted/<capsule_id>``; otherwise ``None``.
     """
@@ -341,19 +383,25 @@ def build_inventory(
     capsule_cache = raw_dir / _EXTRACTED_SUBDIR
     train_entries = json.loads(train.read_text(encoding="utf-8"))
     test_entries = json.loads(test.read_text(encoding="utf-8"))
+    if not isinstance(train_entries, list) or not isinstance(test_entries, list):
+        raise ValueError("corebench: inventory sources must contain record lists")
     rows = _build_tasks(train_entries, "train", capsule_cache) + _build_tasks(
         test_entries, "test", capsule_cache
     )
+    if len({row["task_id"] for row in rows}) != len(rows):
+        raise ValueError("corebench: duplicate assigned question identity in inventory")
 
     summary = {
         "n_capsules_total": len(train_entries) + len(test_entries),
         "n_capsules_train": len(train_entries),
         "n_capsules_test": len(test_entries),
         "n_tasks_total": len(rows),
+        "n_reference_samples": sum(r["reference_count"] for r in rows),
         "n_tasks_python": sum(1 for r in rows if r["primary_language"] == "Python"),
         "n_tasks_r": sum(1 for r in rows if r["primary_language"] == "R"),
         "by_primary_language": dict(Counter(r["primary_language"] for r in rows)),
-        "by_difficulty": dict(Counter(r["difficulty"] for r in rows)),
+        "by_difficulty": {},  # Reference positions are not difficulty labels.
+        "reference_schema": REFERENCE_SCHEMA,
         "by_split": dict(Counter(r["split"] for r in rows)),
         "by_field": dict(Counter(r["field"] for r in rows)),
         "capsule_code_in_repo": capsule_cache.exists(),
@@ -390,16 +438,18 @@ def prepare(
     skip_inventory: bool = False,
     verify_integrity: bool = False,
     force: bool = False,
-    **_,
+    only: str | None = None,
+    capsule_ids: Iterable[str] | None = None,
 ) -> dict:
     """Run the full CORE-Bench preparation pipeline.
 
     Returns a dict summarising each step plus the path of the emitted
     ``MANIFEST.yaml``. If ``skip_download`` is True (default False), the
-    capsule-tarball download step is skipped — useful when only the
-    pure-Python standardize path is wanted (e.g. from CI where multi-GB
-    pulls are inappropriate). ``verify_integrity`` / ``force`` are passed
+    capsule-tarball download step is skipped; manifests and selected archives
+    must already be staged. ``verify_integrity`` / ``force`` are passed
     to ``download`` (default: skip any capsule already on disk).
+    ``capsule_ids`` restricts acquisition; ``only`` restricts materialization.
+    Explicit IDs require caller-staged oracle manifests for standardization.
     """
     if paths is None:
         paths = resolve_paths(BENCHMARK, dataset_root=dataset_root)
@@ -410,17 +460,19 @@ def prepare(
             raw_dir=paths.raw_dir,
             verify_integrity=verify_integrity,
             force=force,
-        )
-    if not skip_inventory:
-        out["inventory"] = build_inventory(
-            raw_dir=paths.raw_dir, for_solver_dir=paths.for_solver_dir
+            capsule_ids=capsule_ids,
         )
     out["standardize"] = standardize(
         raw_dir=paths.raw_dir,
         for_solver_dir=paths.for_solver_dir,
         eval_dir=paths.eval_dir,
         force=force,
+        only=only,
     )
+    if not skip_inventory:
+        out["inventory"] = build_inventory(
+            raw_dir=paths.raw_dir, for_solver_dir=paths.for_solver_dir
+        )
 
     manifest_path = write_manifest(
         manifest_dir=paths.manifest_dir,
@@ -443,6 +495,7 @@ __all__ = [
     "COHORT_NAME",
     "SOURCE_URL",
     "DIFFICULTY_TIERS",
+    "REFERENCE_SCHEMA",
     "DEFAULT_MODE",
     "PAPER_IDENTITY_FIELDS",
     "build_inventory",

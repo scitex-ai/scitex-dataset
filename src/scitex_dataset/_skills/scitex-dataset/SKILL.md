@@ -55,6 +55,8 @@ rule and empirical verification table.
 - [04_cli-reference.md](04_cli-reference.md) — `scitex-dataset` console entry
 
 ### Workflows
+- [15_ai-for-science.md](15_ai-for-science.md) — preparation, public validation,
+  reference identity and scoring boundaries for agentic benchmarks
 - [10_cli-reference.md](10_cli-reference.md) — historical CLI notes
 - [11_mcp-tools.md](11_mcp-tools.md) — MCP tools for AI agents
 - [13_quick-start.md](13_quick-start.md) — historical quick-start

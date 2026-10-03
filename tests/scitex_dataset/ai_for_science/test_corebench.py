@@ -36,6 +36,131 @@ def _swap_http_download(replacement):
         _corebench_download._http_download = saved  # type: ignore[assignment]
 
 
+@pytest.fixture
+def three_reference_runs():
+    """Function-scoped original synthetic workflow; records facts without assertions."""
+    tasks, answers = corebench._split_record(_reference_record([{'Score?': 12.34}, {'Score?': 12.35}, {'Score?': 12.33}]))
+    return {'answers': answers, 'tasks': tasks}
+
+@pytest.fixture
+def reordered_reference_runs():
+    """Function-scoped original synthetic workflow; records facts without assertions."""
+    first = _reference_record([{'A?': 1, 'B?': 4}, {'B?': 5, 'A?': 2}])
+    reordered = _reference_record([{'A?': 2, 'B?': 5}, {'B?': 4, 'A?': 1}])
+    tasks, answers = corebench._split_record(first)
+    new_tasks, new_answers = corebench._split_record(reordered)
+    old_samples = sorted(((row['task_id'], row['answer']['value']) for row in answers))
+    new_samples = sorted(((row['task_id'], row['answer']['value']) for row in new_answers))
+    return {'answers': answers, 'first': first, 'new_answers': new_answers, 'new_samples': new_samples, 'new_tasks': new_tasks, 'old_samples': old_samples, 'reordered': reordered, 'tasks': tasks}
+
+@pytest.fixture
+def extended_reference_runs():
+    """Function-scoped original synthetic workflow; records facts without assertions."""
+    tasks, _ = corebench._split_record(_reference_record([{'A?': 10}]))
+    extended_tasks, answers = corebench._split_record(_reference_record([{'A?': 10}, {'A?': 10}, {'A?': 11}]))
+    return {'_': _, 'answers': answers, 'extended_tasks': extended_tasks, 'tasks': tasks}
+
+@pytest.fixture
+def missing_reference_runs():
+    """Function-scoped original synthetic workflow; records facts without assertions."""
+    tasks, answers = corebench._split_record(_reference_record([{'A?': 1, 'B?': 9}, {'B?': 8}, {'A?': 2, 'B?': 7}]))
+    a_refs = [row for row in answers if row['meta']['question'] == 'A?']
+    b_refs = [row for row in answers if row['meta']['question'] == 'B?']
+    return {'a_refs': a_refs, 'answers': answers, 'b_refs': b_refs, 'tasks': tasks}
+
+@pytest.fixture
+def exact_reference_keys():
+    """Function-scoped original synthetic workflow; records facts without assertions."""
+    tasks, _ = corebench._split_record(_reference_record([{'A?': 1, ' A?': 2}]))
+    changed_answers, _ = corebench._split_record(_reference_record([{'A?': 100, ' A?': None}]))
+    return {'_': _, 'changed_answers': changed_answers, 'tasks': tasks}
+
+@pytest.fixture
+def invalid_utf8_reference():
+    """Function-scoped original synthetic workflow; records facts without assertions."""
+    _observed_exception = None
+    try:
+        corebench._split_record(_reference_record([{'\ud800': 123456789}]))
+    except ValueError as caught_error:
+        _observed_exception = caught_error
+    return {'_observed_exception': _observed_exception}
+
+@pytest.fixture
+def materialized_question_ids(staged_raw_dir):
+    """Function-scoped original synthetic workflow; records facts without assertions."""
+    root = staged_raw_dir.parent
+    corebench.standardize(raw_dir=staged_raw_dir, for_solver_dir=root / 'for_solver', eval_dir=root / 'eval')
+    ids = _all_task_ids(root / 'for_solver')
+    return {'ids': ids, 'root': root, 'staged_raw_dir': staged_raw_dir}
+
+@pytest.fixture
+def materialized_reference_question(staged_raw_dir):
+    """Function-scoped original synthetic workflow; records facts without assertions."""
+    (staged_raw_dir / 'dataset' / 'core_train.json').write_text(json.dumps([_reference_record([{'Score?': 12.34}, {'Score?': 12.35}, {'Score?': 12.33}])]))
+    (staged_raw_dir / 'core_test.json').write_text('[]')
+    root = staged_raw_dir.parent
+    result = corebench.standardize(raw_dir=staged_raw_dir, for_solver_dir=root / 'for_solver', eval_dir=root / 'eval')
+    tasks = _read_jsonl(root / 'for_solver' / 'capsule-001' / 'task.jsonl')
+    answers = _read_jsonl(root / 'eval' / 'answers.jsonl')
+    example = json.loads((root / 'for_solver' / 'capsule-001' / 'submission.example.json').read_text())
+    return {'answers': answers, 'example': example, 'result': result, 'root': root, 'staged_raw_dir': staged_raw_dir, 'tasks': tasks}
+
+@pytest.fixture
+def duplicate_reference_questions(staged_raw_dir):
+    """Function-scoped original synthetic workflow; records facts without assertions."""
+    _observed_exception = None
+    record = _reference_record([{'Score?': 12.34}])
+    (staged_raw_dir / 'dataset' / 'core_train.json').write_text(json.dumps([record, record]))
+    (staged_raw_dir / 'core_test.json').write_text('[]')
+    root = staged_raw_dir.parent
+    try:
+        corebench.standardize(raw_dir=staged_raw_dir, for_solver_dir=root / 'for_solver', eval_dir=root / 'eval')
+    except ValueError as caught_error:
+        _observed_exception = caught_error
+    return {'_observed_exception': _observed_exception, 'record': record, 'root': root, 'staged_raw_dir': staged_raw_dir}
+
+@pytest.fixture
+def question_reference_inventory(staged_raw_dir):
+    """Function-scoped original synthetic workflow; records facts without assertions."""
+    (staged_raw_dir / 'dataset' / 'core_train.json').write_text(json.dumps([_reference_record([{'Score?': 1}, {'Score?': 2}, {'Score?': 3}])]))
+    (staged_raw_dir / 'core_test.json').write_text('[]')
+    result = corebench.build_inventory(raw_dir=staged_raw_dir, for_solver_dir=staged_raw_dir.parent / 'for_solver')
+    inventory = json.loads(Path(result['output']).read_text())
+    return {'inventory': inventory, 'result': result, 'staged_raw_dir': staged_raw_dir}
+
+@pytest.fixture
+def refused_legacy_prepare(staged_raw_dir):
+    """Function-scoped original synthetic workflow; records facts without assertions."""
+    _observed_exception = None
+    paths = _paths_for(staged_raw_dir)
+    paths.for_solver_dir.mkdir()
+    inventory = paths.for_solver_dir / 'inventory.json'
+    old_inventory = b'{"historical": "original question units"}\n'
+    inventory.write_bytes(old_inventory)
+    try:
+        corebench.prepare(paths=paths, skip_download=True, force=True)
+    except ValueError as caught_error:
+        _observed_exception = caught_error
+    return {'_observed_exception': _observed_exception, 'inventory': inventory, 'old_inventory': old_inventory, 'paths': paths, 'staged_raw_dir': staged_raw_dir}
+
+@pytest.fixture
+def selected_capsule_prepare(staged_raw_dir):
+    """Function-scoped original synthetic workflow; records facts without assertions."""
+    paths = _paths_for(staged_raw_dir)
+    result = corebench.prepare(paths=paths, capsule_ids=['capsule-2222222'], only='capsule-2222222')
+    return {'paths': paths, 'result': result, 'staged_raw_dir': staged_raw_dir}
+
+@pytest.fixture
+def unknown_selector_prepare(staged_raw_dir):
+    """Function-scoped original synthetic workflow; records facts without assertions."""
+    _observed_exception = None
+    paths = _paths_for(staged_raw_dir)
+    try:
+        corebench.prepare(paths=paths, capsule_id='capsule-2222222')
+    except TypeError as caught_error:
+        _observed_exception = caught_error
+    return {'_observed_exception': _observed_exception, 'paths': paths, 'staged_raw_dir': staged_raw_dir}
+
 class _HttpRecorder:
     """Records fetch calls and writes deterministic bytes to each dest."""
 
@@ -131,6 +256,278 @@ def _all_task_ids(for_solver_dir):
     return ids
 
 
+def _reference_record(results):
+    """Invented reference runs; never a real benchmark oracle."""
+    return {
+        "capsule_id": "capsule-1111111",
+        "task_prompt": "Run the supplied analysis.",
+        "results": results,
+    }
+
+
+class TestQuestionReferenceIdentity:
+    def test_three_reference_runs_create_one_question(self, three_reference_runs):
+        # Arrange
+        observed = three_reference_runs
+        # Act
+        answers = observed['answers']
+        tasks = observed['tasks']
+        # Assert
+        assert len(tasks) == 1
+
+    def test_reference_rows_share_one_question_id(self, three_reference_runs):
+        # Arrange
+        observed = three_reference_runs
+        # Act
+        answers = observed['answers']
+        tasks = observed['tasks']
+        # Assert
+        assert len({answer['task_id'] for answer in answers}) == 1
+
+    def test_reference_rows_preserve_every_sample_value(self, three_reference_runs):
+        # Arrange
+        observed = three_reference_runs
+        # Act
+        answers = observed['answers']
+        tasks = observed['tasks']
+        # Assert
+        assert [answer['answer']['value'] for answer in answers] == [12.34, 12.35, 12.33]
+
+    def test_reference_rows_preserve_original_run_indexes(self, three_reference_runs):
+        # Arrange
+        observed = three_reference_runs
+        # Act
+        answers = observed['answers']
+        tasks = observed['tasks']
+        # Assert
+        assert [answer['meta']['reference_run_index'] for answer in answers] == [0, 1, 2]
+
+    def test_private_reference_ids_match_public_question(self, three_reference_runs):
+        # Arrange
+        observed = three_reference_runs
+        # Act
+        answers = observed['answers']
+        tasks = observed['tasks']
+        # Assert
+        assert all((answer['task_id'] == tasks[0]['task_id'] for answer in answers))
+
+    def test_reference_rows_declare_question_sample_schema(self, three_reference_runs):
+        # Arrange
+        observed = three_reference_runs
+        # Act
+        answers = observed['answers']
+        tasks = observed['tasks']
+        # Assert
+        assert all((answer['meta']['schema'] == 'corebench-question-references-v1' for answer in answers))
+
+    def test_reference_metadata_omits_synthetic_difficulty(self, three_reference_runs):
+        # Arrange
+        observed = three_reference_runs
+        # Act
+        answers = observed['answers']
+        tasks = observed['tasks']
+        # Assert
+        assert all(('difficulty' not in answer['meta'] for answer in answers))
+
+    def test_public_question_has_only_uniform_fields(self, three_reference_runs):
+        # Arrange
+        observed = three_reference_runs
+        # Act
+        answers = observed['answers']
+        tasks = observed['tasks']
+        # Assert
+        assert all((set(task) == {'task_id', 'benchmark', 'prompt', 'data'} for task in tasks))
+
+    def test_public_question_omits_private_reference_value(self, three_reference_runs):
+        # Arrange
+        observed = three_reference_runs
+        # Act
+        answers = observed['answers']
+        tasks = observed['tasks']
+        # Assert
+        assert '12.34' not in json.dumps(tasks)
+
+    def test_reordered_reference_runs_retain_two_questions(self, reordered_reference_runs):
+        # Arrange
+        observed = reordered_reference_runs
+        # Act
+        answers = observed['answers']
+        first = observed['first']
+        new_answers = observed['new_answers']
+        new_samples = observed['new_samples']
+        new_tasks = observed['new_tasks']
+        old_samples = observed['old_samples']
+        reordered = observed['reordered']
+        tasks = observed['tasks']
+        # Assert
+        assert len(tasks) == 2
+
+    def test_reordered_reference_runs_keep_public_assignment(self, reordered_reference_runs):
+        # Arrange
+        observed = reordered_reference_runs
+        # Act
+        answers = observed['answers']
+        first = observed['first']
+        new_answers = observed['new_answers']
+        new_samples = observed['new_samples']
+        new_tasks = observed['new_tasks']
+        old_samples = observed['old_samples']
+        reordered = observed['reordered']
+        tasks = observed['tasks']
+        # Assert
+        assert tasks == new_tasks
+
+    def test_reordered_reference_runs_keep_sample_multiset(self, reordered_reference_runs):
+        # Arrange
+        observed = reordered_reference_runs
+        # Act
+        answers = observed['answers']
+        first = observed['first']
+        new_answers = observed['new_answers']
+        new_samples = observed['new_samples']
+        new_tasks = observed['new_tasks']
+        old_samples = observed['old_samples']
+        reordered = observed['reordered']
+        tasks = observed['tasks']
+        # Assert
+        assert old_samples == new_samples
+
+    def test_adding_reference_keeps_public_question_assignment(self, extended_reference_runs):
+        # Arrange
+        observed = extended_reference_runs
+        # Act
+        _ = observed['_']
+        answers = observed['answers']
+        extended_tasks = observed['extended_tasks']
+        tasks = observed['tasks']
+        # Assert
+        assert tasks == extended_tasks
+
+    def test_adding_reference_keeps_duplicate_sample_values(self, extended_reference_runs):
+        # Arrange
+        observed = extended_reference_runs
+        # Act
+        _ = observed['_']
+        answers = observed['answers']
+        extended_tasks = observed['extended_tasks']
+        tasks = observed['tasks']
+        # Assert
+        assert [row['answer']['value'] for row in answers] == [10, 10, 11]
+
+    def test_adding_reference_updates_sample_count_metadata(self, extended_reference_runs):
+        # Arrange
+        observed = extended_reference_runs
+        # Act
+        _ = observed['_']
+        answers = observed['answers']
+        extended_tasks = observed['extended_tasks']
+        tasks = observed['tasks']
+        # Assert
+        assert all((row['meta']['reference_count'] == 3 for row in answers))
+
+    def test_missing_reference_run_retains_both_questions(self, missing_reference_runs):
+        # Arrange
+        observed = missing_reference_runs
+        # Act
+        a_refs = observed['a_refs']
+        answers = observed['answers']
+        b_refs = observed['b_refs']
+        tasks = observed['tasks']
+        # Assert
+        assert len(tasks) == 2
+
+    def test_missing_reference_run_preserves_available_values(self, missing_reference_runs):
+        # Arrange
+        observed = missing_reference_runs
+        # Act
+        a_refs = observed['a_refs']
+        answers = observed['answers']
+        b_refs = observed['b_refs']
+        tasks = observed['tasks']
+        # Assert
+        assert [row['answer']['value'] for row in a_refs] == [1, 2]
+
+    def test_missing_reference_run_reports_missing_index(self, missing_reference_runs):
+        # Arrange
+        observed = missing_reference_runs
+        # Act
+        a_refs = observed['a_refs']
+        answers = observed['answers']
+        b_refs = observed['b_refs']
+        tasks = observed['tasks']
+        # Assert
+        assert all((row['meta']['missing_reference_run_indexes'] == [1] for row in a_refs))
+
+    def test_missing_reference_run_retains_total_run_count(self, missing_reference_runs):
+        # Arrange
+        observed = missing_reference_runs
+        # Act
+        a_refs = observed['a_refs']
+        answers = observed['answers']
+        b_refs = observed['b_refs']
+        tasks = observed['tasks']
+        # Assert
+        assert all((row['meta']['reference_runs_total'] == 3 for row in answers))
+
+    def test_complete_reference_question_has_no_missing_indexes(self, missing_reference_runs):
+        # Arrange
+        observed = missing_reference_runs
+        # Act
+        a_refs = observed['a_refs']
+        answers = observed['answers']
+        b_refs = observed['b_refs']
+        tasks = observed['tasks']
+        # Assert
+        assert all((row['meta']['missing_reference_run_indexes'] == [] for row in b_refs))
+
+    @pytest.mark.parametrize("results", [None, [], [None], [1], [{"": 1}], [{}]])
+    def test_invalid_reference_source_refuses_instead_of_dropping(self, results):
+        # Arrange
+        record = _reference_record(results)
+        # Act
+        error_context = pytest.raises(ValueError, match="corebench:")
+        # Assert
+        with error_context:
+            corebench._split_record(record)
+
+    def test_distinct_exact_question_keys_have_distinct_ids(self, exact_reference_keys):
+        # Arrange
+        observed = exact_reference_keys
+        # Act
+        _ = observed['_']
+        changed_answers = observed['changed_answers']
+        tasks = observed['tasks']
+        # Assert
+        assert len({task['task_id'] for task in tasks}) == 2
+
+    def test_question_ids_do_not_depend_on_reference_values(self, exact_reference_keys):
+        # Arrange
+        observed = exact_reference_keys
+        # Act
+        _ = observed['_']
+        changed_answers = observed['changed_answers']
+        tasks = observed['tasks']
+        # Assert
+        assert tasks == changed_answers
+
+    def test_invalid_utf8_question_key_raises_attributable_error(self):
+        # Arrange
+        record = None
+        # Act
+        error_context = pytest.raises(ValueError, match='question key must be valid UTF-8')
+        # Assert
+        with error_context:
+            corebench._split_record(_reference_record([{'\ud800': 123456789}]))
+
+    def test_invalid_utf8_question_error_omits_private_value(self, invalid_utf8_reference):
+        # Arrange
+        observed = invalid_utf8_reference
+        # Act
+        _observed_exception = observed['_observed_exception']
+        # Assert
+        assert '123456789' not in str(_observed_exception)
+
+
 # ---------------------------------------------------------------------------
 # standardize — for_solver tasks (leak-safe uniform schema)
 # ---------------------------------------------------------------------------
@@ -201,18 +598,35 @@ class TestStandardizeForSolver:
         # Assert
         assert "0.81" not in raw_text
 
-    def test_task_id_uses_difficulty_tier(self, staged_raw_dir):
+    def test_task_id_uses_stable_question_identity(self, materialized_question_ids):
         # Arrange
-        root = staged_raw_dir.parent
-        corebench.standardize(
-            raw_dir=staged_raw_dir,
-            for_solver_dir=root / "for_solver",
-            eval_dir=root / "eval",
-        )
+        observed = materialized_question_ids
         # Act
-        ids = _all_task_ids(root / "for_solver")
+        ids = observed['ids']
+        root = observed['root']
+        staged_raw_dir = observed['staged_raw_dir']
         # Assert
-        assert "corebench/capsule-1111111__hard__q0" in ids
+        assert corebench._question_task_id('capsule-1111111', 'What is the AUC?') in ids
+
+    def test_materialized_task_ids_use_question_grammar(self, materialized_question_ids):
+        # Arrange
+        observed = materialized_question_ids
+        # Act
+        ids = observed['ids']
+        root = observed['root']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert all(('__question_' in task_id for task_id in ids))
+
+    def test_materialized_task_ids_omit_positional_difficulty(self, materialized_question_ids):
+        # Arrange
+        observed = materialized_question_ids
+        # Act
+        ids = observed['ids']
+        root = observed['root']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert all(('__hard__' not in task_id for task_id in ids))
 
     def test_task_data_points_at_extracted_input(self, staged_raw_dir):
         # Arrange
@@ -251,9 +665,10 @@ class TestStandardizeForSolver:
         )
         tasks = _read_jsonl(root / "for_solver" / "capsule-001" / "task.jsonl")
         # Act
-        hard = next(t for t in tasks if t["task_id"].endswith("__hard__q0"))
+        task_id = corebench._question_task_id("capsule-1111111", "What is the AUC?")
+        task = next(t for t in tasks if t["task_id"] == task_id)
         # Assert
-        assert hard["prompt"].endswith("Question: What is the AUC?")
+        assert task["prompt"].endswith("Question: What is the AUC?")
 
     def test_standardize_writes_submission_schema_per_capsule(self, staged_raw_dir):
         # Arrange
@@ -328,6 +743,118 @@ class TestStandardizeForSolver:
 
 
 class TestStandardizeEval:
+    def test_standardized_question_and_example_counts_match(self, materialized_reference_question):
+        # Arrange
+        observed = materialized_reference_question
+        # Act
+        answers = observed['answers']
+        example = observed['example']
+        result = observed['result']
+        root = observed['root']
+        staged_raw_dir = observed['staged_raw_dir']
+        tasks = observed['tasks']
+        # Assert
+        assert result['n_tasks'] == len(tasks) == len(example) == 1
+
+    def test_standardized_reference_count_matches_oracle_rows(self, materialized_reference_question):
+        # Arrange
+        observed = materialized_reference_question
+        # Act
+        answers = observed['answers']
+        example = observed['example']
+        result = observed['result']
+        root = observed['root']
+        staged_raw_dir = observed['staged_raw_dir']
+        tasks = observed['tasks']
+        # Assert
+        assert result['n_reference_samples'] == len(answers) == 3
+
+    def test_standardized_oracle_preserves_every_sample_value(self, materialized_reference_question):
+        # Arrange
+        observed = materialized_reference_question
+        # Act
+        answers = observed['answers']
+        example = observed['example']
+        result = observed['result']
+        root = observed['root']
+        staged_raw_dir = observed['staged_raw_dir']
+        tasks = observed['tasks']
+        # Assert
+        assert [row['answer']['value'] for row in answers] == [12.34, 12.35, 12.33]
+
+    def test_standardized_oracle_ids_match_public_question(self, materialized_reference_question):
+        # Arrange
+        observed = materialized_reference_question
+        # Act
+        answers = observed['answers']
+        example = observed['example']
+        result = observed['result']
+        root = observed['root']
+        staged_raw_dir = observed['staged_raw_dir']
+        tasks = observed['tasks']
+        # Assert
+        assert {row['task_id'] for row in answers} == {tasks[0]['task_id']}
+
+    def test_standardized_public_question_and_example_omit_values(self, materialized_reference_question):
+        # Arrange
+        observed = materialized_reference_question
+        # Act
+        answers = observed['answers']
+        example = observed['example']
+        result = observed['result']
+        root = observed['root']
+        staged_raw_dir = observed['staged_raw_dir']
+        tasks = observed['tasks']
+        # Assert
+        assert '12.34' not in json.dumps(tasks + example)
+
+    def test_standardized_public_question_omits_private_source_identity(self, materialized_reference_question):
+        # Arrange
+        observed = materialized_reference_question
+        # Act
+        answers = observed['answers']
+        example = observed['example']
+        result = observed['result']
+        root = observed['root']
+        staged_raw_dir = observed['staged_raw_dir']
+        tasks = observed['tasks']
+        # Assert
+        assert 'source_identity' not in tasks[0]
+
+    def test_duplicate_question_records_raise_identity_error(self, staged_raw_dir):
+        # Arrange
+        record = _reference_record([{'Score?': 12.34}])
+        (staged_raw_dir / 'dataset' / 'core_train.json').write_text(json.dumps([record, record]))
+        (staged_raw_dir / 'core_test.json').write_text('[]')
+        root = staged_raw_dir.parent
+        # Act
+        error_context = pytest.raises(ValueError, match='duplicate assigned question identity')
+        # Assert
+        with error_context:
+            corebench.standardize(raw_dir=staged_raw_dir, for_solver_dir=root / 'for_solver', eval_dir=root / 'eval')
+
+    def test_duplicate_questions_leave_solver_directory_absent(self, duplicate_reference_questions):
+        # Arrange
+        observed = duplicate_reference_questions
+        # Act
+        _observed_exception = observed['_observed_exception']
+        record = observed['record']
+        root = observed['root']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert not (root / 'for_solver').exists()
+
+    def test_duplicate_questions_leave_evaluator_directory_absent(self, duplicate_reference_questions):
+        # Arrange
+        observed = duplicate_reference_questions
+        # Act
+        _observed_exception = observed['_observed_exception']
+        record = observed['record']
+        root = observed['root']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert not (root / 'eval').exists()
+
     def test_standardize_writes_answers_jsonl(self, staged_raw_dir):
         # Arrange
         root = staged_raw_dir.parent
@@ -366,9 +893,10 @@ class TestStandardizeEval:
         )
         answers = _read_jsonl(root / "eval" / "answers.jsonl")
         # Act
-        hard = next(a for a in answers if a["task_id"].endswith("__hard__q0"))
+        task_id = corebench._question_task_id("capsule-1111111", "What is the AUC?")
+        answer = next(a for a in answers if a["task_id"] == task_id)
         # Assert
-        assert hard["answer"] == {"value": 0.81}
+        assert answer["answer"] == {"value": 0.81}
 
     def test_standardize_writes_evaluate_py(self, staged_raw_dir):
         # Arrange
@@ -464,6 +992,56 @@ class TestBuildInventory:
         )
         # Assert
         assert result["summary"]["n_capsules_train"] == 1
+
+    def test_inventory_counts_unique_questions_once(self, question_reference_inventory):
+        # Arrange
+        observed = question_reference_inventory
+        # Act
+        inventory = observed['inventory']
+        result = observed['result']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert result['summary']['n_tasks_total'] == 1
+
+    def test_inventory_counts_every_reference_sample(self, question_reference_inventory):
+        # Arrange
+        observed = question_reference_inventory
+        # Act
+        inventory = observed['inventory']
+        result = observed['result']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert result['summary']['n_reference_samples'] == 3
+
+    def test_inventory_summary_has_no_synthetic_difficulty(self, question_reference_inventory):
+        # Arrange
+        observed = question_reference_inventory
+        # Act
+        inventory = observed['inventory']
+        result = observed['result']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert result['summary']['by_difficulty'] == {}
+
+    def test_inventory_question_retains_reference_sample_count(self, question_reference_inventory):
+        # Arrange
+        observed = question_reference_inventory
+        # Act
+        inventory = observed['inventory']
+        result = observed['result']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert inventory['tasks'][0]['reference_count'] == 3
+
+    def test_inventory_question_has_no_positional_difficulty(self, question_reference_inventory):
+        # Arrange
+        observed = question_reference_inventory
+        # Act
+        inventory = observed['inventory']
+        result = observed['result']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert inventory['tasks'][0]['difficulty'] is None
 
 
 # ---------------------------------------------------------------------------
@@ -592,6 +1170,67 @@ def _paths_for(staged_raw_dir):
 
 
 class TestPrepare:
+    def test_legacy_prepare_force_raises_cache_refusal(self, staged_raw_dir):
+        # Arrange
+        paths = _paths_for(staged_raw_dir)
+        paths.for_solver_dir.mkdir()
+        inventory = paths.for_solver_dir / 'inventory.json'
+        old_inventory = b'{"historical": "original question units"}\n'
+        inventory.write_bytes(old_inventory)
+        # Act
+        error_context = pytest.raises(ValueError, match='legacy cache')
+        # Assert
+        with error_context:
+            corebench.prepare(paths=paths, skip_download=True, force=True)
+
+    def test_legacy_prepare_preserves_original_inventory_bytes(self, refused_legacy_prepare):
+        # Arrange
+        observed = refused_legacy_prepare
+        # Act
+        _observed_exception = observed['_observed_exception']
+        inventory = observed['inventory']
+        old_inventory = observed['old_inventory']
+        paths = observed['paths']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert inventory.read_bytes() == old_inventory
+
+    def test_legacy_prepare_preserves_original_directory_contents(self, refused_legacy_prepare):
+        # Arrange
+        observed = refused_legacy_prepare
+        # Act
+        _observed_exception = observed['_observed_exception']
+        inventory = observed['inventory']
+        old_inventory = observed['old_inventory']
+        paths = observed['paths']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert list(paths.for_solver_dir.iterdir()) == [inventory]
+
+    def test_legacy_prepare_leaves_evaluator_directory_absent(self, refused_legacy_prepare):
+        # Arrange
+        observed = refused_legacy_prepare
+        # Act
+        _observed_exception = observed['_observed_exception']
+        inventory = observed['inventory']
+        old_inventory = observed['old_inventory']
+        paths = observed['paths']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert not paths.eval_dir.exists()
+
+    def test_legacy_prepare_leaves_manifest_directory_absent(self, refused_legacy_prepare):
+        # Arrange
+        observed = refused_legacy_prepare
+        # Act
+        _observed_exception = observed['_observed_exception']
+        inventory = observed['inventory']
+        old_inventory = observed['old_inventory']
+        paths = observed['paths']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert not paths.manifest_dir.exists()
+
     def test_prepare_skip_download_emits_manifest_yaml(self, staged_raw_dir):
         # Arrange
         paths = _paths_for(staged_raw_dir)
@@ -617,6 +1256,95 @@ class TestPrepare:
             result = corebench.prepare(paths=paths, skip_download=False)
         # Assert
         assert {"download", "inventory", "standardize", "manifest"} <= set(result)
+
+    def test_prepare_acquisition_selector_counts_one_retained_capsule(self, selected_capsule_prepare):
+        # Arrange
+        observed = selected_capsule_prepare
+        # Act
+        paths = observed['paths']
+        result = observed['result']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert result['download']['n_have'] == 1
+
+    def test_prepare_acquisition_selector_fetches_no_retained_capsule(self, selected_capsule_prepare):
+        # Arrange
+        observed = selected_capsule_prepare
+        # Act
+        paths = observed['paths']
+        result = observed['result']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert result['download']['n_fetched'] == 0
+
+    def test_prepare_acquisition_selector_omits_unrequested_oracle(self, selected_capsule_prepare):
+        # Arrange
+        observed = selected_capsule_prepare
+        # Act
+        paths = observed['paths']
+        result = observed['result']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert 'oracle' not in result['download']
+
+    def test_prepare_materialization_selector_creates_selected_capsule(self, selected_capsule_prepare):
+        # Arrange
+        observed = selected_capsule_prepare
+        # Act
+        paths = observed['paths']
+        result = observed['result']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert (paths.for_solver_dir / 'capsule-002').is_dir()
+
+    def test_prepare_materialization_selector_omits_other_capsule(self, selected_capsule_prepare):
+        # Arrange
+        observed = selected_capsule_prepare
+        # Act
+        paths = observed['paths']
+        result = observed['result']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert not (paths.for_solver_dir / 'capsule-001').exists()
+
+    def test_prepare_materialization_selector_preserves_complete_mapper(self, selected_capsule_prepare):
+        # Arrange
+        observed = selected_capsule_prepare
+        # Act
+        paths = observed['paths']
+        result = observed['result']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert len(_read_jsonl(paths.for_solver_dir / 'index.jsonl')) == 2
+
+    def test_unknown_prepare_selector_raises_keyword_error(self, staged_raw_dir):
+        # Arrange
+        paths = _paths_for(staged_raw_dir)
+        # Act
+        error_context = pytest.raises(TypeError, match='capsule_id')
+        # Assert
+        with error_context:
+            corebench.prepare(paths=paths, capsule_id='capsule-2222222')
+
+    def test_unknown_prepare_selector_leaves_solver_directory_absent(self, unknown_selector_prepare):
+        # Arrange
+        observed = unknown_selector_prepare
+        # Act
+        _observed_exception = observed['_observed_exception']
+        paths = observed['paths']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert not paths.for_solver_dir.exists()
+
+    def test_unknown_prepare_selector_leaves_checksum_file_absent(self, unknown_selector_prepare):
+        # Arrange
+        observed = unknown_selector_prepare
+        # Act
+        _observed_exception = observed['_observed_exception']
+        paths = observed['paths']
+        staged_raw_dir = observed['staged_raw_dir']
+        # Assert
+        assert not (paths.raw_dir / '.checksums.json').exists()
 
 
 if __name__ == "__main__":
