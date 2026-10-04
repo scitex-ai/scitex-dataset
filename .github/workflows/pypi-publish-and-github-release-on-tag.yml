@@ -12,8 +12,9 @@ name: release
 #   2. build         — wheel + sdist, uploaded as workflow artifact.
 #   3. publish       — PyPI via OIDC trusted publisher.
 #   4. release       — GitHub Release with CHANGELOG notes + artifacts.
-#   5. sync-main     — open a develop→main PR (admin-merge) so main
-#                      always equals the latest released commit. Skipped
+#   5. sync-main     — open a develop→main PR (normal CI/review gating,
+#                      never merged by this pipeline) so main can follow
+#                      the latest released commit. Skipped
 #                      if main already matches.
 #
 # Manual re-run: the workflow also accepts a `version` input via
@@ -32,10 +33,28 @@ on:
 jobs:
   test:
     runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '["self-hosted","Linux","X64","scitex-ci"]') }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
+    services:
+      # Owned ephemeral PostgreSQL for the store-backed index suite:
+      # postgres:16 with the same credentials/port/health contract as
+      # the canonical org reusable. Throwaway cluster for this job.
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: scitex
+          POSTGRES_PASSWORD: scitex
+          POSTGRES_DB: scitex
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U scitex"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - name: Resolve version
         id: ver
@@ -51,19 +70,48 @@ jobs:
           ref: ${{ steps.ver.outputs.version }}
           fetch-depth: 0
       - uses: actions/setup-python@v5
+        id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install (best-effort fallback chain)
+      - name: Qualify the requested interpreter
         run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[all,dev]" || pip install -e ".[dev]" || pip install -e .
-      - name: Run pytest
+          test -x "${{ steps.setup-python.outputs.python-path }}" || {
+            echo "::error::setup-python produced no executable for requested ${{ matrix.python-version }}."
+            exit 1
+          }
+          "${{ steps.setup-python.outputs.python-path }}" -c "import sys; want=tuple(int(part) for part in '${{ matrix.python-version }}'.split('.')); assert sys.version_info[:2] == want, sys.version"
+          printf '%s\n' "SETUP_PYTHON=${{ steps.setup-python.outputs.python-path }}" >> "$GITHUB_ENV"
+      - name: Install (required full test profile)
         run: |
-          if [ -d tests ]; then
-            pytest tests/ -x
-          else
-            echo "no tests/ directory — skipping pytest"
-          fi
+          "$SETUP_PYTHON" -m pip install --upgrade pip
+          "$SETUP_PYTHON" -m pip install -e ".[all,dev]"
+      - name: Point the store at the ephemeral service
+        run: |
+          printf '%s\n' "SCITEX_STORE_DSN=postgresql://scitex:scitex@127.0.0.1:5432/scitex" >> "$GITHUB_ENV"
+      - name: Run pytest against the verified job store
+        # ONE genuine writable_dsn context spans the actual pytest
+        # subprocess: the resolved DSN must equal the explicitly
+        # exported job-owned SCITEX_STORE_DSN (fail closed on fallback
+        # or mismatch). The context stays open until the subprocess
+        # result is collected, and nonzero propagates. tests/ is
+        # asserted present first. No fixture or assertion is edited;
+        # the DSN value itself is never printed.
+        run: |
+          test -d tests
+          "$SETUP_PYTHON" - <<'PYTHON'
+          import os
+          import subprocess
+          import sys
+          from contextlib import ExitStack
+          from scitex_dev.store.testing import writable_dsn
+          expected = os.environ["SCITEX_STORE_DSN"]
+          with ExitStack() as stack:
+              dsn = stack.enter_context(writable_dsn())
+              assert dsn == expected, "store DSN is not the job-owned service"
+              print("writable job store verified")
+              proc = subprocess.run([sys.executable, "-m", "pytest", "tests/", "-x"])
+          sys.exit(proc.returncode)
+          PYTHON
 
   build:
     needs: test
@@ -85,12 +133,21 @@ jobs:
           ref: ${{ steps.ver.outputs.version }}
           fetch-depth: 0
       - uses: actions/setup-python@v5
+        id: setup-python
         with:
           python-version: "3.12"
+      - name: Qualify the requested interpreter
+        run: |
+          test -x "${{ steps.setup-python.outputs.python-path }}" || {
+            echo "::error::setup-python produced no executable for requested 3.12."
+            exit 1
+          }
+          "${{ steps.setup-python.outputs.python-path }}" -c "import sys; assert sys.version_info[:2] == (3, 12), sys.version"
+          printf '%s\n' "SETUP_PYTHON=${{ steps.setup-python.outputs.python-path }}" >> "$GITHUB_ENV"
       - name: Install build tools
-        run: pip install build
+        run: "\"$SETUP_PYTHON\" -m pip install build"
       - name: Build distribution
-        run: python -m build
+        run: "\"$SETUP_PYTHON\" -m build"
       - uses: actions/upload-artifact@v4
         with:
           name: dist
@@ -146,9 +203,9 @@ jobs:
             dist/*
 
   sync-main:
-    # Open develop→main PR so main always equals the latest released
-    # commit. Branch-protected mains require PR review; this job tries
-    # admin-merge but leaves the PR open if that isn't allowed.
+    # Open develop→main PR so main can follow the latest released
+    # commit. Branch-protected mains require PR review; this job never
+    # merges — the PR stays open for normal CI review gating.
     needs: publish
     runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '["self-hosted","Linux","X64","scitex-ci"]') }}
     permissions:
@@ -180,5 +237,4 @@ jobs:
           else
             echo "Reusing existing PR #${EXISTING}"
           fi
-          gh pr merge "$EXISTING" --merge --admin \
-            || echo "Admin merge unavailable; PR left open for manual merge."
+          echo "PR #${EXISTING} left open for normal CI review gating; no admin merge in this pipeline."
