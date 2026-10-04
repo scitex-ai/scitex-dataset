@@ -184,11 +184,61 @@ def sample_datasets():
     ]
 
 
-# Temporary database fixture
+# Index-store fixtures
+#
+# The index lives in the shared SciTeX store, so there is no temp FILE to
+# hand a test any more. What replaces it is a throwaway PostgreSQL SCHEMA:
+# a real store on the real engine, created before the test and dropped
+# after. `scitex_dev.store.testing` finds a writable cluster — the one
+# `SCITEX_STORE_DSN` names if it accepts writes, otherwise a private
+# cluster started with `initdb` for the session.
+#
+# It VERIFIES writability rather than assuming it, which matters here: every
+# host in this fleet answers `pg_is_in_recovery() = true` on its loopback
+# 55432, and a standby accepts the connection then refuses the DDL. That is
+# the shape that makes a suite report green while running nothing.
+@pytest.fixture(scope="session")
+def store_dsn():
+    """A DSN known to accept writes, for the whole session.
+
+    Skips — rather than failing — when neither route is available, because
+    "no PostgreSQL here" is a property of the machine, not a defect in the
+    package. The skip names both routes so it is actionable.
+    """
+    from contextlib import ExitStack
+
+    from scitex_dev.store.testing import writable_dsn
+
+    stack = ExitStack()
+    try:
+        dsn = stack.enter_context(writable_dsn())
+    except RuntimeError as exc:
+        pytest.skip(f"no writable PostgreSQL for the index tests: {exc}")
+    try:
+        yield dsn
+    finally:
+        stack.close()
+
+
 @pytest.fixture
-def temp_db_path(tmp_path):
-    """Create a temporary database path."""
-    return tmp_path / "test_datasets.db"
+def index_store(store_dsn):
+    """An empty dataset index in a schema of its own, dropped afterwards."""
+    from scitex_dev.store import Store, StoreTarget, WriterPolicy
+    from scitex_dev.store.testing import ephemeral_schema
+
+    from scitex_dataset._index_schema import PKG, SCHEMA
+
+    with ephemeral_schema(store_dsn, prefix="scitex_dataset") as scoped:
+        store = Store(
+            StoreTarget.postgres(scoped, pkg=PKG, name="index"),
+            SCHEMA,
+            node="pytest",
+            writer_policy=WriterPolicy.MULTI_WRITER,
+        )
+        try:
+            yield store
+        finally:
+            store.close()
 
 
 # CLI runner

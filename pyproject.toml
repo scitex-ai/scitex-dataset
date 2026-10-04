@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-dataset"
-version = "0.5.0"
+version = "0.8.0"
 description = "Multi-domain scientific dataset fetcher — neuroscience, biology, pharmacology, medical (OpenNeuro, DANDI, PhysioNet, GEO, ChEMBL, ClinicalTrials.gov)"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -37,7 +37,13 @@ classifiers = [
 dependencies = [
     "httpx>=0.24.0",
     "click>=8.0.0",
-    "scitex-dev>=0.11.7",
+    "pydantic>=2.5",
+    # HARD dependency, not an extra. The dataset index is `scitex_dev.store`
+    # — there is no local fallback and nothing to degrade to, so a lean
+    # install that lacked it would import fine and fail at the first search.
+    # The floor is 0.57.0 because that is where the store's read-by-criteria
+    # surface (`Store.search` / `Query` / `Schema(text_search=...)`) landed.
+    "scitex-dev>=0.57.0",
     "scitex-config>=0.3.0",
 ]
 
@@ -76,6 +82,9 @@ all = [
 [project.scripts]
 scitex-dataset = "scitex_dataset._cli:main"
 
+[project.entry-points."scitex_dev.gate.checks"]
+scitex-dataset = "scitex_dataset._gate_plugin:provide"
+
 [project.entry-points."scitex_dev.docs"]
 scitex-dataset = "scitex_dataset"
 
@@ -105,6 +114,10 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-v --tb=short"
 pythonpath = ["src"]
+markers = [
+    "smoke: fast CLI happy-path tests (<60s, runs on every PR)",
+    "e2e: end-to-end workflows (slow, gated by RUN_E2E=1)",
+]
 
 [tool.ruff]
 line-length = 88

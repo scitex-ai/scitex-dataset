@@ -14,8 +14,13 @@ Precedence (highest first):
 Setting ``SCITEX_DIR`` relocates the user scope atomically — see the
 ``general/01_ecosystem_06_local-state-directories`` skill.
 
-The runtime root is ``<scope-root>/runtime/`` and is where caches, logs,
-PIDs, and the local SQLite index live.
+The runtime root is ``<scope-root>/runtime/`` and is where caches, logs and
+PIDs live.
+
+The dataset INDEX is deliberately not among them. It lives in the shared
+SciTeX store (see :mod:`scitex_dataset.database`), because a per-host file
+is state with no owner: anyone who can open it holds every permission, and
+each host ends up with a different answer to the same question.
 """
 
 from __future__ import annotations

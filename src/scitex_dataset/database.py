@@ -1,182 +1,167 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2026-01-29 22:50:00 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-dataset/src/scitex_dataset/database.py
 
-"""
-Local SQLite database for fast dataset searching.
+"""The dataset index, held in the fleet's shared store.
 
 Usage:
     >>> from scitex_dataset import database as db
-    >>> db.build()  # Fetch all sources and build database
+    >>> db.build()  # Fetch all sources and index them
     >>> results = db.search("alzheimer EEG", min_subjects=20)
+
+WHAT CHANGED, AND WHY IT IS NOT A PORT
+--------------------------------------
+This module used to keep its own private database file with its own
+full-text index, its own schema and its own triggers. That was a second
+storage engine living inside a leaf package, which is the shape the fleet
+ruled out: state has exactly one home, and a private file is not it. A file
+also has no notion of WHO — anyone who can open it holds every permission —
+so an index built that way can be handed over but never collaborated on.
+
+The index now lives in :mod:`scitex_dev.store`, used DIRECTLY. There is no
+``scitex_dataset`` database layer between this module and the primitive and
+there is not meant to be one: a wrapper is how two packages end up with two
+answers to the same question. What stays here is the DOMAIN — the shape
+lives in :mod:`._index_schema`, the verbs live below.
+
+THE ONE THING THE PRIMITIVE DID NOT HAVE was a way to read by criteria
+rather than by key, which is a large part of why a private index looked
+reasonable. Rather than rebuild one here, that surface was added to the
+store (``Store.search`` / ``count`` / ``tally``, ``Query``), where every
+package gets it. If something here still feels awkward, that is a gap in
+the primitive and belongs there too.
+
+NOTHING IS DELETED ANY MORE
+---------------------------
+The store has no delete verb; :func:`clear` hides rows instead. A hidden
+row leaves the default view — so a search after ``clear`` finds nothing,
+exactly as before — but the record and its history stay readable, and a
+rebuild revives it rather than starting it over.
 """
 
 from __future__ import annotations
 
-import json
-import sqlite3
-from datetime import datetime
-from pathlib import Path
+import socket
 from typing import Any, Dict, List, Optional
 
 from scitex_dev.decorators import supports_return_as
+from scitex_dev.store import (
+    ANY_REVISION,
+    Query,
+    Store,
+    WriterPolicy,
+    contains,
+    either,
+    eq,
+    gte,
+    host_store,
+    lte,
+    nonempty,
+)
 
-from ._config import runtime_dir
-
-
-def _default_db_path() -> Path:
-    """Resolve the local SQLite path via the SciTeX local-state layout.
-
-    Project scope wins over user scope; ``SCITEX_DIR`` relocates user
-    scope. See ``general/01_ecosystem_06_local-state-directories``.
-    """
-    return runtime_dir() / "datasets.db"
-
-
-# Kept as a property-style accessor; do not freeze at import time.
-DEFAULT_DB_PATH = _default_db_path()
+from ._index_schema import PKG, SCHEMA, VALID_ORDERS, row_values
 
 __all__ = [
     "build",
-    "update",
-    "search",
-    "get_stats",
-    "get_db_path",
     "clear",
+    "get_stats",
+    "get_store",
+    "search",
+    "store_description",
+    "update",
 ]
 
+#: Which module holds each catalogue source's fetchers. A table rather than
+#: a chain of ``elif``, so importing one source's HTTP client does not drag
+#: in the other ten.
+_SOURCE_MODULES = {
+    "openneuro": "neuroscience.openneuro",
+    "dandi": "neuroscience.dandi",
+    "physionet": "neuroscience.physionet",
+    "zenodo": "general.zenodo",
+    "figshare": "general.figshare",
+    "openml": "general.openml",
+    "geo": "biology.geo",
+    "chembl": "pharmacology.chembl",
+    "moleculenet": "pharmacology.moleculenet",
+    "clinicaltrials": "medical.clinicaltrials",
+    "huggingface": "general.huggingface",
+}
 
-def get_db_path() -> Path:
-    """Get the database file path."""
-    return DEFAULT_DB_PATH
-
-
-def _get_connection(db_path: Optional[Path] = None) -> sqlite3.Connection:
-    """Get database connection, creating tables if needed."""
-    path = db_path or _default_db_path()
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    conn = sqlite3.connect(path)
-    conn.row_factory = sqlite3.Row
-
-    # Create tables if not exist
-    conn.executescript("""
-        CREATE TABLE IF NOT EXISTS datasets (
-            id TEXT PRIMARY KEY,
-            source TEXT NOT NULL,
-            name TEXT,
-            created TEXT,
-            modified TEXT,
-            n_subjects INTEGER DEFAULT 0,
-            size_gb REAL DEFAULT 0,
-            downloads INTEGER DEFAULT 0,
-            views INTEGER DEFAULT 0,
-            readme TEXT,
-            license TEXT,
-            doi TEXT,
-            url TEXT,
-            modalities TEXT,  -- JSON array
-            tasks TEXT,       -- JSON array
-            primary_modality TEXT,
-            data_json TEXT,   -- Full dataset as JSON
-            indexed_at TEXT
-        );
-
-        CREATE TABLE IF NOT EXISTS metadata (
-            key TEXT PRIMARY KEY,
-            value TEXT
-        );
-
-        CREATE INDEX IF NOT EXISTS idx_source ON datasets(source);
-        CREATE INDEX IF NOT EXISTS idx_modalities ON datasets(modalities);
-        CREATE INDEX IF NOT EXISTS idx_n_subjects ON datasets(n_subjects);
-        CREATE INDEX IF NOT EXISTS idx_downloads ON datasets(downloads);
-
-        CREATE VIRTUAL TABLE IF NOT EXISTS datasets_fts USING fts5(
-            id, name, readme, tasks,
-            content='datasets',
-            content_rowid='rowid'
-        );
-
-        -- Triggers to keep FTS in sync
-        CREATE TRIGGER IF NOT EXISTS datasets_ai AFTER INSERT ON datasets BEGIN
-            INSERT INTO datasets_fts(rowid, id, name, readme, tasks)
-            VALUES (new.rowid, new.id, new.name, new.readme, new.tasks);
-        END;
-
-        CREATE TRIGGER IF NOT EXISTS datasets_ad AFTER DELETE ON datasets BEGIN
-            INSERT INTO datasets_fts(datasets_fts, rowid, id, name, readme, tasks)
-            VALUES ('delete', old.rowid, old.id, old.name, old.readme, old.tasks);
-        END;
-
-        CREATE TRIGGER IF NOT EXISTS datasets_au AFTER UPDATE ON datasets BEGIN
-            INSERT INTO datasets_fts(datasets_fts, rowid, id, name, readme, tasks)
-            VALUES ('delete', old.rowid, old.id, old.name, old.readme, old.tasks);
-            INSERT INTO datasets_fts(rowid, id, name, readme, tasks)
-            VALUES (new.rowid, new.id, new.name, new.readme, new.tasks);
-        END;
-    """)
-
-    return conn
+_STORE: "Store | None" = None
 
 
-def _insert_dataset(
-    conn: sqlite3.Connection,
-    dataset: Dict[str, Any],
-    source: str,
-) -> None:
-    """Insert or update a dataset in the database."""
-    modalities = json.dumps(dataset.get("modalities", []))
-    tasks = json.dumps(dataset.get("tasks", []))
+def get_store(store: "Store | None" = None) -> Store:
+    """The index store — this host's, unless one is handed in.
 
-    conn.execute(
-        """
-        INSERT OR REPLACE INTO datasets (
-            id, source, name, created, modified, n_subjects, size_gb,
-            downloads, views, readme, license, doi, url,
-            modalities, tasks, primary_modality, data_json, indexed_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            f"{source}:{dataset.get('id', '')}",
-            source,
-            dataset.get("name"),
-            dataset.get("created"),
-            dataset.get("modified"),
-            dataset.get("n_subjects", 0),
-            dataset.get("size_gb", 0),
-            dataset.get("downloads", 0),
-            dataset.get("views", 0),
-            dataset.get("readme"),
-            dataset.get("license"),
-            dataset.get("doi"),
-            dataset.get("url"),
-            modalities,
-            tasks,
-            dataset.get("primary_modality"),
-            json.dumps(dataset),
-            datetime.now().isoformat(),
-        ),
-    )
+    ``store`` is how a test points at a throwaway schema without patching
+    anything: pass a :class:`~scitex_dev.store.Store` and it is used
+    verbatim. Every public function here takes the same argument for the
+    same reason.
+
+    ``host_store`` is the single resolver for WHERE that is; nothing in
+    this package reads a connection string. The result is cached because
+    opening a store creates its tables under an advisory lock, and a CLI
+    doing that per subcommand would pay for it every time.
+    """
+    global _STORE
+    if store is not None:
+        return store
+    if _STORE is None:
+        _STORE = Store(
+            host_store(pkg=PKG, name="index"),
+            SCHEMA,
+            node=socket.gethostname(),
+            writer_policy=WriterPolicy.MULTI_WRITER,
+        )
+    return _STORE
+
+
+def store_description(store: "Store | None" = None) -> str:
+    """A credential-free one-line description of where the index lives.
+
+    Replaces the old path accessor. There is no file any more, and
+    returning a path would be a lie a caller could act on — the CLI printed
+    it beside a file size, and both facts stopped existing at once.
+
+    RESOLVES WITHOUT CONNECTING when no store is open yet. Asking where the
+    index WOULD be must not create it: ``db build --dry-run`` prints this
+    line, and going through :func:`get_store` would open a connection and
+    run the schema DDL — a dry run whose whole promise is that it writes
+    nothing.
+    """
+    if store is not None:
+        return store.target.describe()
+    if _STORE is not None:
+        return _STORE.target.describe()
+    return host_store(pkg=PKG, name="index").describe()
+
+
+def _fetchers(source: str):
+    """``(fetch_all_datasets, format_dataset)`` for one source, or None."""
+    if source not in _SOURCE_MODULES:
+        return None
+    from importlib import import_module
+
+    module = import_module(f".{_SOURCE_MODULES[source]}", package=__package__)
+    return module.fetch_all_datasets, module.format_dataset
 
 
 @supports_return_as
 def build(
     sources: Optional[List[str]] = None,
-    db_path: Optional[Path] = None,
+    store: "Store | None" = None,
     logger=None,
 ) -> Dict[str, int]:
-    """Build the local database from all sources.
+    """Build the index from all sources.
 
     Parameters
     ----------
     sources : list, optional
         Sources to fetch: ["openneuro", "dandi", "physionet"].
-        Default: all sources.
-    db_path : Path, optional
-        Database file path. Default: $SCITEX_DIR/dataset/runtime/datasets.db
-        (~/.scitex/dataset/runtime/datasets.db when SCITEX_DIR is unset).
+        Default: all catalog sources.
+    store : Store, optional
+        The store to write into. Default: this host's.
     logger : optional
         Logger for progress messages.
 
@@ -193,46 +178,38 @@ def build(
         # explicitly to opt in (uses query="" + max=1000 cap).
         sources = list(CATALOG_SOURCES)
 
-    conn = _get_connection(db_path)
-    counts = {}
+    target = get_store(store)
+    counts: Dict[str, int] = {}
 
     for source in sources:
         if logger:
             logger.info(f"Fetching from {source}...")
 
-        try:
-            if source == "openneuro":
-                from .neuroscience.openneuro import fetch_all_datasets, format_dataset
-            elif source == "dandi":
-                from .neuroscience.dandi import fetch_all_datasets, format_dataset
-            elif source == "physionet":
-                from .neuroscience.physionet import fetch_all_datasets, format_dataset
-            elif source == "zenodo":
-                from .general.zenodo import fetch_all_datasets, format_dataset
-            elif source == "figshare":
-                from .general.figshare import fetch_all_datasets, format_dataset
-            elif source == "openml":
-                from .general.openml import fetch_all_datasets, format_dataset
-            elif source == "geo":
-                from .biology.geo import fetch_all_datasets, format_dataset
-            elif source == "chembl":
-                from .pharmacology.chembl import fetch_all_datasets, format_dataset
-            elif source == "moleculenet":
-                from .pharmacology.moleculenet import fetch_all_datasets, format_dataset
-            elif source == "clinicaltrials":
-                from .medical.clinicaltrials import fetch_all_datasets, format_dataset
-            elif source == "huggingface":
-                from .general.huggingface import fetch_all_datasets, format_dataset
-            else:
-                if logger:
-                    logger.warning(f"Unknown source: {source}")
-                continue
+        fetchers = _fetchers(source)
+        if fetchers is None:
+            if logger:
+                logger.warning(f"Unknown source: {source}")
+            continue
 
+        fetch_all_datasets, format_dataset = fetchers
+        try:
             raw = fetch_all_datasets(logger=logger)
             datasets = [format_dataset(ds) for ds in raw]
 
-            for ds in datasets:
-                _insert_dataset(conn, ds, source)
+            # One transaction per source rather than one per row. A logical
+            # write is three statements and therefore three durable commits,
+            # which is what dominates a bulk load.
+            with target.batch():
+                for dataset in datasets:
+                    # ANY_REVISION rather than read-then-compare: a rebuild
+                    # re-states the whole record from upstream, so there is
+                    # no local edit for a concurrent writer to lose. It also
+                    # revives a row a previous `clear` retired, which is
+                    # what "rebuild" ought to mean.
+                    target.put(
+                        row_values(dataset, source),
+                        expected_revision=ANY_REVISION,
+                    )
 
             counts[source] = len(datasets)
 
@@ -244,35 +221,22 @@ def build(
                 logger.error(f"Error fetching {source}: {exc}")
             counts[source] = 0
 
-    # Update metadata
-    conn.execute(
-        "INSERT OR REPLACE INTO metadata (key, value) VALUES (?, ?)",
-        ("last_build", datetime.now().isoformat()),
-    )
-    conn.execute(
-        "INSERT OR REPLACE INTO metadata (key, value) VALUES (?, ?)",
-        ("total_datasets", str(sum(counts.values()))),
-    )
-
-    conn.commit()
-    conn.close()
-
     return counts
 
 
 def update(
     source: str,
-    db_path: Optional[Path] = None,
+    store: "Store | None" = None,
     logger=None,
 ) -> int:
-    """Update a single source in the database.
+    """Update a single source in the index.
 
     Parameters
     ----------
     source : str
         Source to update: "openneuro", "dandi", or "physionet".
-    db_path : Path, optional
-        Database file path.
+    store : Store, optional
+        The store to write into. Default: this host's.
     logger : optional
         Logger for progress messages.
 
@@ -281,8 +245,51 @@ def update(
     int
         Number of datasets indexed.
     """
-    result = build(sources=[source], db_path=db_path, logger=logger)
+    result = build(sources=[source], store=store, logger=logger)
     return result.get(source, 0)
+
+
+def _as_query(
+    query: Optional[str],
+    source: Optional[str],
+    modality: Optional[str],
+    min_subjects: Optional[int],
+    max_subjects: Optional[int],
+    min_downloads: Optional[int],
+    has_readme: bool,
+    limit: int,
+    offset: int,
+    order_by: str,
+) -> Query:
+    """Translate the caller's filters into one store query."""
+    criteria = []
+    if source:
+        criteria.append(eq("source", source))
+    if modality:
+        # Either the modality LIST holds it, or it IS the primary one.
+        # `contains` asks the JSON document, so a dataset whose prose
+        # mentions "eeg" is not swept in the way a substring match on the
+        # serialised column would sweep it.
+        criteria.append(
+            either(contains("modalities", modality), eq("primary_modality", modality))
+        )
+    if min_subjects is not None:
+        criteria.append(gte("n_subjects", min_subjects))
+    if max_subjects is not None:
+        criteria.append(lte("n_subjects", max_subjects))
+    if min_downloads is not None:
+        criteria.append(gte("downloads", min_downloads))
+    if has_readme:
+        criteria.append(nonempty("readme"))
+
+    ordering = order_by if order_by in VALID_ORDERS else "downloads"
+    return (
+        Query()
+        .matching(query)
+        .where(*criteria)
+        .ordered_by(ordering)
+        .limited(limit, offset=offset)
+    )
 
 
 @supports_return_as
@@ -297,14 +304,24 @@ def search(
     limit: int = 50,
     offset: int = 0,
     order_by: str = "downloads",
-    db_path: Optional[Path] = None,
+    store: "Store | None" = None,
 ) -> List[Dict[str, Any]]:
-    """Search the local database.
+    """Search the index.
 
     Parameters
     ----------
     query : str, optional
-        Full-text search query (searches name, readme, tasks).
+        Full-text search over id, name, readme and tasks. Bare words are
+        ANDed, ``"quoted phrases"`` are phrases, ``or`` disjoins and a
+        leading ``-`` negates. Malformed input matches nothing rather than
+        raising, because the text came from a person.
+
+        WORDS ARE STEMMED and English stopwords are dropped, which the
+        previous tokeniser did neither of. So ``studies`` now finds a
+        dataset that says ``study`` — a superset, and the reason to prefer
+        it — but a query consisting only of stopwords (``the``, ``of``)
+        matches nothing rather than everything. Pass ``text_config="simple"``
+        on the schema if a package ever needs the literal behaviour back.
     source : str, optional
         Filter by source: "openneuro", "dandi", "physionet".
     modality : str, optional
@@ -316,135 +333,92 @@ def search(
     min_downloads : int, optional
         Minimum download count.
     has_readme : bool
-        Only include datasets with readme.
+        Only include datasets with a non-empty readme.
     limit : int
         Maximum results (default: 50).
     offset : int
         Skip first N results (for pagination).
     order_by : str
-        Order by: downloads, views, n_subjects, size_gb, name.
-    db_path : Path, optional
-        Database file path.
+        Order by: downloads, views, n_subjects, size_gb, name, created.
+    store : Store, optional
+        The store to read from. Default: this host's.
 
     Returns
     -------
     list
-        List of matching datasets.
+        Matching datasets, in the shape the fetchers produced.
     """
-    conn = _get_connection(db_path)
-
-    # Build query
-    conditions = []
-    params = []
-
-    if query:
-        # Use FTS for text search
-        conditions.append(
-            "id IN (SELECT id FROM datasets_fts WHERE datasets_fts MATCH ?)"
+    target = get_store(store)
+    found = target.search(
+        _as_query(
+            query,
+            source,
+            modality,
+            min_subjects,
+            max_subjects,
+            min_downloads,
+            has_readme,
+            limit,
+            offset,
+            order_by,
         )
-        params.append(query)
-
-    if source:
-        conditions.append("source = ?")
-        params.append(source)
-
-    if modality:
-        conditions.append("(modalities LIKE ? OR primary_modality = ?)")
-        params.extend([f'%"{modality}"%', modality])
-
-    if min_subjects is not None:
-        conditions.append("n_subjects >= ?")
-        params.append(min_subjects)
-
-    if max_subjects is not None:
-        conditions.append("n_subjects <= ?")
-        params.append(max_subjects)
-
-    if min_downloads is not None:
-        conditions.append("downloads >= ?")
-        params.append(min_downloads)
-
-    if has_readme:
-        conditions.append("readme IS NOT NULL AND readme != ''")
-
-    where_clause = " AND ".join(conditions) if conditions else "1=1"
-
-    # Validate order_by
-    valid_orders = ["downloads", "views", "n_subjects", "size_gb", "name", "created"]
-    if order_by not in valid_orders:
-        order_by = "downloads"
-
-    sql = f"""
-        SELECT data_json FROM datasets
-        WHERE {where_clause}
-        ORDER BY {order_by} DESC
-        LIMIT ? OFFSET ?
-    """
-    params.extend([limit, offset])
-
-    cursor = conn.execute(sql, params)
-    results = [json.loads(row["data_json"]) for row in cursor]
-
-    conn.close()
-    return results
+    )
+    return [row.values["record"] for row in found]
 
 
 @supports_return_as
-def get_stats(db_path: Optional[Path] = None) -> Dict[str, Any]:
-    """Get database statistics.
+def get_stats(store: "Store | None" = None) -> Dict[str, Any]:
+    """Index statistics.
 
     Returns
     -------
     dict
-        Statistics including counts per source, last build time, etc.
+        Counts per source, the total, where the store is, and when the
+        index was last written.
+
+    ``exists`` reports whether anything is INDEXED, not whether a file is on
+    disk. The store always exists; an empty one is the state that used to be
+    "no database yet", and it is the one a caller has to act on.
     """
-    path = db_path or _default_db_path()
+    target = get_store(store)
+    total = target.count()
 
-    if not path.exists():
-        return {"exists": False, "message": "Database not built. Run: db.build()"}
+    if not total:
+        return {
+            "exists": False,
+            "message": "Index not built. Run: db.build()",
+            "store": target.target.describe(),
+        }
 
-    conn = _get_connection(db_path)
-
-    # Get counts per source
-    cursor = conn.execute(
-        "SELECT source, COUNT(*) as count FROM datasets GROUP BY source"
-    )
-    source_counts = {row["source"]: row["count"] for row in cursor}
-
-    # Get metadata
-    cursor = conn.execute("SELECT key, value FROM metadata")
-    metadata = {row["key"]: row["value"] for row in cursor}
-
-    # Get total
-    cursor = conn.execute("SELECT COUNT(*) as total FROM datasets")
-    total = cursor.fetchone()["total"]
-
-    conn.close()
-
+    newest = target.search(Query().ordered_by("indexed_at").limited(1))
     return {
         "exists": True,
-        "path": str(path),
+        "store": target.target.describe(),
         "total_datasets": total,
-        "by_source": source_counts,
-        "last_build": metadata.get("last_build"),
-        "size_mb": round(path.stat().st_size / (1024 * 1024), 2),
+        "by_source": target.tally("source"),
+        "last_build": newest[0].values["indexed_at"] if newest else None,
     }
 
 
-def clear(db_path: Optional[Path] = None) -> bool:
-    """Delete the database file.
+def clear(store: "Store | None" = None) -> bool:
+    """Retire every indexed dataset.
 
     Returns
     -------
     bool
-        True if deleted, False if didn't exist.
+        True if anything was retired, False if the index was already empty.
+
+    NOT A DELETE, and the difference is the point. The store has no delete
+    verb: the failure it exists to make impossible is a row disappearing
+    because some code decided it should. So this HIDES. The datasets leave
+    the default view, so :func:`search` and :func:`get_stats` answer exactly
+    as they did when the old file had been removed, while the records and
+    their history stay readable and a later :func:`build` brings them back.
     """
-    path = db_path or _default_db_path()
-
-    if path.exists():
-        path.unlink()
-        return True
-    return False
-
+    target = get_store(store)
+    visible = target.search(Query())
+    for row in visible:
+        target.hide({"id": row.values["id"]}, expected_revision=ANY_REVISION)
+    return bool(visible)
 
 # EOF

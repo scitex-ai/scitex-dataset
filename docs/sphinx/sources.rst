@@ -2,7 +2,7 @@ Data Sources
 ============
 
 scitex-dataset supports **10 catalog sources** (enumerable, indexable
-into the local SQLite + FTS5 cache) plus **HuggingFace Hub**
+into the shared full-text dataset index) plus **HuggingFace Hub**
 (on-demand fetch by repo_id; not indexed by default).
 
 Every catalog source exposes the same two callables —

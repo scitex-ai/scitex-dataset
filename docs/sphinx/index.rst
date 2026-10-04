@@ -30,7 +30,7 @@ Key Features
 
 - **Unified Interface**: Single API across 10 catalog sources + HuggingFace Hub (on-demand)
 - **Multi-domain**: Neuroscience, biology, pharmacology, medical, and general science
-- **Local SQLite + FTS5 Index**: Build an offline-searchable cache via ``db_build()``
+- **Full-text Dataset Index**: Build a searchable catalogue in the shared SciTeX store via ``db_build()``
 - **CLI & Python API**: Use from command line or import as a library
 - **MCP Integration**: AI agents can discover and fetch datasets via MCP server
 
@@ -73,7 +73,7 @@ Python API:
     # Filter + rank in memory
     top = filter_results(records, modality="eeg", min_subjects=20, sort_by="downloads", limit=10)
 
-    # Build the local SQLite + FTS5 index for offline queries
+    # Build the full-text dataset index in the shared SciTeX store
     db_build()
     results = db_search("Alzheimer EEG")
 

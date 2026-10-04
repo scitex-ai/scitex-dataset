@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_dataset._api &mdash; scitex-dataset v0.4.0</title>
+  <title>scitex_dataset._api &mdash; scitex-dataset v0.0.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -13,7 +13,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=6c02275b"></script>
+      <script src="../../_static/documentation_options.js?v=7026087e"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -118,21 +118,24 @@
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.download_dataset"><code class="docutils literal notranslate"><span class="pre">download_dataset()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.corebench_mask"><code class="docutils literal notranslate"><span class="pre">corebench_mask()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.bixbench_mask"><code class="docutils literal notranslate"><span class="pre">bixbench_mask()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.biomysterybench_mask"><code class="docutils literal notranslate"><span class="pre">biomysterybench_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.corebench_standardize"><code class="docutils literal notranslate"><span class="pre">corebench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.bixbench_standardize"><code class="docutils literal notranslate"><span class="pre">bixbench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.biomysterybench_standardize"><code class="docutils literal notranslate"><span class="pre">biomysterybench_standardize()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.database">Database Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#what-changed-and-why-it-is-not-a-port">WHAT CHANGED, AND WHY IT IS NOT A PORT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#nothing-is-deleted-any-more">NOTHING IS DELETED ANY MORE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.get_db_path"><code class="docutils literal notranslate"><span class="pre">get_db_path()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.clear"><code class="docutils literal notranslate"><span class="pre">clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.get_store"><code class="docutils literal notranslate"><span class="pre">get_store()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.store_description"><code class="docutils literal notranslate"><span class="pre">store_description()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#neuroscience-sources">Neuroscience Sources</a><ul>
@@ -259,7 +262,7 @@
 <span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="c1"># File: src/scitex_dataset/_api.py</span>
 
-<span class="sd">&quot;&quot;&quot;Per-source ``&lt;src&gt;_fetch`` / ``&lt;src&gt;_format`` aliases for MCP parity.</span>
+<span class="sd">"""Per-source ``&lt;src&gt;_fetch`` / ``&lt;src&gt;_format`` aliases for MCP parity.</span>
 
 <span class="sd">Each MCP tool ``dataset_&lt;src&gt;_fetch`` has a matching Python callable</span>
 <span class="sd">``&lt;src&gt;_fetch`` exported from the package root, so the</span>
@@ -268,10 +271,17 @@
 <span class="sd">The aliases are thin re-bindings of the canonical</span>
 <span class="sd">``&lt;domain&gt;.&lt;src&gt;.fetch_all_datasets`` / ``format_dataset`` functions —</span>
 <span class="sd">no logic of their own.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="c1"># Agentic AI-for-science benchmark cohorts. Each ``standardize`` is the</span>
+<span class="c1"># read-only pure-Python verb (safe over MCP); ``download`` /</span>
+<span class="c1"># ``prepare`` are CLI-only on purpose (multi-GB pulls belong on SLURM</span>
+<span class="c1"># compute nodes, not an MCP client).</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.ai_for_science.biomysterybench</span><span class="w"> </span><span class="kn">import</span> <span class="n">standardize</span> <span class="k">as</span> <span class="n">biomysterybench_standardize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.ai_for_science.bixbench</span><span class="w"> </span><span class="kn">import</span> <span class="n">standardize</span> <span class="k">as</span> <span class="n">bixbench_standardize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.ai_for_science.corebench</span><span class="w"> </span><span class="kn">import</span> <span class="n">standardize</span> <span class="k">as</span> <span class="n">corebench_standardize</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.biology.geo</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_all_datasets</span> <span class="k">as</span> <span class="n">geo_fetch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.biology.geo</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_dataset</span> <span class="k">as</span> <span class="n">geo_format</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.general.figshare</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_all_datasets</span> <span class="k">as</span> <span class="n">figshare_fetch</span>
@@ -291,9 +301,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.neuroscience.dandi</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_dataset</span> <span class="k">as</span> <span class="n">dandi_format</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.neuroscience.gin</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_all_datasets</span> <span class="k">as</span> <span class="n">gin_fetch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.neuroscience.gin</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_dataset</span> <span class="k">as</span> <span class="n">gin_format</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.neuroscience.gin</span><span class="w"> </span><span class="kn">import</span> <span class="n">gin_download</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.neuroscience.gin</span><span class="w"> </span><span class="kn">import</span> <span class="n">gin_info</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.neuroscience.gin</span><span class="w"> </span><span class="kn">import</span> <span class="n">gin_search</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.neuroscience.gin</span><span class="w"> </span><span class="kn">import</span> <span class="n">gin_download</span><span class="p">,</span> <span class="n">gin_info</span><span class="p">,</span> <span class="n">gin_search</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.neuroscience.openneuro</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_all_datasets</span> <span class="k">as</span> <span class="n">openneuro_fetch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.neuroscience.openneuro</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_dataset</span> <span class="k">as</span> <span class="n">openneuro_format</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.neuroscience.physionet</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_all_datasets</span> <span class="k">as</span> <span class="n">physionet_fetch</span>
@@ -303,50 +311,42 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.pharmacology.moleculenet</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_all_datasets</span> <span class="k">as</span> <span class="n">moleculenet_fetch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.pharmacology.moleculenet</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_dataset</span> <span class="k">as</span> <span class="n">moleculenet_format</span>
 
-<span class="c1"># Agentic AI-for-science benchmark cohorts. Each ``mask`` is the</span>
-<span class="c1"># read-only pure-Python verb (safe over MCP); ``download`` /</span>
-<span class="c1"># ``prepare`` are CLI-only on purpose (multi-GB pulls belong on SLURM</span>
-<span class="c1"># compute nodes, not an MCP client).</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.ai_for_science.biomysterybench</span><span class="w"> </span><span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">biomysterybench_mask</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.ai_for_science.bixbench</span><span class="w"> </span><span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">bixbench_mask</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.ai_for_science.corebench</span><span class="w"> </span><span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">corebench_mask</span>
-
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;openneuro_fetch&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;openneuro_format&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dandi_fetch&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dandi_format&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;physionet_fetch&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;physionet_format&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;gin_fetch&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;gin_format&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;gin_search&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;gin_info&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;gin_download&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;download_dataset&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;zenodo_fetch&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;zenodo_format&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;figshare_fetch&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;figshare_format&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;openml_fetch&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;openml_format&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;moleculenet_fetch&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;moleculenet_format&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;geo_fetch&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;geo_format&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;chembl_fetch&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;chembl_format&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;clinicaltrials_fetch&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;clinicaltrials_format&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;huggingface_fetch&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;hf_format&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;huggingface_search&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;huggingface_info&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;huggingface_download_file&quot;</span><span class="p">,</span>
-    <span class="c1"># Agentic AI-for-science benchmark cohorts (mask-only over MCP)</span>
-    <span class="s2">&quot;corebench_mask&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;bixbench_mask&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;biomysterybench_mask&quot;</span><span class="p">,</span>
+    <span class="s2">"openneuro_fetch"</span><span class="p">,</span>
+    <span class="s2">"openneuro_format"</span><span class="p">,</span>
+    <span class="s2">"dandi_fetch"</span><span class="p">,</span>
+    <span class="s2">"dandi_format"</span><span class="p">,</span>
+    <span class="s2">"physionet_fetch"</span><span class="p">,</span>
+    <span class="s2">"physionet_format"</span><span class="p">,</span>
+    <span class="s2">"gin_fetch"</span><span class="p">,</span>
+    <span class="s2">"gin_format"</span><span class="p">,</span>
+    <span class="s2">"gin_search"</span><span class="p">,</span>
+    <span class="s2">"gin_info"</span><span class="p">,</span>
+    <span class="s2">"gin_download"</span><span class="p">,</span>
+    <span class="s2">"download_dataset"</span><span class="p">,</span>
+    <span class="s2">"zenodo_fetch"</span><span class="p">,</span>
+    <span class="s2">"zenodo_format"</span><span class="p">,</span>
+    <span class="s2">"figshare_fetch"</span><span class="p">,</span>
+    <span class="s2">"figshare_format"</span><span class="p">,</span>
+    <span class="s2">"openml_fetch"</span><span class="p">,</span>
+    <span class="s2">"openml_format"</span><span class="p">,</span>
+    <span class="s2">"moleculenet_fetch"</span><span class="p">,</span>
+    <span class="s2">"moleculenet_format"</span><span class="p">,</span>
+    <span class="s2">"geo_fetch"</span><span class="p">,</span>
+    <span class="s2">"geo_format"</span><span class="p">,</span>
+    <span class="s2">"chembl_fetch"</span><span class="p">,</span>
+    <span class="s2">"chembl_format"</span><span class="p">,</span>
+    <span class="s2">"clinicaltrials_fetch"</span><span class="p">,</span>
+    <span class="s2">"clinicaltrials_format"</span><span class="p">,</span>
+    <span class="s2">"huggingface_fetch"</span><span class="p">,</span>
+    <span class="s2">"hf_format"</span><span class="p">,</span>
+    <span class="s2">"huggingface_search"</span><span class="p">,</span>
+    <span class="s2">"huggingface_info"</span><span class="p">,</span>
+    <span class="s2">"huggingface_download_file"</span><span class="p">,</span>
+    <span class="c1"># Agentic AI-for-science benchmark cohorts (standardize-only over MCP)</span>
+    <span class="s2">"corebench_standardize"</span><span class="p">,</span>
+    <span class="s2">"bixbench_standardize"</span><span class="p">,</span>
+    <span class="s2">"biomysterybench_standardize"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -359,6 +359,7 @@
 <span class="c1"># catalog-only sources raise ``NotImplementedError`` with a hint.</span>
 <span class="c1"># ---------------------------------------------------------------------- #</span>
 
+
 <div class="viewcode-block" id="download_dataset">
 <a class="viewcode-back" href="../../api/scitex_dataset.html#scitex_dataset.download_dataset">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">download_dataset</span><span class="p">(</span>
@@ -367,7 +368,7 @@
     <span class="n">dest</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unified ``download_dataset(source, id, dest, **opts)`` dispatcher.</span>
+<span class="w">    </span><span class="sd">"""Unified ``download_dataset(source, id, dest, **opts)`` dispatcher.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -394,23 +395,24 @@
 <span class="sd">        If ``source`` is not in the registry.</span>
 <span class="sd">    NotImplementedError</span>
 <span class="sd">        If the matched source has no download adapter wired up yet.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">src</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">src</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;gin&quot;</span><span class="p">,):</span>
+    <span class="k">if</span> <span class="n">src</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"gin"</span><span class="p">,):</span>
         <span class="k">return</span> <span class="n">gin_download</span><span class="p">(</span><span class="n">repo_id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">local_dir</span><span class="o">=</span><span class="n">dest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">src</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;huggingface&quot;</span><span class="p">,</span> <span class="s2">&quot;hf&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">src</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"huggingface"</span><span class="p">,</span> <span class="s2">"hf"</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">huggingface_fetch</span><span class="p">(</span><span class="n">repo_id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">local_dir</span><span class="o">=</span><span class="n">dest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">._sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">ALL_SOURCES</span>
+
     <span class="k">if</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">ALL_SOURCES</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;download_dataset: source </span><span class="si">{</span><span class="n">src</span><span class="si">!r}</span><span class="s2"> is catalog-only today; &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;a download adapter has not yet been wired up. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Track at https://github.com/ywatanabe1989/scitex-dataset/issues&quot;</span>
+            <span class="sa">f</span><span class="s2">"download_dataset: source </span><span class="si">{</span><span class="n">src</span><span class="si">!r}</span><span class="s2"> is catalog-only today; "</span>
+            <span class="sa">f</span><span class="s2">"a download adapter has not yet been wired up. "</span>
+            <span class="sa">f</span><span class="s2">"Track at https://github.com/ywatanabe1989/scitex-dataset/issues"</span>
         <span class="p">)</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;download_dataset: unknown source </span><span class="si">{</span><span class="n">source</span><span class="si">!r}</span><span class="s2">. &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;Known sources: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">ALL_SOURCES</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"download_dataset: unknown source </span><span class="si">{</span><span class="n">source</span><span class="si">!r}</span><span class="s2">. "</span>
+        <span class="sa">f</span><span class="s2">"Known sources: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">ALL_SOURCES</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span></div>
 
 

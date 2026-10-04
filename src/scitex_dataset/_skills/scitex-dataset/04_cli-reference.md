@@ -60,8 +60,9 @@ The same chain as every other SciTeX package (see
 3. `<project>/.scitex/dataset/config.yaml`  (project scope wins)
 4. `$SCITEX_DIR/dataset/config.yaml` (default `~/.scitex/dataset/config.yaml`)
 
-Runtime files (the local SQLite index, snapshots, logs) live under
-`<scope-root>/runtime/`.
+Runtime files (snapshots, caches, logs) live under
+`<scope-root>/runtime/`. The dataset index does not: it lives in the shared
+SciTeX store, which `SCITEX_STORE_DSN` repoints and `db show-stats` names.
 
 ## Examples
 
@@ -80,7 +81,7 @@ scitex-dataset db show-stats
 | Command | Purpose |
 |---|---|
 | `<domain>` (5 groups) | Domain → dataset → action chain |
-| `db` | Local SQLite + FTS5 index (`build`, `search`, `show-stats`, `clear`) |
+| `db` | Full-text dataset index (`build`, `search`, `show-stats`, `clear`) |
 | `docs` | Browse package documentation |
 | `list-python-apis` | Enumerate the public Python API tree |
 | `mcp` | MCP server commands |

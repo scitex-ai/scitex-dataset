@@ -10,7 +10,8 @@ tags: [scitex-dataset-env-vars, scitex-dataset]
 
 | Variable | Purpose | Default | Type | Read at |
 |---|---|---|---|---|
-| `SCITEX_DIR` | Relocates the user-scope state root for every scitex-* package. ``$SCITEX_DIR/dataset/config.yaml`` is the user-scope config, and ``$SCITEX_DIR/dataset/runtime/datasets.db`` is the local SQLite + FTS5 index when no project-scope override is in scope. | `~/.scitex` | path | ``_config.py``, ``database.py`` |
+| `SCITEX_DIR` | Relocates the user-scope state root for every scitex-* package. ``$SCITEX_DIR/dataset/config.yaml`` is the user-scope config and ``$SCITEX_DIR/dataset/runtime/`` holds snapshots, caches and logs when no project-scope override is in scope. It does NOT decide where the dataset index lives — see ``SCITEX_STORE_DSN``. | `~/.scitex` | path | ``_config.py`` |
+| `SCITEX_STORE_DSN` | Which store holds the dataset index. An explicit value wins outright over the per-host PostgreSQL default and must start ``postgres://`` or ``postgresql://``; anything else is refused rather than downgraded, because a store that silently became private would accept every write and reach nobody. Read by ``scitex_dev.store.host_store`` — the single resolver — never by this package. | this host's PostgreSQL | DSN | ``scitex_dev.store._host``, via ``database.get_store`` |
 | `SCITEX_DATASET_CONFIG` | Explicit override for the config file path (CLI flag still wins). | unset | path | ``_config.py:find_config_path`` |
 | `_SCITEX_DATASET_COMPLETE` | Click's tab-completion sentinel; set transiently by ``scitex-dataset print-tab-completion`` to render the bash/zsh/fish hook script. Not user-facing. | unset | bool (presence) | ``_cli/__init__.py`` |
 | `HF_TOKEN` | HuggingFace Hub token (direct value). Highest priority for gated repos. | unset | string | ``general/huggingface.py:_resolve_token`` |

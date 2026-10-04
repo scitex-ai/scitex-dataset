@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quickstart &mdash; scitex-dataset v0.4.0</title>
+  <title>Quickstart &mdash; scitex-dataset v0.0.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=6c02275b"></script>
+      <script src="_static/documentation_options.js?v=7026087e"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -121,21 +121,24 @@
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.download_dataset"><code class="docutils literal notranslate"><span class="pre">download_dataset()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.corebench_mask"><code class="docutils literal notranslate"><span class="pre">corebench_mask()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.bixbench_mask"><code class="docutils literal notranslate"><span class="pre">bixbench_mask()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.biomysterybench_mask"><code class="docutils literal notranslate"><span class="pre">biomysterybench_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.corebench_standardize"><code class="docutils literal notranslate"><span class="pre">corebench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.bixbench_standardize"><code class="docutils literal notranslate"><span class="pre">bixbench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.biomysterybench_standardize"><code class="docutils literal notranslate"><span class="pre">biomysterybench_standardize()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.database">Database Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#what-changed-and-why-it-is-not-a-port">WHAT CHANGED, AND WHY IT IS NOT A PORT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#nothing-is-deleted-any-more">NOTHING IS DELETED ANY MORE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database.get_db_path"><code class="docutils literal notranslate"><span class="pre">get_db_path()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database.clear"><code class="docutils literal notranslate"><span class="pre">clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database.get_store"><code class="docutils literal notranslate"><span class="pre">get_store()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database.store_description"><code class="docutils literal notranslate"><span class="pre">store_description()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#neuroscience-sources">Neuroscience Sources</a><ul>
@@ -264,8 +267,8 @@ shows the local index and the HuggingFace flow.</p>
 <h2>Install<a class="headerlink" href="#install" title="Link to this heading"></a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>scitex-dataset
 <span class="c1"># Optional extras:</span>
-pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;scitex-dataset[huggingface]&quot;</span><span class="w">   </span><span class="c1"># HF Hub access</span>
-pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;scitex-dataset[mcp]&quot;</span><span class="w">           </span><span class="c1"># MCP server</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"scitex-dataset[huggingface]"</span><span class="w">   </span><span class="c1"># HF Hub access</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"scitex-dataset[mcp]"</span><span class="w">           </span><span class="c1"># MCP server</span>
 </pre></div>
 </div>
 </section>
@@ -285,19 +288,19 @@ same name (under the <code class="docutils literal notranslate"><span class="pre
 
 <span class="c1"># 2) Filter + rank in memory.</span>
 <span class="n">top</span> <span class="o">=</span> <span class="n">filter_results</span><span class="p">(</span>
-    <span class="n">records</span><span class="p">,</span> <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;eeg&quot;</span><span class="p">,</span> <span class="n">min_subjects</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-    <span class="n">sort_by</span><span class="o">=</span><span class="s2">&quot;downloads&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">records</span><span class="p">,</span> <span class="n">modality</span><span class="o">=</span><span class="s2">"eeg"</span><span class="p">,</span> <span class="n">min_subjects</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">sort_by</span><span class="o">=</span><span class="s2">"downloads"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># 3) Search HuggingFace Hub directly.</span>
-<span class="n">hf_hits</span> <span class="o">=</span> <span class="n">huggingface_search</span><span class="p">(</span><span class="s2">&quot;biology&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">hf_hits</span> <span class="o">=</span> <span class="n">huggingface_search</span><span class="p">(</span><span class="s2">"biology"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 
-<span class="c1"># 4) Build the local SQLite + FTS5 index for offline queries.</span>
+<span class="c1"># 4) Build the full-text dataset index in the shared SciTeX store.</span>
 <span class="n">db_build</span><span class="p">()</span>
-<span class="n">db_search</span><span class="p">(</span><span class="s2">&quot;Alzheimer EEG&quot;</span><span class="p">)</span>
+<span class="n">db_search</span><span class="p">(</span><span class="s2">"Alzheimer EEG"</span><span class="p">)</span>
 
 <span class="c1"># 5) Inspect the supported sources.</span>
-<span class="n">list_sources</span><span class="p">()[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span>   <span class="c1"># 11</span>
+<span class="n">list_sources</span><span class="p">()[</span><span class="s2">"count"</span><span class="p">]</span>   <span class="c1"># 11</span>
 </pre></div>
 </div>
 </section>
@@ -307,15 +310,15 @@ same name (under the <code class="docutils literal notranslate"><span class="pre
 <code class="docutils literal notranslate"><span class="pre">scitex-dataset</span> <span class="pre">&lt;domain&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;action&gt;</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Catalog fetch</span>
 scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span>openneuro<span class="w"> </span>fetch<span class="w"> </span>-n<span class="w"> </span><span class="m">50</span><span class="w"> </span>-o<span class="w"> </span>openneuro.json
-scitex-dataset<span class="w"> </span>general<span class="w"> </span>zenodo<span class="w"> </span>fetch<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;neuroscience&quot;</span><span class="w"> </span>-n<span class="w"> </span><span class="m">20</span>
+scitex-dataset<span class="w"> </span>general<span class="w"> </span>zenodo<span class="w"> </span>fetch<span class="w"> </span>-q<span class="w"> </span><span class="s2">"neuroscience"</span><span class="w"> </span>-n<span class="w"> </span><span class="m">20</span>
 
 <span class="c1"># HuggingFace</span>
 scitex-dataset<span class="w"> </span>general<span class="w"> </span>huggingface<span class="w"> </span>fetch<span class="w"> </span>Anthropic/BioMysteryBench-full
-scitex-dataset<span class="w"> </span>general<span class="w"> </span>huggingface<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;biology&quot;</span><span class="w"> </span>-n<span class="w"> </span><span class="m">10</span><span class="w"> </span>--json
+scitex-dataset<span class="w"> </span>general<span class="w"> </span>huggingface<span class="w"> </span>search<span class="w"> </span><span class="s2">"biology"</span><span class="w"> </span>-n<span class="w"> </span><span class="m">10</span><span class="w"> </span>--json
 
 <span class="c1"># Local index</span>
 scitex-dataset<span class="w"> </span>db<span class="w"> </span>build
-scitex-dataset<span class="w"> </span>db<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;Alzheimer EEG&quot;</span>
+scitex-dataset<span class="w"> </span>db<span class="w"> </span>search<span class="w"> </span><span class="s2">"Alzheimer EEG"</span>
 scitex-dataset<span class="w"> </span>db<span class="w"> </span>show-stats
 </pre></div>
 </div>
@@ -331,8 +334,11 @@ $SCITEX_DATASET_CONFIG
 $SCITEX_DIR/dataset/config.yaml   (default ~/.scitex/dataset/config.yaml)
 </pre></div>
 </div>
-<p>Runtime artifacts (the SQLite index, snapshots) live under
-<code class="docutils literal notranslate"><span class="pre">&lt;scope-root&gt;/runtime/</span></code>.</p>
+<p>Runtime artifacts (snapshots, caches, logs) live under
+<code class="docutils literal notranslate"><span class="pre">&lt;scope-root&gt;/runtime/</span></code>. The dataset index does not — it lives in the
+shared SciTeX store, so every host reads one catalogue instead of each
+keeping a private copy. <code class="docutils literal notranslate"><span class="pre">scitex-dataset</span> <span class="pre">db</span> <span class="pre">show-stats</span></code> names the store
+it resolved to.</p>
 </section>
 <section id="next-steps">
 <h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>

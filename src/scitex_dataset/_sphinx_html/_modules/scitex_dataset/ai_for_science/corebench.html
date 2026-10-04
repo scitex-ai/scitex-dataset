@@ -1,0 +1,745 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>scitex_dataset.ai_for_science.corebench &mdash; scitex-dataset v0.0.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            scitex-dataset
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#basic-installation">Basic Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#development-installation">Development Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#optional-dependencies">Optional Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#verification">Verification</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#python-api">Python API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#cli">CLI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#configuration-precedence">Configuration precedence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#legacy-aliases-hidden-exit-code-2">Legacy aliases (hidden, exit code 2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#live-command-tree">Live command tree</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources.html">Data Sources</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sources.html#catalog-sources">Catalog sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#openneuro-bids-neuroimaging">OpenNeuro — BIDS neuroimaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#dandi-archive-nwb-neurophysiology">DANDI Archive — NWB neurophysiology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#physionet-physiological-waveforms">PhysioNet — physiological waveforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#zenodo-general-scientific-data-cern">Zenodo — general scientific data (CERN)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#figshare-research-data-sharing">Figshare — research data sharing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#openml-ml-datasets-and-benchmarks">OpenML — ML datasets and benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#moleculenet-molecular-ml-benchmarks">MoleculeNet — molecular ML benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#geo-gene-expression-omnibus-ncbi">GEO — Gene Expression Omnibus (NCBI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#chembl-bioactivity-ebi">ChEMBL — bioactivity (EBI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#clinicaltrials-gov-interventional-observational-studies">ClinicalTrials.gov — interventional / observational studies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sources.html#on-demand-source">On-demand source</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#huggingface-hub">HuggingFace Hub</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sources.html#local-database">Local Database</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/scitex_dataset.html">scitex_dataset API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.db_build"><code class="docutils literal notranslate"><span class="pre">db_build()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.db_search"><code class="docutils literal notranslate"><span class="pre">db_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.db_show_stats"><code class="docutils literal notranslate"><span class="pre">db_show_stats()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.filter_results"><code class="docutils literal notranslate"><span class="pre">filter_results()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.list_sources"><code class="docutils literal notranslate"><span class="pre">list_sources()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.openneuro_fetch"><code class="docutils literal notranslate"><span class="pre">openneuro_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.dandi_fetch"><code class="docutils literal notranslate"><span class="pre">dandi_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.physionet_fetch"><code class="docutils literal notranslate"><span class="pre">physionet_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.gin_fetch"><code class="docutils literal notranslate"><span class="pre">gin_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.gin_search"><code class="docutils literal notranslate"><span class="pre">gin_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.gin_info"><code class="docutils literal notranslate"><span class="pre">gin_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.gin_download"><code class="docutils literal notranslate"><span class="pre">gin_download()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.zenodo_fetch"><code class="docutils literal notranslate"><span class="pre">zenodo_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.figshare_fetch"><code class="docutils literal notranslate"><span class="pre">figshare_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.openml_fetch"><code class="docutils literal notranslate"><span class="pre">openml_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.moleculenet_fetch"><code class="docutils literal notranslate"><span class="pre">moleculenet_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.geo_fetch"><code class="docutils literal notranslate"><span class="pre">geo_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.chembl_fetch"><code class="docutils literal notranslate"><span class="pre">chembl_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.clinicaltrials_fetch"><code class="docutils literal notranslate"><span class="pre">clinicaltrials_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_fetch"><code class="docutils literal notranslate"><span class="pre">huggingface_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_search"><code class="docutils literal notranslate"><span class="pre">huggingface_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.download_dataset"><code class="docutils literal notranslate"><span class="pre">download_dataset()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.corebench_standardize"><code class="docutils literal notranslate"><span class="pre">corebench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.bixbench_standardize"><code class="docutils literal notranslate"><span class="pre">bixbench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.biomysterybench_standardize"><code class="docutils literal notranslate"><span class="pre">biomysterybench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.database">Database Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#what-changed-and-why-it-is-not-a-port">WHAT CHANGED, AND WHY IT IS NOT A PORT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#nothing-is-deleted-any-more">NOTHING IS DELETED ANY MORE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.clear"><code class="docutils literal notranslate"><span class="pre">clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_store"><code class="docutils literal notranslate"><span class="pre">get_store()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.store_description"><code class="docutils literal notranslate"><span class="pre">store_description()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#neuroscience-sources">Neuroscience Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.neuroscience.openneuro">OpenNeuro</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.neuroscience.dandi">DANDI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.dandi.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.dandi.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.dandi.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.neuroscience.physionet">PhysioNet</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#general-sources">General Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.general.zenodo">Zenodo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.zenodo.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.zenodo.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.zenodo.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.general.figshare">Figshare</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.figshare.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.figshare.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.figshare.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.general.openml">OpenML</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.openml.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.openml.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.openml.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.general.huggingface">HuggingFace Hub</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#local-state-layout">Local-state layout</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.huggingface.fetch_dataset"><code class="docutils literal notranslate"><span class="pre">fetch_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.huggingface.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.huggingface.search_hub"><code class="docutils literal notranslate"><span class="pre">search_hub()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.huggingface.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.huggingface.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.huggingface.dataset_info"><code class="docutils literal notranslate"><span class="pre">dataset_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.huggingface.download_file"><code class="docutils literal notranslate"><span class="pre">download_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#biology-sources">Biology Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.biology.geo">GEO</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.biology.geo.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.biology.geo.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.biology.geo.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#pharmacology-sources">Pharmacology Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.pharmacology.moleculenet">MoleculeNet</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.pharmacology.moleculenet.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.pharmacology.moleculenet.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.pharmacology.moleculenet.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.pharmacology.chembl">ChEMBL</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.pharmacology.chembl.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.pharmacology.chembl.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.pharmacology.chembl.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#medical-sources">Medical Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.medical.clinicaltrials">ClinicalTrials.gov</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.medical.clinicaltrials.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.medical.clinicaltrials.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.medical.clinicaltrials.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset._cli">CLI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset._cli._repositories_block"><code class="docutils literal notranslate"><span class="pre">_repositories_block()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">scitex-dataset</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../scitex_dataset.html">scitex_dataset</a></li>
+      <li class="breadcrumb-item active">scitex_dataset.ai_for_science.corebench</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for scitex_dataset.ai_for_science.corebench</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># File: src/scitex_dataset/ai_for_science/corebench.py</span>
+
+<span class="sd">"""CORE-Bench dataset preparation.</span>
+
+<span class="sd">CORE-Bench: 90 reproducibility-judging capsules from CodeOcean papers,</span>
+<span class="sd">hosted off-repo at ``https://corebench.cs.princeton.edu/capsules/``.</span>
+<span class="sd">Each capsule has 3 difficulty tiers (easy / medium / hard) — 90</span>
+<span class="sd">underlying papers × ~3 task variants per paper.</span>
+
+<span class="sd">Pipeline (raw → {for_solver, eval} contract — see :mod:`._base`):</span>
+
+<span class="sd">1. ``download(...)`` — pull capsule tarballs (~13 GB) from the Princeton</span>
+<span class="sd">   CDN into ``raw_dir/capsules/``, with sha256 integrity skip via</span>
+<span class="sd">   ``raw_dir/.checksums.json``. The answer manifests</span>
+<span class="sd">   (``dataset/core_train.json`` + ``core_test.json``) are operator-side</span>
+<span class="sd">   artifacts staged into ``raw_dir`` separately (not fetched here).</span>
+<span class="sd">   ``raw_dir`` is operator-private and never mounted.</span>
+<span class="sd">2. ``build_inventory(...)`` — read the oracle manifests, write a</span>
+<span class="sd">   non-oracle ``inventory.json`` (task metadata only — capsule_id,</span>
+<span class="sd">   difficulty, language, field, file counts) into the agent-visible</span>
+<span class="sd">   ``for_solver_dir``.</span>
+<span class="sd">3. ``standardize(...)`` — split the oracle into a uniform leak-safe</span>
+<span class="sd">   ``for_solver/tasks.jsonl`` (no answers) + an operator-side</span>
+<span class="sd">   ``eval/answers.jsonl`` + ``eval/evaluate.py``. Each ``results`` entry</span>
+<span class="sd">   becomes one task; the per-tier difficulty disambiguates them. This is</span>
+<span class="sd">   exactly what the SAC capsule binds at ``/for_solver:ro``.</span>
+<span class="sd">4. ``prepare(...)`` — runs the three above plus emits</span>
+<span class="sd">   ``.scitex/dataset/MANIFEST.yaml`` with the snapshot id + version +</span>
+<span class="sd">   sha256 of the tasks file.</span>
+
+<span class="sd">NOTE on compute: the capsule tarball download in ``download(...)`` is</span>
+<span class="sd">~13 GB. Callers running on a SLURM cluster should ``sbatch`` it (or</span>
+<span class="sd">call ``prepare(...)`` from a batch script) — never on a login node.</span>
+<span class="sd">The ``standardize(...)`` step is pure-Python on JSON inputs (&lt; 1 MB</span>
+<span class="sd">total) and safe to run anywhere.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BenchmarkPaths</span><span class="p">,</span> <span class="n">resolve_paths</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._corebench_download</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SOURCE_URL</span><span class="p">,</span>
+    <span class="n">_ORACLE_TEST_RELPATH</span><span class="p">,</span>
+    <span class="n">_ORACLE_TRAIN_RELPATH</span><span class="p">,</span>
+    <span class="n">bootstrap_oracle</span><span class="p">,</span>
+    <span class="n">download</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._manifest</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_manifest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_capsule_sources</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._standardize</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">render_evaluate_py</span><span class="p">,</span>
+    <span class="n">write_eval</span><span class="p">,</span>
+    <span class="n">write_for_solver_per_capsule</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Canonical benchmark identity.</span>
+<span class="n">BENCHMARK</span> <span class="o">=</span> <span class="s2">"corebench"</span>
+<span class="n">COHORT_ID</span> <span class="o">=</span> <span class="s2">"corebench"</span>
+<span class="n">COHORT_NAME</span> <span class="o">=</span> <span class="s2">"CORE-Bench"</span>
+
+<span class="c1"># Difficulty tier labels in the order they appear in the upstream</span>
+<span class="c1"># ``results`` arrays (per CORE-Bench paper: each capsule has</span>
+<span class="c1"># hard/medium/easy variants; the ``results`` list is positionally</span>
+<span class="c1"># ordered).</span>
+<span class="n">DIFFICULTY_TIERS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"hard"</span><span class="p">,</span> <span class="s2">"medium"</span><span class="p">,</span> <span class="s2">"easy"</span><span class="p">)</span>
+
+<span class="c1"># Default scorer mode baked into eval/evaluate.py — CORE-Bench answers</span>
+<span class="c1"># are numeric report values, scored within relative tolerance.</span>
+<span class="n">DEFAULT_MODE</span> <span class="o">=</span> <span class="s2">"numeric"</span>
+
+<span class="c1"># Paper-identity fields dropped from the leak-safe task view so an agent</span>
+<span class="c1"># can't web-search the paper for answer hints. ``capsule_id`` stays</span>
+<span class="c1"># visible (opaque 7-digit handle the agent needs as a lookup key).</span>
+<span class="n">PAPER_IDENTITY_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"capsule_title"</span><span class="p">,</span> <span class="s2">"capsule_doi"</span><span class="p">)</span>
+
+<span class="c1"># File-extension buckets for inventory file-counting.</span>
+<span class="n">_PY_EXTS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">".py"</span><span class="p">,)</span>
+<span class="n">_R_EXTS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">".r"</span><span class="p">,</span> <span class="s2">".rmd"</span><span class="p">)</span>
+<span class="n">_IPYNB_EXTS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">".ipynb"</span><span class="p">,)</span>
+<span class="n">_DATA_EXTS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">".csv"</span><span class="p">,</span>
+    <span class="s2">".tsv"</span><span class="p">,</span>
+    <span class="s2">".npy"</span><span class="p">,</span>
+    <span class="s2">".h5"</span><span class="p">,</span>
+    <span class="s2">".parquet"</span><span class="p">,</span>
+    <span class="s2">".rds"</span><span class="p">,</span>
+    <span class="s2">".rdata"</span><span class="p">,</span>
+    <span class="s2">".mat"</span><span class="p">,</span>
+    <span class="s2">".json"</span><span class="p">,</span>
+    <span class="s2">".xlsx"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Oracle source layout on disk — bootstrapped into raw_dir by</span>
+<span class="c1"># ``download(...)`` (see :mod:`._corebench_download`). The relpaths</span>
+<span class="c1"># ``_ORACLE_TRAIN_RELPATH`` / ``_ORACLE_TEST_RELPATH`` are imported from</span>
+<span class="c1"># that module; the readers below consume them:</span>
+<span class="c1">#   &lt;raw_dir&gt;/dataset/core_train.json   (plaintext)</span>
+<span class="c1">#   &lt;raw_dir&gt;/core_test.json            (decrypted from .gpg)</span>
+
+<span class="c1"># Capsule tarballs are the only raw content symlinked into for_solver/;</span>
+<span class="c1"># the whole ``raw/capsules`` dir is linked once (not per-task) and each</span>
+<span class="c1"># task's ``data`` points inside it. Extracted trees (for inventory</span>
+<span class="c1"># file-counting) land under this subdir.</span>
+<span class="n">_EXTRACTED_SUBDIR</span> <span class="o">=</span> <span class="s2">"capsules_extracted"</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Standardize — pure-Python; works without any network and without the</span>
+<span class="c1"># bulk capsule tarballs. This is what tests exercise.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_split_record</span><span class="p">(</span><span class="n">rec</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Split one oracle record into (tasks, answers) row lists.</span>
+
+<span class="sd">    Each ``rec["results"]`` entry is a ``{question_text: answer_value}``</span>
+<span class="sd">    dict for one difficulty tier — and may hold MORE THAN ONE question</span>
+<span class="sd">    (CoreBench tasks pose 1–8 questions per tier). Every question becomes</span>
+<span class="sd">    its own standardized task so each answer stays a scalar (matching the</span>
+<span class="sd">    per-question metric): ``corebench/&lt;cid&gt;__&lt;difficulty&gt;__q&lt;j&gt;``. The</span>
+<span class="sd">    positional index selects the tier (hard/medium/easy, then</span>
+<span class="sd">    ``tier_&lt;i&gt;``). Tasks carry the uniform ``{task_id, benchmark, prompt,</span>
+<span class="sd">    data}`` keys only — no answer-bearing fields. Answers carry the</span>
+<span class="sd">    matching ``task_id``, the ``{"value": ...}`` payload, and meta.</span>
+<span class="sd">    """</span>
+    <span class="n">cid</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="s2">"capsule_id"</span><span class="p">]</span>
+    <span class="n">tasks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">answers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">result_dict</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"results"</span><span class="p">,</span> <span class="p">[])):</span>
+        <span class="n">difficulty</span> <span class="o">=</span> <span class="n">DIFFICULTY_TIERS</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"tier_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="p">(</span><span class="n">question_text</span><span class="p">,</span> <span class="n">answer_value</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">result_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">task_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"corebench/</span><span class="si">{</span><span class="n">cid</span><span class="si">}</span><span class="s2">__</span><span class="si">{</span><span class="n">difficulty</span><span class="si">}</span><span class="s2">__q</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">"</span>
+            <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">"task_id"</span><span class="p">:</span> <span class="n">task_id</span><span class="p">,</span>
+                    <span class="s2">"benchmark"</span><span class="p">:</span> <span class="n">BENCHMARK</span><span class="p">,</span>
+                    <span class="s2">"prompt"</span><span class="p">:</span> <span class="n">rec</span><span class="p">[</span><span class="s2">"task_prompt"</span><span class="p">]</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">Question: "</span> <span class="o">+</span> <span class="n">question_text</span><span class="p">,</span>
+                    <span class="s2">"data"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"./capsules/</span><span class="si">{</span><span class="n">cid</span><span class="si">}</span><span class="s2">.tar.gz"</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">answers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">"task_id"</span><span class="p">:</span> <span class="n">task_id</span><span class="p">,</span>
+                    <span class="s2">"answer"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"value"</span><span class="p">:</span> <span class="n">answer_value</span><span class="p">},</span>
+                    <span class="s2">"meta"</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">"capsule_id"</span><span class="p">:</span> <span class="n">cid</span><span class="p">,</span>
+                        <span class="s2">"difficulty"</span><span class="p">:</span> <span class="n">difficulty</span><span class="p">,</span>
+                        <span class="s2">"question"</span><span class="p">:</span> <span class="n">question_text</span><span class="p">,</span>
+                        <span class="s2">"field"</span><span class="p">:</span> <span class="n">rec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"field"</span><span class="p">),</span>
+                        <span class="s2">"language"</span><span class="p">:</span> <span class="n">rec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"language"</span><span class="p">),</span>
+                    <span class="p">},</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">answers</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">standardize</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">raw_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">for_solver_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">eval_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">only</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">_</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Split the oracle JSONs into the for_solver + eval views.</span>
+
+<span class="sd">    ``raw_dir`` must already contain the upstream-pristine</span>
+<span class="sd">    ``dataset/core_train.json`` and ``core_test.json`` — either from a</span>
+<span class="sd">    prior ``download(...)`` or hand-staged by the operator. The two</span>
+<span class="sd">    record lists are concatenated (train first, then test); each</span>
+<span class="sd">    ``results`` entry becomes one task (leak-safe) + one answer.</span>
+
+<span class="sd">    ``for_solver`` is written in the PER-CAPSULE shape: one self-contained</span>
+<span class="sd">    ``capsule-NNN/`` dir per native capsule (friendly id), each holding</span>
+<span class="sd">    the EXTRACTED capsule archive in ``input/``, a ``task.jsonl`` of only</span>
+<span class="sd">    that capsule's rows, the uniform submission schema/example, and a</span>
+<span class="sd">    README — plus a root ``index.jsonl`` MAPPER (friendly_id ↔ native_id).</span>
+<span class="sd">    An agent binds exactly one ``capsule-NNN/`` dir.</span>
+
+<span class="sd">    ``only`` (a friendly ``capsule-NNN`` id OR a native capsule id, e.g.</span>
+<span class="sd">    ``capsule-0201225``) materializes just that one capsule's dir; the</span>
+<span class="sd">    mapper is always written in full. ``force`` re-extracts capsules that</span>
+<span class="sd">    are already present (default skips them).</span>
+<span class="sd">    """</span>
+    <span class="n">train</span> <span class="o">=</span> <span class="n">raw_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">_ORACLE_TRAIN_RELPATH</span><span class="p">)</span>
+    <span class="n">test</span> <span class="o">=</span> <span class="n">raw_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">_ORACLE_TEST_RELPATH</span><span class="p">)</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">is_file</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"corebench: oracle source(s) not found: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">. "</span>
+            <span class="s2">"Run `corebench download` first — it bootstraps the oracle "</span>
+            <span class="s2">"manifests (fetch + gpg-decrypt) into raw/."</span>
+        <span class="p">)</span>
+
+    <span class="n">tasks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">answers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">counts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
+        <span class="n">records</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">))</span>
+        <span class="n">before</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+            <span class="n">rec_tasks</span><span class="p">,</span> <span class="n">rec_answers</span> <span class="o">=</span> <span class="n">_split_record</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+            <span class="n">tasks</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">rec_tasks</span><span class="p">)</span>
+            <span class="n">answers</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">rec_answers</span><span class="p">)</span>
+        <span class="n">counts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span> <span class="o">-</span> <span class="n">before</span><span class="p">)</span>
+
+    <span class="n">answer_values</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">a</span><span class="p">[</span><span class="s2">"task_id"</span><span class="p">]:</span> <span class="n">a</span><span class="p">[</span><span class="s2">"answer"</span><span class="p">][</span><span class="s2">"value"</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">answers</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"answer"</span><span class="p">),</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"value"</span> <span class="ow">in</span> <span class="n">a</span><span class="p">[</span><span class="s2">"answer"</span><span class="p">]</span>
+    <span class="p">}</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">write_for_solver_per_capsule</span><span class="p">(</span>
+        <span class="n">for_solver_dir</span><span class="o">=</span><span class="n">for_solver_dir</span><span class="p">,</span>
+        <span class="n">tasks</span><span class="o">=</span><span class="n">tasks</span><span class="p">,</span>
+        <span class="n">raw_dir</span><span class="o">=</span><span class="n">raw_dir</span><span class="p">,</span>
+        <span class="n">only</span><span class="o">=</span><span class="n">only</span><span class="p">,</span>
+        <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span>
+        <span class="n">answer_values</span><span class="o">=</span><span class="n">answer_values</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ev</span> <span class="o">=</span> <span class="n">write_eval</span><span class="p">(</span>
+        <span class="n">eval_dir</span><span class="o">=</span><span class="n">eval_dir</span><span class="p">,</span>
+        <span class="n">answers</span><span class="o">=</span><span class="n">answers</span><span class="p">,</span>
+        <span class="n">evaluate_py_source</span><span class="o">=</span><span class="n">render_evaluate_py</span><span class="p">(</span><span class="n">DEFAULT_MODE</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">sr</span> <span class="o">=</span> <span class="n">register_capsule_sources</span><span class="p">(</span><span class="n">tasks</span><span class="o">=</span><span class="n">tasks</span><span class="p">,</span> <span class="n">raw_dir</span><span class="o">=</span><span class="n">raw_dir</span><span class="p">,</span> <span class="n">eval_dir</span><span class="o">=</span><span class="n">eval_dir</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"for_solver"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+        <span class="s2">"eval"</span><span class="p">:</span> <span class="n">ev</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="n">sr</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">),</span>
+        <span class="s2">"n_train"</span><span class="p">:</span> <span class="n">counts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="s2">"n_test"</span><span class="p">:</span> <span class="n">counts</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="s2">"default_mode"</span><span class="p">:</span> <span class="n">DEFAULT_MODE</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Inventory — also pure-Python (no network). Walks any extracted</span>
+<span class="c1"># capsule trees that happen to be present and writes ``inventory.json``.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_classify_capsule_files</span><span class="p">(</span><span class="n">capsule_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Walk a downloaded capsule directory and count files by extension."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">capsule_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">n_py</span> <span class="o">=</span> <span class="n">n_r</span> <span class="o">=</span> <span class="n">n_ipynb</span> <span class="o">=</span> <span class="n">n_data</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">has_dockerfile</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">_root</span><span class="p">,</span> <span class="n">_dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">capsule_dir</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">fl</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">fl</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">_PY_EXTS</span><span class="p">):</span>
+                <span class="n">n_py</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">fl</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">_R_EXTS</span><span class="p">):</span>
+                <span class="n">n_r</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">fl</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">_IPYNB_EXTS</span><span class="p">):</span>
+                <span class="n">n_ipynb</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">fl</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"dockerfile"</span><span class="p">,)</span> <span class="ow">or</span> <span class="n">fl</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"dockerfile"</span><span class="p">):</span>
+                <span class="n">has_dockerfile</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">fl</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">_DATA_EXTS</span><span class="p">):</span>
+                <span class="n">n_data</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"n_python_files"</span><span class="p">:</span> <span class="n">n_py</span><span class="p">,</span>
+        <span class="s2">"n_r_files"</span><span class="p">:</span> <span class="n">n_r</span><span class="p">,</span>
+        <span class="s2">"n_notebooks"</span><span class="p">:</span> <span class="n">n_ipynb</span><span class="p">,</span>
+        <span class="s2">"has_dockerfile"</span><span class="p">:</span> <span class="n">has_dockerfile</span><span class="p">,</span>
+        <span class="s2">"n_data_files"</span><span class="p">:</span> <span class="n">n_data</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_tasks</span><span class="p">(</span>
+    <span class="n">entries</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">split</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">capsule_cache</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+        <span class="n">cid</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"capsule_id"</span><span class="p">]</span>
+        <span class="n">lang</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"language"</span><span class="p">,</span> <span class="s2">"Unknown"</span><span class="p">)</span>
+        <span class="n">file_stats</span> <span class="o">=</span> <span class="n">_classify_capsule_files</span><span class="p">(</span><span class="n">capsule_cache</span> <span class="o">/</span> <span class="n">cid</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"results"</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
+            <span class="n">difficulty</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"task_type"</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"difficulty"</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="n">DIFFICULTY_TIERS</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">DIFFICULTY_TIERS</span><span class="p">)</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"tier_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">"task_id"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">cid</span><span class="si">}</span><span class="s2">__</span><span class="si">{</span><span class="n">difficulty</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="s2">"paper_id"</span><span class="p">:</span> <span class="n">cid</span><span class="p">,</span>
+                    <span class="s2">"split"</span><span class="p">:</span> <span class="n">split</span><span class="p">,</span>
+                    <span class="s2">"difficulty"</span><span class="p">:</span> <span class="n">difficulty</span><span class="p">,</span>
+                    <span class="s2">"primary_language"</span><span class="p">:</span> <span class="n">lang</span><span class="p">,</span>
+                    <span class="s2">"field"</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"field"</span><span class="p">),</span>
+                    <span class="s2">"n_python_files"</span><span class="p">:</span> <span class="n">file_stats</span><span class="p">[</span><span class="s2">"n_python_files"</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">file_stats</span>
+                    <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="s2">"n_r_files"</span><span class="p">:</span> <span class="n">file_stats</span><span class="p">[</span><span class="s2">"n_r_files"</span><span class="p">]</span> <span class="k">if</span> <span class="n">file_stats</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="s2">"n_notebooks"</span><span class="p">:</span> <span class="n">file_stats</span><span class="p">[</span><span class="s2">"n_notebooks"</span><span class="p">]</span> <span class="k">if</span> <span class="n">file_stats</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="s2">"has_dockerfile"</span><span class="p">:</span> <span class="n">file_stats</span><span class="p">[</span><span class="s2">"has_dockerfile"</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">file_stats</span>
+                    <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="s2">"n_data_files"</span><span class="p">:</span> <span class="n">file_stats</span><span class="p">[</span><span class="s2">"n_data_files"</span><span class="p">]</span> <span class="k">if</span> <span class="n">file_stats</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">rows</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_inventory</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">raw_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">for_solver_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">_</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Write ``for_solver_dir/inventory.json`` from the oracle JSONs.</span>
+
+<span class="sd">    The inventory contains only non-oracle metadata (no answer values),</span>
+<span class="sd">    so it is published in the agent-visible ``for_solver_dir`` alongside</span>
+<span class="sd">    the tasks file. File-level fields (``n_python_files`` etc.) are</span>
+<span class="sd">    populated only if the capsule has been unpacked into</span>
+<span class="sd">    ``raw_dir/capsules_extracted/&lt;capsule_id&gt;``; otherwise ``None``.</span>
+<span class="sd">    """</span>
+    <span class="n">train</span> <span class="o">=</span> <span class="n">raw_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">_ORACLE_TRAIN_RELPATH</span><span class="p">)</span>
+    <span class="n">test</span> <span class="o">=</span> <span class="n">raw_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">_ORACLE_TEST_RELPATH</span><span class="p">)</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">is_file</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"corebench: oracle source(s) not found: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">. "</span>
+            <span class="s2">"Run `corebench download` first — it bootstraps the oracle "</span>
+            <span class="s2">"manifests (fetch + gpg-decrypt) into raw/."</span>
+        <span class="p">)</span>
+
+    <span class="n">capsule_cache</span> <span class="o">=</span> <span class="n">raw_dir</span> <span class="o">/</span> <span class="n">_EXTRACTED_SUBDIR</span>
+    <span class="n">train_entries</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">train</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">))</span>
+    <span class="n">test_entries</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">))</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">_build_tasks</span><span class="p">(</span><span class="n">train_entries</span><span class="p">,</span> <span class="s2">"train"</span><span class="p">,</span> <span class="n">capsule_cache</span><span class="p">)</span> <span class="o">+</span> <span class="n">_build_tasks</span><span class="p">(</span>
+        <span class="n">test_entries</span><span class="p">,</span> <span class="s2">"test"</span><span class="p">,</span> <span class="n">capsule_cache</span>
+    <span class="p">)</span>
+
+    <span class="n">summary</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"n_capsules_total"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_entries</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_entries</span><span class="p">),</span>
+        <span class="s2">"n_capsules_train"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_entries</span><span class="p">),</span>
+        <span class="s2">"n_capsules_test"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_entries</span><span class="p">),</span>
+        <span class="s2">"n_tasks_total"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span>
+        <span class="s2">"n_tasks_python"</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">"primary_language"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Python"</span><span class="p">),</span>
+        <span class="s2">"n_tasks_r"</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">"primary_language"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"R"</span><span class="p">),</span>
+        <span class="s2">"by_primary_language"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">Counter</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">"primary_language"</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">)),</span>
+        <span class="s2">"by_difficulty"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">Counter</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">"difficulty"</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">)),</span>
+        <span class="s2">"by_split"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">Counter</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">"split"</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">)),</span>
+        <span class="s2">"by_field"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">Counter</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">"field"</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">)),</span>
+        <span class="s2">"capsule_code_in_repo"</span><span class="p">:</span> <span class="n">capsule_cache</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span>
+    <span class="p">}</span>
+
+    <span class="n">for_solver_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">for_solver_dir</span> <span class="o">/</span> <span class="s2">"inventory.json"</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">"summary"</span><span class="p">:</span> <span class="n">summary</span><span class="p">,</span> <span class="s2">"tasks"</span><span class="p">:</span> <span class="n">rows</span><span class="p">},</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"output"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="p">),</span> <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span> <span class="s2">"summary"</span><span class="p">:</span> <span class="n">summary</span><span class="p">}</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Download — network. The oracle bootstrap + capsule-tarball fetch live in</span>
+<span class="c1"># :mod:`._corebench_download` (kept there for the 512-line-per-file guard);</span>
+<span class="c1"># ``download`` and ``bootstrap_oracle`` are re-exported at module top so</span>
+<span class="c1"># ``corebench.download`` / ``corebench.bootstrap_oracle`` stay callable.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Orchestrator</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">paths</span><span class="p">:</span> <span class="n">BenchmarkPaths</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dataset_root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"v0-unstamped"</span><span class="p">,</span>
+    <span class="n">skip_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">skip_inventory</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">verify_integrity</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">_</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Run the full CORE-Bench preparation pipeline.</span>
+
+<span class="sd">    Returns a dict summarising each step plus the path of the emitted</span>
+<span class="sd">    ``MANIFEST.yaml``. If ``skip_download`` is True (default False), the</span>
+<span class="sd">    capsule-tarball download step is skipped — useful when only the</span>
+<span class="sd">    pure-Python standardize path is wanted (e.g. from CI where multi-GB</span>
+<span class="sd">    pulls are inappropriate). ``verify_integrity`` / ``force`` are passed</span>
+<span class="sd">    to ``download`` (default: skip any capsule already on disk).</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">paths</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="n">resolve_paths</span><span class="p">(</span><span class="n">BENCHMARK</span><span class="p">,</span> <span class="n">dataset_root</span><span class="o">=</span><span class="n">dataset_root</span><span class="p">)</span>
+
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"benchmark"</span><span class="p">:</span> <span class="n">BENCHMARK</span><span class="p">,</span> <span class="s2">"paths"</span><span class="p">:</span> <span class="n">paths</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_download</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"download"</span><span class="p">]</span> <span class="o">=</span> <span class="n">download</span><span class="p">(</span>
+            <span class="n">raw_dir</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">raw_dir</span><span class="p">,</span>
+            <span class="n">verify_integrity</span><span class="o">=</span><span class="n">verify_integrity</span><span class="p">,</span>
+            <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_inventory</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"inventory"</span><span class="p">]</span> <span class="o">=</span> <span class="n">build_inventory</span><span class="p">(</span>
+            <span class="n">raw_dir</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">raw_dir</span><span class="p">,</span> <span class="n">for_solver_dir</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">for_solver_dir</span>
+        <span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">"standardize"</span><span class="p">]</span> <span class="o">=</span> <span class="n">standardize</span><span class="p">(</span>
+        <span class="n">raw_dir</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">raw_dir</span><span class="p">,</span>
+        <span class="n">for_solver_dir</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">for_solver_dir</span><span class="p">,</span>
+        <span class="n">eval_dir</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">eval_dir</span><span class="p">,</span>
+        <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">manifest_path</span> <span class="o">=</span> <span class="n">write_manifest</span><span class="p">(</span>
+        <span class="n">manifest_dir</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">manifest_dir</span><span class="p">,</span>
+        <span class="nb">id</span><span class="o">=</span><span class="n">COHORT_ID</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">COHORT_NAME</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span>
+        <span class="n">source_url</span><span class="o">=</span><span class="n">SOURCE_URL</span><span class="p">,</span>
+        <span class="n">benchmark</span><span class="o">=</span><span class="n">BENCHMARK</span><span class="p">,</span>
+        <span class="n">tracked_paths</span><span class="o">=</span><span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">"standardize"</span><span class="p">][</span><span class="s2">"for_solver"</span><span class="p">][</span><span class="s2">"index"</span><span class="p">])],</span>
+        <span class="n">tracked_root</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">for_solver_dir</span><span class="p">,</span>
+        <span class="n">mask_seed</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>  <span class="c1"># standardize is deterministic / seed-free</span>
+    <span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">"manifest"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">manifest_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"BENCHMARK"</span><span class="p">,</span>
+    <span class="s2">"COHORT_ID"</span><span class="p">,</span>
+    <span class="s2">"COHORT_NAME"</span><span class="p">,</span>
+    <span class="s2">"SOURCE_URL"</span><span class="p">,</span>
+    <span class="s2">"DIFFICULTY_TIERS"</span><span class="p">,</span>
+    <span class="s2">"DEFAULT_MODE"</span><span class="p">,</span>
+    <span class="s2">"PAPER_IDENTITY_FIELDS"</span><span class="p">,</span>
+    <span class="s2">"build_inventory"</span><span class="p">,</span>
+    <span class="s2">"bootstrap_oracle"</span><span class="p">,</span>
+    <span class="s2">"download"</span><span class="p">,</span>
+    <span class="s2">"standardize"</span><span class="p">,</span>
+    <span class="s2">"prepare"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># EOF</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yusuke Watanabe.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

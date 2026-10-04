@@ -5,6 +5,103 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.8.0] - 2026-10-03
+
+### Fixed
+- CORE-Bench now assigns one task per exact question key and retains all
+  reference runs under that task ID. Reference positions no longer create
+  synthetic hard/medium/easy questions. Inventory counts questions and
+  reference samples separately.
+- Preparation forwards acquisition and materialization selectors explicitly.
+  HuggingFace revision requests are forwarded and reported as requested
+  revisions. BioMysteryBench full acquisition and outputs use separate
+  namespaces from preview; full no longer mixes both repositories.
+- Materialization checks source, mapping, archive and existing output identity
+  before changing cached outputs. Unqualified or changed caches refuse reuse,
+  including with `force`; prepare a fresh output root instead.
+- Host scoring rejects duplicate or unassigned submission IDs and reports
+  invalid numeric references separately from solver errors. Public host
+  scoring refuses malformed oracle records by default. Generated
+  evaluators retain repeated references and count missing/malformed answers as
+  failures when their references are gradeable.
+
+### Added
+- Strict Pydantic submission validation without coercion. Public task rows may
+  declare `answer_type`; validation and the submission gate use those public
+  declarations and selected task membership, with oracle-free repair feedback.
+  Missing assignment metadata is explicitly reported as shape-only validation.
+- Explicit generated-evaluator `invalid_reference` and
+  `needs_reference_policy` statuses. Multiple numeric/string references need a
+  defined aggregation policy; they are ungradeable in the generated evaluator.
+  An entirely ungradeable cohort reports `score: null`, rather than measured
+  zero. The host API's prediction-interval/significant-figure policy is unchanged.
+
+### Changed
+- CORE task IDs use the full SHA256 of the exact UTF-8 question key. Use fresh
+  assignments and outputs; old difficulty-bearing results are not migrated.
+  Consumers must group repeated private oracle rows into reference lists,
+  rather than overwrite them in a dictionary.
+
+## [0.7.1] - 2026-07-19
+
+### Changed
+- `validate_submission` now enforces the honest-abstention half of the
+  submission contract: an entry whose `answer` is `null` MUST carry a
+  non-empty `reason`. A missing `reason` key, `reason: null`, `""`, or a
+  whitespace-only reason yields a hard `missing_reason` finding naming the
+  offending `task_id` (`ok=False`); previously such reasonless nulls were
+  silently accepted. Answered (non-null) claims are unaffected — `reason`
+  stays optional there. The `dataset-submission-format` pre-submission gate
+  inherits the rule (with a `missing_reason` fix-hint), closing the gap
+  where the gate accepted silent no-answers.
+
+## [0.7.0] - 2026-07-03
+
+### Added
+- Submission-gate plugin provider for `scitex-dev gate` — registers a
+  `pre-submission` `GateCheck` (`id="dataset-submission-format"`) under the
+  `scitex_dev.gate.checks` entry-point group. It locates the bound capsule's
+  submission file (`submission/submission.json` by default; overridable via
+  the gate config's `submission_file`) and runs the oracle-free
+  `validate_submission`, mapping the result to a `GateResult` +
+  format-specific `Finding` fix-hints. benchmark + expected task_ids are
+  read from the capsule's own `task.jsonl` (per-capsule), with a
+  structure-only fallback when absent. The check is fail-closed and the
+  plugin shim defers its `scitex_dev.gate` import, so importing
+  `scitex_dataset` never requires scitex-dev to be installed.
+
+## [0.6.0] - 2026-07-03
+
+### Added
+- `score_submission()` API + `score` CLI verb — host-side submission grading
+  primitive with a 5-way verdict (correct / wrong / abstain / malformed /
+  needs_rubric) and numeric (Student-t 95% prediction interval with sig-fig
+  fallback), string, and order-insensitive set-equality evaluators.
+- `validate_submission()` API + `validate` CLI verb — oracle-free structural
+  schema conformance for a submission, pairing with the scorer.
+- CORE-Bench `download --full` oracle bootstrap — auto-fetch + GPG-decrypt of
+  `core_train` / `core_test` into the operator-private `raw/` (never mounted),
+  with a sha256 checksum ledger for resumable re-runs.
+- Per-capsule **source registration** — host-side `eval/sources.jsonl` marking
+  each capsule's legitimate sources (raw problem data/code + the computed
+  output of running the analysis, captured from the pristine raw archive) and
+  excluding README / REPRODUCING / paper docs, closing the README
+  score-table grounding leak.
+
+### Changed
+- `for_solver/` standardized into the per-capsule contract — one
+  self-contained `capsule-NNN/` dir (extracted `input/`, `task.jsonl`, uniform
+  submission schema/example, README) plus a root `index.jsonl` mapper
+  (`friendly_id` ↔ `native_id`) — across CORE-Bench, BixBench, and
+  BioMysteryBench.
+
+### Fixed
+- BixBench `task_id` now keys on the unique `question_id` (all 205 questions)
+  instead of the capsule `short_id`, which collapsed them to 54.
+- CI test failures on `develop` from the incomplete per-capsule migration.
+
 ## [0.3.1] - 2026-03-29
 
 ### Fixed

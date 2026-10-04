@@ -41,7 +41,7 @@ same name (under the ``dataset`` namespace).
     # 3) Search HuggingFace Hub directly.
     hf_hits = huggingface_search("biology", limit=20)
 
-    # 4) Build the local SQLite + FTS5 index for offline queries.
+    # 4) Build the full-text dataset index in the shared SciTeX store.
     db_build()
     db_search("Alzheimer EEG")
 
@@ -84,8 +84,11 @@ Project scope wins over user scope, per the SciTeX local-state layout:
     <project>/.scitex/dataset/config.yaml
     $SCITEX_DIR/dataset/config.yaml   (default ~/.scitex/dataset/config.yaml)
 
-Runtime artifacts (the SQLite index, snapshots) live under
-``<scope-root>/runtime/``.
+Runtime artifacts (snapshots, caches, logs) live under
+``<scope-root>/runtime/``. The dataset index does not — it lives in the
+shared SciTeX store, so every host reads one catalogue instead of each
+keeping a private copy. ``scitex-dataset db show-stats`` names the store
+it resolved to.
 
 Next steps
 ----------

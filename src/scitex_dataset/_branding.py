@@ -76,16 +76,16 @@ scientific repositories:
 - zenodo_fetch: Fetch Zenodo datasets
 - filter_results: Filter / rank fetched datasets in memory
 - list_sources: List the 11 supported sources
-- db_build / db_search / db_show_stats: Local SQLite + FTS5 index
+- db_build / db_search / db_show_stats: Full-text dataset index in the shared store
 
 **Typical Workflow:**
 1. Fetch datasets: openneuro_fetch(max_datasets=100)
 2. Filter results: filter_results(datasets, modality="eeg", min_subjects=20)
-3. Or build local DB: db_build() then db_search("alzheimer EEG")
+3. Or build the index: db_build() then db_search("alzheimer EEG")
 
 **Tips:**
 - Use max_datasets to limit API calls during exploration
-- Build local database for faster repeated searches
+- Build the index once for faster repeated searches across every host
 - Combine modality and subject filters for targeted results
 """
 

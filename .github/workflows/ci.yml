@@ -43,6 +43,13 @@ concurrency:
 jobs:
   pytest-matrix:
     uses: scitex-ai/.github/.github/workflows/pytest-matrix.yml@main
+    with:
+      # The index is store-backed now, so the suite opens a real cluster via
+      # scitex_dev.store.testing.writable_dsn(). Without this the runner has no
+      # PostgreSQL and every index/store test ERRORs at setup (42 of them,
+      # measured on job 99218906117). The org reusable starts a postgres:16
+      # service and exports SCITEX_STORE_DSN when this is true.
+      postgres: true
     secrets: inherit
 
   import-smoke:

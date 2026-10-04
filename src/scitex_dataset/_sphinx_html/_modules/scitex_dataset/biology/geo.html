@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_dataset.biology.geo &mdash; scitex-dataset v0.4.0</title>
+  <title>scitex_dataset.biology.geo &mdash; scitex-dataset v0.0.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=6c02275b"></script>
+      <script src="../../../_static/documentation_options.js?v=7026087e"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -118,21 +118,24 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.download_dataset"><code class="docutils literal notranslate"><span class="pre">download_dataset()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.corebench_mask"><code class="docutils literal notranslate"><span class="pre">corebench_mask()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.bixbench_mask"><code class="docutils literal notranslate"><span class="pre">bixbench_mask()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.biomysterybench_mask"><code class="docutils literal notranslate"><span class="pre">biomysterybench_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.corebench_standardize"><code class="docutils literal notranslate"><span class="pre">corebench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.bixbench_standardize"><code class="docutils literal notranslate"><span class="pre">bixbench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.biomysterybench_standardize"><code class="docutils literal notranslate"><span class="pre">biomysterybench_standardize()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.database">Database Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#what-changed-and-why-it-is-not-a-port">WHAT CHANGED, AND WHY IT IS NOT A PORT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#nothing-is-deleted-any-more">NOTHING IS DELETED ANY MORE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_db_path"><code class="docutils literal notranslate"><span class="pre">get_db_path()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.clear"><code class="docutils literal notranslate"><span class="pre">clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_store"><code class="docutils literal notranslate"><span class="pre">get_store()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.store_description"><code class="docutils literal notranslate"><span class="pre">store_description()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#neuroscience-sources">Neuroscience Sources</a><ul>
@@ -257,10 +260,10 @@
   <h1>Source code for scitex_dataset.biology.geo</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="c1"># Timestamp: &quot;2026-03-28 00:00:00 (ywatanabe)&quot;</span>
+<span class="c1"># Timestamp: "2026-03-28 00:00:00 (ywatanabe)"</span>
 <span class="c1"># File: /home/ywatanabe/proj/scitex-dataset/src/scitex_dataset/biology/geo.py</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">GEO (Gene Expression Omnibus) dataset fetcher.</span>
 
 <span class="sd">GEO hosts gene expression and genomics datasets from NCBI.</span>
@@ -271,7 +274,7 @@
 <span class="sd">    &gt;&gt;&gt; from scitex_dataset.biology import geo</span>
 <span class="sd">    &gt;&gt;&gt; datasets = geo.fetch_all_datasets(max_datasets=10)</span>
 <span class="sd">    &gt;&gt;&gt; formatted = [geo.format_dataset(ds) for ds in datasets]</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -280,13 +283,13 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_httpx</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dev.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">supports_return_as</span>
 
-<span class="n">GEO_API</span> <span class="o">=</span> <span class="s2">&quot;https://eutils.ncbi.nlm.nih.gov/entrez/eutils&quot;</span>
+<span class="n">GEO_API</span> <span class="o">=</span> <span class="s2">"https://eutils.ncbi.nlm.nih.gov/entrez/eutils"</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;GEO_API&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;fetch_datasets&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;fetch_all_datasets&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;format_dataset&quot;</span><span class="p">,</span>
+    <span class="s2">"GEO_API"</span><span class="p">,</span>
+    <span class="s2">"fetch_datasets"</span><span class="p">,</span>
+    <span class="s2">"fetch_all_datasets"</span><span class="p">,</span>
+    <span class="s2">"format_dataset"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -296,37 +299,37 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">fetch_datasets</span><span class="p">(</span>
     <span class="n">retstart</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">retmax</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
-    <span class="n">term</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gds[Entry Type]&quot;</span><span class="p">,</span>
+    <span class="n">term</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"gds[Entry Type]"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch a single page of datasets from GEO via NCBI E-utilities.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Fetch a single page of datasets from GEO via NCBI E-utilities."""</span>
     <span class="c1"># Step 1: Search for GDS IDs</span>
     <span class="n">search_response</span> <span class="o">=</span> <span class="n">_httpx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">GEO_API</span><span class="si">}</span><span class="s2">/esearch.fcgi&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">GEO_API</span><span class="si">}</span><span class="s2">/esearch.fcgi"</span><span class="p">,</span>
         <span class="n">params</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;db&quot;</span><span class="p">:</span> <span class="s2">&quot;gds&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;term&quot;</span><span class="p">:</span> <span class="n">term</span><span class="p">,</span>
-            <span class="s2">&quot;retstart&quot;</span><span class="p">:</span> <span class="n">retstart</span><span class="p">,</span>
-            <span class="s2">&quot;retmax&quot;</span><span class="p">:</span> <span class="n">retmax</span><span class="p">,</span>
-            <span class="s2">&quot;retmode&quot;</span><span class="p">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+            <span class="s2">"db"</span><span class="p">:</span> <span class="s2">"gds"</span><span class="p">,</span>
+            <span class="s2">"term"</span><span class="p">:</span> <span class="n">term</span><span class="p">,</span>
+            <span class="s2">"retstart"</span><span class="p">:</span> <span class="n">retstart</span><span class="p">,</span>
+            <span class="s2">"retmax"</span><span class="p">:</span> <span class="n">retmax</span><span class="p">,</span>
+            <span class="s2">"retmode"</span><span class="p">:</span> <span class="s2">"json"</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">timeout</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">search_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
     <span class="n">search_data</span> <span class="o">=</span> <span class="n">search_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
-    <span class="n">id_list</span> <span class="o">=</span> <span class="n">search_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;esearchresult&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;idlist&quot;</span><span class="p">,</span> <span class="p">[])</span>
-    <span class="n">total_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">search_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;esearchresult&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">id_list</span> <span class="o">=</span> <span class="n">search_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"esearchresult"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"idlist"</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">total_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">search_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"esearchresult"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"count"</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">id_list</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">total_count</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"results"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"total"</span><span class="p">:</span> <span class="n">total_count</span><span class="p">}</span>
 
     <span class="c1"># Step 2: Fetch summaries for those IDs</span>
     <span class="n">summary_response</span> <span class="o">=</span> <span class="n">_httpx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">GEO_API</span><span class="si">}</span><span class="s2">/esummary.fcgi&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">GEO_API</span><span class="si">}</span><span class="s2">/esummary.fcgi"</span><span class="p">,</span>
         <span class="n">params</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;db&quot;</span><span class="p">:</span> <span class="s2">&quot;gds&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">id_list</span><span class="p">),</span>
-            <span class="s2">&quot;retmode&quot;</span><span class="p">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+            <span class="s2">"db"</span><span class="p">:</span> <span class="s2">"gds"</span><span class="p">,</span>
+            <span class="s2">"id"</span><span class="p">:</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">id_list</span><span class="p">),</span>
+            <span class="s2">"retmode"</span><span class="p">:</span> <span class="s2">"json"</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">timeout</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span>
     <span class="p">)</span>
@@ -334,13 +337,13 @@
     <span class="n">summary_data</span> <span class="o">=</span> <span class="n">summary_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
     <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">result_block</span> <span class="o">=</span> <span class="n">summary_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;result&quot;</span><span class="p">,</span> <span class="p">{})</span>
-    <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">result_block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;uids&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+    <span class="n">result_block</span> <span class="o">=</span> <span class="n">summary_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"result"</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">result_block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"uids"</span><span class="p">,</span> <span class="p">[]):</span>
         <span class="n">entry</span> <span class="o">=</span> <span class="n">result_block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">entry</span><span class="p">:</span>
             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">,</span> <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">total_count</span><span class="p">}</span></div>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"results"</span><span class="p">:</span> <span class="n">results</span><span class="p">,</span> <span class="s2">"total"</span><span class="p">:</span> <span class="n">total_count</span><span class="p">}</span></div>
 
 
 
@@ -351,7 +354,7 @@
     <span class="n">max_datasets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch all datasets from GEO with pagination.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Fetch all datasets from GEO with pagination."""</span>
     <span class="n">all_datasets</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">retstart</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">retmax</span> <span class="o">=</span> <span class="mi">100</span>
@@ -361,15 +364,15 @@
             <span class="n">result</span> <span class="o">=</span> <span class="n">fetch_datasets</span><span class="p">(</span><span class="n">retstart</span><span class="o">=</span><span class="n">retstart</span><span class="p">,</span> <span class="n">retmax</span><span class="o">=</span><span class="n">retmax</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">_httpx</span><span class="o">.</span><span class="n">HTTPStatusError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;HTTP Error: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"HTTP Error: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">break</span>
         <span class="k">except</span> <span class="n">_httpx</span><span class="o">.</span><span class="n">RequestError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Request Error: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Request Error: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">break</span>
 
-        <span class="n">datasets</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="n">total</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">datasets</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"results"</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"total"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">datasets</span><span class="p">:</span>
             <span class="k">break</span>
@@ -377,7 +380,7 @@
         <span class="n">all_datasets</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fetched </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> GEO datasets...&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Fetched </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> GEO datasets..."</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">max_datasets</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_datasets</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">max_datasets</span><span class="p">:</span>
             <span class="n">all_datasets</span> <span class="o">=</span> <span class="n">all_datasets</span><span class="p">[:</span><span class="n">max_datasets</span><span class="p">]</span>
@@ -395,29 +398,29 @@
 <a class="viewcode-back" href="../../../api/scitex_dataset.html#scitex_dataset.format_dataset">[docs]</a>
 <span class="nd">@supports_return_as</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">format_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract and format GEO dataset information.&quot;&quot;&quot;</span>
-    <span class="n">uid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;uid&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
-    <span class="n">accession</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;accession&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Accession&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
-    <span class="n">title</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Title&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">))</span>
-    <span class="n">n_samples</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;n_samples&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NSamples&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-    <span class="n">organism</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;taxon&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Organism&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
-    <span class="n">platform</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gpl&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GPL&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
-    <span class="n">pdat</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pdat&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PDAT&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="sd">"""Extract and format GEO dataset information."""</span>
+    <span class="n">uid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"uid"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="n">accession</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"accession"</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Accession"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"title"</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Title"</span><span class="p">,</span> <span class="s2">"N/A"</span><span class="p">))</span>
+    <span class="n">n_samples</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"n_samples"</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"NSamples"</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">organism</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"taxon"</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Organism"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="n">platform</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"gpl"</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"GPL"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="n">pdat</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pdat"</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PDAT"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
 
     <span class="n">dataset_id</span> <span class="o">=</span> <span class="n">accession</span> <span class="ow">or</span> <span class="n">uid</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">dataset_id</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
-        <span class="s2">&quot;n_subjects&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)</span> <span class="k">if</span> <span class="n">n_samples</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;organism&quot;</span><span class="p">:</span> <span class="n">organism</span><span class="p">,</span>
-        <span class="s2">&quot;platform&quot;</span><span class="p">:</span> <span class="n">platform</span><span class="p">,</span>
-        <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">pdat</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=</span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="n">dataset_id</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
+        <span class="s2">"n_subjects"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)</span> <span class="k">if</span> <span class="n">n_samples</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"organism"</span><span class="p">:</span> <span class="n">organism</span><span class="p">,</span>
+        <span class="s2">"platform"</span><span class="p">:</span> <span class="n">platform</span><span class="p">,</span>
+        <span class="s2">"created"</span><span class="p">:</span> <span class="n">pdat</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=</span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="n">dataset_id</span>
-        <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="k">else</span> <span class="s2">""</span><span class="p">,</span>
         <span class="c1"># GEO-specific</span>
-        <span class="s2">&quot;gds_type&quot;</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gdstype&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GDSType&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)),</span>
+        <span class="s2">"gds_type"</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"gdstype"</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"GDSType"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)),</span>
     <span class="p">}</span></div>
 
 

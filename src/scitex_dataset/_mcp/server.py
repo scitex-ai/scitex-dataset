@@ -17,7 +17,13 @@ Usage::
 
 from pathlib import Path
 
-from fastmcp import FastMCP
+try:
+    from fastmcp import FastMCP
+except ImportError as exc:
+    raise ImportError(
+        "fastmcp not installed. MCP support needs it: "
+        "pip install scitex-dataset[mcp]"
+    ) from exc
 
 from .._branding import get_mcp_instructions, get_mcp_server_name
 from ._tools import register_all_tools

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_dataset.pharmacology.moleculenet &mdash; scitex-dataset v0.4.0</title>
+  <title>scitex_dataset.pharmacology.moleculenet &mdash; scitex-dataset v0.0.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=6c02275b"></script>
+      <script src="../../../_static/documentation_options.js?v=7026087e"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -118,21 +118,24 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.download_dataset"><code class="docutils literal notranslate"><span class="pre">download_dataset()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.corebench_mask"><code class="docutils literal notranslate"><span class="pre">corebench_mask()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.bixbench_mask"><code class="docutils literal notranslate"><span class="pre">bixbench_mask()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.biomysterybench_mask"><code class="docutils literal notranslate"><span class="pre">biomysterybench_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.corebench_standardize"><code class="docutils literal notranslate"><span class="pre">corebench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.bixbench_standardize"><code class="docutils literal notranslate"><span class="pre">bixbench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.biomysterybench_standardize"><code class="docutils literal notranslate"><span class="pre">biomysterybench_standardize()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.database">Database Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#what-changed-and-why-it-is-not-a-port">WHAT CHANGED, AND WHY IT IS NOT A PORT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#nothing-is-deleted-any-more">NOTHING IS DELETED ANY MORE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_db_path"><code class="docutils literal notranslate"><span class="pre">get_db_path()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.clear"><code class="docutils literal notranslate"><span class="pre">clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_store"><code class="docutils literal notranslate"><span class="pre">get_store()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.store_description"><code class="docutils literal notranslate"><span class="pre">store_description()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#neuroscience-sources">Neuroscience Sources</a><ul>
@@ -258,7 +261,7 @@
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">MoleculeNet dataset catalog for molecular machine learning.</span>
 
 <span class="sd">MoleculeNet is a benchmark for molecular machine learning containing</span>
@@ -266,183 +269,183 @@
 <span class="sd">biophysics, and physiology.</span>
 
 <span class="sd">Reference: https://moleculenet.org/</span>
-<span class="sd">Data source: DeepChem&#39;s MoleculeNet catalog (static dataset list).</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Data source: DeepChem's MoleculeNet catalog (static dataset list).</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dev.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">supports_return_as</span>
 
 <span class="c1"># MoleculeNet datasets are a curated benchmark suite; we fetch the catalog</span>
-<span class="c1"># from DeepChem&#39;s GitHub repository which maintains the authoritative list.</span>
-<span class="n">MOLECULENET_API</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/deepchem/deepchem/master/deepchem/molnet/load_function&quot;</span>
+<span class="c1"># from DeepChem's GitHub repository which maintains the authoritative list.</span>
+<span class="n">MOLECULENET_API</span> <span class="o">=</span> <span class="s2">"https://raw.githubusercontent.com/deepchem/deepchem/master/deepchem/molnet/load_function"</span>
 
 <span class="c1"># Curated MoleculeNet benchmark catalog (from moleculenet.org)</span>
 <span class="n">_MOLECULENET_CATALOG</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;delaney&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Delaney (ESOL)&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;physical_chemistry&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;regression&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="mi">1128</span><span class="p">,</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Water solubility data (log solubility in mols per litre) for 1128 compounds.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://moleculenet.org/datasets-1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;paper_doi&quot;</span><span class="p">:</span> <span class="s2">&quot;10.1021/ci034243x&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"delaney"</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Delaney (ESOL)"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"physical_chemistry"</span><span class="p">,</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"regression"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="mi">1128</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Water solubility data (log solubility in mols per litre) for 1128 compounds."</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://moleculenet.org/datasets-1"</span><span class="p">,</span>
+        <span class="s2">"paper_doi"</span><span class="p">:</span> <span class="s2">"10.1021/ci034243x"</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;freesolv&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;FreeSolv&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;physical_chemistry&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;regression&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="mi">642</span><span class="p">,</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Experimental and calculated hydration free energy of small molecules in water.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://moleculenet.org/datasets-1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;paper_doi&quot;</span><span class="p">:</span> <span class="s2">&quot;10.1007/s10822-014-9747-x&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"freesolv"</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"FreeSolv"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"physical_chemistry"</span><span class="p">,</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"regression"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="mi">642</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Experimental and calculated hydration free energy of small molecules in water."</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://moleculenet.org/datasets-1"</span><span class="p">,</span>
+        <span class="s2">"paper_doi"</span><span class="p">:</span> <span class="s2">"10.1007/s10822-014-9747-x"</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;lipophilicity&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Lipophilicity&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;physical_chemistry&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;regression&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="mi">4200</span><span class="p">,</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Experimental results of octanol/water distribution coefficient (logD at pH 7.4).&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://moleculenet.org/datasets-1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;paper_doi&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"lipophilicity"</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Lipophilicity"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"physical_chemistry"</span><span class="p">,</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"regression"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="mi">4200</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Experimental results of octanol/water distribution coefficient (logD at pH 7.4)."</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://moleculenet.org/datasets-1"</span><span class="p">,</span>
+        <span class="s2">"paper_doi"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;bace&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;BACE&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;biophysics&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;classification&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="mi">1513</span><span class="p">,</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Binding results for inhibitors of human beta-secretase 1 (BACE-1).&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://moleculenet.org/datasets-1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;paper_doi&quot;</span><span class="p">:</span> <span class="s2">&quot;10.1021/acs.jcim.6b00290&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"bace"</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"BACE"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"biophysics"</span><span class="p">,</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"classification"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="mi">1513</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Binding results for inhibitors of human beta-secretase 1 (BACE-1)."</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://moleculenet.org/datasets-1"</span><span class="p">,</span>
+        <span class="s2">"paper_doi"</span><span class="p">:</span> <span class="s2">"10.1021/acs.jcim.6b00290"</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;bbbp&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;BBBP&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;biophysics&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;classification&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="mi">2039</span><span class="p">,</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Blood-brain barrier penetration (permeability) dataset.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://moleculenet.org/datasets-1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;paper_doi&quot;</span><span class="p">:</span> <span class="s2">&quot;10.1021/ci300124c&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"bbbp"</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"BBBP"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"biophysics"</span><span class="p">,</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"classification"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="mi">2039</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Blood-brain barrier penetration (permeability) dataset."</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://moleculenet.org/datasets-1"</span><span class="p">,</span>
+        <span class="s2">"paper_doi"</span><span class="p">:</span> <span class="s2">"10.1021/ci300124c"</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;clintox&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ClinTox&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;physiology&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;classification&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="mi">1478</span><span class="p">,</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Clinical trial toxicity and FDA approval status.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://moleculenet.org/datasets-1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;paper_doi&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"clintox"</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"ClinTox"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"physiology"</span><span class="p">,</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"classification"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="mi">1478</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Clinical trial toxicity and FDA approval status."</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://moleculenet.org/datasets-1"</span><span class="p">,</span>
+        <span class="s2">"paper_doi"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;sider&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;SIDER&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;physiology&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;classification&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="mi">1427</span><span class="p">,</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Side Effect Resource: drug side effects grouped into 27 system organ classes.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://moleculenet.org/datasets-1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;paper_doi&quot;</span><span class="p">:</span> <span class="s2">&quot;10.1093/nar/gkv1075&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"sider"</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"SIDER"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"physiology"</span><span class="p">,</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"classification"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="mi">1427</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Side Effect Resource: drug side effects grouped into 27 system organ classes."</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://moleculenet.org/datasets-1"</span><span class="p">,</span>
+        <span class="s2">"paper_doi"</span><span class="p">:</span> <span class="s2">"10.1093/nar/gkv1075"</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;tox21&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Tox21&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;physiology&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;classification&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="mi">7831</span><span class="p">,</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Toxicology in the 21st Century: qualitative toxicity on 12 biological targets.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://moleculenet.org/datasets-1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;paper_doi&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"tox21"</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Tox21"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"physiology"</span><span class="p">,</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"classification"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="mi">7831</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Toxicology in the 21st Century: qualitative toxicity on 12 biological targets."</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://moleculenet.org/datasets-1"</span><span class="p">,</span>
+        <span class="s2">"paper_doi"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;toxcast&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ToxCast&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;physiology&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;classification&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="mi">8576</span><span class="p">,</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="mi">617</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;EPA&#39;s ToxCast program: toxicology data for a large library of compounds.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://moleculenet.org/datasets-1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;paper_doi&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"toxcast"</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"ToxCast"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"physiology"</span><span class="p">,</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"classification"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="mi">8576</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="mi">617</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"EPA's ToxCast program: toxicology data for a large library of compounds."</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://moleculenet.org/datasets-1"</span><span class="p">,</span>
+        <span class="s2">"paper_doi"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;muv&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;MUV&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;biophysics&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;classification&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="mi">93087</span><span class="p">,</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Maximum Unbiased Validation datasets for virtual screening.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://moleculenet.org/datasets-1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;paper_doi&quot;</span><span class="p">:</span> <span class="s2">&quot;10.1021/ci8002649&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"muv"</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"MUV"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"biophysics"</span><span class="p">,</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"classification"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="mi">93087</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Maximum Unbiased Validation datasets for virtual screening."</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://moleculenet.org/datasets-1"</span><span class="p">,</span>
+        <span class="s2">"paper_doi"</span><span class="p">:</span> <span class="s2">"10.1021/ci8002649"</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;hiv&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;HIV&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;biophysics&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;classification&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="mi">41127</span><span class="p">,</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;HIV replication inhibition screening results.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://moleculenet.org/datasets-1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;paper_doi&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"hiv"</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"HIV"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"biophysics"</span><span class="p">,</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"classification"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="mi">41127</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"HIV replication inhibition screening results."</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://moleculenet.org/datasets-1"</span><span class="p">,</span>
+        <span class="s2">"paper_doi"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;pcba&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;PCBA&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;biophysics&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;classification&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="mi">437929</span><span class="p">,</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;PubChem BioAssay data: biological activities of small molecules.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://moleculenet.org/datasets-1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;paper_doi&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"pcba"</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"PCBA"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"biophysics"</span><span class="p">,</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"classification"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="mi">437929</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"PubChem BioAssay data: biological activities of small molecules."</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://moleculenet.org/datasets-1"</span><span class="p">,</span>
+        <span class="s2">"paper_doi"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;qm7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;QM7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;quantum_mechanics&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;regression&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="mi">7165</span><span class="p">,</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Electronic properties (atomization energy) of small organic molecules.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://moleculenet.org/datasets-1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;paper_doi&quot;</span><span class="p">:</span> <span class="s2">&quot;10.1103/PhysRevLett.108.058301&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"qm7"</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"QM7"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"quantum_mechanics"</span><span class="p">,</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"regression"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="mi">7165</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Electronic properties (atomization energy) of small organic molecules."</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://moleculenet.org/datasets-1"</span><span class="p">,</span>
+        <span class="s2">"paper_doi"</span><span class="p">:</span> <span class="s2">"10.1103/PhysRevLett.108.058301"</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;qm8&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;QM8&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;quantum_mechanics&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;regression&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="mi">21786</span><span class="p">,</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Electronic spectra and excited state energy of small molecules.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://moleculenet.org/datasets-1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;paper_doi&quot;</span><span class="p">:</span> <span class="s2">&quot;10.1063/1.4928757&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"qm8"</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"QM8"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"quantum_mechanics"</span><span class="p">,</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"regression"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="mi">21786</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Electronic spectra and excited state energy of small molecules."</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://moleculenet.org/datasets-1"</span><span class="p">,</span>
+        <span class="s2">"paper_doi"</span><span class="p">:</span> <span class="s2">"10.1063/1.4928757"</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;qm9&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;QM9&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;quantum_mechanics&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;regression&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="mi">133885</span><span class="p">,</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Geometric, energetic, electronic, and thermodynamic properties of DFT-modeled molecules.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://moleculenet.org/datasets-1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;paper_doi&quot;</span><span class="p">:</span> <span class="s2">&quot;10.1038/sdata.2014.22&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"qm9"</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"QM9"</span><span class="p">,</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"quantum_mechanics"</span><span class="p">,</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"regression"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="mi">133885</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Geometric, energetic, electronic, and thermodynamic properties of DFT-modeled molecules."</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://moleculenet.org/datasets-1"</span><span class="p">,</span>
+        <span class="s2">"paper_doi"</span><span class="p">:</span> <span class="s2">"10.1038/sdata.2014.22"</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">]</span>
 
@@ -451,7 +454,7 @@
 <a class="viewcode-back" href="../../../api/scitex_dataset.html#scitex_dataset.fetch_datasets">[docs]</a>
 <span class="nd">@supports_return_as</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">fetch_datasets</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetch the MoleculeNet dataset catalog.</span>
 
 <span class="sd">    MoleculeNet is a static benchmark suite, so this returns the</span>
@@ -461,7 +464,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    list[dict]</span>
 <span class="sd">        List of MoleculeNet dataset records.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_MOLECULENET_CATALOG</span><span class="p">)</span></div>
 
 
@@ -473,7 +476,7 @@
     <span class="n">max_datasets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetch all MoleculeNet datasets.</span>
 
 <span class="sd">    Parameters</span>
@@ -487,11 +490,11 @@
 <span class="sd">    -------</span>
 <span class="sd">    list[dict]</span>
 <span class="sd">        List of MoleculeNet dataset records.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">datasets</span> <span class="o">=</span> <span class="n">fetch_datasets</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MoleculeNet catalog: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span><span class="si">}</span><span class="s2"> benchmark datasets&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"MoleculeNet catalog: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span><span class="si">}</span><span class="s2"> benchmark datasets"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">max_datasets</span><span class="p">:</span>
         <span class="n">datasets</span> <span class="o">=</span> <span class="n">datasets</span><span class="p">[:</span><span class="n">max_datasets</span><span class="p">]</span>
@@ -504,7 +507,7 @@
 <a class="viewcode-back" href="../../../api/scitex_dataset.html#scitex_dataset.format_dataset">[docs]</a>
 <span class="nd">@supports_return_as</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">format_dataset</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Format a MoleculeNet dataset into a standardized dictionary.</span>
 
 <span class="sd">    Parameters</span>
@@ -516,26 +519,26 @@
 <span class="sd">    -------</span>
 <span class="sd">    dict</span>
 <span class="sd">        Standardized dataset dictionary.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;doi&quot;</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;paper_doi&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;modified&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;authors&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="s2">&quot;keywords&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;task_type&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)],</span>
-        <span class="s2">&quot;license&quot;</span><span class="p">:</span> <span class="s2">&quot;MIT&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;n_compounds&quot;</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;n_compounds&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="s2">&quot;n_tasks&quot;</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;n_tasks&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;task_type&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;views&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;downloads&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="s2">&quot;https://moleculenet.org/&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;moleculenet&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"doi"</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"paper_doi"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"description"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"created"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"modified"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"version"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"authors"</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">"keywords"</span><span class="p">:</span> <span class="p">[</span><span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"category"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"task_type"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)],</span>
+        <span class="s2">"license"</span><span class="p">:</span> <span class="s2">"MIT"</span><span class="p">,</span>
+        <span class="s2">"n_compounds"</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"n_compounds"</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"n_tasks"</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="s2">"task_type"</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"task_type"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"category"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"views"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"downloads"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"url"</span><span class="p">,</span> <span class="s2">"https://moleculenet.org/"</span><span class="p">),</span>
+        <span class="s2">"source"</span><span class="p">:</span> <span class="s2">"moleculenet"</span><span class="p">,</span>
     <span class="p">}</span></div>
 
 

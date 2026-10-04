@@ -55,6 +55,8 @@ rule and empirical verification table.
 - [04_cli-reference.md](04_cli-reference.md) — `scitex-dataset` console entry
 
 ### Workflows
+- [15_ai-for-science.md](15_ai-for-science.md) — preparation, public validation,
+  reference identity and scoring boundaries for agentic benchmarks
 - [10_cli-reference.md](10_cli-reference.md) — historical CLI notes
 - [11_mcp-tools.md](11_mcp-tools.md) — MCP tools for AI agents
 - [13_quick-start.md](13_quick-start.md) — historical quick-start
@@ -87,9 +89,9 @@ scitex-dataset fetch openneuro ds003104
 | `dataset_hf_search` | Search HuggingFace Hub |
 | `dataset_hf_info` | Get HF dataset/model metadata |
 | `dataset_hf_download_file` | Download one file from an HF repo |
-| `dataset_db_build` | Build/refresh the local SQLite + FTS5 index |
-| `dataset_db_search` | Offline search of the local index |
-| `dataset_db_stats` | Local-index statistics |
+| `dataset_db_build` | Build/refresh the full-text dataset index |
+| `dataset_db_search` | Search the dataset index |
+| `dataset_db_stats` | Dataset-index statistics |
 | `dataset_skills_list` | List bundled skill pages |
 | `dataset_skills_get` | Read a bundled skill page by name |
 
