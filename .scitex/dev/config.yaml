@@ -6,3 +6,22 @@ audit:
   root-whitelist:
     files:
       - codecov.yml  # Codecov per-repo config; see codecov.yml at root.
+
+  exemptions:
+    PS-231:
+      - path: .github/workflows/rtd-sphinx-build-on-ubuntu-latest.yml
+        line: 0
+        reason: >-
+          This leaf VENDORS its build output back into the package tree:
+          the workflow rebuilds src/scitex_dataset/_sphinx_html/ on every
+          develop push and commits it, and hatch packages src/scitex_dataset
+          wholesale, so that bundle ships INSIDE the wheel (PS-121 —
+          scitex-cloud serves the docs from there). The org reusable
+          `rtd-sphinx-build` is BUILD-ONLY. Replacing this with a bare
+          `uses:` would keep building and stop publishing: green CI, frozen
+          documentation reaching users, and nothing anywhere saying so. It
+          also runs `sphinx-build -W` on pull requests, which the org build
+          does not, so the conversion would silently drop the warnings gate
+          as well. ci.yml still calls the org `rtd-sphinx-build` alongside
+          it, so the shared body is exercised; this file exists only for the
+          publish step the shared body cannot do. Recorded 2026-08-30.

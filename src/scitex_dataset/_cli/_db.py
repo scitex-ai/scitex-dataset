@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # File: src/scitex_dataset/_cli/_db.py
 
-"""``scitex-dataset db ...`` — local SQLite + FTS5 index."""
+"""``scitex-dataset db ...`` — the dataset index in the shared store."""
 
 from __future__ import annotations
 
@@ -31,7 +31,7 @@ def _print_command_help(cmd, prefix: str, parent_ctx) -> None:
 @click.option("--help-recursive", is_flag=True, help="Show help for all commands.")
 @click.pass_context
 def db(ctx: click.Context, help_recursive: bool):
-    """Local database commands for fast offline searching."""
+    """Dataset index commands for fast catalogue searching."""
     if help_recursive:
         click.echo(db.get_help(ctx))
         for name, cmd in sorted(db.commands.items()):
@@ -55,7 +55,7 @@ def db(ctx: click.Context, help_recursive: bool):
     "-y", "--yes", is_flag=True, help="Suppress interactive confirmation (assume yes)."
 )
 def db_build(sources: tuple, verbose: bool, dry_run: bool, yes: bool) -> None:
-    """Build/rebuild the local dataset database.
+    """Build/rebuild the dataset index.
 
     \b
     Example:
@@ -70,18 +70,18 @@ def db_build(sources: tuple, verbose: bool, dry_run: bool, yes: bool) -> None:
 
     if dry_run:
         click.echo(
-            f"DRY RUN — would build database at {database.get_db_path()} "
+            f"DRY RUN — would build the index in {database.store_description()} "
             f"(sources={source_list or 'all'})"
         )
         return
 
     if verbose:
-        click.echo(f"Building database at {database.get_db_path()}")
+        click.echo(f"Building the index in {database.store_description()}")
         click.echo(f"Sources: {source_list or 'all'}")
 
     counts = database.build(sources=source_list)
 
-    click.echo("Database built:")
+    click.echo("Index built:")
     for src, count in counts.items():
         click.echo(f"  {src}: {count} datasets")
     click.echo(f"Total: {sum(counts.values())} datasets")
@@ -110,7 +110,7 @@ def db_search(
     output,
     as_json,
 ) -> None:
-    """Search the local database.
+    """Search the dataset index.
 
     \b
     Example:
@@ -165,7 +165,7 @@ def db_stats_deprecated(ctx):
 @db.command("show-stats")
 @click.option("--json", "as_json", is_flag=True, help="Emit stats as JSON to stdout.")
 def db_show_stats(as_json: bool) -> None:
-    """Show database statistics.
+    """Show index statistics.
 
     \b
     Example:
@@ -181,12 +181,11 @@ def db_show_stats(as_json: bool) -> None:
         return
 
     if not stats.get("exists"):
-        click.echo(stats.get("message", "Database not found."))
+        click.echo(stats.get("message", "Index not built."))
         click.echo("Run: scitex-dataset db build")
         return
 
-    click.echo(f"Database: {stats['path']}")
-    click.echo(f"Size: {stats['size_mb']} MB")
+    click.echo(f"Store: {stats['store']}")
     click.echo(f"Total datasets: {stats['total_datasets']}")
     click.echo(f"Last build: {stats.get('last_build', 'N/A')}")
     click.echo("\nBy source:")
@@ -195,9 +194,13 @@ def db_show_stats(as_json: bool) -> None:
 
 
 @db.command("clear")
-@click.confirmation_option(prompt="Delete the local database?")
+@click.confirmation_option(prompt="Retire every indexed dataset?")
 def db_clear() -> None:
-    """Delete the local database.
+    """Retire every indexed dataset.
+
+    Nothing is deleted: the datasets leave the default view — searches and
+    stats answer as if the index were empty — and a later ``db build``
+    brings them back.
 
     \b
     Example:
@@ -207,9 +210,9 @@ def db_clear() -> None:
     from .. import database
 
     if database.clear():
-        click.echo("Database deleted.")
+        click.echo("Index retired.")
     else:
-        click.echo("Database not found.")
+        click.echo("Index was already empty.")
 
 
 __all__ = ["db"]

@@ -23,8 +23,9 @@ Resolution chain (highest first), per
 4. ``$SCITEX_DIR/dataset/config.yaml`` (default ``~/.scitex/dataset/config.yaml``)
 
 Project scope wins over user scope. ``SCITEX_DIR`` relocates the user
-scope atomically. Runtime files (the local SQLite index, snapshots,
-logs) live under ``<scope-root>/runtime/``.
+scope atomically. Runtime files (snapshots, caches, logs) live under
+``<scope-root>/runtime/``. The dataset index does not: it lives in the
+shared SciTeX store, which ``SCITEX_STORE_DSN`` repoints.
 
 Legacy aliases (hidden, exit code 2)
 ------------------------------------

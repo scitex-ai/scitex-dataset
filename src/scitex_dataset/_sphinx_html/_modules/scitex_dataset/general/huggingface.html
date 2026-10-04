@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_dataset.general.huggingface &mdash; scitex-dataset v0.4.0</title>
+  <title>scitex_dataset.general.huggingface &mdash; scitex-dataset v0.0.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=6c02275b"></script>
+      <script src="../../../_static/documentation_options.js?v=7026087e"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -118,21 +118,24 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.download_dataset"><code class="docutils literal notranslate"><span class="pre">download_dataset()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.corebench_mask"><code class="docutils literal notranslate"><span class="pre">corebench_mask()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.bixbench_mask"><code class="docutils literal notranslate"><span class="pre">bixbench_mask()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.biomysterybench_mask"><code class="docutils literal notranslate"><span class="pre">biomysterybench_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.corebench_standardize"><code class="docutils literal notranslate"><span class="pre">corebench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.bixbench_standardize"><code class="docutils literal notranslate"><span class="pre">bixbench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.biomysterybench_standardize"><code class="docutils literal notranslate"><span class="pre">biomysterybench_standardize()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.database">Database Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#what-changed-and-why-it-is-not-a-port">WHAT CHANGED, AND WHY IT IS NOT A PORT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#nothing-is-deleted-any-more">NOTHING IS DELETED ANY MORE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_db_path"><code class="docutils literal notranslate"><span class="pre">get_db_path()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.clear"><code class="docutils literal notranslate"><span class="pre">clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_store"><code class="docutils literal notranslate"><span class="pre">get_store()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.store_description"><code class="docutils literal notranslate"><span class="pre">store_description()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#neuroscience-sources">Neuroscience Sources</a><ul>
@@ -257,10 +260,10 @@
   <h1>Source code for scitex_dataset.general.huggingface</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="c1"># Timestamp: &quot;2026-05-05 12:00:00 (ywatanabe)&quot;</span>
+<span class="c1"># Timestamp: "2026-05-05 12:00:00 (ywatanabe)"</span>
 <span class="c1"># File: src/scitex_dataset/general/huggingface.py</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">HuggingFace Hub client for dataset and model downloads.</span>
 
 <span class="sd">HuggingFace Hub (https://huggingface.co) hosts large language models, vision models,</span>
@@ -280,7 +283,7 @@
 <span class="sd">where ``&lt;scope-root&gt;`` is project-scope (``&lt;project&gt;/.scitex/dataset/``) or</span>
 <span class="sd">user-scope (``$SCITEX_DIR/dataset/``, default ``~/.scitex/dataset/``).  See</span>
 <span class="sd">``general/01_ecosystem_06_local-state-directories`` for the canonical layout.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
@@ -290,7 +293,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.._config</span><span class="w"> </span><span class="kn">import</span> <span class="n">runtime_dir</span> <span class="k">as</span> <span class="n">_runtime_dir</span><span class="p">,</span> <span class="n">user_root</span> <span class="k">as</span> <span class="n">_user_root</span>
 
 <span class="c1"># Note: supports_return_as is a decorator from scitex_dev that formats output</span>
-<span class="c1"># It&#39;s optional and mainly for consistency with other modules</span>
+<span class="c1"># It's optional and mainly for consistency with other modules</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dev</span><span class="w"> </span><span class="kn">import</span> <span class="n">supports_return_as</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
@@ -300,18 +303,18 @@
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;fetch_dataset&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;search_datasets&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;search_hub&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;fetch_all_datasets&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;format_dataset&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dataset_info&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;download_file&quot;</span><span class="p">,</span>
+    <span class="s2">"fetch_dataset"</span><span class="p">,</span>
+    <span class="s2">"search_datasets"</span><span class="p">,</span>
+    <span class="s2">"search_hub"</span><span class="p">,</span>
+    <span class="s2">"fetch_all_datasets"</span><span class="p">,</span>
+    <span class="s2">"format_dataset"</span><span class="p">,</span>
+    <span class="s2">"dataset_info"</span><span class="p">,</span>
+    <span class="s2">"download_file"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_token</span><span class="p">(</span><span class="n">gated_token_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;HF_TOKEN_PATH&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_token</span><span class="p">(</span><span class="n">gated_token_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"HF_TOKEN_PATH"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Resolve HuggingFace token from environment chain.</span>
 
 <span class="sd">    Token resolution priority:</span>
@@ -329,10 +332,10 @@
 <span class="sd">    -------</span>
 <span class="sd">    str or None</span>
 <span class="sd">        The resolved token, or None if no token found.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Priority 1: HF_TOKEN env var (direct token)</span>
-    <span class="k">if</span> <span class="s2">&quot;HF_TOKEN&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HF_TOKEN&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">"HF_TOKEN"</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"HF_TOKEN"</span><span class="p">]</span>
 
     <span class="c1"># Priority 2: HF_TOKEN_PATH env var (path to token file)</span>
     <span class="n">token_path_env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">gated_token_var</span><span class="p">)</span>
@@ -344,7 +347,7 @@
 
     <span class="c1"># Priority 3: Default secret location</span>
     <span class="n">default_secret</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;.bash.d&quot;</span> <span class="o">/</span> <span class="s2">&quot;secrets&quot;</span> <span class="o">/</span> <span class="s2">&quot;access_tokens&quot;</span> <span class="o">/</span> <span class="s2">&quot;huggingface.txt&quot;</span>
+        <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s2">".bash.d"</span> <span class="o">/</span> <span class="s2">"secrets"</span> <span class="o">/</span> <span class="s2">"access_tokens"</span> <span class="o">/</span> <span class="s2">"huggingface.txt"</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">default_secret</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="k">try</span><span class="p">:</span>
@@ -360,7 +363,7 @@
     <span class="n">local_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">spartan_detect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Resolve local directory for dataset download.</span>
 
 <span class="sd">    Priority:</span>
@@ -376,7 +379,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    repo_id : str</span>
-<span class="sd">        HuggingFace repository ID (e.g., &quot;username/dataset_name&quot;).</span>
+<span class="sd">        HuggingFace repository ID (e.g., "username/dataset_name").</span>
 <span class="sd">    local_dir : str, optional</span>
 <span class="sd">        Explicit local directory.</span>
 <span class="sd">    spartan_detect : bool</span>
@@ -386,7 +389,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    Path</span>
 <span class="sd">        Resolved local directory path.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">local_dir</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">local_dir</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
@@ -395,11 +398,11 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">import</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">glob_module</span>
 
-            <span class="n">spartan_projects</span> <span class="o">=</span> <span class="n">glob_module</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;/data/gpfs/projects/punim*&quot;</span><span class="p">)</span>
+            <span class="n">spartan_projects</span> <span class="o">=</span> <span class="n">glob_module</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"/data/gpfs/projects/punim*"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">spartan_projects</span><span class="p">:</span>
                 <span class="c1"># Use first matching project directory</span>
                 <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">spartan_projects</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="n">repo_name</span> <span class="o">=</span> <span class="n">repo_id</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                <span class="n">repo_name</span> <span class="o">=</span> <span class="n">repo_id</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="n">repo_name</span>
 
                 <span class="c1"># Note: for actual BMB use, caller should specify explicit local_dir</span>
@@ -409,19 +412,19 @@
     <span class="c1"># Fall back to SciTeX runtime directory via the PathManager resolver.</span>
     <span class="c1"># Regenerable cache data belongs under &lt;scope-root&gt;/runtime/ per the</span>
     <span class="c1"># local-state-directories standard.</span>
-    <span class="n">repo_name</span> <span class="o">=</span> <span class="n">repo_id</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
-    <span class="n">new_path</span> <span class="o">=</span> <span class="n">_runtime_dir</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;huggingface&quot;</span> <span class="o">/</span> <span class="n">repo_name</span>
+    <span class="n">repo_name</span> <span class="o">=</span> <span class="n">repo_id</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
+    <span class="n">new_path</span> <span class="o">=</span> <span class="n">_runtime_dir</span><span class="p">()</span> <span class="o">/</span> <span class="s2">"huggingface"</span> <span class="o">/</span> <span class="n">repo_name</span>
 
     <span class="c1"># Back-compat: migrate from legacy ~/.scitex/dataset/huggingface/&lt;repo_name&gt;/</span>
     <span class="c1"># to the canonical runtime location (rule §8 of the local-state-directories</span>
     <span class="c1"># skill). Only kicks in at user scope where legacy data could exist.</span>
-    <span class="n">old_path</span> <span class="o">=</span> <span class="n">_user_root</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;huggingface&quot;</span> <span class="o">/</span> <span class="n">repo_name</span>
+    <span class="n">old_path</span> <span class="o">=</span> <span class="n">_user_root</span><span class="p">()</span> <span class="o">/</span> <span class="s2">"huggingface"</span> <span class="o">/</span> <span class="n">repo_name</span>
     <span class="k">if</span> <span class="n">old_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">new_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Migrating HuggingFace cache from </span><span class="si">{</span><span class="n">old_path</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">new_path</span><span class="si">}</span><span class="s2"> &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;per the SciTeX local-state-directories standard &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;(general/01_ecosystem_06_local-state-directories). &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;This is a one-time migration.&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"Migrating HuggingFace cache from </span><span class="si">{</span><span class="n">old_path</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">new_path</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"per the SciTeX local-state-directories standard "</span>
+            <span class="sa">f</span><span class="s2">"(general/01_ecosystem_06_local-state-directories). "</span>
+            <span class="sa">f</span><span class="s2">"This is a one-time migration."</span><span class="p">,</span>
             <span class="ne">DeprecationWarning</span><span class="p">,</span>
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
@@ -437,27 +440,27 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">fetch_dataset</span><span class="p">(</span>
     <span class="n">repo_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">local_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">repo_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;dataset&quot;</span><span class="p">,</span>
-    <span class="n">gated_token_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;HF_TOKEN_PATH&quot;</span><span class="p">,</span>
+    <span class="n">repo_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"dataset"</span><span class="p">,</span>
+    <span class="n">gated_token_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"HF_TOKEN_PATH"</span><span class="p">,</span>
     <span class="n">max_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
     <span class="n">hf_home_override</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetch a complete HuggingFace dataset to disk.</span>
 
 <span class="sd">    On Spartan, if hf_home_override is provided, sets HF_HOME to that directory</span>
-<span class="sd">    so the content-addressed cache doesn&#39;t grow home quotas.</span>
+<span class="sd">    so the content-addressed cache doesn't grow home quotas.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    repo_id : str</span>
-<span class="sd">        HuggingFace repository ID (e.g., &quot;Anthropic/BioMysteryBench-full&quot;).</span>
+<span class="sd">        HuggingFace repository ID (e.g., "Anthropic/BioMysteryBench-full").</span>
 <span class="sd">    local_dir : str, optional</span>
 <span class="sd">        Local directory for dataset. If None, uses Spartan project FS if detected,</span>
 <span class="sd">        else ``&lt;scope-root&gt;/runtime/huggingface/&lt;repo_id&gt;/`` via the SciTeX</span>
 <span class="sd">        local-state resolver (project scope wins over ``$SCITEX_DIR``).</span>
 <span class="sd">    repo_type : str</span>
-<span class="sd">        Repository type: &quot;dataset&quot; (default) or &quot;model&quot;.</span>
+<span class="sd">        Repository type: "dataset" (default) or "model".</span>
 <span class="sd">    gated_token_var : str</span>
 <span class="sd">        Environment variable name for token file path (default: HF_TOKEN_PATH).</span>
 <span class="sd">    max_workers : int</span>
@@ -474,12 +477,12 @@
 <span class="sd">    ------</span>
 <span class="sd">    Exception</span>
 <span class="sd">        If token resolution fails for gated repositories or network errors occur.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">huggingface_hub</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot_download</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-            <span class="s2">&quot;huggingface_hub not installed. Install: pip install huggingface-hub&quot;</span>
+            <span class="s2">"huggingface_hub not installed. Install: pip install huggingface-hub"</span>
         <span class="p">)</span>
 
     <span class="c1"># Resolve token if needed</span>
@@ -492,8 +495,8 @@
     <span class="c1"># Set HF_HOME if override provided</span>
     <span class="n">original_hf_home</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">hf_home_override</span><span class="p">:</span>
-        <span class="n">original_hf_home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HF_HOME&quot;</span><span class="p">)</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HF_HOME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">hf_home_override</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
+        <span class="n">original_hf_home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"HF_HOME"</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"HF_HOME"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">hf_home_override</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Perform snapshot download</span>
@@ -510,9 +513,9 @@
     <span class="k">finally</span><span class="p">:</span>
         <span class="c1"># Restore original HF_HOME</span>
         <span class="k">if</span> <span class="n">hf_home_override</span> <span class="ow">and</span> <span class="n">original_hf_home</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HF_HOME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">original_hf_home</span>
-        <span class="k">elif</span> <span class="n">hf_home_override</span> <span class="ow">and</span> <span class="s2">&quot;HF_HOME&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-            <span class="k">del</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HF_HOME&quot;</span><span class="p">]</span></div>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"HF_HOME"</span><span class="p">]</span> <span class="o">=</span> <span class="n">original_hf_home</span>
+        <span class="k">elif</span> <span class="n">hf_home_override</span> <span class="ow">and</span> <span class="s2">"HF_HOME"</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"HF_HOME"</span><span class="p">]</span></div>
 
 
 
@@ -523,7 +526,7 @@
     <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Search for datasets on HuggingFace.</span>
 
 <span class="sd">    Parameters</span>
@@ -538,26 +541,26 @@
 <span class="sd">    list[dict]</span>
 <span class="sd">        List of search result dictionaries with fields:</span>
 <span class="sd">        id, name, description, likes, downloads, private, gated, etc.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">huggingface_hub</span><span class="w"> </span><span class="kn">import</span> <span class="n">list_datasets</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-            <span class="s2">&quot;huggingface_hub not installed. Install: pip install huggingface-hub&quot;</span>
+            <span class="s2">"huggingface_hub not installed. Install: pip install huggingface-hub"</span>
         <span class="p">)</span>
 
     <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">dataset_info</span> <span class="ow">in</span> <span class="n">list_datasets</span><span class="p">(</span><span class="n">search</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">dataset_info</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">dataset_info</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">dataset_info</span><span class="o">.</span><span class="n">description</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;downloads&quot;</span><span class="p">:</span> <span class="n">dataset_info</span><span class="o">.</span><span class="n">downloads</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
-                <span class="s2">&quot;likes&quot;</span><span class="p">:</span> <span class="n">dataset_info</span><span class="o">.</span><span class="n">likes</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
-                <span class="s2">&quot;private&quot;</span><span class="p">:</span> <span class="n">dataset_info</span><span class="o">.</span><span class="n">private</span> <span class="ow">or</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="s2">&quot;gated&quot;</span><span class="p">:</span> <span class="n">dataset_info</span><span class="o">.</span><span class="n">gated</span> <span class="ow">or</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;https://huggingface.co/datasets/</span><span class="si">{</span><span class="n">dataset_info</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"id"</span><span class="p">:</span> <span class="n">dataset_info</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="s2">"name"</span><span class="p">:</span> <span class="n">dataset_info</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s2">"description"</span><span class="p">:</span> <span class="n">dataset_info</span><span class="o">.</span><span class="n">description</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span>
+                <span class="s2">"downloads"</span><span class="p">:</span> <span class="n">dataset_info</span><span class="o">.</span><span class="n">downloads</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">"likes"</span><span class="p">:</span> <span class="n">dataset_info</span><span class="o">.</span><span class="n">likes</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">"private"</span><span class="p">:</span> <span class="n">dataset_info</span><span class="o">.</span><span class="n">private</span> <span class="ow">or</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">"gated"</span><span class="p">:</span> <span class="n">dataset_info</span><span class="o">.</span><span class="n">gated</span> <span class="ow">or</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">"url"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"https://huggingface.co/datasets/</span><span class="si">{</span><span class="n">dataset_info</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span>
 
@@ -570,57 +573,57 @@
 <span class="nd">@supports_return_as</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">dataset_info</span><span class="p">(</span>
     <span class="n">repo_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">repo_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;dataset&quot;</span><span class="p">,</span>
+    <span class="n">repo_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"dataset"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get metadata about a HuggingFace dataset or model.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    repo_id : str</span>
-<span class="sd">        Repository ID (e.g., &quot;username/dataset_name&quot;).</span>
+<span class="sd">        Repository ID (e.g., "username/dataset_name").</span>
 <span class="sd">    repo_type : str</span>
-<span class="sd">        Repository type: &quot;dataset&quot; (default) or &quot;model&quot;.</span>
+<span class="sd">        Repository type: "dataset" (default) or "model".</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dict</span>
 <span class="sd">        Dataset metadata: id, name, description, downloads, likes, private,</span>
 <span class="sd">        gated, size_gb, created_at, last_modified, etc.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">huggingface_hub</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataset_info</span> <span class="k">as</span> <span class="n">hf_dataset_info</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">huggingface_hub</span><span class="w"> </span><span class="kn">import</span> <span class="n">model_info</span> <span class="k">as</span> <span class="n">hf_model_info</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-            <span class="s2">&quot;huggingface_hub not installed. Install: pip install huggingface-hub&quot;</span>
+            <span class="s2">"huggingface_hub not installed. Install: pip install huggingface-hub"</span>
         <span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">repo_type</span> <span class="o">==</span> <span class="s2">&quot;dataset&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">repo_type</span> <span class="o">==</span> <span class="s2">"dataset"</span><span class="p">:</span>
             <span class="n">info</span> <span class="o">=</span> <span class="n">hf_dataset_info</span><span class="p">(</span><span class="n">repo_id</span><span class="o">=</span><span class="n">repo_id</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">repo_type</span> <span class="o">==</span> <span class="s2">&quot;model&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">repo_type</span> <span class="o">==</span> <span class="s2">"model"</span><span class="p">:</span>
             <span class="n">info</span> <span class="o">=</span> <span class="n">hf_model_info</span><span class="p">(</span><span class="n">repo_id</span><span class="o">=</span><span class="n">repo_id</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown repo_type: </span><span class="si">{</span><span class="n">repo_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown repo_type: </span><span class="si">{</span><span class="n">repo_type</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="c1"># Extract key fields</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">description</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;downloads&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">&quot;downloads&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;likes&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">&quot;likes&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;private&quot;</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">private</span> <span class="ow">or</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="s2">&quot;gated&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">&quot;gated&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;https://huggingface.co/</span><span class="si">{</span><span class="n">repo_type</span><span class="si">}</span><span class="s2">s/</span><span class="si">{</span><span class="n">repo_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;created_at&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">created_at</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">&quot;created_at&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;last_modified&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">last_modified</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">&quot;last_modified&quot;</span><span class="p">)</span>
+            <span class="s2">"id"</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="s2">"description"</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">description</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"downloads"</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">"downloads"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">"likes"</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">"likes"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">"private"</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">private</span> <span class="ow">or</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">"gated"</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">"gated"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">"url"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"https://huggingface.co/</span><span class="si">{</span><span class="n">repo_type</span><span class="si">}</span><span class="s2">s/</span><span class="si">{</span><span class="n">repo_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">"created_at"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">created_at</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">"created_at"</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">"last_modified"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">last_modified</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">"last_modified"</span><span class="p">)</span>
             <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to fetch info for </span><span class="si">{</span><span class="n">repo_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to fetch info for </span><span class="si">{</span><span class="n">repo_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
 
 
 
@@ -631,22 +634,22 @@
     <span class="n">repo_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">local_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">repo_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;dataset&quot;</span><span class="p">,</span>
+    <span class="n">repo_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"dataset"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Download a single file from a HuggingFace repository.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    repo_id : str</span>
-<span class="sd">        Repository ID (e.g., &quot;username/dataset_name&quot;).</span>
+<span class="sd">        Repository ID (e.g., "username/dataset_name").</span>
 <span class="sd">    filename : str</span>
-<span class="sd">        Path within the repository (e.g., &quot;data/train.csv&quot;).</span>
+<span class="sd">        Path within the repository (e.g., "data/train.csv").</span>
 <span class="sd">    local_dir : str, optional</span>
 <span class="sd">        Local directory for download. If None, uses the SciTeX runtime directory</span>
 <span class="sd">        via ``&lt;scope-root&gt;/runtime/huggingface/&lt;repo_id&gt;/``.</span>
 <span class="sd">    repo_type : str</span>
-<span class="sd">        Repository type: &quot;dataset&quot; (default) or &quot;model&quot;.</span>
+<span class="sd">        Repository type: "dataset" (default) or "model".</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -657,12 +660,12 @@
 <span class="sd">    ------</span>
 <span class="sd">    Exception</span>
 <span class="sd">        If download fails.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">huggingface_hub</span><span class="w"> </span><span class="kn">import</span> <span class="n">hf_hub_download</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-            <span class="s2">&quot;huggingface_hub not installed. Install: pip install huggingface-hub&quot;</span>
+            <span class="s2">"huggingface_hub not installed. Install: pip install huggingface-hub"</span>
         <span class="p">)</span>
 
     <span class="c1"># Resolve local directory</span>
@@ -684,7 +687,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to download </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">repo_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to download </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">repo_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
 
 
 
@@ -697,27 +700,27 @@
 <div class="viewcode-block" id="format_dataset">
 <a class="viewcode-back" href="../../../api/scitex_dataset.html#scitex_dataset.format_dataset">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">format_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize an HF search-result dict to the common dataset schema.</span>
+<span class="w">    </span><span class="sd">"""Normalize an HF search-result dict to the common dataset schema.</span>
 
 <span class="sd">    HuggingFace records lack the n_subjects / modalities / tasks fields</span>
 <span class="sd">    that BIDS/NWB sources expose, so those keys are emitted as ``None``</span>
 <span class="sd">    or empty lists. ``downloads`` and ``likes`` are preserved.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;readme&quot;</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;downloads&quot;</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;downloads&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;likes&quot;</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;likes&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;n_subjects&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="s2">&quot;tasks&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="s2">&quot;size_gb&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;private&quot;</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;private&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;gated&quot;</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gated&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;huggingface&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"id"</span><span class="p">),</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"id"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"description"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"readme"</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"description"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"downloads"</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"downloads"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"likes"</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"likes"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"n_subjects"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"modalities"</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">"tasks"</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">"size_gb"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"private"</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"private"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"gated"</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"gated"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"url"</span><span class="p">),</span>
+        <span class="s2">"source"</span><span class="p">:</span> <span class="s2">"huggingface"</span><span class="p">,</span>
     <span class="p">}</span></div>
 
 
@@ -725,16 +728,16 @@
 <div class="viewcode-block" id="fetch_all_datasets">
 <a class="viewcode-back" href="../../../api/scitex_dataset.html#scitex_dataset.fetch_all_datasets">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fetch_all_datasets</span><span class="p">(</span>
-    <span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
     <span class="n">max_datasets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">_unused</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Catalog-style adapter so HuggingFace can plug into ``database.build``.</span>
+<span class="w">    </span><span class="sd">"""Catalog-style adapter so HuggingFace can plug into ``database.build``.</span>
 
 <span class="sd">    Unlike OpenNeuro/DANDI/etc., HuggingFace has no bounded catalog —</span>
 <span class="sd">    ``query`` is required for meaningful results. Without one this calls</span>
-<span class="sd">    ``search_hub(&quot;&quot;)`` which lists by recency up to ``max_datasets``.</span>
+<span class="sd">    ``search_hub("")`` which lists by recency up to ``max_datasets``.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -742,10 +745,10 @@
 <span class="sd">        Search query. Empty string lists by recency (HF default).</span>
 <span class="sd">    max_datasets : int, optional</span>
 <span class="sd">        Cap on results. Default 1000 to avoid runaway indexing.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">limit</span> <span class="o">=</span> <span class="n">max_datasets</span> <span class="k">if</span> <span class="n">max_datasets</span> <span class="ow">and</span> <span class="n">max_datasets</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1000</span>
     <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Searching HuggingFace Hub (query=</span><span class="si">{</span><span class="n">query</span><span class="si">!r}</span><span class="s2">, limit=</span><span class="si">{</span><span class="n">limit</span><span class="si">}</span><span class="s2">)...&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Searching HuggingFace Hub (query=</span><span class="si">{</span><span class="n">query</span><span class="si">!r}</span><span class="s2">, limit=</span><span class="si">{</span><span class="n">limit</span><span class="si">}</span><span class="s2">)..."</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">search_hub</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">)</span></div>
 
 

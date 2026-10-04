@@ -63,9 +63,18 @@ For ``snapshot_download``-style fetch by repo_id, use
 
 | Symbol | Purpose |
 |---|---|
-| `db_build(sources=None)` | Build / refresh the local SQLite + FTS5 index |
-| `db_search(query, ...)` | Offline search |
-| `db_show_stats()` | Index statistics |
+| `db_build(sources=None)` | Build / refresh the full-text dataset index |
+| `db_search(query, ...)` | Search the index (words AND; `"phrases"`; `or`; `-not`) |
+| `db_show_stats()` | Index statistics — per-source counts, total, store, last build |
+
+The index lives in the shared SciTeX store, so there is no path argument
+and no path in the stats. `scitex_dataset.database.store_description()`
+reports which store was resolved; `SCITEX_STORE_DSN` repoints it.
+
+Query words are stemmed and English stopwords are dropped, which the
+previous tokeniser did neither of: `studies` now finds a dataset that says
+`study`, and a query made only of stopwords matches nothing rather than
+everything.
 
 ## Domain submodules
 
@@ -76,7 +85,7 @@ For ``snapshot_download``-style fetch by repo_id, use
 | `scitex_dataset.biology` | GEO |
 | `scitex_dataset.pharmacology` | MoleculeNet, ChEMBL |
 | `scitex_dataset.medical` | ClinicalTrials.gov |
-| `scitex_dataset.database` | Local index build + search |
+| `scitex_dataset.database` | Dataset-index build + search |
 
 Each domain module exposes per-source modules with the standard
 ``fetch_all_datasets() / format_dataset(ds)`` contract.
@@ -98,7 +107,7 @@ top = filter_results(records, modality="eeg", min_subjects=20, sort_by="download
 # 3) Search HF Hub directly.
 hf_hits = huggingface_search("biology", limit=20)
 
-# 4) Build the local index and query offline.
+# 4) Build the dataset index and query it.
 db_build()
 db_search("Alzheimer EEG")
 ```

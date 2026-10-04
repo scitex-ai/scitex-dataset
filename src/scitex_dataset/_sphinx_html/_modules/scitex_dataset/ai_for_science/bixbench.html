@@ -1,0 +1,563 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>scitex_dataset.ai_for_science.bixbench &mdash; scitex-dataset v0.0.0</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            scitex-dataset
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#basic-installation">Basic Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#development-installation">Development Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#optional-dependencies">Optional Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#verification">Verification</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#python-api">Python API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#cli">CLI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#configuration-precedence">Configuration precedence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#legacy-aliases-hidden-exit-code-2">Legacy aliases (hidden, exit code 2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli_reference.html#live-command-tree">Live command tree</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources.html">Data Sources</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sources.html#catalog-sources">Catalog sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#openneuro-bids-neuroimaging">OpenNeuro — BIDS neuroimaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#dandi-archive-nwb-neurophysiology">DANDI Archive — NWB neurophysiology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#physionet-physiological-waveforms">PhysioNet — physiological waveforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#zenodo-general-scientific-data-cern">Zenodo — general scientific data (CERN)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#figshare-research-data-sharing">Figshare — research data sharing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#openml-ml-datasets-and-benchmarks">OpenML — ML datasets and benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#moleculenet-molecular-ml-benchmarks">MoleculeNet — molecular ML benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#geo-gene-expression-omnibus-ncbi">GEO — Gene Expression Omnibus (NCBI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#chembl-bioactivity-ebi">ChEMBL — bioactivity (EBI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#clinicaltrials-gov-interventional-observational-studies">ClinicalTrials.gov — interventional / observational studies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sources.html#on-demand-source">On-demand source</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../sources.html#huggingface-hub">HuggingFace Hub</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sources.html#local-database">Local Database</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/scitex_dataset.html">scitex_dataset API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.db_build"><code class="docutils literal notranslate"><span class="pre">db_build()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.db_search"><code class="docutils literal notranslate"><span class="pre">db_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.db_show_stats"><code class="docutils literal notranslate"><span class="pre">db_show_stats()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.filter_results"><code class="docutils literal notranslate"><span class="pre">filter_results()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.list_sources"><code class="docutils literal notranslate"><span class="pre">list_sources()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.openneuro_fetch"><code class="docutils literal notranslate"><span class="pre">openneuro_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.dandi_fetch"><code class="docutils literal notranslate"><span class="pre">dandi_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.physionet_fetch"><code class="docutils literal notranslate"><span class="pre">physionet_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.gin_fetch"><code class="docutils literal notranslate"><span class="pre">gin_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.gin_search"><code class="docutils literal notranslate"><span class="pre">gin_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.gin_info"><code class="docutils literal notranslate"><span class="pre">gin_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.gin_download"><code class="docutils literal notranslate"><span class="pre">gin_download()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.zenodo_fetch"><code class="docutils literal notranslate"><span class="pre">zenodo_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.figshare_fetch"><code class="docutils literal notranslate"><span class="pre">figshare_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.openml_fetch"><code class="docutils literal notranslate"><span class="pre">openml_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.moleculenet_fetch"><code class="docutils literal notranslate"><span class="pre">moleculenet_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.geo_fetch"><code class="docutils literal notranslate"><span class="pre">geo_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.chembl_fetch"><code class="docutils literal notranslate"><span class="pre">chembl_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.clinicaltrials_fetch"><code class="docutils literal notranslate"><span class="pre">clinicaltrials_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_fetch"><code class="docutils literal notranslate"><span class="pre">huggingface_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_search"><code class="docutils literal notranslate"><span class="pre">huggingface_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.download_dataset"><code class="docutils literal notranslate"><span class="pre">download_dataset()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.corebench_standardize"><code class="docutils literal notranslate"><span class="pre">corebench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.bixbench_standardize"><code class="docutils literal notranslate"><span class="pre">bixbench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.biomysterybench_standardize"><code class="docutils literal notranslate"><span class="pre">biomysterybench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.database">Database Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#what-changed-and-why-it-is-not-a-port">WHAT CHANGED, AND WHY IT IS NOT A PORT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#nothing-is-deleted-any-more">NOTHING IS DELETED ANY MORE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.clear"><code class="docutils literal notranslate"><span class="pre">clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_store"><code class="docutils literal notranslate"><span class="pre">get_store()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.store_description"><code class="docutils literal notranslate"><span class="pre">store_description()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#neuroscience-sources">Neuroscience Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.neuroscience.openneuro">OpenNeuro</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.neuroscience.dandi">DANDI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.dandi.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.dandi.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.dandi.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.neuroscience.physionet">PhysioNet</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#general-sources">General Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.general.zenodo">Zenodo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.zenodo.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.zenodo.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.zenodo.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.general.figshare">Figshare</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.figshare.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.figshare.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.figshare.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.general.openml">OpenML</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.openml.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.openml.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.openml.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.general.huggingface">HuggingFace Hub</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#local-state-layout">Local-state layout</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.huggingface.fetch_dataset"><code class="docutils literal notranslate"><span class="pre">fetch_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.huggingface.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.huggingface.search_hub"><code class="docutils literal notranslate"><span class="pre">search_hub()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.huggingface.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.huggingface.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.huggingface.dataset_info"><code class="docutils literal notranslate"><span class="pre">dataset_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.huggingface.download_file"><code class="docutils literal notranslate"><span class="pre">download_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#biology-sources">Biology Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.biology.geo">GEO</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.biology.geo.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.biology.geo.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.biology.geo.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#pharmacology-sources">Pharmacology Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.pharmacology.moleculenet">MoleculeNet</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.pharmacology.moleculenet.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.pharmacology.moleculenet.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.pharmacology.moleculenet.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.pharmacology.chembl">ChEMBL</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.pharmacology.chembl.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.pharmacology.chembl.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.pharmacology.chembl.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#medical-sources">Medical Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.medical.clinicaltrials">ClinicalTrials.gov</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.medical.clinicaltrials.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.medical.clinicaltrials.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.medical.clinicaltrials.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset._cli">CLI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset._cli._repositories_block"><code class="docutils literal notranslate"><span class="pre">_repositories_block()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">scitex-dataset</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../scitex_dataset.html">scitex_dataset</a></li>
+      <li class="breadcrumb-item active">scitex_dataset.ai_for_science.bixbench</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for scitex_dataset.ai_for_science.bixbench</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># File: src/scitex_dataset/ai_for_science/bixbench.py</span>
+
+<span class="sd">"""BixBench dataset preparation.</span>
+
+<span class="sd">BixBench: 205 bioinformatics-analysis tasks across 54 capsules, hosted</span>
+<span class="sd">on Hugging Face Hub as ``futurehouse/BixBench`` (public, no gate). The</span>
+<span class="sd">HF snapshot bundles capsule code/data (``CapsuleData-&lt;UUID&gt;/`` +</span>
+<span class="sd">``CapsuleNotebook-&lt;UUID&gt;/`` dirs) plus an answer-bearing</span>
+<span class="sd">``BixBench.jsonl`` manifest.</span>
+
+<span class="sd">Pipeline (raw → {for_solver, eval} contract — see :mod:`._base`):</span>
+
+<span class="sd">1. ``download(...)`` — ``huggingface_hub.snapshot_download(...)`` into</span>
+<span class="sd">   ``raw_dir`` exactly as-is (capsule dirs + the answer-bearing</span>
+<span class="sd">   ``BixBench.jsonl``). ``raw_dir`` is operator-private and never</span>
+<span class="sd">   mounted.</span>
+<span class="sd">2. ``standardize(...)`` — read ``raw_dir/BixBench.jsonl``, split into the</span>
+<span class="sd">   PER-CAPSULE agent-visible ``for_solver/`` view (one self-contained</span>
+<span class="sd">   ``capsule-NNN/`` dir per native capsule — the EXTRACTED capsule archive</span>
+<span class="sd">   in ``input/``, a ``task.jsonl`` of only that capsule's rows, the</span>
+<span class="sd">   uniform submission schema/example, and a README — plus a root</span>
+<span class="sd">   ``index.jsonl`` MAPPER of friendly_id ↔ native_id, no answers) and an</span>
+<span class="sd">   operator-side ``eval/answers.jsonl`` + ``eval/evaluate.py``. Each</span>
+<span class="sd">   record's ``data_folder`` (e.g. ``CapsuleFolder-&lt;uuid&gt;.zip``) is the</span>
+<span class="sd">   capsule archive that gets extracted into its ``capsule-NNN/input/``. An</span>
+<span class="sd">   agent binds exactly one ``capsule-NNN/`` dir; ``eval`` is operator-only.</span>
+
+<span class="sd">NOTE on compute: the HF snapshot is ~16 GB across 67 files; SLURM-only</span>
+<span class="sd">on shared compute. ``standardize(...)`` is pure-Python on the 205-record</span>
+<span class="sd">JSONL (~285 KB) plus per-capsule archive extraction and safe to run</span>
+<span class="sd">anywhere.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BenchmarkPaths</span><span class="p">,</span> <span class="n">resolve_paths</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._manifest</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_manifest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_capsule_sources</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._standardize</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">render_evaluate_py</span><span class="p">,</span>
+    <span class="n">write_eval</span><span class="p">,</span>
+    <span class="n">write_for_solver_per_capsule</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Canonical benchmark identity.</span>
+<span class="n">BENCHMARK</span> <span class="o">=</span> <span class="s2">"bixbench"</span>
+<span class="n">COHORT_ID</span> <span class="o">=</span> <span class="s2">"bixbench"</span>
+<span class="n">COHORT_NAME</span> <span class="o">=</span> <span class="s2">"BixBench"</span>
+<span class="n">HF_REPO_ID</span> <span class="o">=</span> <span class="s2">"futurehouse/BixBench"</span>
+<span class="n">HF_REPO_TYPE</span> <span class="o">=</span> <span class="s2">"dataset"</span>
+<span class="n">SOURCE_URL</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://huggingface.co/datasets/</span><span class="si">{</span><span class="n">HF_REPO_ID</span><span class="si">}</span><span class="s2">"</span>
+
+<span class="c1"># Answer-bearing upstream manifest. Stays in raw_dir; NEVER symlinked</span>
+<span class="c1"># into the agent-visible for_solver view.</span>
+<span class="n">ORACLE_MANIFEST_NAME</span> <span class="o">=</span> <span class="s2">"BixBench.jsonl"</span>
+
+<span class="c1"># Default scorer mode baked into eval/evaluate.py — BixBench answers are</span>
+<span class="c1"># short free-text values, scored by normalized string equality.</span>
+<span class="n">DEFAULT_MODE</span> <span class="o">=</span> <span class="s2">"string"</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Standardize — pure-Python, network-free.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">standardize</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">raw_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">for_solver_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">eval_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">only</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">_</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Read the oracle manifest, build the for_solver + eval views.</span>
+
+<span class="sd">    Each upstream record becomes one leak-safe task (``{task_id,</span>
+<span class="sd">    benchmark, prompt, data}``) + one answer (``{answer, ideal}``). The</span>
+<span class="sd">    ``task_id`` is keyed on the record's UNIQUE ``question_id``</span>
+<span class="sd">    (``bixbench/&lt;short_id&gt;-qN``), NOT the capsule-scoped ``short_id`` —</span>
+<span class="sd">    a single capsule holds multiple questions that share one ``short_id``,</span>
+<span class="sd">    so keying on ``short_id`` would collapse distinct questions. Each</span>
+<span class="sd">    task's ``data`` points at its ``data_folder`` archive (e.g.</span>
+<span class="sd">    ``CapsuleFolder-&lt;uuid&gt;.zip``); a capsule's multiple questions still</span>
+<span class="sd">    group into ONE ``capsule-NNN/`` dir via ``data_folder``.</span>
+
+<span class="sd">    ``for_solver`` is written in the PER-CAPSULE shape: one self-contained</span>
+<span class="sd">    ``capsule-NNN/`` dir per native capsule (friendly id), each holding</span>
+<span class="sd">    the EXTRACTED capsule archive in ``input/``, a ``task.jsonl`` of only</span>
+<span class="sd">    that capsule's rows, the uniform submission schema/example, and a</span>
+<span class="sd">    README — plus a root ``index.jsonl`` MAPPER (friendly_id ↔ native_id).</span>
+<span class="sd">    An agent binds exactly one ``capsule-NNN/`` dir. Records with no</span>
+<span class="sd">    ``data_folder`` have ``data: null`` and materialize no capsule.</span>
+
+<span class="sd">    ``only`` (a friendly ``capsule-NNN`` id OR a native capsule id)</span>
+<span class="sd">    materializes just that one capsule's dir; the mapper is always written</span>
+<span class="sd">    in full. ``force`` re-extracts capsules already present.</span>
+<span class="sd">    """</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">raw_dir</span> <span class="o">/</span> <span class="n">ORACLE_MANIFEST_NAME</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">src</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"bixbench: upstream manifest not found: </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2">. Did you run download(...)?"</span>
+        <span class="p">)</span>
+
+    <span class="n">tasks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">answers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="n">src</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">rec</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="c1"># ``question_id`` is UNIQUE per question (``&lt;short_id&gt;-qN``);</span>
+            <span class="c1"># ``short_id`` is CAPSULE-scoped and shared by every question in</span>
+            <span class="c1"># a capsule, so keying on it collapses distinct questions (205</span>
+            <span class="c1"># questions → 54 short_ids). Key task_id on question_id so every</span>
+            <span class="c1"># question stays a distinct task in BOTH for_solver and eval.</span>
+            <span class="n">task_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"bixbench/</span><span class="si">{</span><span class="n">rec</span><span class="p">[</span><span class="s1">'question_id'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+            <span class="n">data_folder</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data_folder"</span><span class="p">)</span>
+            <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">"task_id"</span><span class="p">:</span> <span class="n">task_id</span><span class="p">,</span>
+                    <span class="s2">"benchmark"</span><span class="p">:</span> <span class="n">BENCHMARK</span><span class="p">,</span>
+                    <span class="s2">"prompt"</span><span class="p">:</span> <span class="n">rec</span><span class="p">[</span><span class="s2">"question"</span><span class="p">],</span>
+                    <span class="s2">"data"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"./</span><span class="si">{</span><span class="n">data_folder</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">data_folder</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">answers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">"task_id"</span><span class="p">:</span> <span class="n">task_id</span><span class="p">,</span>
+                    <span class="s2">"answer"</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">"answer"</span><span class="p">:</span> <span class="n">rec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"answer"</span><span class="p">),</span>
+                        <span class="s2">"ideal"</span><span class="p">:</span> <span class="n">rec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ideal"</span><span class="p">),</span>
+                    <span class="p">},</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">write_for_solver_per_capsule</span><span class="p">(</span>
+        <span class="n">for_solver_dir</span><span class="o">=</span><span class="n">for_solver_dir</span><span class="p">,</span>
+        <span class="n">tasks</span><span class="o">=</span><span class="n">tasks</span><span class="p">,</span>
+        <span class="n">raw_dir</span><span class="o">=</span><span class="n">raw_dir</span><span class="p">,</span>
+        <span class="n">only</span><span class="o">=</span><span class="n">only</span><span class="p">,</span>
+        <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ev</span> <span class="o">=</span> <span class="n">write_eval</span><span class="p">(</span>
+        <span class="n">eval_dir</span><span class="o">=</span><span class="n">eval_dir</span><span class="p">,</span>
+        <span class="n">answers</span><span class="o">=</span><span class="n">answers</span><span class="p">,</span>
+        <span class="n">evaluate_py_source</span><span class="o">=</span><span class="n">render_evaluate_py</span><span class="p">(</span><span class="n">DEFAULT_MODE</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">sr</span> <span class="o">=</span> <span class="n">register_capsule_sources</span><span class="p">(</span><span class="n">tasks</span><span class="o">=</span><span class="n">tasks</span><span class="p">,</span> <span class="n">raw_dir</span><span class="o">=</span><span class="n">raw_dir</span><span class="p">,</span> <span class="n">eval_dir</span><span class="o">=</span><span class="n">eval_dir</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"for_solver"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+        <span class="s2">"eval"</span><span class="p">:</span> <span class="n">ev</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="n">sr</span><span class="p">,</span>
+        <span class="s2">"n_tasks"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">),</span>
+        <span class="s2">"default_mode"</span><span class="p">:</span> <span class="n">DEFAULT_MODE</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Download — HF snapshot stored as-is under raw_dir.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">raw_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">hf_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">_</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Pull the BixBench HF snapshot into ``raw_dir`` exactly as-is.</span>
+
+<span class="sd">    HEAVY: ~16 GB across ~67 files; SLURM-only on shared compute.</span>
+<span class="sd">    ``huggingface_hub`` is an optional extra (``scitex-dataset[mcp]``</span>
+<span class="sd">    doesn't include it) — install ``scitex-dataset[huggingface]`` or</span>
+<span class="sd">    ``scitex-dataset[all]`` first. No file is relocated — the</span>
+<span class="sd">    answer-bearing manifest stays in the operator-private ``raw_dir``</span>
+<span class="sd">    and leak-prevention happens at ``standardize`` time.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">huggingface_hub</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot_download</span>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pragma: no cover — exercised via tests</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">"bixbench.download requires huggingface_hub. "</span>
+            <span class="s2">"Install with: pip install 'scitex-dataset[huggingface]'"</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+    <span class="n">raw_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># snapshot_download already does per-file etag/sha skip natively, so</span>
+    <span class="c1"># re-runs only re-pull files whose upstream content changed — no</span>
+    <span class="c1"># extra integrity bookkeeping needed on our side (unlike corebench's</span>
+    <span class="c1"># plain-HTTP capsule pull). We record the resolved snapshot set below.</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="n">snapshot_download</span><span class="p">(</span>
+        <span class="n">repo_id</span><span class="o">=</span><span class="n">HF_REPO_ID</span><span class="p">,</span>
+        <span class="n">repo_type</span><span class="o">=</span><span class="n">HF_REPO_TYPE</span><span class="p">,</span>
+        <span class="n">local_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">raw_dir</span><span class="p">),</span>
+        <span class="n">max_workers</span><span class="o">=</span><span class="n">max_workers</span><span class="p">,</span>
+        <span class="n">token</span><span class="o">=</span><span class="n">hf_token</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"raw_dir"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">raw_dir</span><span class="p">),</span>
+        <span class="s2">"snapshots_pulled"</span><span class="p">:</span> <span class="p">[</span><span class="n">HF_REPO_ID</span><span class="p">],</span>
+        <span class="s2">"resolved"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">resolved</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Orchestrator</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">paths</span><span class="p">:</span> <span class="n">BenchmarkPaths</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dataset_root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"v0-unstamped"</span><span class="p">,</span>
+    <span class="n">skip_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">_</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Run the full BixBench preparation pipeline.</span>
+
+<span class="sd">    Set ``skip_download=True`` to skip the HF snapshot pull (useful if</span>
+<span class="sd">    the upstream manifest has already been hand-staged under ``raw_dir``).</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">paths</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="n">resolve_paths</span><span class="p">(</span><span class="n">BENCHMARK</span><span class="p">,</span> <span class="n">dataset_root</span><span class="o">=</span><span class="n">dataset_root</span><span class="p">)</span>
+
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"benchmark"</span><span class="p">:</span> <span class="n">BENCHMARK</span><span class="p">,</span> <span class="s2">"paths"</span><span class="p">:</span> <span class="n">paths</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_download</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"download"</span><span class="p">]</span> <span class="o">=</span> <span class="n">download</span><span class="p">(</span><span class="n">raw_dir</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">raw_dir</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">"standardize"</span><span class="p">]</span> <span class="o">=</span> <span class="n">standardize</span><span class="p">(</span>
+        <span class="n">raw_dir</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">raw_dir</span><span class="p">,</span>
+        <span class="n">for_solver_dir</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">for_solver_dir</span><span class="p">,</span>
+        <span class="n">eval_dir</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">eval_dir</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">manifest_path</span> <span class="o">=</span> <span class="n">write_manifest</span><span class="p">(</span>
+        <span class="n">manifest_dir</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">manifest_dir</span><span class="p">,</span>
+        <span class="nb">id</span><span class="o">=</span><span class="n">COHORT_ID</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">COHORT_NAME</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span>
+        <span class="n">source_url</span><span class="o">=</span><span class="n">SOURCE_URL</span><span class="p">,</span>
+        <span class="n">benchmark</span><span class="o">=</span><span class="n">BENCHMARK</span><span class="p">,</span>
+        <span class="n">tracked_paths</span><span class="o">=</span><span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">"standardize"</span><span class="p">][</span><span class="s2">"for_solver"</span><span class="p">][</span><span class="s2">"index"</span><span class="p">])],</span>
+        <span class="n">tracked_root</span><span class="o">=</span><span class="n">paths</span><span class="o">.</span><span class="n">for_solver_dir</span><span class="p">,</span>
+        <span class="n">mask_seed</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">"manifest"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">manifest_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"BENCHMARK"</span><span class="p">,</span>
+    <span class="s2">"COHORT_ID"</span><span class="p">,</span>
+    <span class="s2">"COHORT_NAME"</span><span class="p">,</span>
+    <span class="s2">"HF_REPO_ID"</span><span class="p">,</span>
+    <span class="s2">"HF_REPO_TYPE"</span><span class="p">,</span>
+    <span class="s2">"SOURCE_URL"</span><span class="p">,</span>
+    <span class="s2">"DEFAULT_MODE"</span><span class="p">,</span>
+    <span class="s2">"ORACLE_MANIFEST_NAME"</span><span class="p">,</span>
+    <span class="s2">"download"</span><span class="p">,</span>
+    <span class="s2">"standardize"</span><span class="p">,</span>
+    <span class="s2">"prepare"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># EOF</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yusuke Watanabe.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

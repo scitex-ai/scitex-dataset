@@ -1,7 +1,7 @@
 ---
 description: |
   [TOPIC] Data Sources
-  [DETAILS] All 11 supported repositories + the local SQLite index.
+  [DETAILS] All 11 supported repositories + the shared dataset index.
 tags: [scitex-dataset-data-sources, scitex-dataset]
 ---
 
@@ -9,7 +9,7 @@ tags: [scitex-dataset-data-sources, scitex-dataset]
 # Data Sources
 
 scitex-dataset supports **10 catalog sources** (enumerable, indexable
-into the local SQLite + FTS5 cache) plus **HuggingFace Hub** (on-demand
+into the shared full-text dataset index) plus **HuggingFace Hub** (on-demand
 fetch by repo_id; not indexed by default).
 
 Every catalog source exposes the same two callables —
@@ -102,7 +102,7 @@ path = hf.fetch_dataset(
 )
 ```
 
-To opt HF into the local index explicitly (capped at 1000 items via
+To opt HF into the index explicitly (capped at 1000 items via
 ``search_hub``):
 
 ```python
@@ -112,11 +112,11 @@ database.build(sources=["huggingface"])
 
 CLI mirror: ``scitex-dataset general huggingface (fetch | search | info | download-file)``.
 
-## Local Database
+## The Dataset Index
 
 ```python
 from scitex_dataset import database as db
 db.build()                    # Build/refresh (catalog sources only)
-results = db.search("EEG")    # Search local cache
-stats = db.get_stats()        # Database statistics
+results = db.search("EEG")    # Full-text + structured search
+stats = db.get_stats()        # Per-source counts, total, store, last build
 ```

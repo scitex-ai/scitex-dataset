@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_dataset._cli &mdash; scitex-dataset v0.4.0</title>
+  <title>scitex_dataset._cli &mdash; scitex-dataset v0.0.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -13,7 +13,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=6c02275b"></script>
+      <script src="../../_static/documentation_options.js?v=7026087e"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -118,21 +118,24 @@
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.download_dataset"><code class="docutils literal notranslate"><span class="pre">download_dataset()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.corebench_mask"><code class="docutils literal notranslate"><span class="pre">corebench_mask()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.bixbench_mask"><code class="docutils literal notranslate"><span class="pre">bixbench_mask()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.biomysterybench_mask"><code class="docutils literal notranslate"><span class="pre">biomysterybench_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.corebench_standardize"><code class="docutils literal notranslate"><span class="pre">corebench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.bixbench_standardize"><code class="docutils literal notranslate"><span class="pre">bixbench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.biomysterybench_standardize"><code class="docutils literal notranslate"><span class="pre">biomysterybench_standardize()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.database">Database Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#what-changed-and-why-it-is-not-a-port">WHAT CHANGED, AND WHY IT IS NOT A PORT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#nothing-is-deleted-any-more">NOTHING IS DELETED ANY MORE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.get_db_path"><code class="docutils literal notranslate"><span class="pre">get_db_path()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.clear"><code class="docutils literal notranslate"><span class="pre">clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.get_store"><code class="docutils literal notranslate"><span class="pre">get_store()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.store_description"><code class="docutils literal notranslate"><span class="pre">store_description()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#neuroscience-sources">Neuroscience Sources</a><ul>
@@ -259,7 +262,7 @@
 <span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="c1"># File: src/scitex_dataset/_cli/__init__.py</span>
 
-<span class="sd">&quot;&quot;&quot;Command-line interface for ``scitex-dataset``.</span>
+<span class="sd">"""Command-line interface for ``scitex-dataset``.</span>
 
 <span class="sd">The command grammar is::</span>
 
@@ -278,7 +281,7 @@
 
 <span class="sd">See ``general/03_interface_02_cli/02_subcommand-structure-noun-verb.md``</span>
 <span class="sd">for the SciTeX CLI grammar.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -298,61 +301,61 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">._mcp_commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">mcp</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._skills</span><span class="w"> </span><span class="kn">import</span> <span class="n">skills</span> <span class="k">as</span> <span class="n">skills_group</span>
 
-<span class="n">CONTEXT_SETTINGS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;help_option_names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">]}</span>
+<span class="n">CONTEXT_SETTINGS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"help_option_names"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"-h"</span><span class="p">,</span> <span class="s2">"--help"</span><span class="p">]}</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_print_command_help</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parent_ctx</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;=&#39;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">50</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="si">{</span><span class="s1">'='</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">50</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
     <span class="n">sub_ctx</span> <span class="o">=</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">info_name</span><span class="o">=</span><span class="n">prefix</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">parent</span><span class="o">=</span><span class="n">parent_ctx</span><span class="p">)</span>
     <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">get_help</span><span class="p">(</span><span class="n">sub_ctx</span><span class="p">))</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">click</span><span class="o">.</span><span class="n">Group</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">sub_name</span><span class="p">,</span> <span class="n">sub_cmd</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
-            <span class="n">_print_command_help</span><span class="p">(</span><span class="n">sub_cmd</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">sub_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sub_ctx</span><span class="p">)</span>
+            <span class="n">_print_command_help</span><span class="p">(</span><span class="n">sub_cmd</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">sub_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">sub_ctx</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="_repositories_block">
 <a class="viewcode-back" href="../../api/scitex_dataset.html#scitex_dataset._cli._repositories_block">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_repositories_block</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Render the per-domain bullet list shown in top-level ``--help``.&quot;&quot;&quot;</span>
-    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Available repositories:&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">"""Render the per-domain bullet list shown in top-level ``--help``."""</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Available repositories:"</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">DOMAINS</span><span class="p">:</span>
         <span class="n">members</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">DOMAIN_OF</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="n">domain</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">members</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2">:"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
             <span class="n">info</span> <span class="o">=</span> <span class="n">SOURCE_INFO</span><span class="p">[</span><span class="n">src</span><span class="p">]</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    - </span><span class="si">{</span><span class="n">src</span><span class="si">:</span><span class="s2">&lt;16</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Run any of:&quot;</span><span class="p">)</span>
-    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  scitex-dataset &lt;domain&gt; &lt;dataset&gt; fetch [OPTIONS]&quot;</span><span class="p">)</span>
-    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  scitex-dataset general huggingface (search|info|download-file)&quot;</span><span class="p">)</span>
-    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  scitex-dataset db (build|search|show-stats|clear)&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    - </span><span class="si">{</span><span class="n">src</span><span class="si">:</span><span class="s2">&lt;16</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'description'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"Run any of:"</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"  scitex-dataset &lt;domain&gt; &lt;dataset&gt; fetch [OPTIONS]"</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"  scitex-dataset general huggingface (search|info|download-file)"</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"  scitex-dataset db (build|search|show-stats|clear)"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
 
 
 
 <span class="nd">@click</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">invoke_without_command</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">context_settings</span><span class="o">=</span><span class="n">CONTEXT_SETTINGS</span><span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">version_option</span><span class="p">(</span>
     <span class="n">__version__</span><span class="p">,</span>
-    <span class="s2">&quot;-V&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;--version&quot;</span><span class="p">,</span>
-    <span class="n">prog_name</span><span class="o">=</span><span class="s2">&quot;scitex-dataset&quot;</span><span class="p">,</span>
-    <span class="n">message</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(prog)s</span><span class="s2"> </span><span class="si">%(version)s</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="s2">"-V"</span><span class="p">,</span>
+    <span class="s2">"--version"</span><span class="p">,</span>
+    <span class="n">prog_name</span><span class="o">=</span><span class="s2">"scitex-dataset"</span><span class="p">,</span>
+    <span class="n">message</span><span class="o">=</span><span class="s2">"</span><span class="si">%(prog)s</span><span class="s2"> </span><span class="si">%(version)s</span><span class="s2">"</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="nd">@click</span><span class="o">.</span><span class="n">help_option</span><span class="p">(</span><span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">)</span>
-<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--help-recursive&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show help for all commands.&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">help_option</span><span class="p">(</span><span class="s2">"-h"</span><span class="p">,</span> <span class="s2">"--help"</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">"--help-recursive"</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Show help for all commands."</span><span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--json&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;as_json&quot;</span><span class="p">,</span>
+    <span class="s2">"--json"</span><span class="p">,</span>
+    <span class="s2">"as_json"</span><span class="p">,</span>
     <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Emit structured JSON output (propagates to subcommands that honour it).&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Emit structured JSON output (propagates to subcommands that honour it)."</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">help_recursive</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">as_json</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;scitex-dataset — unified scientific dataset discovery.</span>
+<span class="w">    </span><span class="sd">"""scitex-dataset — unified scientific dataset discovery.</span>
 
 <span class="sd">    \b</span>
 <span class="sd">    Command grammar:</span>
@@ -364,15 +367,15 @@
 <span class="sd">      $SCITEX_DATASET_CONFIG</span>
 <span class="sd">      &lt;project&gt;/.scitex/dataset/config.yaml</span>
 <span class="sd">      $SCITEX_DIR/dataset/config.yaml   (default ~/.scitex/dataset/config.yaml)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">ctx</span><span class="o">.</span><span class="n">ensure_object</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
-    <span class="n">ctx</span><span class="o">.</span><span class="n">obj</span><span class="p">[</span><span class="s2">&quot;as_json&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">as_json</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="n">obj</span><span class="p">[</span><span class="s2">"as_json"</span><span class="p">]</span> <span class="o">=</span> <span class="n">as_json</span>
 
     <span class="k">if</span> <span class="n">help_recursive</span><span class="p">:</span>
-        <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;scitex-dataset </span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">"scitex-dataset </span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">main</span><span class="o">.</span><span class="n">get_help</span><span class="p">(</span><span class="n">ctx</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">main</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
-            <span class="n">_print_command_help</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;scitex-dataset </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+            <span class="n">_print_command_help</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"scitex-dataset </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">invoked_subcommand</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -394,7 +397,7 @@
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dev.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">docs_click_group</span>
 
-    <span class="n">main</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">docs_click_group</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="s2">&quot;scitex-dataset&quot;</span><span class="p">))</span>
+    <span class="n">main</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">docs_click_group</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="s2">"scitex-dataset"</span><span class="p">))</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="k">pass</span>
 
@@ -405,19 +408,19 @@
 
 
 <span class="c1"># Old: bare `&lt;source&gt;` → new: `&lt;domain&gt; &lt;source&gt; fetch` (or `general</span>
-<span class="c1"># huggingface &lt;verb&gt;` for HF). Hidden so they don&#39;t clutter --help.</span>
+<span class="c1"># huggingface &lt;verb&gt;` for HF). Hidden so they don't clutter --help.</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">_legacy_redirect</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">click</span><span class="o">.</span><span class="n">Command</span><span class="p">:</span>
     <span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
         <span class="n">name</span><span class="p">,</span>
         <span class="n">hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ignore_unknown_options&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;allow_extra_args&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">"ignore_unknown_options"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"allow_extra_args"</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
     <span class="p">)</span>
     <span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_impl</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">):</span>
         <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;error: `scitex-dataset </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">` was renamed to &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;`scitex-dataset </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">`.</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Re-run with: scitex-dataset </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2"> [...]&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"error: `scitex-dataset </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">` was renamed to "</span>
+            <span class="sa">f</span><span class="s2">"`scitex-dataset </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">`.</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"Re-run with: scitex-dataset </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2"> [...]"</span><span class="p">,</span>
             <span class="n">err</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -433,27 +436,27 @@
     <span class="k">if</span> <span class="n">_src</span> <span class="ow">in</span> <span class="n">AGENTIC_BENCH_SOURCES</span><span class="p">:</span>
         <span class="k">continue</span>
     <span class="n">domain</span> <span class="o">=</span> <span class="n">DOMAIN_OF</span><span class="p">[</span><span class="n">_src</span><span class="p">]</span>
-    <span class="n">target</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">_src</span><span class="si">}</span><span class="s2"> fetch&quot;</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">_src</span><span class="si">}</span><span class="s2"> fetch"</span>
     <span class="n">main</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">_legacy_redirect</span><span class="p">(</span><span class="n">_src</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
-    <span class="n">main</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">_legacy_redirect</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fetch-</span><span class="si">{</span><span class="n">_src</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+    <span class="n">main</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">_legacy_redirect</span><span class="p">(</span><span class="sa">f</span><span class="s2">"fetch-</span><span class="si">{</span><span class="n">_src</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
 
 <span class="c1"># Old `hf &lt;verb&gt;` form</span>
-<span class="k">for</span> <span class="n">_verb</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;fetch&quot;</span><span class="p">,</span> <span class="s2">&quot;search&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;download-file&quot;</span><span class="p">):</span>
-    <span class="n">main</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">_legacy_redirect</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hf-</span><span class="si">{</span><span class="n">_verb</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;general huggingface </span><span class="si">{</span><span class="n">_verb</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">_verb</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"fetch"</span><span class="p">,</span> <span class="s2">"search"</span><span class="p">,</span> <span class="s2">"info"</span><span class="p">,</span> <span class="s2">"download-file"</span><span class="p">):</span>
+    <span class="n">main</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">_legacy_redirect</span><span class="p">(</span><span class="sa">f</span><span class="s2">"hf-</span><span class="si">{</span><span class="n">_verb</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"general huggingface </span><span class="si">{</span><span class="n">_verb</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
 
 
 <span class="nd">@main</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
-    <span class="s2">&quot;hf&quot;</span><span class="p">,</span>
+    <span class="s2">"hf"</span><span class="p">,</span>
     <span class="n">hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ignore_unknown_options&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;allow_extra_args&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">"ignore_unknown_options"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"allow_extra_args"</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">_hf_legacy</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(deprecated) Use ``scitex-dataset general huggingface ...``&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""(deprecated) Use ``scitex-dataset general huggingface ...``"""</span>
     <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span>
-        <span class="s2">&quot;error: `scitex-dataset hf ...` was renamed to &quot;</span>
-        <span class="s2">&quot;`scitex-dataset general huggingface ...`.</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;Re-run with: scitex-dataset general huggingface [search|info|fetch|download-file]&quot;</span><span class="p">,</span>
+        <span class="s2">"error: `scitex-dataset hf ...` was renamed to "</span>
+        <span class="s2">"`scitex-dataset general huggingface ...`.</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"Re-run with: scitex-dataset general huggingface [search|info|fetch|download-file]"</span><span class="p">,</span>
         <span class="n">err</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">ctx</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -465,12 +468,12 @@
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dev._cli._completion</span><span class="w"> </span><span class="kn">import</span> <span class="n">attach_shell_completion</span>
 
-    <span class="n">attach_shell_completion</span><span class="p">(</span><span class="n">main</span><span class="p">,</span> <span class="n">prog_name</span><span class="o">=</span><span class="s2">&quot;scitex-dataset&quot;</span><span class="p">)</span>
+    <span class="n">attach_shell_completion</span><span class="p">(</span><span class="n">main</span><span class="p">,</span> <span class="n">prog_name</span><span class="o">=</span><span class="s2">"scitex-dataset"</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="k">pass</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 
 <span class="c1"># EOF</span>
@@ -480,8 +483,8 @@
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">_v</span>
     <span class="n">main</span><span class="o">.</span><span class="n">help</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;scitex-dataset (v</span><span class="si">{</span><span class="n">_v</span><span class="p">(</span><span class="s1">&#39;scitex-dataset&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">) — &quot;</span>
-        <span class="o">+</span> <span class="p">(</span><span class="n">main</span><span class="o">.</span><span class="n">help</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+        <span class="sa">f</span><span class="s2">"scitex-dataset (v</span><span class="si">{</span><span class="n">_v</span><span class="p">(</span><span class="s1">'scitex-dataset'</span><span class="p">)</span><span class="si">}</span><span class="s2">) — "</span>
+        <span class="o">+</span> <span class="p">(</span><span class="n">main</span><span class="o">.</span><span class="n">help</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
     <span class="p">)</span>
 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
     <span class="k">pass</span>

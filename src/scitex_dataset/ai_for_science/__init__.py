@@ -18,12 +18,16 @@ Benchmarks:
 On-disk contract (see ``_base.py``): one ``ai-for-science`` category dir
 grouping every benchmark, each with three roles — ``raw/`` (upstream
 snapshot stored as-is, operator-private, never mounted), ``for_solver/``
-(agent-visible, leak-safe UNIFORM view built by ``standardize``), and
+(agent-visible, answer-masked UNIFORM view built by ``standardize``), and
 ``eval/`` (operator-side scorer view, never mounted). Answers live in
-``raw/`` + ``eval/`` and leak-prevention happens by only ever mounting
-``for_solver/``.
+``raw/`` + ``eval/``. Bind only the selected ``for_solver/capsule-NNN/``;
+existing masking rules are not a qualification of arbitrary real inputs.
+The root catalog and private materialization ledger stay outside that bind.
 
     <dataset-root>/ai-for-science/<benchmark>/{raw,for_solver,eval,.scitex/dataset}
+
+BioMysteryBench full uses separate raw and output variant namespaces;
+consume the paths returned by ``prepare(download_full=True)``.
 
 Every benchmark module exposes the same contract:
 
@@ -31,8 +35,8 @@ Every benchmark module exposes the same contract:
         '''Fetch the upstream snapshot into raw_dir, as-is.'''
 
     def standardize(*, raw_dir, for_solver_dir, eval_dir, **opts) -> dict:
-        '''Split raw oracle into the leak-safe for_solver/ task view
-        (tasks.jsonl + submission schema) and the operator eval/ view
+        '''Split raw oracle into an answer-masked per-capsule task view
+        (task.jsonl + submission schema) and the private operator eval/ view
         (answers.jsonl + evaluate.py).'''
 
     def prepare(*, dataset_root=None, **opts) -> dict:
@@ -52,11 +56,13 @@ from __future__ import annotations
 from . import biomysterybench, bixbench, corebench
 from ._base import DOMAIN, BenchmarkPaths, resolve_paths
 from ._manifest import MANIFEST_FILENAME, ManifestEntry, write_manifest
+from ._score import score_submission
 from ._standardize import (
     UNIFORM_SUBMISSION_SCHEMA,
     write_eval,
     write_for_solver,
 )
+from ._validate import validate_submission
 
 __all__ = [
     # Submodules (the three benchmarks)
@@ -75,6 +81,9 @@ __all__ = [
     "UNIFORM_SUBMISSION_SCHEMA",
     "write_for_solver",
     "write_eval",
+    # Submission validation + scoring
+    "validate_submission",
+    "score_submission",
 ]
 
 # EOF

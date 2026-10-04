@@ -16,16 +16,21 @@ Pipeline (raw → {for_solver, eval} contract — see :mod:`._base`):
    ``raw_dir`` exactly as-is (capsule dirs + the answer-bearing
    ``BixBench.jsonl``). ``raw_dir`` is operator-private and never
    mounted.
-2. ``standardize(...)`` — read ``raw_dir/BixBench.jsonl``, split into a
-   uniform leak-safe ``for_solver/tasks.jsonl`` (no answers) and an
+2. ``standardize(...)`` — read ``raw_dir/BixBench.jsonl``, split into the
+   PER-CAPSULE agent-visible ``for_solver/`` view (one self-contained
+   ``capsule-NNN/`` dir per native capsule — the EXTRACTED capsule archive
+   in ``input/``, a ``task.jsonl`` of only that capsule's rows, the
+   uniform submission schema/example, and a README — plus a root
+   ``index.jsonl`` MAPPER of friendly_id ↔ native_id, no answers) and an
    operator-side ``eval/answers.jsonl`` + ``eval/evaluate.py``. Each
-   task's ``data`` points at the relevant ``CapsuleFolder-<uuid>.zip``,
-   symlinked answer-free into ``for_solver``. ``for_solver`` is the
-   agent-visible view mounted read-only; ``eval`` is operator-only.
+   record's ``data_folder`` (e.g. ``CapsuleFolder-<uuid>.zip``) is the
+   capsule archive that gets extracted into its ``capsule-NNN/input/``. An
+   agent binds exactly one ``capsule-NNN/`` dir; ``eval`` is operator-only.
 
 NOTE on compute: the HF snapshot is ~16 GB across 67 files; SLURM-only
 on shared compute. ``standardize(...)`` is pure-Python on the 205-record
-JSONL (~285 KB) plus symlink creation and safe to run anywhere.
+JSONL (~285 KB) plus per-capsule archive extraction and safe to run
+anywhere.
 """
 
 from __future__ import annotations
@@ -35,7 +40,12 @@ from pathlib import Path
 
 from ._base import BenchmarkPaths, resolve_paths
 from ._manifest import write_manifest
-from ._standardize import render_evaluate_py, write_eval, write_for_solver
+from ._sources import register_capsule_sources
+from ._standardize import (
+    render_evaluate_py,
+    write_eval,
+    write_for_solver_per_capsule,
+)
 
 # Canonical benchmark identity.
 BENCHMARK = "bixbench"
@@ -64,16 +74,34 @@ def standardize(
     raw_dir: Path,
     for_solver_dir: Path,
     eval_dir: Path,
+    only: str | None = None,
+    force: bool = False,
+    source_identity: dict | None = None,
     **_,
 ) -> dict:
     """Read the oracle manifest, build the for_solver + eval views.
 
     Each upstream record becomes one leak-safe task (``{task_id,
-    benchmark, prompt, data}``) + one answer (``{answer, ideal}``). Each
-    task's ``data`` points at its ``data_folder`` (e.g.
-    ``CapsuleFolder-<uuid>.zip``); the distinct ``data_folder`` values
-    are symlinked answer-free into ``for_solver``. Output JSONL is
-    ``sort_keys=True`` / ``ensure_ascii=False`` for deterministic bytes.
+    benchmark, prompt, data}``) + one answer (``{answer, ideal}``). The
+    ``task_id`` is keyed on the record's UNIQUE ``question_id``
+    (``bixbench/<short_id>-qN``), NOT the capsule-scoped ``short_id`` —
+    a single capsule holds multiple questions that share one ``short_id``,
+    so keying on ``short_id`` would collapse distinct questions. Each
+    task's ``data`` points at its ``data_folder`` archive (e.g.
+    ``CapsuleFolder-<uuid>.zip``); a capsule's multiple questions still
+    group into ONE ``capsule-NNN/`` dir via ``data_folder``.
+
+    ``for_solver`` is written in the PER-CAPSULE shape: one self-contained
+    ``capsule-NNN/`` dir per native capsule (friendly id), each holding
+    the EXTRACTED capsule archive in ``input/``, a ``task.jsonl`` of only
+    that capsule's rows, the uniform submission schema/example, and a
+    README — plus a root ``index.jsonl`` MAPPER (friendly_id ↔ native_id).
+    An agent binds exactly one ``capsule-NNN/`` dir. Records with no
+    ``data_folder`` have ``data: null`` and materialize no capsule.
+
+    ``only`` (a friendly ``capsule-NNN`` id OR a native capsule id)
+    materializes just that one capsule's dir; the mapper is always written
+    in full. ``force`` re-extracts capsules already present.
     """
     src = raw_dir / ORACLE_MANIFEST_NAME
     if not src.is_file():
@@ -83,15 +111,18 @@ def standardize(
 
     tasks: list[dict] = []
     answers: list[dict] = []
-    data_links: list[str] = []
-    seen_links: set[str] = set()
     with src.open("r", encoding="utf-8") as fin:
         for line in fin:
             line = line.strip()
             if not line:
                 continue
             rec = json.loads(line)
-            task_id = f"bixbench/{rec['short_id']}"
+            # ``question_id`` is UNIQUE per question (``<short_id>-qN``);
+            # ``short_id`` is CAPSULE-scoped and shared by every question in
+            # a capsule, so keying on it collapses distinct questions (205
+            # questions → 54 short_ids). Key task_id on question_id so every
+            # question stays a distinct task in BOTH for_solver and eval.
+            task_id = f"bixbench/{rec['question_id']}"
             data_folder = rec.get("data_folder")
             tasks.append(
                 {
@@ -110,24 +141,25 @@ def standardize(
                     },
                 }
             )
-            if data_folder and data_folder not in seen_links:
-                seen_links.add(data_folder)
-                data_links.append(data_folder)
 
-    fs = write_for_solver(
+    fs = write_for_solver_per_capsule(
         for_solver_dir=for_solver_dir,
         tasks=tasks,
         raw_dir=raw_dir,
-        data_links=data_links,
+        only=only,
+        force=force,
+        source_identity=source_identity,
     )
     ev = write_eval(
         eval_dir=eval_dir,
         answers=answers,
         evaluate_py_source=render_evaluate_py(DEFAULT_MODE),
     )
+    sr = register_capsule_sources(tasks=tasks, raw_dir=raw_dir, eval_dir=eval_dir)
     return {
         "for_solver": fs,
         "eval": ev,
+        "sources": sr,
         "n_tasks": len(tasks),
         "default_mode": DEFAULT_MODE,
     }
@@ -143,6 +175,7 @@ def download(
     raw_dir: Path,
     hf_token: str | None = None,
     max_workers: int = 4,
+    revision: str | None = None,
     **_,
 ) -> dict:
     """Pull the BixBench HF snapshot into ``raw_dir`` exactly as-is.
@@ -173,11 +206,13 @@ def download(
         local_dir=str(raw_dir),
         max_workers=max_workers,
         token=hf_token,
+        **({"revision": revision} if revision is not None else {}),
     )
     return {
         "raw_dir": str(raw_dir),
         "snapshots_pulled": [HF_REPO_ID],
         "resolved": str(resolved),
+        "requested_revision": revision,
     }
 
 
@@ -192,23 +227,39 @@ def prepare(
     dataset_root: Path | str | None = None,
     version: str = "v0-unstamped",
     skip_download: bool = False,
+    only: str | None = None,
+    force: bool = False,
+    hf_token: str | None = None,
+    max_workers: int = 4,
+    revision: str | None = None,
     **_,
 ) -> dict:
     """Run the full BixBench preparation pipeline.
 
     Set ``skip_download=True`` to skip the HF snapshot pull (useful if
     the upstream manifest has already been hand-staged under ``raw_dir``).
+    ``only`` selects materialization, not acquisition of the HF snapshot.
+    ``revision`` is forwarded to HF; use an immutable commit for a pinned
+    source. The returned requested revision is not a resolved-commit receipt.
     """
     if paths is None:
         paths = resolve_paths(BENCHMARK, dataset_root=dataset_root)
 
     out: dict = {"benchmark": BENCHMARK, "paths": paths.as_dict()}
     if not skip_download:
-        out["download"] = download(raw_dir=paths.raw_dir)
+        out["download"] = download(
+            raw_dir=paths.raw_dir,
+            hf_token=hf_token,
+            max_workers=max_workers,
+            revision=revision,
+        )
     out["standardize"] = standardize(
         raw_dir=paths.raw_dir,
         for_solver_dir=paths.for_solver_dir,
         eval_dir=paths.eval_dir,
+        only=only,
+        force=force,
+        source_identity={"repo_id": HF_REPO_ID, "requested_revision": revision},
     )
 
     manifest_path = write_manifest(
@@ -218,7 +269,7 @@ def prepare(
         version=version,
         source_url=SOURCE_URL,
         benchmark=BENCHMARK,
-        tracked_paths=[Path(out["standardize"]["for_solver"]["tasks"])],
+        tracked_paths=[Path(out["standardize"]["for_solver"]["index"])],
         tracked_root=paths.for_solver_dir,
         mask_seed="",
     )

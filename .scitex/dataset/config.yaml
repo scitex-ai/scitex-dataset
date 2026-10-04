@@ -9,7 +9,9 @@
 # See the local-state-directories skill (general/01_ecosystem_06_*) for the
 # full layout. Project scope wins; SCITEX_DIR relocates the user scope.
 
-# Runtime caches / SQLite index live under <scope-root>/runtime/.
+# Runtime caches, snapshots and logs live under <scope-root>/runtime/.
+# The dataset INDEX does not: it lives in the shared SciTeX store, which
+# SCITEX_STORE_DSN can repoint (see `scitex-dataset db show-stats`).
 # Each fetcher may also accept its own --max-datasets, --query, etc.
 
 defaults:
