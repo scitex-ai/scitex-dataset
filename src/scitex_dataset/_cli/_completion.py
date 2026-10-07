@@ -16,14 +16,14 @@ rc files — the user's shell framework sources the drop-in instead.
 
 from __future__ import annotations
 
-import logging
 import os
 import tempfile
 from pathlib import Path
 
 import click
+import scitex_logging as slogging
 
-logger = logging.getLogger(__name__)
+logger = slogging.getLogger(__name__)
 
 PROG_NAME = "scitex-dataset"
 SHORT = "dataset"
