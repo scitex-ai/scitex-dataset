@@ -199,15 +199,17 @@ def _hf_legacy(ctx):
     ctx.exit(2)
 
 
-# §1a: install-shell-completion + print-shell-completion (canonical leaves).
-# Replaces the legacy `completion` and `print-tab-completion` commands; the
-# attach helper also registers hidden deprecated aliases for those names.
-try:
-    from scitex_dev._cli._completion import attach_shell_completion
+# Fleet standard completion drop-in v1 (`completion install` / `status`,
+# plus `install-shell-completion` / `print-shell-completion` shims) lives
+# in `_completion.py`. It writes the click-generated script to
+# `$SCITEX_DIR/dataset/runtime/completion/scitex-dataset` atomically and
+# idempotently, then prints the path — and never touches shell rc files.
+# The scitex-dev rc-appending variant must NOT be attached here (it would
+# collide on the `completion` name and reintroduce the rc-edit path this
+# contract deletes).
+from ._completion import register_completion_commands
 
-    attach_shell_completion(main, prog_name="scitex-dataset")
-except ImportError:
-    pass
+register_completion_commands(main)
 
 
 if __name__ == "__main__":

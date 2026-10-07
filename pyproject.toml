@@ -45,6 +45,7 @@ dependencies = [
     # surface (`Store.search` / `Query` / `Schema(text_search=...)`) landed.
     "scitex-dev>=0.57.0",
     "scitex-config>=0.3.0",
+    "scitex-logging>=0.2.0",
 ]
 
 [project.optional-dependencies]
