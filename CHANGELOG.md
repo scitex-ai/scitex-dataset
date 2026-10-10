@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-10-10
+
+### Added
+- Fleet-standard shell tab-completion drop-in v1: `scitex-dataset completion
+  install` writes the click-generated script to
+  `$SCITEX_DIR/dataset/runtime/completion/scitex-dataset` atomically and
+  idempotently, then prints the path. Never touches shell rc files
+  (plus `completion status` and legacy `install-shell-completion` /
+  `print-shell-completion` shims).
+
+### Changed
+- CLI completion now uses the local drop-in instead of scitex-dev's
+  rc-appending attach helper (avoids the `completion` name collision and
+  the rc-edit path).
+- Declared `scitex-logging>=0.2.0` dependency; cross-package import gate
+  regenerated (scitex-dev 0.62.2).
+
 ## [0.8.0] - 2026-10-03
 
 ### Fixed
