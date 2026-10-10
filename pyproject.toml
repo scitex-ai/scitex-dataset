@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-dataset"
-version = "0.8.0"
+version = "0.8.1"
 description = "Multi-domain scientific dataset fetcher — neuroscience, biology, pharmacology, medical (OpenNeuro, DANDI, PhysioNet, GEO, ChEMBL, ClinicalTrials.gov)"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -45,6 +45,7 @@ dependencies = [
     # surface (`Store.search` / `Query` / `Schema(text_search=...)`) landed.
     "scitex-dev>=0.57.0",
     "scitex-config>=0.3.0",
+    "scitex-logging>=0.2.0",
 ]
 
 [project.optional-dependencies]
