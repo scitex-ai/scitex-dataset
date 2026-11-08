@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Keep the release test install on the complete `all,dev` profile and stop on
+  installation failure. Main-sync automation opens or reuses a pull request
+  for normal checks and review without attempting an admin merge.
+
 - Keep runtime placeholders out of the Git index and retain their documentation
   in the parent configuration scope. Ignore all per-host runtime contents and
   seed the local ignore policy when cache consumers recreate the directory,
