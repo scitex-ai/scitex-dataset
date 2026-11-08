@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Ship the existing dataset CLI vocabulary in wheels and source archives, so
+  installed audit dispatchers recognize dataset and benchmark identifiers.
+
 ## [0.8.1] - 2026-10-10
 
 ### Added
