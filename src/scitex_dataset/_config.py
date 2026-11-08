@@ -67,6 +67,13 @@ def runtime_dir() -> Path:
     root = project_root() or user_root()
     rt = root / "runtime"
     rt.mkdir(parents=True, exist_ok=True)
+    # Runtime may be recreated by a cache consumer after a clean checkout.
+    # Seed its local ignore policy without replacing operator-managed contents.
+    try:
+        with (rt / ".gitignore").open("x", encoding="utf-8") as handle:
+            handle.write("*\n")
+    except FileExistsError:
+        pass
     return rt
 
 
