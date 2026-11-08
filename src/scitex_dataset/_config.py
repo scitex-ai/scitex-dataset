@@ -62,10 +62,8 @@ def project_root(start: Optional[Path] = None) -> Optional[Path]:
     return None
 
 
-def runtime_dir() -> Path:
-    """Runtime dir: project-scope if present, else user scope. Always exists on return."""
-    root = project_root() or user_root()
-    rt = root / "runtime"
+def _ensure_runtime_dir(rt: Path) -> Path:
+    """Create a runtime directory and its missing local ignore policy."""
     rt.mkdir(parents=True, exist_ok=True)
     # Runtime may be recreated by a cache consumer after a clean checkout.
     # Seed its local ignore policy without replacing operator-managed contents.
@@ -75,6 +73,12 @@ def runtime_dir() -> Path:
     except FileExistsError:
         pass
     return rt
+
+
+def runtime_dir() -> Path:
+    """Runtime dir: project-scope if present, else user scope. Always exists on return."""
+    root = project_root() or user_root()
+    return _ensure_runtime_dir(root / "runtime")
 
 
 def _load_yaml(path: Path) -> Dict[str, Any]:

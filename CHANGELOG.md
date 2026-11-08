@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Keep runtime placeholders out of the Git index and retain their documentation
   in the parent configuration scope. Ignore all per-host runtime contents and
   seed the local ignore policy when cache consumers recreate the directory,
-  preserving existing policies and data.
+  preserving existing policies and data. Completion installers use the same
+  policy and repair a missing policy on repeated installs.
 
 - Ship the existing dataset CLI vocabulary in wheels and source archives, so
   installed audit dispatchers recognize dataset and benchmark identifiers.
