@@ -12,9 +12,9 @@ name: release
 #   2. build         — wheel + sdist, uploaded as workflow artifact.
 #   3. publish       — PyPI via OIDC trusted publisher.
 #   4. release       — GitHub Release with CHANGELOG notes + artifacts.
-#   5. sync-main     — open a develop→main PR (admin-merge) so main
-#                      always equals the latest released commit. Skipped
-#                      if main already matches.
+#   5. sync-main     — open or reuse a develop→main PR for normal
+#                      checks and review. Never merge it from this job.
+#                      Skipped if main already matches.
 #
 # Manual re-run: the workflow also accepts a `version` input via
 # workflow_dispatch so you can re-publish without re-tagging.
@@ -53,10 +53,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install (best-effort fallback chain)
+      - name: Install the complete test profile
         run: |
+          set -e
           python -m pip install --upgrade pip
-          pip install -e ".[all,dev]" || pip install -e ".[dev]" || pip install -e .
+          python -m pip install -e ".[all,dev]"
       - name: Run pytest
         run: |
           if [ -d tests ]; then
@@ -146,9 +147,8 @@ jobs:
             dist/*
 
   sync-main:
-    # Open develop→main PR so main always equals the latest released
-    # commit. Branch-protected mains require PR review; this job tries
-    # admin-merge but leaves the PR open if that isn't allowed.
+    # Open or reuse a develop→main PR. Normal checks and review govern
+    # its later merge; this job never bypasses branch protection.
     needs: publish
     runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '["self-hosted","Linux","X64","scitex-ci"]') }}
     permissions:
@@ -180,5 +180,4 @@ jobs:
           else
             echo "Reusing existing PR #${EXISTING}"
           fi
-          gh pr merge "$EXISTING" --merge --admin \
-            || echo "Admin merge unavailable; PR left open for manual merge."
+          echo "PR #${EXISTING} remains open for normal checks and review."
