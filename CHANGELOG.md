@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Keep runtime placeholders out of the Git index and retain their documentation
+  in the parent configuration scope. Ignore all per-host runtime contents.
+
 - Ship the existing dataset CLI vocabulary in wheels and source archives, so
   installed audit dispatchers recognize dataset and benchmark identifiers.
 

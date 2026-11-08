@@ -700,12 +700,9 @@ slurm_logs
 # Local-only legacy/scratch space (per scitex-dev audit-project PS102)
 GITIGNORED/
 
-# scitex local-state runtime — runtime/ holds regenerable per-host state.
-# Per general/01_ecosystem_06_local-state-directories: only .gitkeep and
-# README.md are tracked; everything else is host-specific.
-.scitex/*/runtime/*
-!.scitex/*/runtime/.gitkeep
-!.scitex/*/runtime/README.md
+# Regenerable per-host state stays outside the Git index. Keep documentation
+# in the parent scope rather than inside runtime/.
+.scitex/*/runtime/
 
 # Claude Code session logs — runtime artifact, regenerated each session.
 /logs/
