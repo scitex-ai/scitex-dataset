@@ -106,6 +106,13 @@ Issues = "https://github.com/ywatanabe1989/scitex-dataset/issues"
 # So we deliberately rely on the implicit package include alone.
 packages = ["src/scitex_dataset"]
 
+# The CLI dictionary lives outside src/; include only that canonical file.
+[tool.hatch.build.targets.wheel.force-include]
+".scitex/dev/cli-audit-dict.yaml" = "scitex_dataset/_cli_audit_dict.yaml"
+
+[tool.hatch.build.targets.sdist.force-include]
+".scitex/dev/cli-audit-dict.yaml" = ".scitex/dev/cli-audit-dict.yaml"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
