@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CLI Reference &mdash; scitex-dataset v0.0.0</title>
+  <title>CLI Reference &mdash; scitex-dataset v0.8.2</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -14,9 +14,9 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=7026087e"></script>
-      <script src="_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/documentation_options.js?v=dbee5847"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="_static/copybutton.js?v=f281be69"></script>
     <script src="_static/js/theme.js"></script>
@@ -69,7 +69,26 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CLI Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#configuration-precedence">Configuration precedence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#legacy-aliases-hidden-exit-code-2">Legacy aliases (hidden, exit code 2)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#live-command-tree">Live command tree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#live-command-tree">Live command tree</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#scitex-dataset">scitex-dataset</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#scitex-dataset-ai-for-science">ai-for-science</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex-dataset-biology">biology</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex-dataset-completion">completion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex-dataset-db">db</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex-dataset-docs">docs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex-dataset-general">general</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex-dataset-install-shell-completion">install-shell-completion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex-dataset-list-python-apis">list-python-apis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex-dataset-mcp">mcp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex-dataset-medical">medical</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex-dataset-neuroscience">neuroscience</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex-dataset-pharmacology">pharmacology</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex-dataset-print-shell-completion">print-shell-completion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex-dataset-skills">skills</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Data Sources</a><ul>
@@ -139,6 +158,9 @@
 <li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database.store_description"><code class="docutils literal notranslate"><span class="pre">store_description()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database._SOURCE_MODULES"><code class="docutils literal notranslate"><span class="pre">_SOURCE_MODULES</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database._as_query"><code class="docutils literal notranslate"><span class="pre">_as_query()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.database._fetchers"><code class="docutils literal notranslate"><span class="pre">_fetchers()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#neuroscience-sources">Neuroscience Sources</a><ul>
@@ -146,6 +168,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro._log_dataset"><code class="docutils literal notranslate"><span class="pre">_log_dataset()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.neuroscience.dandi">DANDI</a><ul>
@@ -190,6 +213,10 @@
 <li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface.dataset_info"><code class="docutils literal notranslate"><span class="pre">dataset_info()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface.download_file"><code class="docutils literal notranslate"><span class="pre">download_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface._resolve_local_dir"><code class="docutils literal notranslate"><span class="pre">_resolve_local_dir()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface._resolve_token"><code class="docutils literal notranslate"><span class="pre">_resolve_token()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface._runtime_dir"><code class="docutils literal notranslate"><span class="pre">_runtime_dir()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface._user_root"><code class="docutils literal notranslate"><span class="pre">_user_root()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -251,7 +278,7 @@
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">CLI Reference</li>
       <li class="wy-breadcrumbs-aside">
-              <a href="https://github.com/ywatanabe1989/scitex-dataset/blob/main/docs/sphinx/cli_reference.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/scitex-ai/scitex-dataset/blob/main/docs/sphinx/cli_reference.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -308,9 +335,6 @@ shared SciTeX store, which <code class="docutils literal notranslate"><span clas
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">db</span> <span class="pre">stats</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">db</span> <span class="pre">show-stats</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">completion</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">print-tab-completion</span></code></p></td>
-</tr>
 </tbody>
 </table>
 <p>The legacy commands print a redirect message and exit with status 2.</p>
@@ -318,10 +342,2196 @@ shared SciTeX store, which <code class="docutils literal notranslate"><span clas
 <section id="live-command-tree">
 <h2>Live command tree<a class="headerlink" href="#live-command-tree" title="Link to this heading"></a></h2>
 <p>The full subcommand tree below is rendered directly from the click
-group via <a class="reference external" href="https://sphinx-click.readthedocs.io/">sphinx-click</a>, so it
-cannot drift from <code class="docutils literal notranslate"><span class="pre">scitex-dataset</span> <span class="pre">--help-recursive</span></code>. Per the SciTeX
+group via <a class="reference external" href="https://sphinx-click.readthedocs.io/">sphinx-click</a>. Regenerate
+the shipped HTML after CLI changes and check the rendered commands;
+a source directive alone does not prove that the bundle is current. Per the SciTeX
 Sphinx spec (audit code PS128), hand-written subcommand prose is
 forbidden here.</p>
+<p><code class="docutils literal notranslate"><span class="pre">completion</span> <span class="pre">install</span></code> and <code class="docutils literal notranslate"><span class="pre">completion</span> <span class="pre">status</span></code> are current commands,
+not legacy aliases. Their drop-in behavior is covered by
+<code class="docutils literal notranslate"><span class="pre">tests/scitex_dataset/_cli/test__completion.py</span></code>.</p>
+<section id="scitex-dataset">
+<h3>scitex-dataset<a class="headerlink" href="#scitex-dataset" title="Link to this heading"></a></h3>
+<p>scitex-dataset (v0.8.2) — scitex-dataset — unified scientific dataset discovery.</p>
+<div class="line-block">
+<div class="line">Command grammar:</div>
+<div class="line-block">
+<div class="line">scitex-dataset &lt;domain&gt; &lt;dataset&gt; &lt;action&gt; [OPTIONS]</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Config resolution (highest first):</div>
+<div class="line-block">
+<div class="line">–config &lt;path&gt;</div>
+<div class="line">$SCITEX_DATASET_CONFIG</div>
+<div class="line">&lt;project&gt;/.scitex/dataset/config.yaml</div>
+<div class="line">$SCITEX_DIR/dataset/config.yaml   (default ~/.scitex/dataset/config.yaml)</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-V">
+<span id="cmdoption-scitex-dataset-version"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--version</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-V" title="Link to this definition"></a></dt>
+<dd><p>Show the version and exit.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-h">
+<span id="cmdoption-scitex-dataset-help"></span><span class="sig-name descname"><span class="pre">-h</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--help</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-h" title="Link to this definition"></a></dt>
+<dd><p>Show this message and exit.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-help-recursive">
+<span class="sig-name descname"><span class="pre">--help-recursive</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-help-recursive" title="Link to this definition"></a></dt>
+<dd><p>Show help for all commands.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-json" title="Link to this definition"></a></dt>
+<dd><p>Emit structured JSON output (propagates to subcommands that honour it).</p>
+</dd></dl>
+
+<section id="scitex-dataset-ai-for-science">
+<h4>ai-for-science<a class="headerlink" href="#scitex-dataset-ai-for-science" title="Link to this heading"></a></h4>
+<p>Ai-for-science datasets — CORE-Bench, BixBench, BioMysteryBench.</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-ai-for-science-biomysterybench">
+<h5>biomysterybench<a class="headerlink" href="#scitex-dataset-ai-for-science-biomysterybench" title="Link to this heading"></a></h5>
+<p>BioMysteryBench — Agentic AI-for-science benchmark: biology-mystery problems with rubric-graded answers (Anthropic; gated full set).</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>biomysterybench<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-ai-for-science-biomysterybench-download">
+<h6>download<a class="headerlink" href="#scitex-dataset-ai-for-science-biomysterybench-download" title="Link to this heading"></a></h6>
+<p>Fetch the upstream biomysterybench snapshot into raw/ as-is.</p>
+<p>WARNING: downloads are multi-GB. Run on SLURM, not a login node or CI.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset ai-for-science biomysterybench download</div>
+<div class="line">$ scitex-dataset ai-for-science biomysterybench download –full –dataset-root /scratch/datasets</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>biomysterybench<span class="w"> </span>download<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-download-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-download-json" title="Link to this definition"></a></dt>
+<dd><p>Emit the result dict as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-download-dataset-root">
+<span class="sig-name descname"><span class="pre">--dataset-root</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_root&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-download-dataset-root" title="Link to this definition"></a></dt>
+<dd><p>Dataset root holding ai-for-science/ (default: $SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or ~/.scitex/dataset).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-download-full">
+<span class="sig-name descname"><span class="pre">--full</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-download-full" title="Link to this definition"></a></dt>
+<dd><p>Pull the full gated set instead of the small preview (where the benchmark distinguishes them, e.g. biomysterybench). For corebench, the full set is the oracle-driven 90-capsule run: it bootstraps the answer manifests (fetch + gpg-decrypt) then fetches every capsule tarball.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-download-capsule-ids">
+<span class="sig-name descname"><span class="pre">--capsule-ids</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;capsule_ids&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-download-capsule-ids" title="Link to this definition"></a></dt>
+<dd><p>corebench only: comma-separated NATIVE capsule ids (e.g. capsule-0201225,capsule-0238624) to fetch just those tarballs from the CDN — the oracle URLs are never touched. Overrides the oracle-driven full run.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-download-verify-integrity">
+<span class="sig-name descname"><span class="pre">--verify-integrity</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-download-verify-integrity" title="Link to this definition"></a></dt>
+<dd><p>Re-check existing files by sha256 before skipping (opt-in; default skip is by existence, no hashing).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-download-force">
+<span class="sig-name descname"><span class="pre">--force</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-download-force" title="Link to this definition"></a></dt>
+<dd><p>Re-download everything, ignoring what’s already on disk.</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-ai-for-science-biomysterybench-prepare">
+<h6>prepare<a class="headerlink" href="#scitex-dataset-ai-for-science-biomysterybench-prepare" title="Link to this heading"></a></h6>
+<p>Prepare biomysterybench: download (raw/) + standardize (for_solver/ + eval/) + emit .scitex/dataset/MANIFEST.yaml (id + version + sha256 + mask-seed).</p>
+<p>WARNING: includes the multi-GB download step unless –skip-download is given. SLURM-only on shared compute.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset ai-for-science biomysterybench prepare –skip-download</div>
+<div class="line">$ scitex-dataset ai-for-science biomysterybench prepare –full –version v1.0</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>biomysterybench<span class="w"> </span>prepare<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-json" title="Link to this definition"></a></dt>
+<dd><p>Emit the result dict as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-dataset-root">
+<span class="sig-name descname"><span class="pre">--dataset-root</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_root&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-dataset-root" title="Link to this definition"></a></dt>
+<dd><p>Dataset root holding ai-for-science/ (default: $SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or ~/.scitex/dataset).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-version">
+<span class="sig-name descname"><span class="pre">--version</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;version&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-version" title="Link to this definition"></a></dt>
+<dd><p>Snapshot version recorded in MANIFEST.yaml (upstream tag / HF revision / ISO-date).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-skip-download">
+<span class="sig-name descname"><span class="pre">--skip-download</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-skip-download" title="Link to this definition"></a></dt>
+<dd><p>Skip the upstream pull (raw/ already staged).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-full">
+<span class="sig-name descname"><span class="pre">--full</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-full" title="Link to this definition"></a></dt>
+<dd><p>Pull the full gated set instead of the small preview.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-verify-integrity">
+<span class="sig-name descname"><span class="pre">--verify-integrity</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-verify-integrity" title="Link to this definition"></a></dt>
+<dd><p>Re-check existing files by sha256 before skipping (opt-in).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-force">
+<span class="sig-name descname"><span class="pre">--force</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-force" title="Link to this definition"></a></dt>
+<dd><p>Force acquisition where supported and re-extract only identity-qualified capsules. Source/content changes require fresh output destinations.</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-ai-for-science-biomysterybench-score">
+<h6>score<a class="headerlink" href="#scitex-dataset-ai-for-science-biomysterybench-score" title="Link to this heading"></a></h6>
+<p>Score a biomysterybench submission against the operator oracle (eval/answers.jsonl; host-side only). Emits one record per task: correct, wrong, abstain, malformed, needs_rubric or invalid_reference. Malformed records include format failure kinds such as schema_invalid; invalid references are not scientific wrong answers.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset ai-for-science biomysterybench score –submission sub.json</div>
+<div class="line">$ scitex-dataset ai-for-science biomysterybench score –submission sub.json –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>biomysterybench<span class="w"> </span>score<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-score-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-score-json" title="Link to this definition"></a></dt>
+<dd><p>Emit the result dict as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-score-dataset-root">
+<span class="sig-name descname"><span class="pre">--dataset-root</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_root&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-score-dataset-root" title="Link to this definition"></a></dt>
+<dd><p>Dataset root holding ai-for-science/ (default: $SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or ~/.scitex/dataset).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-score-submission">
+<span class="sig-name descname"><span class="pre">--submission</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;submission&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-score-submission" title="Link to this definition"></a></dt>
+<dd><p><strong>Required</strong> Path to the agent submission JSON (the uniform array).</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-ai-for-science-biomysterybench-standardize">
+<h6>standardize<a class="headerlink" href="#scitex-dataset-ai-for-science-biomysterybench-standardize" title="Link to this heading"></a></h6>
+<p>Read the biomysterybench raw/ snapshot; write the agent-visible for_solver/ view (per-capsule dirs + index.jsonl mapper, no answers) + the operator eval/ view (answers.jsonl + evaluate.py).</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset ai-for-science biomysterybench standardize</div>
+<div class="line">$ scitex-dataset ai-for-science biomysterybench standardize –only capsule-0201225</div>
+<div class="line">$ scitex-dataset ai-for-science biomysterybench standardize –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>biomysterybench<span class="w"> </span>standardize<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-standardize-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-standardize-json" title="Link to this definition"></a></dt>
+<dd><p>Emit the result dict as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-standardize-dataset-root">
+<span class="sig-name descname"><span class="pre">--dataset-root</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_root&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-standardize-dataset-root" title="Link to this definition"></a></dt>
+<dd><p>Dataset root holding ai-for-science/ (default: $SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or ~/.scitex/dataset).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-standardize-only">
+<span class="sig-name descname"><span class="pre">--only</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;only&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-standardize-only" title="Link to this definition"></a></dt>
+<dd><p>Materialize ONLY this capsule’s for_solver/ dir — accepts a friendly id (capsule-NNN) or a native capsule id (e.g. capsule-0201225), resolved via the index.jsonl mapper. The full mapper is still written. Default: all capsules.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-standardize-force">
+<span class="sig-name descname"><span class="pre">--force</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-standardize-force" title="Link to this definition"></a></dt>
+<dd><p>Re-extract only identity-qualified existing capsules. Changed or unstamped source/content requires fresh output destinations.</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-ai-for-science-biomysterybench-validate">
+<h6>validate<a class="headerlink" href="#scitex-dataset-ai-for-science-biomysterybench-validate" title="Link to this heading"></a></h6>
+<p>Validate a biomysterybench submission without an oracle: strict JSON types, required fields, unique IDs and exact public assignment membership. Use –tasks for a selected capsule. Optional public answer_type declarations are checked without coercion; absent declarations accept supported JSON. The default index covers the whole catalog; missing default metadata is explicitly shape-only. This never grades answers.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset ai-for-science biomysterybench validate –submission sub.json –tasks for_solver/capsule/task.jsonl</div>
+<div class="line">$ scitex-dataset ai-for-science biomysterybench validate –submission sub.json –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>biomysterybench<span class="w"> </span>validate<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-validate-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-validate-json" title="Link to this definition"></a></dt>
+<dd><p>Emit the result dict as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-validate-dataset-root">
+<span class="sig-name descname"><span class="pre">--dataset-root</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_root&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-validate-dataset-root" title="Link to this definition"></a></dt>
+<dd><p>Dataset root holding ai-for-science/ (default: $SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or ~/.scitex/dataset).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-validate-submission">
+<span class="sig-name descname"><span class="pre">--submission</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;submission&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-validate-submission" title="Link to this definition"></a></dt>
+<dd><p><strong>Required</strong> Path to the agent submission JSON (the uniform array).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-biomysterybench-validate-tasks">
+<span class="sig-name descname"><span class="pre">--tasks</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;tasks&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-biomysterybench-validate-tasks" title="Link to this definition"></a></dt>
+<dd><p>Selected public task.jsonl or capsule directory. Without this, use the whole for_solver index; missing metadata is labeled shape-only.</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="scitex-dataset-ai-for-science-bixbench">
+<h5>bixbench<a class="headerlink" href="#scitex-dataset-ai-for-science-bixbench" title="Link to this heading"></a></h5>
+<p>BixBench — Agentic AI-for-science benchmark: 205 bioinformatics-analysis tasks across 54 capsules (FutureHouse).</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>bixbench<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-ai-for-science-bixbench-download">
+<h6>download<a class="headerlink" href="#scitex-dataset-ai-for-science-bixbench-download" title="Link to this heading"></a></h6>
+<p>Fetch the upstream bixbench snapshot into raw/ as-is.</p>
+<p>WARNING: downloads are multi-GB. Run on SLURM, not a login node or CI.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset ai-for-science bixbench download</div>
+<div class="line">$ scitex-dataset ai-for-science bixbench download –full –dataset-root /scratch/datasets</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>bixbench<span class="w"> </span>download<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-download-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-download-json" title="Link to this definition"></a></dt>
+<dd><p>Emit the result dict as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-download-dataset-root">
+<span class="sig-name descname"><span class="pre">--dataset-root</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_root&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-download-dataset-root" title="Link to this definition"></a></dt>
+<dd><p>Dataset root holding ai-for-science/ (default: $SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or ~/.scitex/dataset).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-download-full">
+<span class="sig-name descname"><span class="pre">--full</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-download-full" title="Link to this definition"></a></dt>
+<dd><p>Pull the full gated set instead of the small preview (where the benchmark distinguishes them, e.g. biomysterybench). For corebench, the full set is the oracle-driven 90-capsule run: it bootstraps the answer manifests (fetch + gpg-decrypt) then fetches every capsule tarball.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-download-capsule-ids">
+<span class="sig-name descname"><span class="pre">--capsule-ids</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;capsule_ids&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-download-capsule-ids" title="Link to this definition"></a></dt>
+<dd><p>corebench only: comma-separated NATIVE capsule ids (e.g. capsule-0201225,capsule-0238624) to fetch just those tarballs from the CDN — the oracle URLs are never touched. Overrides the oracle-driven full run.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-download-verify-integrity">
+<span class="sig-name descname"><span class="pre">--verify-integrity</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-download-verify-integrity" title="Link to this definition"></a></dt>
+<dd><p>Re-check existing files by sha256 before skipping (opt-in; default skip is by existence, no hashing).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-download-force">
+<span class="sig-name descname"><span class="pre">--force</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-download-force" title="Link to this definition"></a></dt>
+<dd><p>Re-download everything, ignoring what’s already on disk.</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-ai-for-science-bixbench-prepare">
+<h6>prepare<a class="headerlink" href="#scitex-dataset-ai-for-science-bixbench-prepare" title="Link to this heading"></a></h6>
+<p>Prepare bixbench: download (raw/) + standardize (for_solver/ + eval/) + emit .scitex/dataset/MANIFEST.yaml (id + version + sha256 + mask-seed).</p>
+<p>WARNING: includes the multi-GB download step unless –skip-download is given. SLURM-only on shared compute.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset ai-for-science bixbench prepare –skip-download</div>
+<div class="line">$ scitex-dataset ai-for-science bixbench prepare –full –version v1.0</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>bixbench<span class="w"> </span>prepare<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-json" title="Link to this definition"></a></dt>
+<dd><p>Emit the result dict as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-dataset-root">
+<span class="sig-name descname"><span class="pre">--dataset-root</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_root&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-dataset-root" title="Link to this definition"></a></dt>
+<dd><p>Dataset root holding ai-for-science/ (default: $SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or ~/.scitex/dataset).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-version">
+<span class="sig-name descname"><span class="pre">--version</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;version&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-version" title="Link to this definition"></a></dt>
+<dd><p>Snapshot version recorded in MANIFEST.yaml (upstream tag / HF revision / ISO-date).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-skip-download">
+<span class="sig-name descname"><span class="pre">--skip-download</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-skip-download" title="Link to this definition"></a></dt>
+<dd><p>Skip the upstream pull (raw/ already staged).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-full">
+<span class="sig-name descname"><span class="pre">--full</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-full" title="Link to this definition"></a></dt>
+<dd><p>Pull the full gated set instead of the small preview.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-verify-integrity">
+<span class="sig-name descname"><span class="pre">--verify-integrity</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-verify-integrity" title="Link to this definition"></a></dt>
+<dd><p>Re-check existing files by sha256 before skipping (opt-in).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-force">
+<span class="sig-name descname"><span class="pre">--force</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-force" title="Link to this definition"></a></dt>
+<dd><p>Force acquisition where supported and re-extract only identity-qualified capsules. Source/content changes require fresh output destinations.</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-ai-for-science-bixbench-score">
+<h6>score<a class="headerlink" href="#scitex-dataset-ai-for-science-bixbench-score" title="Link to this heading"></a></h6>
+<p>Score a bixbench submission against the operator oracle (eval/answers.jsonl; host-side only). Emits one record per task: correct, wrong, abstain, malformed, needs_rubric or invalid_reference. Malformed records include format failure kinds such as schema_invalid; invalid references are not scientific wrong answers.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset ai-for-science bixbench score –submission sub.json</div>
+<div class="line">$ scitex-dataset ai-for-science bixbench score –submission sub.json –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>bixbench<span class="w"> </span>score<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-score-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-score-json" title="Link to this definition"></a></dt>
+<dd><p>Emit the result dict as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-score-dataset-root">
+<span class="sig-name descname"><span class="pre">--dataset-root</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_root&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-score-dataset-root" title="Link to this definition"></a></dt>
+<dd><p>Dataset root holding ai-for-science/ (default: $SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or ~/.scitex/dataset).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-score-submission">
+<span class="sig-name descname"><span class="pre">--submission</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;submission&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-score-submission" title="Link to this definition"></a></dt>
+<dd><p><strong>Required</strong> Path to the agent submission JSON (the uniform array).</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-ai-for-science-bixbench-standardize">
+<h6>standardize<a class="headerlink" href="#scitex-dataset-ai-for-science-bixbench-standardize" title="Link to this heading"></a></h6>
+<p>Read the bixbench raw/ snapshot; write the agent-visible for_solver/ view (per-capsule dirs + index.jsonl mapper, no answers) + the operator eval/ view (answers.jsonl + evaluate.py).</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset ai-for-science bixbench standardize</div>
+<div class="line">$ scitex-dataset ai-for-science bixbench standardize –only capsule-0201225</div>
+<div class="line">$ scitex-dataset ai-for-science bixbench standardize –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>bixbench<span class="w"> </span>standardize<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-standardize-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-standardize-json" title="Link to this definition"></a></dt>
+<dd><p>Emit the result dict as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-standardize-dataset-root">
+<span class="sig-name descname"><span class="pre">--dataset-root</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_root&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-standardize-dataset-root" title="Link to this definition"></a></dt>
+<dd><p>Dataset root holding ai-for-science/ (default: $SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or ~/.scitex/dataset).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-standardize-only">
+<span class="sig-name descname"><span class="pre">--only</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;only&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-standardize-only" title="Link to this definition"></a></dt>
+<dd><p>Materialize ONLY this capsule’s for_solver/ dir — accepts a friendly id (capsule-NNN) or a native capsule id (e.g. capsule-0201225), resolved via the index.jsonl mapper. The full mapper is still written. Default: all capsules.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-standardize-force">
+<span class="sig-name descname"><span class="pre">--force</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-standardize-force" title="Link to this definition"></a></dt>
+<dd><p>Re-extract only identity-qualified existing capsules. Changed or unstamped source/content requires fresh output destinations.</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-ai-for-science-bixbench-validate">
+<h6>validate<a class="headerlink" href="#scitex-dataset-ai-for-science-bixbench-validate" title="Link to this heading"></a></h6>
+<p>Validate a bixbench submission without an oracle: strict JSON types, required fields, unique IDs and exact public assignment membership. Use –tasks for a selected capsule. Optional public answer_type declarations are checked without coercion; absent declarations accept supported JSON. The default index covers the whole catalog; missing default metadata is explicitly shape-only. This never grades answers.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset ai-for-science bixbench validate –submission sub.json –tasks for_solver/capsule/task.jsonl</div>
+<div class="line">$ scitex-dataset ai-for-science bixbench validate –submission sub.json –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>bixbench<span class="w"> </span>validate<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-validate-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-validate-json" title="Link to this definition"></a></dt>
+<dd><p>Emit the result dict as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-validate-dataset-root">
+<span class="sig-name descname"><span class="pre">--dataset-root</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_root&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-validate-dataset-root" title="Link to this definition"></a></dt>
+<dd><p>Dataset root holding ai-for-science/ (default: $SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or ~/.scitex/dataset).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-validate-submission">
+<span class="sig-name descname"><span class="pre">--submission</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;submission&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-validate-submission" title="Link to this definition"></a></dt>
+<dd><p><strong>Required</strong> Path to the agent submission JSON (the uniform array).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-bixbench-validate-tasks">
+<span class="sig-name descname"><span class="pre">--tasks</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;tasks&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-bixbench-validate-tasks" title="Link to this definition"></a></dt>
+<dd><p>Selected public task.jsonl or capsule directory. Without this, use the whole for_solver index; missing metadata is labeled shape-only.</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="scitex-dataset-ai-for-science-corebench">
+<h5>corebench<a class="headerlink" href="#scitex-dataset-ai-for-science-corebench" title="Link to this heading"></a></h5>
+<p>CORE-Bench — Agentic AI-for-science benchmark: 90 reproducibility-judging capsules from CodeOcean papers (Princeton).</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>corebench<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-ai-for-science-corebench-download">
+<h6>download<a class="headerlink" href="#scitex-dataset-ai-for-science-corebench-download" title="Link to this heading"></a></h6>
+<p>Fetch the upstream corebench snapshot into raw/ as-is.</p>
+<p>WARNING: downloads are multi-GB. Run on SLURM, not a login node or CI.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset ai-for-science corebench download</div>
+<div class="line">$ scitex-dataset ai-for-science corebench download –full –dataset-root /scratch/datasets</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>corebench<span class="w"> </span>download<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-download-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-download-json" title="Link to this definition"></a></dt>
+<dd><p>Emit the result dict as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-download-dataset-root">
+<span class="sig-name descname"><span class="pre">--dataset-root</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_root&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-download-dataset-root" title="Link to this definition"></a></dt>
+<dd><p>Dataset root holding ai-for-science/ (default: $SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or ~/.scitex/dataset).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-download-full">
+<span class="sig-name descname"><span class="pre">--full</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-download-full" title="Link to this definition"></a></dt>
+<dd><p>Pull the full gated set instead of the small preview (where the benchmark distinguishes them, e.g. biomysterybench). For corebench, the full set is the oracle-driven 90-capsule run: it bootstraps the answer manifests (fetch + gpg-decrypt) then fetches every capsule tarball.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-download-capsule-ids">
+<span class="sig-name descname"><span class="pre">--capsule-ids</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;capsule_ids&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-download-capsule-ids" title="Link to this definition"></a></dt>
+<dd><p>corebench only: comma-separated NATIVE capsule ids (e.g. capsule-0201225,capsule-0238624) to fetch just those tarballs from the CDN — the oracle URLs are never touched. Overrides the oracle-driven full run.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-download-verify-integrity">
+<span class="sig-name descname"><span class="pre">--verify-integrity</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-download-verify-integrity" title="Link to this definition"></a></dt>
+<dd><p>Re-check existing files by sha256 before skipping (opt-in; default skip is by existence, no hashing).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-download-force">
+<span class="sig-name descname"><span class="pre">--force</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-download-force" title="Link to this definition"></a></dt>
+<dd><p>Re-download everything, ignoring what’s already on disk.</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-ai-for-science-corebench-prepare">
+<h6>prepare<a class="headerlink" href="#scitex-dataset-ai-for-science-corebench-prepare" title="Link to this heading"></a></h6>
+<p>Prepare corebench: download (raw/) + standardize (for_solver/ + eval/) + emit .scitex/dataset/MANIFEST.yaml (id + version + sha256 + mask-seed).</p>
+<p>WARNING: includes the multi-GB download step unless –skip-download is given. SLURM-only on shared compute.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset ai-for-science corebench prepare –skip-download</div>
+<div class="line">$ scitex-dataset ai-for-science corebench prepare –full –version v1.0</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>corebench<span class="w"> </span>prepare<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-prepare-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-json" title="Link to this definition"></a></dt>
+<dd><p>Emit the result dict as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-prepare-dataset-root">
+<span class="sig-name descname"><span class="pre">--dataset-root</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_root&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-dataset-root" title="Link to this definition"></a></dt>
+<dd><p>Dataset root holding ai-for-science/ (default: $SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or ~/.scitex/dataset).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-prepare-version">
+<span class="sig-name descname"><span class="pre">--version</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;version&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-version" title="Link to this definition"></a></dt>
+<dd><p>Snapshot version recorded in MANIFEST.yaml (upstream tag / HF revision / ISO-date).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-prepare-skip-download">
+<span class="sig-name descname"><span class="pre">--skip-download</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-skip-download" title="Link to this definition"></a></dt>
+<dd><p>Skip the upstream pull (raw/ already staged).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-prepare-full">
+<span class="sig-name descname"><span class="pre">--full</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-full" title="Link to this definition"></a></dt>
+<dd><p>Pull the full gated set instead of the small preview.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-prepare-verify-integrity">
+<span class="sig-name descname"><span class="pre">--verify-integrity</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-verify-integrity" title="Link to this definition"></a></dt>
+<dd><p>Re-check existing files by sha256 before skipping (opt-in).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-prepare-force">
+<span class="sig-name descname"><span class="pre">--force</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-force" title="Link to this definition"></a></dt>
+<dd><p>Force acquisition where supported and re-extract only identity-qualified capsules. Source/content changes require fresh output destinations.</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-ai-for-science-corebench-score">
+<h6>score<a class="headerlink" href="#scitex-dataset-ai-for-science-corebench-score" title="Link to this heading"></a></h6>
+<p>Score a corebench submission against the operator oracle (eval/answers.jsonl; host-side only). Emits one record per task: correct, wrong, abstain, malformed, needs_rubric or invalid_reference. Malformed records include format failure kinds such as schema_invalid; invalid references are not scientific wrong answers.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset ai-for-science corebench score –submission sub.json</div>
+<div class="line">$ scitex-dataset ai-for-science corebench score –submission sub.json –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>corebench<span class="w"> </span>score<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-score-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-score-json" title="Link to this definition"></a></dt>
+<dd><p>Emit the result dict as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-score-dataset-root">
+<span class="sig-name descname"><span class="pre">--dataset-root</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_root&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-score-dataset-root" title="Link to this definition"></a></dt>
+<dd><p>Dataset root holding ai-for-science/ (default: $SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or ~/.scitex/dataset).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-score-submission">
+<span class="sig-name descname"><span class="pre">--submission</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;submission&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-score-submission" title="Link to this definition"></a></dt>
+<dd><p><strong>Required</strong> Path to the agent submission JSON (the uniform array).</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-ai-for-science-corebench-standardize">
+<h6>standardize<a class="headerlink" href="#scitex-dataset-ai-for-science-corebench-standardize" title="Link to this heading"></a></h6>
+<p>Read the corebench raw/ snapshot; write the agent-visible for_solver/ view (per-capsule dirs + index.jsonl mapper, no answers) + the operator eval/ view (answers.jsonl + evaluate.py).</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset ai-for-science corebench standardize</div>
+<div class="line">$ scitex-dataset ai-for-science corebench standardize –only capsule-0201225</div>
+<div class="line">$ scitex-dataset ai-for-science corebench standardize –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>corebench<span class="w"> </span>standardize<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-standardize-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-standardize-json" title="Link to this definition"></a></dt>
+<dd><p>Emit the result dict as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-standardize-dataset-root">
+<span class="sig-name descname"><span class="pre">--dataset-root</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_root&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-standardize-dataset-root" title="Link to this definition"></a></dt>
+<dd><p>Dataset root holding ai-for-science/ (default: $SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or ~/.scitex/dataset).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-standardize-only">
+<span class="sig-name descname"><span class="pre">--only</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;only&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-standardize-only" title="Link to this definition"></a></dt>
+<dd><p>Materialize ONLY this capsule’s for_solver/ dir — accepts a friendly id (capsule-NNN) or a native capsule id (e.g. capsule-0201225), resolved via the index.jsonl mapper. The full mapper is still written. Default: all capsules.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-standardize-force">
+<span class="sig-name descname"><span class="pre">--force</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-standardize-force" title="Link to this definition"></a></dt>
+<dd><p>Re-extract only identity-qualified existing capsules. Changed or unstamped source/content requires fresh output destinations.</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-ai-for-science-corebench-validate">
+<h6>validate<a class="headerlink" href="#scitex-dataset-ai-for-science-corebench-validate" title="Link to this heading"></a></h6>
+<p>Validate a corebench submission without an oracle: strict JSON types, required fields, unique IDs and exact public assignment membership. Use –tasks for a selected capsule. Optional public answer_type declarations are checked without coercion; absent declarations accept supported JSON. The default index covers the whole catalog; missing default metadata is explicitly shape-only. This never grades answers.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset ai-for-science corebench validate –submission sub.json –tasks for_solver/capsule/task.jsonl</div>
+<div class="line">$ scitex-dataset ai-for-science corebench validate –submission sub.json –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>ai-for-science<span class="w"> </span>corebench<span class="w"> </span>validate<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-validate-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-validate-json" title="Link to this definition"></a></dt>
+<dd><p>Emit the result dict as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-validate-dataset-root">
+<span class="sig-name descname"><span class="pre">--dataset-root</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_root&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-validate-dataset-root" title="Link to this definition"></a></dt>
+<dd><p>Dataset root holding ai-for-science/ (default: $SCITEX_DATASET_ROOT, nearest project .scitex/dataset, or ~/.scitex/dataset).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-validate-submission">
+<span class="sig-name descname"><span class="pre">--submission</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;submission&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-validate-submission" title="Link to this definition"></a></dt>
+<dd><p><strong>Required</strong> Path to the agent submission JSON (the uniform array).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-ai-for-science-corebench-validate-tasks">
+<span class="sig-name descname"><span class="pre">--tasks</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;tasks&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-ai-for-science-corebench-validate-tasks" title="Link to this definition"></a></dt>
+<dd><p>Selected public task.jsonl or capsule directory. Without this, use the whole for_solver index; missing metadata is labeled shape-only.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+<section id="scitex-dataset-biology">
+<h4>biology<a class="headerlink" href="#scitex-dataset-biology" title="Link to this heading"></a></h4>
+<p>Biology datasets — GEO.</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>biology<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-biology-geo">
+<h5>geo<a class="headerlink" href="#scitex-dataset-biology-geo" title="Link to this heading"></a></h5>
+<p>GEO — Gene Expression Omnibus (NCBI).</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>biology<span class="w"> </span>geo<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-biology-geo-fetch">
+<h6>fetch<a class="headerlink" href="#scitex-dataset-biology-geo-fetch" title="Link to this heading"></a></h6>
+<p>Fetch datasets from geo.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset biology geo fetch</div>
+<div class="line">$ scitex-dataset biology geo fetch -n 10 -o geo.json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>biology<span class="w"> </span>geo<span class="w"> </span>fetch<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-biology-geo-fetch-n">
+<span id="cmdoption-scitex-dataset-biology-geo-fetch-max-datasets"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max-datasets</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_datasets&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-biology-geo-fetch-n" title="Link to this definition"></a></dt>
+<dd><p>Max datasets (0=all).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-biology-geo-fetch-o">
+<span id="cmdoption-scitex-dataset-biology-geo-fetch-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-biology-geo-fetch-o" title="Link to this definition"></a></dt>
+<dd><p>Output JSON file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-biology-geo-fetch-v">
+<span id="cmdoption-scitex-dataset-biology-geo-fetch-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-biology-geo-fetch-v" title="Link to this definition"></a></dt>
+<dd><p>Verbose output.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+<section id="scitex-dataset-completion">
+<h4>completion<a class="headerlink" href="#scitex-dataset-completion" title="Link to this heading"></a></h4>
+<p>Shell tab-completion management (drop-in, no rc edits).</p>
+<div class="line-block">
+<div class="line">Examples:</div>
+<div class="line-block">
+<div class="line">scitex-dataset completion install</div>
+<div class="line">scitex-dataset completion install –shell bash</div>
+<div class="line">scitex-dataset completion status</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>completion<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-completion-install">
+<h5>install<a class="headerlink" href="#scitex-dataset-completion-install" title="Link to this heading"></a></h5>
+<p>Write/refresh the completion drop-in, then print its path.</p>
+<div class="line-block">
+<div class="line">Examples:</div>
+<div class="line-block">
+<div class="line">scitex-dataset completion install</div>
+<div class="line">scitex-dataset completion install –shell bash</div>
+<div class="line">scitex-dataset completion install –shell zsh –yes</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>completion<span class="w"> </span>install<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-completion-install-shell">
+<span class="sig-name descname"><span class="pre">--shell</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;shell&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-completion-install-shell" title="Link to this definition"></a></dt>
+<dd><p>Target shell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">'bash'</span></code></p>
+</dd>
+<dt class="field-even">Options<span class="colon">:</span></dt>
+<dd class="field-even"><p>bash | zsh | fish</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-completion-install-y">
+<span id="cmdoption-scitex-dataset-completion-install-yes"></span><span class="sig-name descname"><span class="pre">-y</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--yes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-completion-install-y" title="Link to this definition"></a></dt>
+<dd><p>Accepted for automation; install never prompts.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-completion-install-dry-run">
+<span class="sig-name descname"><span class="pre">--dry-run</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-completion-install-dry-run" title="Link to this definition"></a></dt>
+<dd><p>Print the drop-in path without writing.</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-completion-status">
+<h5>status<a class="headerlink" href="#scitex-dataset-completion-status" title="Link to this heading"></a></h5>
+<p>Check whether the completion drop-in is installed.</p>
+<div class="line-block">
+<div class="line">Examples:</div>
+<div class="line-block">
+<div class="line">scitex-dataset completion status</div>
+<div class="line">scitex-dataset completion status –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>completion<span class="w"> </span>status<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-completion-status-shell">
+<span class="sig-name descname"><span class="pre">--shell</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;shell&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-completion-status-shell" title="Link to this definition"></a></dt>
+<dd><p>Target shell (drop-in path is shell-independent).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">'bash'</span></code></p>
+</dd>
+<dt class="field-even">Options<span class="colon">:</span></dt>
+<dd class="field-even"><p>bash | zsh | fish</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-completion-status-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-completion-status-json" title="Link to this definition"></a></dt>
+<dd><p>Emit machine-readable JSON.</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="scitex-dataset-db">
+<h4>db<a class="headerlink" href="#scitex-dataset-db" title="Link to this heading"></a></h4>
+<p>Dataset index commands for fast catalogue searching.</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>db<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-help-recursive">
+<span class="sig-name descname"><span class="pre">--help-recursive</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-help-recursive" title="Link to this definition"></a></dt>
+<dd><p>Show help for all commands.</p>
+</dd></dl>
+
+<section id="scitex-dataset-db-build">
+<h5>build<a class="headerlink" href="#scitex-dataset-db-build" title="Link to this heading"></a></h5>
+<p>Build/rebuild the dataset index.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset db build</div>
+<div class="line">$ scitex-dataset db build -s openneuro -s dandi</div>
+<div class="line">$ scitex-dataset db build –dry-run</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>db<span class="w"> </span>build<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-build-s">
+<span id="cmdoption-scitex-dataset-db-build-sources"></span><span class="sig-name descname"><span class="pre">-s</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--sources</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;sources&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-build-s" title="Link to this definition"></a></dt>
+<dd><p>Sources to index (default: all catalog sources).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dd class="field-odd"><p>openneuro | dandi | physionet | gin | zenodo | figshare | openml | geo | chembl | moleculenet | clinicaltrials</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-build-v">
+<span id="cmdoption-scitex-dataset-db-build-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-build-v" title="Link to this definition"></a></dt>
+<dd><p>Verbose output.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-build-dry-run">
+<span class="sig-name descname"><span class="pre">--dry-run</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-build-dry-run" title="Link to this definition"></a></dt>
+<dd><p>Print build plan without writing.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-build-y">
+<span id="cmdoption-scitex-dataset-db-build-yes"></span><span class="sig-name descname"><span class="pre">-y</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--yes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-build-y" title="Link to this definition"></a></dt>
+<dd><p>Suppress interactive confirmation (assume yes).</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-db-clear">
+<h5>clear<a class="headerlink" href="#scitex-dataset-db-clear" title="Link to this heading"></a></h5>
+<p>Retire every indexed dataset.</p>
+<p>Nothing is deleted: the datasets leave the default view — searches and
+stats answer as if the index were empty — and a later <code class="docutils literal notranslate"><span class="pre">db</span> <span class="pre">build</span></code>
+brings them back.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset db clear</div>
+<div class="line">$ scitex-dataset db clear –yes</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>db<span class="w"> </span>clear<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-clear-yes">
+<span class="sig-name descname"><span class="pre">--yes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-clear-yes" title="Link to this definition"></a></dt>
+<dd><p>Confirm the action without prompting.</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-db-search">
+<h5>search<a class="headerlink" href="#scitex-dataset-db-search" title="Link to this heading"></a></h5>
+<p>Search the dataset index.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset db search “EEG”</div>
+<div class="line">$ scitex-dataset db search “MRI” -s openneuro -n 5</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>db<span class="w"> </span>search<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>QUERY<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-search-s">
+<span id="cmdoption-scitex-dataset-db-search-source"></span><span class="sig-name descname"><span class="pre">-s</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--source</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;source&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-search-s" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dd class="field-odd"><p>openneuro | dandi | physionet | gin | zenodo | figshare | openml | geo | chembl | moleculenet | clinicaltrials</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-search-m">
+<span id="cmdoption-scitex-dataset-db-search-modality"></span><span class="sig-name descname"><span class="pre">-m</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--modality</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;modality&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-search-m" title="Link to this definition"></a></dt>
+<dd><p>Filter by modality (mri, eeg, etc.).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-search-min-subjects">
+<span class="sig-name descname"><span class="pre">--min-subjects</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;min_subjects&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-search-min-subjects" title="Link to this definition"></a></dt>
+<dd><p>Minimum subjects.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-search-max-subjects">
+<span class="sig-name descname"><span class="pre">--max-subjects</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_subjects&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-search-max-subjects" title="Link to this definition"></a></dt>
+<dd><p>Maximum subjects.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-search-min-downloads">
+<span class="sig-name descname"><span class="pre">--min-downloads</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;min_downloads&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-search-min-downloads" title="Link to this definition"></a></dt>
+<dd><p>Minimum downloads.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-search-n">
+<span id="cmdoption-scitex-dataset-db-search-limit"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--limit</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;limit&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-search-n" title="Link to this definition"></a></dt>
+<dd><p>Max results (default: 20).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-search-order-by">
+<span class="sig-name descname"><span class="pre">--order-by</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;order_by&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-search-order-by" title="Link to this definition"></a></dt>
+<dd><p>Order by field.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-search-o">
+<span id="cmdoption-scitex-dataset-db-search-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-search-o" title="Link to this definition"></a></dt>
+<dd><p>Output JSON file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-search-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-search-json" title="Link to this definition"></a></dt>
+<dd><p>Emit results as JSON to stdout.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-search-arg-QUERY">
+<span class="sig-name descname"><span class="pre">QUERY</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-search-arg-QUERY" title="Link to this definition"></a></dt>
+<dd><p>Optional argument</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-db-show-stats">
+<h5>show-stats<a class="headerlink" href="#scitex-dataset-db-show-stats" title="Link to this heading"></a></h5>
+<p>Show index statistics.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset db show-stats</div>
+<div class="line">$ scitex-dataset db show-stats –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>db<span class="w"> </span>show-stats<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-db-show-stats-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-db-show-stats-json" title="Link to this definition"></a></dt>
+<dd><p>Emit stats as JSON to stdout.</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="scitex-dataset-docs">
+<h4>docs<a class="headerlink" href="#scitex-dataset-docs" title="Link to this heading"></a></h4>
+<p>View package documentation (list / get / search).</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>docs<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<p>Examples:
+$ {prog} docs list          List doc pages.
+$ {prog} docs get           Show available pages.
+$ {prog} docs get api       Show a specific page.
+$ {prog} docs search QUERY  Search across docs/APIs/CLI/MCP.</p>
+<section id="scitex-dataset-docs-get">
+<h5>get<a class="headerlink" href="#scitex-dataset-docs-get" title="Link to this heading"></a></h5>
+<p>Show documentation. Without PAGE_NAME, shows package overview.</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>docs<span class="w"> </span>get<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>PAGE_NAME<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-docs-get-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-docs-get-json" title="Link to this definition"></a></dt>
+<dd><p>JSON output</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-docs-get-format">
+<span class="sig-name descname"><span class="pre">--format</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;fmt&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-docs-get-format" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dd class="field-odd"><p>html | json</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-docs-get-arg-PAGE_NAME">
+<span class="sig-name descname"><span class="pre">PAGE_NAME</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-docs-get-arg-PAGE_NAME" title="Link to this definition"></a></dt>
+<dd><p>Optional argument</p>
+</dd></dl>
+
+<p>Examples:
+$ {prog} docs get                    Show the package overview.
+$ {prog} docs get api                Show a specific page.
+$ {prog} docs get api –format json  Page as JSON.</p>
+</section>
+<section id="scitex-dataset-docs-list">
+<h5>list<a class="headerlink" href="#scitex-dataset-docs-list" title="Link to this heading"></a></h5>
+<p>List available documentation pages.</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>docs<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-docs-list-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-docs-list-json" title="Link to this definition"></a></dt>
+<dd><p>JSON output</p>
+</dd></dl>
+
+<p>Examples:
+$ {prog} docs list         Human-readable list.
+$ {prog} docs list –json  Structured JSON.</p>
+</section>
+</section>
+<section id="scitex-dataset-general">
+<h4>general<a class="headerlink" href="#scitex-dataset-general" title="Link to this heading"></a></h4>
+<p>General datasets — Zenodo, Figshare, OpenML, HuggingFace Hub.</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-general-figshare">
+<h5>figshare<a class="headerlink" href="#scitex-dataset-general-figshare" title="Link to this heading"></a></h5>
+<p>Figshare — General research data sharing platform.</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span>figshare<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-general-figshare-fetch">
+<h6>fetch<a class="headerlink" href="#scitex-dataset-general-figshare-fetch" title="Link to this heading"></a></h6>
+<p>Fetch datasets from figshare.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset general figshare fetch</div>
+<div class="line">$ scitex-dataset general figshare fetch -n 10 -o figshare.json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span>figshare<span class="w"> </span>fetch<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-figshare-fetch-n">
+<span id="cmdoption-scitex-dataset-general-figshare-fetch-max-datasets"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max-datasets</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_datasets&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-figshare-fetch-n" title="Link to this definition"></a></dt>
+<dd><p>Max datasets (0=all).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-figshare-fetch-o">
+<span id="cmdoption-scitex-dataset-general-figshare-fetch-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-figshare-fetch-o" title="Link to this definition"></a></dt>
+<dd><p>Output JSON file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-figshare-fetch-v">
+<span id="cmdoption-scitex-dataset-general-figshare-fetch-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-figshare-fetch-v" title="Link to this definition"></a></dt>
+<dd><p>Verbose output.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-figshare-fetch-q">
+<span id="cmdoption-scitex-dataset-general-figshare-fetch-query"></span><span class="sig-name descname"><span class="pre">-q</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--query</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;query&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-figshare-fetch-q" title="Link to this definition"></a></dt>
+<dd><p>Search query.</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="scitex-dataset-general-huggingface">
+<h5>huggingface<a class="headerlink" href="#scitex-dataset-general-huggingface" title="Link to this heading"></a></h5>
+<p>HuggingFace Hub — ML datasets and models — fetched on demand by repo_id (not catalog-enumerated).</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span>huggingface<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-general-huggingface-download-file">
+<h6>download-file<a class="headerlink" href="#scitex-dataset-general-huggingface-download-file" title="Link to this heading"></a></h6>
+<p>Download a single file from an HF repo.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset general huggingface download-file Anthropic/BioMysteryBench-full README.md</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span>huggingface<span class="w"> </span>download-file<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>REPO_ID<span class="w"> </span>FILENAME
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-download-file-d">
+<span id="cmdoption-scitex-dataset-general-huggingface-download-file-local-dir"></span><span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--local-dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;local_dir&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-download-file-d" title="Link to this definition"></a></dt>
+<dd><p>Local directory.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-download-file-t">
+<span id="cmdoption-scitex-dataset-general-huggingface-download-file-repo-type"></span><span class="sig-name descname"><span class="pre">-t</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--repo-type</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;repo_type&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-download-file-t" title="Link to this definition"></a></dt>
+<dd><p>Repository type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dataset | model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-download-file-arg-REPO_ID">
+<span class="sig-name descname"><span class="pre">REPO_ID</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-download-file-arg-REPO_ID" title="Link to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-download-file-arg-FILENAME">
+<span class="sig-name descname"><span class="pre">FILENAME</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-download-file-arg-FILENAME" title="Link to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-general-huggingface-fetch">
+<h6>fetch<a class="headerlink" href="#scitex-dataset-general-huggingface-fetch" title="Link to this heading"></a></h6>
+<p>Snapshot-download an HF dataset or model.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset general huggingface fetch Anthropic/BioMysteryBench-full</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span>huggingface<span class="w"> </span>fetch<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>REPO_ID
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-fetch-d">
+<span id="cmdoption-scitex-dataset-general-huggingface-fetch-local-dir"></span><span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--local-dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;local_dir&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-fetch-d" title="Link to this definition"></a></dt>
+<dd><p>Local directory.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-fetch-t">
+<span id="cmdoption-scitex-dataset-general-huggingface-fetch-repo-type"></span><span class="sig-name descname"><span class="pre">-t</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--repo-type</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;repo_type&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-fetch-t" title="Link to this definition"></a></dt>
+<dd><p>Repository type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dataset | model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-fetch-w">
+<span id="cmdoption-scitex-dataset-general-huggingface-fetch-max-workers"></span><span class="sig-name descname"><span class="pre">-w</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max-workers</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_workers&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-fetch-w" title="Link to this definition"></a></dt>
+<dd><p>Parallel workers.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-fetch-hf-home">
+<span class="sig-name descname"><span class="pre">--hf-home</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;hf_home&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-fetch-hf-home" title="Link to this definition"></a></dt>
+<dd><p>Override HF_HOME cache dir.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-fetch-v">
+<span id="cmdoption-scitex-dataset-general-huggingface-fetch-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-fetch-v" title="Link to this definition"></a></dt>
+<dd><p>Verbose output.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-fetch-arg-REPO_ID">
+<span class="sig-name descname"><span class="pre">REPO_ID</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-fetch-arg-REPO_ID" title="Link to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-general-huggingface-info">
+<h6>info<a class="headerlink" href="#scitex-dataset-general-huggingface-info" title="Link to this heading"></a></h6>
+<p>Inspect HF dataset/model metadata.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset general huggingface info Anthropic/BioMysteryBench-full</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span>huggingface<span class="w"> </span>info<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>REPO_ID
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-info-t">
+<span id="cmdoption-scitex-dataset-general-huggingface-info-repo-type"></span><span class="sig-name descname"><span class="pre">-t</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--repo-type</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;repo_type&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-info-t" title="Link to this definition"></a></dt>
+<dd><p>Repository type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dataset | model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-info-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-info-json" title="Link to this definition"></a></dt>
+<dd><p>Output as JSON.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-info-arg-REPO_ID">
+<span class="sig-name descname"><span class="pre">REPO_ID</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-info-arg-REPO_ID" title="Link to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-general-huggingface-search">
+<h6>search<a class="headerlink" href="#scitex-dataset-general-huggingface-search" title="Link to this heading"></a></h6>
+<p>Search HuggingFace Hub for datasets.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset general huggingface search “biology”</div>
+<div class="line">$ scitex-dataset general huggingface search “EEG” –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span>huggingface<span class="w"> </span>search<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>QUERY
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-search-n">
+<span id="cmdoption-scitex-dataset-general-huggingface-search-limit"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--limit</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;limit&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-search-n" title="Link to this definition"></a></dt>
+<dd><p>Max results.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-search-o">
+<span id="cmdoption-scitex-dataset-general-huggingface-search-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-search-o" title="Link to this definition"></a></dt>
+<dd><p>Output JSON file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-search-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-search-json" title="Link to this definition"></a></dt>
+<dd><p>Emit results as JSON.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-huggingface-search-arg-QUERY">
+<span class="sig-name descname"><span class="pre">QUERY</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-huggingface-search-arg-QUERY" title="Link to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="scitex-dataset-general-openml">
+<h5>openml<a class="headerlink" href="#scitex-dataset-general-openml" title="Link to this heading"></a></h5>
+<p>OpenML — Machine learning datasets and benchmarks.</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span>openml<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-general-openml-fetch">
+<h6>fetch<a class="headerlink" href="#scitex-dataset-general-openml-fetch" title="Link to this heading"></a></h6>
+<p>Fetch datasets from openml.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset general openml fetch</div>
+<div class="line">$ scitex-dataset general openml fetch -n 10 -o openml.json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span>openml<span class="w"> </span>fetch<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-openml-fetch-n">
+<span id="cmdoption-scitex-dataset-general-openml-fetch-max-datasets"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max-datasets</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_datasets&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-openml-fetch-n" title="Link to this definition"></a></dt>
+<dd><p>Max datasets (0=all).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-openml-fetch-o">
+<span id="cmdoption-scitex-dataset-general-openml-fetch-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-openml-fetch-o" title="Link to this definition"></a></dt>
+<dd><p>Output JSON file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-openml-fetch-v">
+<span id="cmdoption-scitex-dataset-general-openml-fetch-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-openml-fetch-v" title="Link to this definition"></a></dt>
+<dd><p>Verbose output.</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="scitex-dataset-general-zenodo">
+<h5>zenodo<a class="headerlink" href="#scitex-dataset-general-zenodo" title="Link to this heading"></a></h5>
+<p>Zenodo — General scientific data repository (CERN).</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span>zenodo<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-general-zenodo-fetch">
+<h6>fetch<a class="headerlink" href="#scitex-dataset-general-zenodo-fetch" title="Link to this heading"></a></h6>
+<p>Fetch datasets from zenodo.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset general zenodo fetch</div>
+<div class="line">$ scitex-dataset general zenodo fetch -n 10 -o zenodo.json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>general<span class="w"> </span>zenodo<span class="w"> </span>fetch<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-zenodo-fetch-n">
+<span id="cmdoption-scitex-dataset-general-zenodo-fetch-max-datasets"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max-datasets</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_datasets&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-zenodo-fetch-n" title="Link to this definition"></a></dt>
+<dd><p>Max datasets (0=all).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-zenodo-fetch-o">
+<span id="cmdoption-scitex-dataset-general-zenodo-fetch-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-zenodo-fetch-o" title="Link to this definition"></a></dt>
+<dd><p>Output JSON file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-zenodo-fetch-v">
+<span id="cmdoption-scitex-dataset-general-zenodo-fetch-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-zenodo-fetch-v" title="Link to this definition"></a></dt>
+<dd><p>Verbose output.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-general-zenodo-fetch-q">
+<span id="cmdoption-scitex-dataset-general-zenodo-fetch-query"></span><span class="sig-name descname"><span class="pre">-q</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--query</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;query&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-general-zenodo-fetch-q" title="Link to this definition"></a></dt>
+<dd><p>Search query.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+<section id="scitex-dataset-install-shell-completion">
+<h4>install-shell-completion<a class="headerlink" href="#scitex-dataset-install-shell-completion" title="Link to this heading"></a></h4>
+<p>Install tab-completion via the drop-in (never edits shell rc files).</p>
+<p>Canonical spelling is <code class="docutils literal notranslate"><span class="pre">scitex-dataset</span> <span class="pre">completion</span> <span class="pre">install</span></code>; this leaf
+exists for audit compatibility and behaves identically.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">scitex-dataset install-shell-completion –shell bash</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>install-shell-completion<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-install-shell-completion-shell">
+<span class="sig-name descname"><span class="pre">--shell</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;shell&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-install-shell-completion-shell" title="Link to this definition"></a></dt>
+<dd><p>Target shell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">'bash'</span></code></p>
+</dd>
+<dt class="field-even">Options<span class="colon">:</span></dt>
+<dd class="field-even"><p>bash | zsh | fish</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-install-shell-completion-y">
+<span id="cmdoption-scitex-dataset-install-shell-completion-yes"></span><span class="sig-name descname"><span class="pre">-y</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--yes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-install-shell-completion-y" title="Link to this definition"></a></dt>
+<dd><p>Accepted for automation; install never prompts.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-install-shell-completion-dry-run">
+<span class="sig-name descname"><span class="pre">--dry-run</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-install-shell-completion-dry-run" title="Link to this definition"></a></dt>
+<dd><p>Print the drop-in path without writing.</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-list-python-apis">
+<h4>list-python-apis<a class="headerlink" href="#scitex-dataset-list-python-apis" title="Link to this heading"></a></h4>
+<p>List Python APIs (scitex_dataset public API tree).</p>
+<p>Shows modules [M], classes [C], functions [F], and variables [V]
+with signatures and optional docstrings.</p>
+<div class="line-block">
+<div class="line">Examples:</div>
+<div class="line-block">
+<div class="line">scitex-dataset list-python-apis</div>
+<div class="line">scitex-dataset list-python-apis -v</div>
+<div class="line">scitex-dataset list-python-apis –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>list-python-apis<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-list-python-apis-v">
+<span id="cmdoption-scitex-dataset-list-python-apis-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-list-python-apis-v" title="Link to this definition"></a></dt>
+<dd><p>Verbosity: -v +doc, -vv full doc</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-list-python-apis-d">
+<span id="cmdoption-scitex-dataset-list-python-apis-max-depth"></span><span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max-depth</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_depth&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-list-python-apis-d" title="Link to this definition"></a></dt>
+<dd><p>Max recursion depth</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-list-python-apis-root-only">
+<span class="sig-name descname"><span class="pre">--root-only</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-list-python-apis-root-only" title="Link to this definition"></a></dt>
+<dd><p>Show only root-level items</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-list-python-apis-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-list-python-apis-json" title="Link to this definition"></a></dt>
+<dd><p>Output as JSON</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-mcp">
+<h4>mcp<a class="headerlink" href="#scitex-dataset-mcp" title="Link to this heading"></a></h4>
+<p>MCP (Model Context Protocol) server commands.</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>mcp<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-mcp-help-recursive">
+<span class="sig-name descname"><span class="pre">--help-recursive</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-mcp-help-recursive" title="Link to this definition"></a></dt>
+<dd><p>Show help for all commands.</p>
+</dd></dl>
+
+<section id="scitex-dataset-mcp-doctor">
+<h5>doctor<a class="headerlink" href="#scitex-dataset-mcp-doctor" title="Link to this heading"></a></h5>
+<p>Check MCP server dependencies.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset mcp doctor</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>mcp<span class="w"> </span>doctor<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="scitex-dataset-mcp-install">
+<h5>install<a class="headerlink" href="#scitex-dataset-mcp-install" title="Link to this heading"></a></h5>
+<p>Show MCP installation instructions.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset mcp install</div>
+<div class="line">$ scitex-dataset mcp install –claude-code</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>mcp<span class="w"> </span>install<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-mcp-install-claude-code">
+<span class="sig-name descname"><span class="pre">--claude-code</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-mcp-install-claude-code" title="Link to this definition"></a></dt>
+<dd><p>Show Claude Code config.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-mcp-install-dry-run">
+<span class="sig-name descname"><span class="pre">--dry-run</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-mcp-install-dry-run" title="Link to this definition"></a></dt>
+<dd><p>Print install plan without executing.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-mcp-install-y">
+<span id="cmdoption-scitex-dataset-mcp-install-yes"></span><span class="sig-name descname"><span class="pre">-y</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--yes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-mcp-install-y" title="Link to this definition"></a></dt>
+<dd><p>Suppress interactive confirmation (assume yes).</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-mcp-list-tools">
+<h5>list-tools<a class="headerlink" href="#scitex-dataset-mcp-list-tools" title="Link to this heading"></a></h5>
+<p>List available MCP tools.</p>
+<p>Verbosity: (none) names, -v signatures, -vv +description, -vvv full.
+Signatures are expanded by default; use -c/–compact for single line.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset mcp list-tools</div>
+<div class="line">$ scitex-dataset mcp list-tools -vv</div>
+<div class="line">$ scitex-dataset mcp list-tools –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>mcp<span class="w"> </span>list-tools<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-mcp-list-tools-v">
+<span id="cmdoption-scitex-dataset-mcp-list-tools-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-mcp-list-tools-v" title="Link to this definition"></a></dt>
+<dd><p>Verbosity: -v, -vv, -vvv.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-mcp-list-tools-c">
+<span id="cmdoption-scitex-dataset-mcp-list-tools-compact"></span><span class="sig-name descname"><span class="pre">-c</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--compact</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-mcp-list-tools-c" title="Link to this definition"></a></dt>
+<dd><p>Compact signatures (single line)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-mcp-list-tools-m">
+<span id="cmdoption-scitex-dataset-mcp-list-tools-module"></span><span class="sig-name descname"><span class="pre">-m</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--module</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;module&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-mcp-list-tools-m" title="Link to this definition"></a></dt>
+<dd><p>Filter by module (dataset, db)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-mcp-list-tools-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-mcp-list-tools-json" title="Link to this definition"></a></dt>
+<dd><p>Output as JSON.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-mcp-list-tools-summary">
+<span class="sig-name descname"><span class="pre">--summary</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-mcp-list-tools-summary" title="Link to this definition"></a></dt>
+<dd><p>Show context summary.</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-mcp-start">
+<h5>start<a class="headerlink" href="#scitex-dataset-mcp-start" title="Link to this heading"></a></h5>
+<p>Start the scitex-dataset MCP server.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset mcp start</div>
+<div class="line">$ scitex-dataset mcp start –dry-run</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>mcp<span class="w"> </span>start<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-mcp-start-dry-run">
+<span class="sig-name descname"><span class="pre">--dry-run</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-mcp-start-dry-run" title="Link to this definition"></a></dt>
+<dd><p>Print launch plan without starting.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-mcp-start-y">
+<span id="cmdoption-scitex-dataset-mcp-start-yes"></span><span class="sig-name descname"><span class="pre">-y</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--yes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-mcp-start-y" title="Link to this definition"></a></dt>
+<dd><p>Suppress interactive confirmation (assume yes).</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="scitex-dataset-medical">
+<h4>medical<a class="headerlink" href="#scitex-dataset-medical" title="Link to this heading"></a></h4>
+<p>Medical datasets — ClinicalTrials.gov.</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>medical<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-medical-clinicaltrials">
+<h5>clinicaltrials<a class="headerlink" href="#scitex-dataset-medical-clinicaltrials" title="Link to this heading"></a></h5>
+<p>ClinicalTrials.gov — Clinical study registry (NIH).</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>medical<span class="w"> </span>clinicaltrials<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-medical-clinicaltrials-fetch">
+<h6>fetch<a class="headerlink" href="#scitex-dataset-medical-clinicaltrials-fetch" title="Link to this heading"></a></h6>
+<p>Fetch studies from clinicaltrials.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset medical clinicaltrials fetch</div>
+<div class="line">$ scitex-dataset medical clinicaltrials fetch -n 10 -o clinicaltrials.json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>medical<span class="w"> </span>clinicaltrials<span class="w"> </span>fetch<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-medical-clinicaltrials-fetch-n">
+<span id="cmdoption-scitex-dataset-medical-clinicaltrials-fetch-max-datasets"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max-datasets</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_datasets&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-medical-clinicaltrials-fetch-n" title="Link to this definition"></a></dt>
+<dd><p>Max datasets (0=all).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-medical-clinicaltrials-fetch-o">
+<span id="cmdoption-scitex-dataset-medical-clinicaltrials-fetch-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-medical-clinicaltrials-fetch-o" title="Link to this definition"></a></dt>
+<dd><p>Output JSON file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-medical-clinicaltrials-fetch-v">
+<span id="cmdoption-scitex-dataset-medical-clinicaltrials-fetch-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-medical-clinicaltrials-fetch-v" title="Link to this definition"></a></dt>
+<dd><p>Verbose output.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+<section id="scitex-dataset-neuroscience">
+<h4>neuroscience<a class="headerlink" href="#scitex-dataset-neuroscience" title="Link to this heading"></a></h4>
+<p>Neuroscience datasets — OpenNeuro, DANDI Archive, PhysioNet, GIN (G-Node Infrastructure).</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-neuroscience-dandi">
+<h5>dandi<a class="headerlink" href="#scitex-dataset-neuroscience-dandi" title="Link to this heading"></a></h5>
+<p>DANDI Archive — NWB neurophysiology data.</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span>dandi<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-neuroscience-dandi-fetch">
+<h6>fetch<a class="headerlink" href="#scitex-dataset-neuroscience-dandi-fetch" title="Link to this heading"></a></h6>
+<p>Fetch dandisets from dandi.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset neuroscience dandi fetch</div>
+<div class="line">$ scitex-dataset neuroscience dandi fetch -n 10 -o dandi.json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span>dandi<span class="w"> </span>fetch<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-neuroscience-dandi-fetch-n">
+<span id="cmdoption-scitex-dataset-neuroscience-dandi-fetch-max-datasets"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max-datasets</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_datasets&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-neuroscience-dandi-fetch-n" title="Link to this definition"></a></dt>
+<dd><p>Max datasets (0=all).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-neuroscience-dandi-fetch-o">
+<span id="cmdoption-scitex-dataset-neuroscience-dandi-fetch-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-neuroscience-dandi-fetch-o" title="Link to this definition"></a></dt>
+<dd><p>Output JSON file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-neuroscience-dandi-fetch-v">
+<span id="cmdoption-scitex-dataset-neuroscience-dandi-fetch-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-neuroscience-dandi-fetch-v" title="Link to this definition"></a></dt>
+<dd><p>Verbose output.</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="scitex-dataset-neuroscience-gin">
+<h5>gin<a class="headerlink" href="#scitex-dataset-neuroscience-gin" title="Link to this heading"></a></h5>
+<p>GIN (G-Node Infrastructure) — Neuroscience datasets behind a Gogs-style REST API + git-annex blob store (iEEG, ephys, behaviour).</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span>gin<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-neuroscience-gin-fetch">
+<h6>fetch<a class="headerlink" href="#scitex-dataset-neuroscience-gin-fetch" title="Link to this heading"></a></h6>
+<p>Fetch datasets from gin.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset neuroscience gin fetch</div>
+<div class="line">$ scitex-dataset neuroscience gin fetch -n 10 -o gin.json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span>gin<span class="w"> </span>fetch<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-neuroscience-gin-fetch-n">
+<span id="cmdoption-scitex-dataset-neuroscience-gin-fetch-max-datasets"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max-datasets</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_datasets&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-neuroscience-gin-fetch-n" title="Link to this definition"></a></dt>
+<dd><p>Max datasets (0=all).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-neuroscience-gin-fetch-o">
+<span id="cmdoption-scitex-dataset-neuroscience-gin-fetch-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-neuroscience-gin-fetch-o" title="Link to this definition"></a></dt>
+<dd><p>Output JSON file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-neuroscience-gin-fetch-v">
+<span id="cmdoption-scitex-dataset-neuroscience-gin-fetch-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-neuroscience-gin-fetch-v" title="Link to this definition"></a></dt>
+<dd><p>Verbose output.</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="scitex-dataset-neuroscience-openneuro">
+<h5>openneuro<a class="headerlink" href="#scitex-dataset-neuroscience-openneuro" title="Link to this heading"></a></h5>
+<p>OpenNeuro — BIDS neuroimaging (MRI, EEG, MEG, iEEG, PET).</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span>openneuro<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-neuroscience-openneuro-fetch">
+<h6>fetch<a class="headerlink" href="#scitex-dataset-neuroscience-openneuro-fetch" title="Link to this heading"></a></h6>
+<p>Fetch datasets from openneuro.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset neuroscience openneuro fetch</div>
+<div class="line">$ scitex-dataset neuroscience openneuro fetch -n 10 -o openneuro.json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span>openneuro<span class="w"> </span>fetch<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-neuroscience-openneuro-fetch-n">
+<span id="cmdoption-scitex-dataset-neuroscience-openneuro-fetch-max-datasets"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max-datasets</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_datasets&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-neuroscience-openneuro-fetch-n" title="Link to this definition"></a></dt>
+<dd><p>Max datasets (0=all).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-neuroscience-openneuro-fetch-o">
+<span id="cmdoption-scitex-dataset-neuroscience-openneuro-fetch-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-neuroscience-openneuro-fetch-o" title="Link to this definition"></a></dt>
+<dd><p>Output JSON file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-neuroscience-openneuro-fetch-v">
+<span id="cmdoption-scitex-dataset-neuroscience-openneuro-fetch-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-neuroscience-openneuro-fetch-v" title="Link to this definition"></a></dt>
+<dd><p>Verbose output.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-neuroscience-openneuro-fetch-b">
+<span id="cmdoption-scitex-dataset-neuroscience-openneuro-fetch-batch-size"></span><span class="sig-name descname"><span class="pre">-b</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--batch-size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;batch_size&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-neuroscience-openneuro-fetch-b" title="Link to this definition"></a></dt>
+<dd><p>Datasets per request.</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="scitex-dataset-neuroscience-physionet">
+<h5>physionet<a class="headerlink" href="#scitex-dataset-neuroscience-physionet" title="Link to this heading"></a></h5>
+<p>PhysioNet — EEG, ECG, physiological signals.</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span>physionet<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-neuroscience-physionet-fetch">
+<h6>fetch<a class="headerlink" href="#scitex-dataset-neuroscience-physionet-fetch" title="Link to this heading"></a></h6>
+<p>Fetch databases from physionet.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset neuroscience physionet fetch</div>
+<div class="line">$ scitex-dataset neuroscience physionet fetch -n 10 -o physionet.json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>neuroscience<span class="w"> </span>physionet<span class="w"> </span>fetch<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-neuroscience-physionet-fetch-n">
+<span id="cmdoption-scitex-dataset-neuroscience-physionet-fetch-max-datasets"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max-datasets</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_datasets&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-neuroscience-physionet-fetch-n" title="Link to this definition"></a></dt>
+<dd><p>Max datasets (0=all).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-neuroscience-physionet-fetch-o">
+<span id="cmdoption-scitex-dataset-neuroscience-physionet-fetch-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-neuroscience-physionet-fetch-o" title="Link to this definition"></a></dt>
+<dd><p>Output JSON file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-neuroscience-physionet-fetch-v">
+<span id="cmdoption-scitex-dataset-neuroscience-physionet-fetch-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-neuroscience-physionet-fetch-v" title="Link to this definition"></a></dt>
+<dd><p>Verbose output.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+<section id="scitex-dataset-pharmacology">
+<h4>pharmacology<a class="headerlink" href="#scitex-dataset-pharmacology" title="Link to this heading"></a></h4>
+<p>Pharmacology datasets — MoleculeNet, ChEMBL.</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>pharmacology<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-pharmacology-chembl">
+<h5>chembl<a class="headerlink" href="#scitex-dataset-pharmacology-chembl" title="Link to this heading"></a></h5>
+<p>ChEMBL — Bioactivity database (EBI).</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>pharmacology<span class="w"> </span>chembl<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-pharmacology-chembl-fetch">
+<h6>fetch<a class="headerlink" href="#scitex-dataset-pharmacology-chembl-fetch" title="Link to this heading"></a></h6>
+<p>Fetch assays from chembl.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset pharmacology chembl fetch</div>
+<div class="line">$ scitex-dataset pharmacology chembl fetch -n 10 -o chembl.json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>pharmacology<span class="w"> </span>chembl<span class="w"> </span>fetch<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-pharmacology-chembl-fetch-n">
+<span id="cmdoption-scitex-dataset-pharmacology-chembl-fetch-max-datasets"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max-datasets</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_datasets&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-pharmacology-chembl-fetch-n" title="Link to this definition"></a></dt>
+<dd><p>Max datasets (0=all).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-pharmacology-chembl-fetch-o">
+<span id="cmdoption-scitex-dataset-pharmacology-chembl-fetch-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-pharmacology-chembl-fetch-o" title="Link to this definition"></a></dt>
+<dd><p>Output JSON file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-pharmacology-chembl-fetch-v">
+<span id="cmdoption-scitex-dataset-pharmacology-chembl-fetch-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-pharmacology-chembl-fetch-v" title="Link to this definition"></a></dt>
+<dd><p>Verbose output.</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="scitex-dataset-pharmacology-moleculenet">
+<h5>moleculenet<a class="headerlink" href="#scitex-dataset-pharmacology-moleculenet" title="Link to this heading"></a></h5>
+<p>MoleculeNet — Molecular ML benchmark suite.</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>pharmacology<span class="w"> </span>moleculenet<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-pharmacology-moleculenet-fetch">
+<h6>fetch<a class="headerlink" href="#scitex-dataset-pharmacology-moleculenet-fetch" title="Link to this heading"></a></h6>
+<p>Fetch datasets from moleculenet.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset pharmacology moleculenet fetch</div>
+<div class="line">$ scitex-dataset pharmacology moleculenet fetch -n 10 -o moleculenet.json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>pharmacology<span class="w"> </span>moleculenet<span class="w"> </span>fetch<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-pharmacology-moleculenet-fetch-n">
+<span id="cmdoption-scitex-dataset-pharmacology-moleculenet-fetch-max-datasets"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max-datasets</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_datasets&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-pharmacology-moleculenet-fetch-n" title="Link to this definition"></a></dt>
+<dd><p>Max datasets (0=all).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-pharmacology-moleculenet-fetch-o">
+<span id="cmdoption-scitex-dataset-pharmacology-moleculenet-fetch-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-pharmacology-moleculenet-fetch-o" title="Link to this definition"></a></dt>
+<dd><p>Output JSON file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-pharmacology-moleculenet-fetch-v">
+<span id="cmdoption-scitex-dataset-pharmacology-moleculenet-fetch-verbose"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-pharmacology-moleculenet-fetch-v" title="Link to this definition"></a></dt>
+<dd><p>Verbose output.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+<section id="scitex-dataset-print-shell-completion">
+<h4>print-shell-completion<a class="headerlink" href="#scitex-dataset-print-shell-completion" title="Link to this heading"></a></h4>
+<p>Print the completion script to stdout (no filesystem changes).</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">eval “$(scitex-dataset print-shell-completion –shell bash)”</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>print-shell-completion<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-print-shell-completion-shell">
+<span class="sig-name descname"><span class="pre">--shell</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;shell&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-print-shell-completion-shell" title="Link to this definition"></a></dt>
+<dd><p>Target shell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">'bash'</span></code></p>
+</dd>
+<dt class="field-even">Options<span class="colon">:</span></dt>
+<dd class="field-even"><p>bash | zsh | fish</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-skills">
+<h4>skills<a class="headerlink" href="#scitex-dataset-skills" title="Link to this heading"></a></h4>
+<p>Browse / fetch / install bundled skill pages.</p>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>skills<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="scitex-dataset-skills-get">
+<h5>get<a class="headerlink" href="#scitex-dataset-skills-get" title="Link to this heading"></a></h5>
+<p>Print the markdown content of one skill page.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset skills get 02_quick-start</div>
+<div class="line">$ scitex-dataset skills get 04_cli-reference –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>skills<span class="w"> </span>get<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>NAME
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-skills-get-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-skills-get-json" title="Link to this definition"></a></dt>
+<dd><p>Emit content as JSON.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-skills-get-arg-NAME">
+<span class="sig-name descname"><span class="pre">NAME</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-skills-get-arg-NAME" title="Link to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-skills-install">
+<h5>install<a class="headerlink" href="#scitex-dataset-skills-install" title="Link to this heading"></a></h5>
+<p>Install bundled skill pages to a target directory.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset skills install</div>
+<div class="line">$ scitex-dataset skills install -d ./my-skills/dataset –force</div>
+<div class="line">$ scitex-dataset skills install –dry-run</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>skills<span class="w"> </span>install<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-skills-install-d">
+<span id="cmdoption-scitex-dataset-skills-install-dest"></span><span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dest</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dest&gt;</span></span><a class="headerlink" href="#cmdoption-scitex-dataset-skills-install-d" title="Link to this definition"></a></dt>
+<dd><p>Destination directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">'/home/ywatanabe/.claude/skills/scitex/scitex-dataset'</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-skills-install-f">
+<span id="cmdoption-scitex-dataset-skills-install-force"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--force</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-skills-install-f" title="Link to this definition"></a></dt>
+<dd><p>Overwrite if dest exists.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-skills-install-dry-run">
+<span class="sig-name descname"><span class="pre">--dry-run</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-skills-install-dry-run" title="Link to this definition"></a></dt>
+<dd><p>Print plan without writing.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-skills-install-y">
+<span id="cmdoption-scitex-dataset-skills-install-yes"></span><span class="sig-name descname"><span class="pre">-y</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--yes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-skills-install-y" title="Link to this definition"></a></dt>
+<dd><p>Suppress interactive confirmation.</p>
+</dd></dl>
+
+</section>
+<section id="scitex-dataset-skills-list">
+<h5>list<a class="headerlink" href="#scitex-dataset-skills-list" title="Link to this heading"></a></h5>
+<p>List bundled skill page names.</p>
+<div class="line-block">
+<div class="line">Example:</div>
+<div class="line-block">
+<div class="line">$ scitex-dataset skills list</div>
+<div class="line">$ scitex-dataset skills list –json</div>
+</div>
+</div>
+<p class="rubric">Usage</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scitex-dataset<span class="w"> </span>skills<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-scitex-dataset-skills-list-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-scitex-dataset-skills-list-json" title="Link to this definition"></a></dt>
+<dd><p>Emit names as JSON.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
 </section>
 </section>
 

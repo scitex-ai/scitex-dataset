@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-11-09
+
+- Bind documentation version and imports to the selected source checkout,
+  including uninstalled builds launched from another working directory.
+  Refresh the shipped HTML and use the current SciTeX GitHub organization.
+- Render the CLI reference with a compatible Sphinx dependency range, remove
+  the blanket docutils suppression, and fix malformed help/docstring markup.
+  Document the current completion commands and track public bundle assets.
+
 - Run release tests against a disposable PostgreSQL 16 service on its allocated
   port and install the complete profile in a job-local virtual environment.
   Build in a separate job-local environment, verify tag/version/checkout

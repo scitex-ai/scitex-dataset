@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-dataset"
-version = "0.8.1"
+version = "0.8.2"
 description = "Multi-domain scientific dataset fetcher — neuroscience, biology, pharmacology, medical (OpenNeuro, DANDI, PhysioNet, GEO, ChEMBL, ClinicalTrials.gov)"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -64,7 +64,8 @@ dev = [
     "ruff>=0.1.0",
 ]
 docs = [
-    "sphinx>=7.0",
+    "tomli>=2.0; python_version < '3.11'",
+    "sphinx>=7.0,<9",
     "sphinx-rtd-theme>=2.0",
     "myst-parser>=2.0",
     "sphinx-copybutton>=0.5",
@@ -89,10 +90,10 @@ scitex-dataset = "scitex_dataset"
 scitex-dataset = "scitex_dataset"
 
 [project.urls]
-Homepage = "https://github.com/ywatanabe1989/scitex-dataset"
+Homepage = "https://github.com/scitex-ai/scitex-dataset"
 Documentation = "https://scitex-dataset.readthedocs.io"
-Repository = "https://github.com/ywatanabe1989/scitex-dataset.git"
-Issues = "https://github.com/ywatanabe1989/scitex-dataset/issues"
+Repository = "https://github.com/scitex-ai/scitex-dataset.git"
+Issues = "https://github.com/scitex-ai/scitex-dataset/issues"
 
 [tool.hatch.build.targets.wheel]
 # ``packages = ["src/scitex_dataset"]`` already pulls in every file
