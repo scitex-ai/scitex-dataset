@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Run release tests against a disposable PostgreSQL 16 service on its allocated
+  port and install the complete profile in a job-local virtual environment.
+  Build in a separate job-local environment, verify tag/version/checkout
+  agreement before installation, and refuse a missing test suite.
+
 - Pass release tag inputs as environment data rather than interpolated shell
   code. Reject branch refs, malformed tags, output injection, and unexpected
   events before checkout in both release test and build jobs. Checkouts use
