@@ -16,8 +16,8 @@ name: release
 #                      checks and review. Never merge it from this job.
 #                      Skipped if main already matches.
 #
-# Manual re-run: the workflow also accepts a `version` input via
-# workflow_dispatch so you can re-publish without re-tagging.
+# Manual dispatch accepts an existing version tag. Input is passed as data,
+# never shell source. This syntax guard does not qualify a release artifact.
 
 on:
   push:
@@ -39,16 +39,27 @@ jobs:
     steps:
       - name: Resolve version
         id: ver
+        env:
+          RELEASE_EVENT: ${{ github.event_name }}
+          REQUESTED_RELEASE_TAG: ${{ inputs.version }}
         run: |
-          if [ "${{ github.event_name }}" = "push" ]; then
+          set -euo pipefail
+          if [ "$RELEASE_EVENT" = "push" ]; then
+            [[ "$GITHUB_REF" == refs/tags/* ]] || exit 1
             v="${GITHUB_REF#refs/tags/}"
+          elif [ "$RELEASE_EVENT" = "workflow_dispatch" ]; then
+            v="$REQUESTED_RELEASE_TAG"
           else
-            v="${{ inputs.version }}"
+            exit 1
           fi
-          echo "version=$v" >> "$GITHUB_OUTPUT"
+          [[ "$v" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || {
+            echo '::error::Release requires an existing vX.Y.Z tag' >&2
+            exit 1
+          }
+          printf 'version=%s\n' "$v" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
         with:
-          ref: ${{ steps.ver.outputs.version }}
+          ref: refs/tags/${{ steps.ver.outputs.version }}
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
@@ -74,16 +85,27 @@ jobs:
     steps:
       - name: Resolve version
         id: ver
+        env:
+          RELEASE_EVENT: ${{ github.event_name }}
+          REQUESTED_RELEASE_TAG: ${{ inputs.version }}
         run: |
-          if [ "${{ github.event_name }}" = "push" ]; then
+          set -euo pipefail
+          if [ "$RELEASE_EVENT" = "push" ]; then
+            [[ "$GITHUB_REF" == refs/tags/* ]] || exit 1
             v="${GITHUB_REF#refs/tags/}"
+          elif [ "$RELEASE_EVENT" = "workflow_dispatch" ]; then
+            v="$REQUESTED_RELEASE_TAG"
           else
-            v="${{ inputs.version }}"
+            exit 1
           fi
-          echo "version=$v" >> "$GITHUB_OUTPUT"
+          [[ "$v" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || {
+            echo '::error::Release requires an existing vX.Y.Z tag' >&2
+            exit 1
+          }
+          printf 'version=%s\n' "$v" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
         with:
-          ref: ${{ steps.ver.outputs.version }}
+          ref: refs/tags/${{ steps.ver.outputs.version }}
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
@@ -120,7 +142,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.build.outputs.version }}
+          ref: refs/tags/${{ needs.build.outputs.version }}
       - uses: actions/download-artifact@v4
         with:
           name: dist
