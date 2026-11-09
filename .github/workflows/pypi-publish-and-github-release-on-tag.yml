@@ -173,6 +173,8 @@ jobs:
           uv pip install --python .venv/bin/python build
       - name: Build distribution
         run: .venv/bin/python -m build
+      - name: Verify built documentation against source
+        run: .venv/bin/python .github/ci/check_documentation_artifacts.py
       - uses: actions/upload-artifact@v4
         with:
           name: dist
