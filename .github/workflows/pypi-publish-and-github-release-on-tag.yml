@@ -36,6 +36,20 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: scitex
+          POSTGRES_PASSWORD: scitex
+          POSTGRES_DB: scitex
+        ports:
+          - 5432
+        options: >-
+          --health-cmd "pg_isready -U scitex"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - name: Resolve version
         id: ver
@@ -64,18 +78,34 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install the complete test profile
+      - name: Verify release version and checkout
+        env:
+          RELEASE_TAG: ${{ steps.ver.outputs.version }}
+        run: python .github/ci/check_release_version.py --tag "$RELEASE_TAG"
+      - uses: astral-sh/setup-uv@v7
+      - name: Point the store at the owned service
+        env:
+          POSTGRES_SERVICE_PORT: ${{ job.services.postgres.ports['5432'] }}
         run: |
-          set -e
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[all,dev]"
+          set -euo pipefail
+          if ! [[ "${POSTGRES_SERVICE_PORT:-}" =~ ^[1-9][0-9]{0,4}$ ]] || (( POSTGRES_SERVICE_PORT > 65535 )); then
+            echo '::error::Release PostgreSQL has no valid allocated port.' >&2
+            exit 1
+          fi
+          printf 'SCITEX_STORE_DSN=postgresql://scitex:scitex@127.0.0.1:%s/scitex\n' "$POSTGRES_SERVICE_PORT" >> "$GITHUB_ENV"
+      - name: Install the complete test profile
+        env:
+          RELEASE_TEST_PYTHON: ${{ matrix.python-version }}
+        run: |
+          set -euo pipefail
+          uv venv --python "$RELEASE_TEST_PYTHON" .venv
+          uv pip install --python .venv/bin/python -e ".[all,dev]"
+          uv pip check --python .venv/bin/python
       - name: Run pytest
         run: |
-          if [ -d tests ]; then
-            pytest tests/ -x
-          else
-            echo "no tests/ directory — skipping pytest"
-          fi
+          set -euo pipefail
+          test -d tests
+          .venv/bin/python -m pytest tests/ -x
 
   build:
     needs: test
@@ -110,10 +140,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Verify release version and checkout
+        env:
+          RELEASE_TAG: ${{ steps.ver.outputs.version }}
+        run: python .github/ci/check_release_version.py --tag "$RELEASE_TAG"
+      - uses: astral-sh/setup-uv@v7
       - name: Install build tools
-        run: pip install build
+        run: |
+          set -euo pipefail
+          uv venv --python 3.12 .venv
+          uv pip install --python .venv/bin/python build
       - name: Build distribution
-        run: python -m build
+        run: .venv/bin/python -m build
       - uses: actions/upload-artifact@v4
         with:
           name: dist
