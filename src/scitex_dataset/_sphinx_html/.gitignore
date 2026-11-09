@@ -1,0 +1,12 @@
+# Public Sphinx output required by the shipped HTML/CSS, never build caches.
+!/_sources/**/*.rst.txt
+!/_static/*.png
+!/_static/*.svg
+!/_static/fonts/**/*.woff
+!/_static/fonts/**/*.woff2
+!/_static/fonts/**/*.ttf
+!/_static/fonts/**/*.eot
+!/_static/css/fonts/*.woff
+!/_static/css/fonts/*.woff2
+!/_static/css/fonts/*.svg
+.doctrees/

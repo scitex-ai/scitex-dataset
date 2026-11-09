@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_dataset &mdash; scitex-dataset v0.0.0</title>
+  <title>scitex_dataset &mdash; scitex-dataset v0.8.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -13,9 +13,9 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=7026087e"></script>
-      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/documentation_options.js?v=dbee5847"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="../_static/copybutton.js?v=f281be69"></script>
     <script src="../_static/js/theme.js"></script>
@@ -66,7 +66,26 @@
 <li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#configuration-precedence">Configuration precedence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#legacy-aliases-hidden-exit-code-2">Legacy aliases (hidden, exit code 2)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#live-command-tree">Live command tree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#live-command-tree">Live command tree</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cli_reference.html#scitex-dataset">scitex-dataset</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../cli_reference.html#scitex-dataset-ai-for-science">ai-for-science</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cli_reference.html#scitex-dataset-biology">biology</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cli_reference.html#scitex-dataset-completion">completion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cli_reference.html#scitex-dataset-db">db</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cli_reference.html#scitex-dataset-docs">docs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cli_reference.html#scitex-dataset-general">general</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cli_reference.html#scitex-dataset-install-shell-completion">install-shell-completion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cli_reference.html#scitex-dataset-list-python-apis">list-python-apis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cli_reference.html#scitex-dataset-mcp">mcp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cli_reference.html#scitex-dataset-medical">medical</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cli_reference.html#scitex-dataset-neuroscience">neuroscience</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cli_reference.html#scitex-dataset-pharmacology">pharmacology</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cli_reference.html#scitex-dataset-print-shell-completion">print-shell-completion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cli_reference.html#scitex-dataset-skills">skills</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../sources.html">Data Sources</a><ul>
@@ -136,6 +155,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.database.store_description"><code class="docutils literal notranslate"><span class="pre">store_description()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.database._SOURCE_MODULES"><code class="docutils literal notranslate"><span class="pre">_SOURCE_MODULES</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.database._as_query"><code class="docutils literal notranslate"><span class="pre">_as_query()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.database._fetchers"><code class="docutils literal notranslate"><span class="pre">_fetchers()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api/scitex_dataset.html#neuroscience-sources">Neuroscience Sources</a><ul>
@@ -143,6 +165,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro._log_dataset"><code class="docutils literal notranslate"><span class="pre">_log_dataset()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/scitex_dataset.html#module-scitex_dataset.neuroscience.dandi">DANDI</a><ul>
@@ -187,6 +210,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.general.huggingface.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.general.huggingface.dataset_info"><code class="docutils literal notranslate"><span class="pre">dataset_info()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.general.huggingface.download_file"><code class="docutils literal notranslate"><span class="pre">download_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.general.huggingface._resolve_local_dir"><code class="docutils literal notranslate"><span class="pre">_resolve_local_dir()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.general.huggingface._resolve_token"><code class="docutils literal notranslate"><span class="pre">_resolve_token()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.general.huggingface._runtime_dir"><code class="docutils literal notranslate"><span class="pre">_runtime_dir()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/scitex_dataset.html#scitex_dataset.general.huggingface._user_root"><code class="docutils literal notranslate"><span class="pre">_user_root()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -266,14 +293,15 @@
 <span class="sd">SciTeX Dataset - Unified interface for scientific dataset discovery.</span>
 
 <span class="sd">Domains:</span>
+
 <span class="sd">- neuroscience:    OpenNeuro, DANDI, PhysioNet</span>
 <span class="sd">- general:         Scientific Data, Zenodo, Figshare, OpenML, HuggingFace</span>
 <span class="sd">- biology:         GEO (Gene Expression Omnibus)</span>
 <span class="sd">- pharmacology:    ChEMBL, MoleculeNet</span>
 <span class="sd">- medical:         ClinicalTrials.gov</span>
-<span class="sd">- ai-for-science:  CORE-Bench, BixBench, BioMysteryBench (agentic</span>
-<span class="sd">                   reproducibility / bioinformatics / biology cohorts —</span>
-<span class="sd">                   ``download | prepare | mask`` verb tree)</span>
+<span class="sd">- ai-for-science: CORE-Bench, BixBench, BioMysteryBench (agentic</span>
+<span class="sd">  reproducibility / bioinformatics / biology cohorts —</span>
+<span class="sd">  ``download | prepare | standardize`` verb tree)</span>
 
 <span class="sd">Usage:</span>
 <span class="sd">    &gt;&gt;&gt; from scitex_dataset import neuroscience</span>
