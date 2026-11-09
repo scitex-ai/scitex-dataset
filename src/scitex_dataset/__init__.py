@@ -7,14 +7,15 @@
 SciTeX Dataset - Unified interface for scientific dataset discovery.
 
 Domains:
+
 - neuroscience:    OpenNeuro, DANDI, PhysioNet
 - general:         Scientific Data, Zenodo, Figshare, OpenML, HuggingFace
 - biology:         GEO (Gene Expression Omnibus)
 - pharmacology:    ChEMBL, MoleculeNet
 - medical:         ClinicalTrials.gov
-- ai-for-science:  CORE-Bench, BixBench, BioMysteryBench (agentic
-                   reproducibility / bioinformatics / biology cohorts —
-                   ``download | prepare | mask`` verb tree)
+- ai-for-science: CORE-Bench, BixBench, BioMysteryBench (agentic
+  reproducibility / bioinformatics / biology cohorts —
+  ``download | prepare | standardize`` verb tree)
 
 Usage:
     >>> from scitex_dataset import neuroscience

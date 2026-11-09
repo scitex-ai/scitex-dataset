@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-11-09
+
+- Integrate main's release safeguards and packaging history: retain the
+  requested-interpreter and writable job-store checks, the 30-minute deadline,
+  complete public `all` extra, and AGPL-3.0-only license notice.
+
+- Bind documentation version and imports to the selected source checkout,
+  including uninstalled builds launched from another working directory.
+  Refresh the shipped HTML and use the current SciTeX GitHub organization.
+- Render the CLI reference with a compatible Sphinx dependency range, remove
+  the blanket docutils suppression, and fix malformed help/docstring markup.
+  Document the current completion commands and track public bundle assets.
+
+- Run release tests against a disposable PostgreSQL 16 service on its allocated
+  port and install the complete profile in a job-local virtual environment.
+  Build in a separate job-local environment, verify tag/version/checkout
+  agreement before installation, and refuse a missing test suite.
+
+- Pass release tag inputs as environment data rather than interpolated shell
+  code. Reject branch refs, malformed tags, output injection, and unexpected
+  events before checkout in both release test and build jobs. Checkouts use
+  explicit tag refs so a same-named branch cannot substitute. This validates
+  tag syntax; release identity and artifact qualification remain separate gates.
+
+- Keep the release test install on the complete `all,dev` profile and stop on
+  installation failure. Main-sync automation opens or reuses a pull request
+  for normal checks and review without attempting an admin merge.
+
+- Keep runtime placeholders out of the Git index and retain their documentation
+  in the parent configuration scope. Ignore all per-host runtime contents and
+  seed the local ignore policy when cache consumers recreate the directory,
+  preserving existing policies and data. Completion installers use the same
+  policy and repair a missing policy on repeated installs.
+
+- Ship the existing dataset CLI vocabulary in wheels and source archives, so
+  installed audit dispatchers recognize dataset and benchmark identifiers.
+
 ## [0.8.1] - 2026-10-10
 
 ### Added

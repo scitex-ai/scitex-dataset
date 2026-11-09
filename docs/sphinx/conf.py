@@ -5,22 +5,24 @@
 
 # -- Path setup --------------------------------------------------------------
 
-import os
 import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.abspath("../../src"))
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10 documentation environments
+    import tomli as tomllib
+
+SOURCE_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(SOURCE_ROOT / "src"))
 
 # -- Project information -----------------------------------------------------
 
 project = "scitex-dataset"
 copyright = "2025, Yusuke Watanabe"
 author = "Yusuke Watanabe"
-try:
-    from importlib.metadata import version as _v
-
-    release = _v("scitex-dataset")
-except Exception:
-    release = "0.0.0"
+with (SOURCE_ROOT / "pyproject.toml").open("rb") as metadata:
+    release = tomllib.load(metadata)["project"]["version"]
 
 # -- General configuration ---------------------------------------------------
 
@@ -38,15 +40,8 @@ extensions = [
     "sphinx_click",
 ]
 
-# Suppress the [docutils] warning category — sphinx-click 6.2.0 trips a
-# ``TypeError: 'module' object is not callable`` when it calls
-# ``mock(self.env.config.sphinx_click_mock_imports)`` because newer Sphinx
-# (9.x) ships ``sphinx.ext.autodoc.mock`` as a module rather than the
-# legacy function. The CLI reference is still rendered (autodoc imports
-# the click group directly elsewhere); only the warning needs silencing
-# so ``sphinx-build -W`` on PR CI does not block the merge. This is the
-# canonical defense flagged in ``general/04_docs_04_robust-ci.md``.
-suppress_warnings = ["docutils"]
+# sphinx-click 6.2 uses the pre-Sphinx-9 autodoc mock callable. The docs
+# dependency range preserves that API; keep directive errors visible.
 
 # Autodoc settings
 autodoc_default_options = {
@@ -65,6 +60,11 @@ autodoc_mock_imports = [
 
 # Autosummary settings
 autosummary_generate = True
+
+# Source pages belong to their defining modules. Following root re-export
+# aliases makes Sphinx 8 bind a whole module's backlinks to the alias namespace,
+# creating targets such as scitex_dataset.build instead of database.build.
+viewcode_follow_imported_members = False
 
 # Napoleon settings for numpy/google style docstrings
 napoleon_google_docstring = True
@@ -122,7 +122,7 @@ html_favicon = None  # Add path to favicon if available
 # Show "Edit on GitHub" links
 html_context = {
     "display_github": True,
-    "github_user": "ywatanabe1989",
+    "github_user": "scitex-ai",
     "github_repo": "scitex-dataset",
     "github_version": "main",
     "conf_py_path": "/docs/sphinx/",

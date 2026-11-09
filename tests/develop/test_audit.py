@@ -5,6 +5,7 @@ after upgrading scitex-dev to refresh any pin in [dev].
 """
 
 import shutil
+from pathlib import Path
 
 import pytest
 
@@ -12,7 +13,7 @@ import pytest
 pytestmark = pytest.mark.skipif(
     shutil.which("scitex-dev") is None,
     reason=(
-        "scitex-dev not installed — add `scitex-dev[cli-audit]` "
+        "scitex-dev not installed — add `scitex-dev` "
         "to [project.optional-dependencies.dev]"
     ),
 )
@@ -26,6 +27,8 @@ def test_audit_all_for_scitex_dataset_returns_clean():
     # ``audit_all_for_package`` raises ``AssertionError`` on non-zero exit
     # (pytest surfaces that as a normal failure). On a clean run it
     # returns ``None``, which we capture for the explicit assertion.
-    outcome = audit_all_for_package("scitex-dataset")
+    outcome = audit_all_for_package(
+        "scitex-dataset", path=Path(__file__).resolve().parents[2]
+    )
     # Assert
     assert outcome is None

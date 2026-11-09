@@ -12,13 +12,12 @@ name: release
 #   2. build         — wheel + sdist, uploaded as workflow artifact.
 #   3. publish       — PyPI via OIDC trusted publisher.
 #   4. release       — GitHub Release with CHANGELOG notes + artifacts.
-#   5. sync-main     — open a develop→main PR (normal CI/review gating,
-#                      never merged by this pipeline) so main can follow
-#                      the latest released commit. Skipped
-#                      if main already matches.
+#   5. sync-main     — open or reuse a develop→main PR for normal
+#                      checks and review. Never merge it from this job.
+#                      Skipped if main already matches.
 #
-# Manual re-run: the workflow also accepts a `version` input via
-# workflow_dispatch so you can re-publish without re-tagging.
+# Manual dispatch accepts an existing version tag. Input is passed as data,
+# never shell source. This syntax guard does not qualify a release artifact.
 
 on:
   push:
@@ -32,16 +31,13 @@ on:
 
 jobs:
   test:
-    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '["self-hosted","Linux","X64","scitex-ci"]') }}
     timeout-minutes: 30
+    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '["self-hosted","Linux","X64","scitex-ci"]') }}
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
     services:
-      # Owned ephemeral PostgreSQL for the store-backed index suite:
-      # postgres:16 with the same credentials/port/health contract as
-      # the canonical org reusable. Throwaway cluster for this job.
       postgres:
         image: postgres:16
         env:
@@ -49,7 +45,7 @@ jobs:
           POSTGRES_PASSWORD: scitex
           POSTGRES_DB: scitex
         ports:
-          - 5432:5432
+          - 5432
         options: >-
           --health-cmd "pg_isready -U scitex"
           --health-interval 5s
@@ -58,60 +54,70 @@ jobs:
     steps:
       - name: Resolve version
         id: ver
+        env:
+          RELEASE_EVENT: ${{ github.event_name }}
+          REQUESTED_RELEASE_TAG: ${{ inputs.version }}
         run: |
-          if [ "${{ github.event_name }}" = "push" ]; then
+          set -euo pipefail
+          if [ "$RELEASE_EVENT" = "push" ]; then
+            [[ "$GITHUB_REF" == refs/tags/* ]] || exit 1
             v="${GITHUB_REF#refs/tags/}"
+          elif [ "$RELEASE_EVENT" = "workflow_dispatch" ]; then
+            v="$REQUESTED_RELEASE_TAG"
           else
-            v="${{ inputs.version }}"
+            exit 1
           fi
-          echo "version=$v" >> "$GITHUB_OUTPUT"
+          [[ "$v" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || {
+            echo '::error::Release requires an existing vX.Y.Z tag' >&2
+            exit 1
+          }
+          printf 'version=%s\n' "$v" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
         with:
-          ref: ${{ steps.ver.outputs.version }}
+          ref: refs/tags/${{ steps.ver.outputs.version }}
           fetch-depth: 0
       - uses: actions/setup-python@v5
         id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
       - name: Qualify the requested interpreter
+        env:
+          RELEASE_SETUP_PYTHON: ${{ steps.setup-python.outputs.python-path }}
+          RELEASE_EXPECTED_PYTHON: ${{ matrix.python-version }}
         run: |
-          test -x "${{ steps.setup-python.outputs.python-path }}" || {
-            echo "::error::setup-python produced no executable for requested ${{ matrix.python-version }}."
+          set -euo pipefail
+          test -x "$RELEASE_SETUP_PYTHON"
+          "$RELEASE_SETUP_PYTHON" -c 'import os,sys; expected=tuple(map(int,os.environ["RELEASE_EXPECTED_PYTHON"].split("."))); assert sys.version_info[:2] == expected, "Requested interpreter does not match"'
+      - name: Verify release version and checkout
+        env:
+          RELEASE_TAG: ${{ steps.ver.outputs.version }}
+        run: python .github/ci/check_release_version.py --tag "$RELEASE_TAG"
+      - uses: astral-sh/setup-uv@v7
+      - name: Point the store at the owned service
+        env:
+          POSTGRES_SERVICE_PORT: ${{ job.services.postgres.ports['5432'] }}
+        run: |
+          set -euo pipefail
+          if ! [[ "${POSTGRES_SERVICE_PORT:-}" =~ ^[1-9][0-9]{0,4}$ ]] || (( POSTGRES_SERVICE_PORT > 65535 )); then
+            echo '::error::Release PostgreSQL has no valid allocated port.' >&2
             exit 1
-          }
-          "${{ steps.setup-python.outputs.python-path }}" -c "import sys; want=tuple(int(part) for part in '${{ matrix.python-version }}'.split('.')); assert sys.version_info[:2] == want, sys.version"
-          printf '%s\n' "SETUP_PYTHON=${{ steps.setup-python.outputs.python-path }}" >> "$GITHUB_ENV"
-      - name: Install (required full test profile)
+          fi
+          printf 'SCITEX_STORE_DSN=postgresql://scitex:scitex@127.0.0.1:%s/scitex\n' "$POSTGRES_SERVICE_PORT" >> "$GITHUB_ENV"
+      - name: Install the complete test profile
+        env:
+          RELEASE_TEST_PYTHON: ${{ matrix.python-version }}
         run: |
-          "$SETUP_PYTHON" -m pip install --upgrade pip
-          "$SETUP_PYTHON" -m pip install -e ".[all,dev]"
-      - name: Point the store at the ephemeral service
+          set -euo pipefail
+          uv venv --python "$RELEASE_TEST_PYTHON" .venv
+          uv pip install --python .venv/bin/python -e ".[all,dev]"
+          uv pip check --python .venv/bin/python
+      - name: Run pytest
+        env:
+          RELEASE_TEST_PYTHON: ${{ matrix.python-version }}
         run: |
-          printf '%s\n' "SCITEX_STORE_DSN=postgresql://scitex:scitex@127.0.0.1:5432/scitex" >> "$GITHUB_ENV"
-      - name: Run pytest against the verified job store
-        # ONE genuine writable_dsn context spans the actual pytest
-        # subprocess: the resolved DSN must equal the explicitly
-        # exported job-owned SCITEX_STORE_DSN (fail closed on fallback
-        # or mismatch). The context stays open until the subprocess
-        # result is collected, and nonzero propagates. tests/ is
-        # asserted present first. No fixture or assertion is edited;
-        # the DSN value itself is never printed.
-        run: |
+          set -euo pipefail
           test -d tests
-          "$SETUP_PYTHON" - <<'PYTHON'
-          import os
-          import subprocess
-          import sys
-          from contextlib import ExitStack
-          from scitex_dev.store.testing import writable_dsn
-          expected = os.environ["SCITEX_STORE_DSN"]
-          with ExitStack() as stack:
-              dsn = stack.enter_context(writable_dsn())
-              assert dsn == expected, "store DSN is not the job-owned service"
-              print("writable job store verified")
-              proc = subprocess.run([sys.executable, "-m", "pytest", "tests/", "-x"])
-          sys.exit(proc.returncode)
-          PYTHON
+          .venv/bin/python .github/ci/run_release_tests.py --python-version "$RELEASE_TEST_PYTHON"
 
   build:
     needs: test
@@ -121,33 +127,52 @@ jobs:
     steps:
       - name: Resolve version
         id: ver
+        env:
+          RELEASE_EVENT: ${{ github.event_name }}
+          REQUESTED_RELEASE_TAG: ${{ inputs.version }}
         run: |
-          if [ "${{ github.event_name }}" = "push" ]; then
+          set -euo pipefail
+          if [ "$RELEASE_EVENT" = "push" ]; then
+            [[ "$GITHUB_REF" == refs/tags/* ]] || exit 1
             v="${GITHUB_REF#refs/tags/}"
+          elif [ "$RELEASE_EVENT" = "workflow_dispatch" ]; then
+            v="$REQUESTED_RELEASE_TAG"
           else
-            v="${{ inputs.version }}"
+            exit 1
           fi
-          echo "version=$v" >> "$GITHUB_OUTPUT"
+          [[ "$v" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || {
+            echo '::error::Release requires an existing vX.Y.Z tag' >&2
+            exit 1
+          }
+          printf 'version=%s\n' "$v" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
         with:
-          ref: ${{ steps.ver.outputs.version }}
+          ref: refs/tags/${{ steps.ver.outputs.version }}
           fetch-depth: 0
       - uses: actions/setup-python@v5
         id: setup-python
         with:
           python-version: "3.12"
       - name: Qualify the requested interpreter
+        env:
+          RELEASE_SETUP_PYTHON: ${{ steps.setup-python.outputs.python-path }}
+          RELEASE_EXPECTED_PYTHON: "3.12"
         run: |
-          test -x "${{ steps.setup-python.outputs.python-path }}" || {
-            echo "::error::setup-python produced no executable for requested 3.12."
-            exit 1
-          }
-          "${{ steps.setup-python.outputs.python-path }}" -c "import sys; assert sys.version_info[:2] == (3, 12), sys.version"
-          printf '%s\n' "SETUP_PYTHON=${{ steps.setup-python.outputs.python-path }}" >> "$GITHUB_ENV"
+          set -euo pipefail
+          test -x "$RELEASE_SETUP_PYTHON"
+          "$RELEASE_SETUP_PYTHON" -c 'import os,sys; expected=tuple(map(int,os.environ["RELEASE_EXPECTED_PYTHON"].split("."))); assert sys.version_info[:2] == expected, "Requested interpreter does not match"'
+      - name: Verify release version and checkout
+        env:
+          RELEASE_TAG: ${{ steps.ver.outputs.version }}
+        run: python .github/ci/check_release_version.py --tag "$RELEASE_TAG"
+      - uses: astral-sh/setup-uv@v7
       - name: Install build tools
-        run: "\"$SETUP_PYTHON\" -m pip install build"
+        run: |
+          set -euo pipefail
+          uv venv --python 3.12 .venv
+          uv pip install --python .venv/bin/python build
       - name: Build distribution
-        run: "\"$SETUP_PYTHON\" -m build"
+        run: .venv/bin/python -m build
       - uses: actions/upload-artifact@v4
         with:
           name: dist
@@ -176,7 +201,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.build.outputs.version }}
+          ref: refs/tags/${{ needs.build.outputs.version }}
       - uses: actions/download-artifact@v4
         with:
           name: dist
@@ -203,9 +228,8 @@ jobs:
             dist/*
 
   sync-main:
-    # Open develop→main PR so main can follow the latest released
-    # commit. Branch-protected mains require PR review; this job never
-    # merges — the PR stays open for normal CI review gating.
+    # Open or reuse a develop→main PR. Normal checks and review govern
+    # its later merge; this job never bypasses branch protection.
     needs: publish
     runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '["self-hosted","Linux","X64","scitex-ci"]') }}
     permissions:
@@ -237,4 +261,4 @@ jobs:
           else
             echo "Reusing existing PR #${EXISTING}"
           fi
-          echo "PR #${EXISTING} left open for normal CI review gating; no admin merge in this pipeline."
+          echo "PR #${EXISTING} remains open for normal checks and review."

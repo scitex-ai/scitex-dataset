@@ -379,8 +379,9 @@ def gin_download(
     Returns
     -------
     dict
-        ``{"repo_dir": Path, "files": [{"path": Path, "bytes": int}, ...],
-           "total_bytes": int, "backend": str}``.
+        Metadata with ``repo_dir`` (Path), ``files`` (a list of records
+        containing ``path`` and ``bytes``), ``total_bytes`` (int), and
+        ``backend`` (str).
 
     Raises
     ------

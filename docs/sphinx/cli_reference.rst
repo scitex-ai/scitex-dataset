@@ -40,7 +40,6 @@ Old form                       New form
 ``hf <verb>``                  ``general huggingface <verb>``
 ``hf-<verb>``                  ``general huggingface <verb>``
 ``db stats``                   ``db show-stats``
-``completion``                 ``print-tab-completion``
 ============================== ==========================================
 
 The legacy commands print a redirect message and exit with status 2.
@@ -49,10 +48,15 @@ Live command tree
 -----------------
 
 The full subcommand tree below is rendered directly from the click
-group via `sphinx-click <https://sphinx-click.readthedocs.io/>`_, so it
-cannot drift from ``scitex-dataset --help-recursive``. Per the SciTeX
+group via `sphinx-click <https://sphinx-click.readthedocs.io/>`_. Regenerate
+the shipped HTML after CLI changes and check the rendered commands;
+a source directive alone does not prove that the bundle is current. Per the SciTeX
 Sphinx spec (audit code PS128), hand-written subcommand prose is
 forbidden here.
+
+``completion install`` and ``completion status`` are current commands,
+not legacy aliases. Their drop-in behavior is covered by
+``tests/scitex_dataset/_cli/test__completion.py``.
 
 .. click:: scitex_dataset._cli:main
    :prog: scitex-dataset

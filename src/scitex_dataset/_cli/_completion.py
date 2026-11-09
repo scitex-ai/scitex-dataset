@@ -23,6 +23,8 @@ from pathlib import Path
 import click
 import scitex_logging as slogging
 
+from .._config import _ensure_runtime_dir
+
 logger = slogging.getLogger(__name__)
 
 PROG_NAME = "scitex-dataset"
@@ -127,6 +129,7 @@ def completion_install(shell: str, yes: bool, dry_run: bool) -> None:
         click.echo(str(target))
         return
     script = generate_script(shell)
+    _ensure_runtime_dir(target.parent.parent)
     existing = target.read_text(encoding="utf-8") if target.is_file() else None
     if existing != script:
         _atomic_write(target, script)
@@ -234,6 +237,7 @@ def install_shell_completion_cmd(shell: str, yes: bool, dry_run: bool) -> None:
         click.echo(str(target))
         return
     script = generate_script(shell)
+    _ensure_runtime_dir(target.parent.parent)
     existing = target.read_text(encoding="utf-8") if target.is_file() else None
     if existing != script:
         _atomic_write(target, script)

@@ -85,7 +85,7 @@ def make_fetch_command(
             click.echo(f"Fetched {len(formatted)} {label}")
 
     example = (
-        f"\n\n\\b\nExample:\n"
+        f"\n\n\b\nExample:\n"
         f"  $ scitex-dataset {domain} {source} fetch\n"
         f"  $ scitex-dataset {domain} {source} fetch -n 10 -o {source}.json"
     )
