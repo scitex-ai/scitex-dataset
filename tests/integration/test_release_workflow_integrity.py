@@ -143,7 +143,12 @@ def test_complete_suite_uses_the_owned_interpreter(tmp_path):
     # Assert
     assert (result.returncode, calls) == (
         0,
-        [["owned-python", ["-m", "pytest", "tests/", "-x"]]],
+        [
+            [
+                "owned-python",
+                [".github/ci/run_release_tests.py", "--python-version", "3.12"],
+            ]
+        ],
     )
 
 

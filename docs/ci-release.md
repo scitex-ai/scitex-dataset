@@ -7,6 +7,14 @@ It selects an existing canonical version tag explicitly through `refs/tags/`.
 commit and `pyproject.toml` version agree before test/build dependencies install.
 The historical `exec-in-sif.sh` helpers are not called by this workflow.
 
+Both requested interpreter families are checked before installation. The
+job-local release runner checks its own interpreter too, then holds the real
+`scitex_dev.store.testing.writable_dsn` context across the complete pytest
+subprocess. The resolved DSN must equal the explicitly allocated job service;
+a missing store cannot select a fleet default. The test job retains its
+30-minute deadline. Guards and failure propagation are covered by
+`tests/integration/test_release_store_guard.py` and the workflow protocol tests.
+
 The three Python test jobs each use a disposable PostgreSQL 16 service. Docker
 assigns a free host port; the workflow validates that mapping and exports its
 fixture DSN as `SCITEX_STORE_DSN`. It does not select an operator database or

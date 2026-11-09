@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.2] - 2026-11-09
 
+- Integrate main's release safeguards and packaging history: retain the
+  requested-interpreter and writable job-store checks, the 30-minute deadline,
+  complete public `all` extra, and AGPL-3.0-only license notice.
+
 - Bind documentation version and imports to the selected source checkout,
   including uninstalled builds launched from another working directory.
   Refresh the shipped HTML and use the current SciTeX GitHub organization.
