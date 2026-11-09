@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-dataset"
-version = "0.8.2"
+version = "0.8.3"
 description = "Multi-domain scientific dataset fetcher — neuroscience, biology, pharmacology, medical (OpenNeuro, DANDI, PhysioNet, GEO, ChEMBL, ClinicalTrials.gov)"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -98,6 +98,19 @@ Homepage = "https://github.com/scitex-ai/scitex-dataset"
 Documentation = "https://scitex-dataset.readthedocs.io"
 Repository = "https://github.com/scitex-ai/scitex-dataset.git"
 Issues = "https://github.com/scitex-ai/scitex-dataset/issues"
+
+[tool.hatch.build]
+# Hatch reads the first root VCS ignore file, not nested Git exceptions.
+# Admit only public documentation resources for both wheel and sdist.
+artifacts = [
+    "src/scitex_dataset/_sphinx_html/_sources/**/*.rst.txt",
+    "src/scitex_dataset/_sphinx_html/_static/**/*.svg",
+    "src/scitex_dataset/_sphinx_html/_static/**/*.png",
+    "src/scitex_dataset/_sphinx_html/_static/**/*.woff",
+    "src/scitex_dataset/_sphinx_html/_static/**/*.woff2",
+    "src/scitex_dataset/_sphinx_html/_static/**/*.ttf",
+    "src/scitex_dataset/_sphinx_html/_static/**/*.eot",
+]
 
 [tool.hatch.build.targets.wheel]
 # ``packages = ["src/scitex_dataset"]`` already pulls in every file

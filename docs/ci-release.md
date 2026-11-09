@@ -36,6 +36,21 @@ resolution, scientific test results or publication. Require actual full-profile
 CI and normal wheel/sdist/installed qualification before a new immutable tag;
 published tags and versions must not be replaced. Promote accepted source through
 the normal branch checks and review process before release.
+
+Use the release's actual `python -m build` path for distribution qualification;
+another build frontend alone does not prove equivalent file selection.
+After building, `.github/ci/check_documentation_artifacts.py` compares every
+public source documentation file with both artifacts and refuses missing,
+changed or duplicate members before upload/publication. Build markers remain
+outside that public-content check. The actual archive controls are in
+`tests/integration/test_documentation_artifacts.py`.
+
+Hatch reads the first root VCS ignore file. Nested Git ignore exceptions keep
+inputs tracked but are not sufficient for Hatch selection. The narrow
+`tool.hatch.build.artifacts` patterns admit public documentation source copies,
+icons and fonts for both targets without disabling VCS exclusions elsewhere
+or adding a duplicate directory through force-include.
+
 ## Shipped documentation qualification
 
 The Sphinx configuration reads the selected checkout's `pyproject.toml`, even
