@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Pass release tag inputs as environment data rather than interpolated shell
+  code. Reject branch refs, malformed tags, output injection, and unexpected
+  events before checkout in both release test and build jobs. Checkouts use
+  explicit tag refs so a same-named branch cannot substitute. This validates
+  tag syntax; release identity and artifact qualification remain separate gates.
+
 - Keep the release test install on the complete `all,dev` profile and stop on
   installation failure. Main-sync automation opens or reuses a pull request
   for normal checks and review without attempting an admin merge.
