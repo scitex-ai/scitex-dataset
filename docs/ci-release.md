@@ -50,6 +50,9 @@ inputs tracked but are not sufficient for Hatch selection. The narrow
 `tool.hatch.build.artifacts` patterns admit public documentation source copies,
 icons and fonts for both targets without disabling VCS exclusions elsewhere
 or adding a duplicate directory through force-include.
+Regenerable `examples/*_out/` session outputs and `GITIGNORED/` are also
+explicitly excluded from artifacts; snapshot/frontend context must not admit
+their cached data or logs.
 
 ## Shipped documentation qualification
 

@@ -100,6 +100,9 @@ Repository = "https://github.com/scitex-ai/scitex-dataset.git"
 Issues = "https://github.com/scitex-ai/scitex-dataset/issues"
 
 [tool.hatch.build]
+# Regenerable session outputs must stay excluded even when a frontend builds
+# from a Git snapshot with different inherited VCS ignore context.
+exclude = ["/GITIGNORED/**", "/examples/*_out/**"]
 # Hatch reads the first root VCS ignore file, not nested Git exceptions.
 # Admit only public documentation resources for both wheel and sdist.
 artifacts = [

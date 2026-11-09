@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ignore exceptions alone did not preserve these files in the 0.8.2 release.
 - Check built documentation resources against source before artifact upload
   and publication. Keep 0.8.2 immutable; its missing assets fail verification.
+- Explicitly exclude regenerable example-session outputs and local evidence
+  directories so archive contents do not depend on inherited ignore context.
 
 ## [0.8.2] - 2026-11-09
 
