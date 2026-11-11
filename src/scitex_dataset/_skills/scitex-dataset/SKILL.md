@@ -1,7 +1,7 @@
 ---
 name: scitex-dataset
 description: |
-  [WHAT] Unified dataset-discovery API across 11 scientific repositories (10 catalog sources + HuggingFace on-demand).
+  [WHAT] Dataset discovery across 11 catalog sources and HuggingFace, plus preparation and evaluation tools for three agentic-science benchmarks.
   [WHEN] Use when the user asks to "find an EEG dataset", "list BIDS datasets on topic X", "search DANDI for Neuropixels", "get GEO series for Alzheimer's", "find a ChEMBL target / bioassay".
   [HOW] `import scitex_dataset` then call `fetch_all_datasets()`.
 tags: [scitex-dataset]
@@ -19,10 +19,11 @@ interfaces:
 
 # scitex-dataset
 
-Unified cross-repository dataset discovery — one API over OpenNeuro,
-DANDI, PhysioNet, Zenodo, Figshare, OpenML, MoleculeNet, GEO, ChEMBL,
-ClinicalTrials.gov (catalog-indexed) plus HuggingFace Hub (on-demand
-fetch by repo_id).
+Catalog discovery covers OpenNeuro, DANDI, PhysioNet, GIN, Zenodo, Figshare,
+OpenML, MoleculeNet, GEO, ChEMBL and ClinicalTrials.gov. HuggingFace Hub
+supports on-demand access by repository ID. The `ai-for-science` domain
+provides preparation, validation and scoring for CORE-Bench, BixBench and
+BioMysteryBench; see [15_ai-for-science.md](15_ai-for-science.md).
 
 ## Installation & import (two equivalent paths)
 
@@ -43,8 +44,7 @@ scitex.dataset.fetch_all_datasets(...)
 `import scitex.dataset` raises `ModuleNotFoundError`. To use the
 `scitex.dataset` form, also `pip install scitex`.
 
-See [../../general/02_interface-python-api.md] for the ecosystem-wide
-rule and empirical verification table.
+See [03_python-api.md](03_python-api.md) for the package's Python interfaces.
 
 ## Sub-skills
 
@@ -65,9 +65,15 @@ rule and empirical verification table.
 ## CLI
 
 ```bash
-scitex-dataset fetch_all_datasets "EEG epilepsy"
-scitex-dataset fetch openneuro ds003104
+scitex-dataset --help
+scitex-dataset neuroscience openneuro fetch -n 50
+scitex-dataset general zenodo fetch -q "EEG epilepsy" -n 20
 ```
+
+Commands follow `<domain> <source> <action>`. OpenNeuro's `fetch` enumerates
+catalog records; it does not take a dataset ID as a positional argument.
+`fetch_all_datasets` is a Python callable, not a CLI command. See the
+[CLI reference](04_cli-reference.md) for command-specific flags.
 
 ## MCP Tools
 
