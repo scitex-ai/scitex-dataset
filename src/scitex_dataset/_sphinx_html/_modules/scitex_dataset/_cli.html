@@ -389,11 +389,14 @@
 <span class="sd">      scitex-dataset &lt;domain&gt; &lt;dataset&gt; &lt;action&gt; [OPTIONS]</span>
 
 <span class="sd">    \b</span>
-<span class="sd">    Config resolution (highest first):</span>
-<span class="sd">      --config &lt;path&gt;</span>
+<span class="sd">    Python configuration loader (highest precedence first):</span>
+<span class="sd">      explicit cli_path argument</span>
 <span class="sd">      $SCITEX_DATASET_CONFIG</span>
 <span class="sd">      &lt;project&gt;/.scitex/dataset/config.yaml</span>
 <span class="sd">      $SCITEX_DIR/dataset/config.yaml   (default ~/.scitex/dataset/config.yaml)</span>
+
+<span class="sd">    Catalog CLI commands use explicit flags; YAML configuration integration</span>
+<span class="sd">    remains pending.</span>
 <span class="sd">    """</span>
     <span class="n">ctx</span><span class="o">.</span><span class="n">ensure_object</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">ctx</span><span class="o">.</span><span class="n">obj</span><span class="p">[</span><span class="s2">"as_json"</span><span class="p">]</span> <span class="o">=</span> <span class="n">as_json</span>

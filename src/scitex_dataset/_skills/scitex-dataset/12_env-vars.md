@@ -27,7 +27,7 @@ The Python helper `_config.find_config_path(cli_path=...)` checks (highest first
 3. ``<project>/.scitex/dataset/config.yaml`` (project scope)
 4. ``$SCITEX_DIR/dataset/config.yaml`` — default ``~/.scitex/dataset/config.yaml`` (user scope)
 
-The root CLI does not register `--config`, despite its help text, and catalog
+The root CLI does not register `--config`, and catalog
 commands do not call `load_config`. This is an unresolved integration gap.
 See [the CLI reference](04_cli-reference.md#configuration-precedence) for
 current behavior and use command-specific flags.
