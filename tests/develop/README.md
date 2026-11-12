@@ -10,7 +10,9 @@ for these children. The ordinary CI caller enables this diagnostic; it does
 not change workers, coverage or the deadline. A successful scorer keeps its
 normal stdout. A timeout prints an `EVALUATOR_TIMEOUT` JSON record containing
 elapsed time, the parent worker PID, sampled CPU/I/O/memory pressure and up
-to twelve import-timing rows. Only standard-library roots and `coverage`
+to twelve import-timing rows. Where accessible, it also records the process's
+cgroup-v2 CPU/memory limits and throttling counters, without the cgroup path.
+Only standard-library roots and `coverage`
 are named; other module names become `external`. Arguments, paths, stdout
 and arbitrary child stderr are not added to that record.
 

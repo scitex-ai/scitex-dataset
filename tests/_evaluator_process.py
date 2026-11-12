@@ -30,6 +30,24 @@ def _import_timings(stderr):
     return list(rows)
 
 
+def _cgroup_limits():
+    try:
+        membership = Path("/proc/self/cgroup").read_text().splitlines()
+        relative = next(line[3:] for line in membership if line.startswith("0::"))
+        if ".." in Path(relative).parts:
+            return {"scope": "unavailable", "metrics": {}}
+        root = Path("/sys/fs/cgroup") / relative.lstrip("/")
+    except (OSError, StopIteration):
+        return {"scope": "unavailable", "metrics": {}}
+    metrics = {}
+    for name in ("cpu.max", "cpu.stat", "memory.max", "memory.events"):
+        try:
+            metrics[name] = (root / name).read_text()[:4096]
+        except OSError:
+            metrics[name] = "unavailable"
+    return {"scope": "process_cgroup_v2", "metrics": metrics}
+
+
 def run_evaluator(argv, *, trace=None):
     """Keep the original capture/text/three-second contract and failure type."""
     enabled = os.environ.get("SCITEX_DATASET_EVALUATOR_IMPORT_TRACE") == "1"
@@ -54,6 +72,7 @@ def run_evaluator(argv, *, trace=None):
             "import_trace_enabled": enabled,
             "last_import_timings": _import_timings(stderr),
             "pressure": pressure,
+            "cgroup": _cgroup_limits(),
         }
         # No command arguments, paths, submissions or arbitrary stderr content.
         print("EVALUATOR_TIMEOUT " + json.dumps(evidence), file=sys.stderr, flush=True)
