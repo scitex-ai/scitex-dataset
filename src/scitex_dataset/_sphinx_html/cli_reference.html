@@ -297,14 +297,21 @@
 the SciTeX skills for the underlying convention.</p>
 <section id="configuration-precedence">
 <h2>Configuration precedence<a class="headerlink" href="#configuration-precedence" title="Link to this heading"></a></h2>
-<p>Resolution chain (highest first), per
-<code class="docutils literal notranslate"><span class="pre">general/01_ecosystem_06_local-state-directories</span></code>:</p>
+<p>The Python helper <code class="docutils literal notranslate"><span class="pre">scitex_dataset._config.find_config_path(cli_path=...)</span></code>
+resolves the following paths (highest first):</p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">--config</span> <span class="pre">&lt;path&gt;</span></code> CLI flag</p></li>
+<li><p>An explicit <code class="docutils literal notranslate"><span class="pre">cli_path</span></code> Python argument</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">$SCITEX_DATASET_CONFIG</span></code> env var</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&lt;project&gt;/.scitex/dataset/config.yaml</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">$SCITEX_DIR/dataset/config.yaml</span></code> (default <code class="docutils literal notranslate"><span class="pre">~/.scitex/dataset/config.yaml</span></code>)</p></li>
 </ol>
+<p>The root CLI does not currently register <code class="docutils literal notranslate"><span class="pre">--config</span></code>, even though its help
+prints that option in the intended resolution chain. Catalog commands do not
+call <code class="docutils literal notranslate"><span class="pre">load_config</span></code>. This remains a CLI integration gap: use each command’s
+explicit flags rather than assuming a config file supplies its options.
+The resolver implementation is in <code class="docutils literal notranslate"><span class="pre">src/scitex_dataset/_config.py</span></code>;
+the command registration and catalog caller are in
+<code class="docutils literal notranslate"><span class="pre">src/scitex_dataset/_cli/__init__.py</span></code> and <code class="docutils literal notranslate"><span class="pre">_factory.py</span></code>.</p>
 <p>Project scope wins over user scope. <code class="docutils literal notranslate"><span class="pre">SCITEX_DIR</span></code> relocates the user
 scope atomically. Runtime files (snapshots, caches, logs) live under
 <code class="docutils literal notranslate"><span class="pre">&lt;scope-root&gt;/runtime/</span></code>. The dataset index does not: it lives in the
@@ -2484,7 +2491,7 @@ Signatures are expanded by default; use -c/–compact for single line.</p>
 <dd><p>Destination directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">'/home/ywatanabe/.claude/skills/scitex/scitex-dataset'</span></code></p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">'/scratch/ywatanabe/ecosystem-maintenance-evidence-1106/helper-status/dataset-cli-skill-review-1112/owned-home/.claude/skills/scitex/scitex-dataset'</span></code></p>
 </dd>
 </dl>
 </dd></dl>

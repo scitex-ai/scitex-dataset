@@ -28,6 +28,7 @@ from pathlib import Path
 import pytest
 
 from scitex_dataset.ai_for_science import _standardize
+from tests._evaluator_process import run_evaluator
 
 BENCH = "astabench"
 
@@ -862,9 +863,8 @@ def _generated_result(tmp_path, answers, submission, *, mode="numeric"):
     oracle.write_text("".join(json.dumps(row) + "\n" for row in answers))
     submitted = tmp_path / "submission.json"
     submitted.write_text(json.dumps(submission))
-    process = subprocess.run([sys.executable, str(script), "--submission",
-                              str(submitted), "--answers", str(oracle)],
-                             capture_output=True, text=True, timeout=3)
+    process = run_evaluator([sys.executable, str(script), "--submission",
+                             str(submitted), "--answers", str(oracle)])
     assert process.returncode == 0, process.stderr
     return json.loads(process.stdout)
 
@@ -1116,7 +1116,7 @@ class TestGeneratedReferenceContract:
         submitted.write_text(json.dumps([{'task_id': 'synthetic/q1', 'answer': 0}, {'task_id': 'synthetic/q1', 'answer': 5}]))
 
         def run_case(*, capture_error=False):
-            result = subprocess.run([sys.executable, str(script), '--submission', str(submitted), '--answers', str(oracle)], capture_output=True, text=True, timeout=3)
+            result = run_evaluator([sys.executable, str(script), '--submission', str(submitted), '--answers', str(oracle)])
             return (result,)
         return run_case
 
@@ -1255,7 +1255,7 @@ class TestGeneratedStringReferenceContract:
         submitted.write_text(json.dumps([{'task_id': 'synthetic/q1', 'answer': 'none'}]))
 
         def run_case(*, capture_error=False):
-            result = subprocess.run([sys.executable, str(script), '--submission', str(submitted), '--answers', str(oracle)], capture_output=True, text=True, timeout=3)
+            result = run_evaluator([sys.executable, str(script), '--submission', str(submitted), '--answers', str(oracle)])
             return (result, sentinel)
         return run_case
 

@@ -17,16 +17,9 @@ from pathlib import Path
 
 import click
 
+from .._skill_resources import _read_skill_page, _skill_names, _skills_dir
+
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
-
-
-def _skills_dir() -> Path:
-    return Path(__file__).resolve().parents[1] / "_skills" / "scitex-dataset"
-
-
-def _skill_names() -> list[str]:
-    d = _skills_dir()
-    return sorted(p.stem for p in d.glob("*.md") if p.name != "SKILL.md")
 
 
 @click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
@@ -66,8 +59,8 @@ def skills_get(name: str, as_json: bool):
       $ scitex-dataset skills get 02_quick-start
       $ scitex-dataset skills get 04_cli-reference --json
     """
-    target = _skills_dir() / f"{name}.md"
-    if not target.is_file():
+    content = _read_skill_page(name)
+    if content is None:
         if as_json:
             click.echo(
                 json.dumps(
@@ -85,7 +78,6 @@ def skills_get(name: str, as_json: bool):
                 err=True,
             )
         raise SystemExit(2)
-    content = target.read_text(encoding="utf-8")
     if as_json:
         click.echo(
             json.dumps({"success": True, "name": name, "content": content}, indent=2)

@@ -14,13 +14,21 @@ the SciTeX skills for the underlying convention.
 Configuration precedence
 ------------------------
 
-Resolution chain (highest first), per
-``general/01_ecosystem_06_local-state-directories``:
+The Python helper ``scitex_dataset._config.find_config_path(cli_path=...)``
+resolves the following paths (highest first):
 
-1. ``--config <path>`` CLI flag
+1. An explicit ``cli_path`` Python argument
 2. ``$SCITEX_DATASET_CONFIG`` env var
 3. ``<project>/.scitex/dataset/config.yaml``
 4. ``$SCITEX_DIR/dataset/config.yaml`` (default ``~/.scitex/dataset/config.yaml``)
+
+The root CLI does not currently register ``--config``, even though its help
+prints that option in the intended resolution chain. Catalog commands do not
+call ``load_config``. This remains a CLI integration gap: use each command's
+explicit flags rather than assuming a config file supplies its options.
+The resolver implementation is in ``src/scitex_dataset/_config.py``;
+the command registration and catalog caller are in
+``src/scitex_dataset/_cli/__init__.py`` and ``_factory.py``.
 
 Project scope wins over user scope. ``SCITEX_DIR`` relocates the user
 scope atomically. Runtime files (snapshots, caches, logs) live under
