@@ -99,11 +99,14 @@ def main(ctx: click.Context, help_recursive: bool, as_json: bool) -> None:
       scitex-dataset <domain> <dataset> <action> [OPTIONS]
 
     \b
-    Config resolution (highest first):
-      --config <path>
+    Python configuration loader (highest precedence first):
+      explicit cli_path argument
       $SCITEX_DATASET_CONFIG
       <project>/.scitex/dataset/config.yaml
       $SCITEX_DIR/dataset/config.yaml   (default ~/.scitex/dataset/config.yaml)
+
+    Catalog CLI commands use explicit flags; YAML configuration integration
+    remains pending.
     """
     ctx.ensure_object(dict)
     ctx.obj["as_json"] = as_json
