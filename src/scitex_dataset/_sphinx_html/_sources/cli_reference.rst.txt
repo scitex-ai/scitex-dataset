@@ -22,8 +22,7 @@ resolves the following paths (highest first):
 3. ``<project>/.scitex/dataset/config.yaml``
 4. ``$SCITEX_DIR/dataset/config.yaml`` (default ``~/.scitex/dataset/config.yaml``)
 
-The root CLI does not currently register ``--config``, even though its help
-prints that option in the intended resolution chain. Catalog commands do not
+The root CLI does not currently register ``--config``. Catalog commands do not
 call ``load_config``. This remains a CLI integration gap: use each command's
 explicit flags rather than assuming a config file supplies its options.
 The resolver implementation is in ``src/scitex_dataset/_config.py``;

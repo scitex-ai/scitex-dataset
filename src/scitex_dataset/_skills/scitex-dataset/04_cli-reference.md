@@ -72,8 +72,8 @@ Runtime files (snapshots, caches, logs) live under
 `<scope-root>/runtime/`. The dataset index does not: it lives in the shared
 SciTeX store, which `SCITEX_STORE_DSN` repoints and `db show-stats` names.
 
-The root CLI currently does **not** register `--config`, despite the config
-chain printed in its help. Catalog commands do not call `load_config`.
+The root CLI currently does **not** register `--config`. Catalog commands
+do not call `load_config`.
 Use the source-specific CLI flags; do not assume the resolver configures
 those requests. This is an unresolved CLI integration gap, not an available
 global option. Likewise, pass `--json` to a command that explicitly supports

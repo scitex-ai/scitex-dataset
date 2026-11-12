@@ -6,7 +6,7 @@
 
 Precedence (highest first):
 
-1. CLI flag — caller passes ``config_path`` directly
+1. Explicit ``cli_path`` argument supplied by the Python caller
 2. ``$SCITEX_DATASET_CONFIG`` env var
 3. Project scope — ``<project>/.scitex/dataset/config.yaml``
 4. User scope — ``$SCITEX_DIR/dataset/config.yaml`` (default ``~/.scitex/dataset/config.yaml``)
