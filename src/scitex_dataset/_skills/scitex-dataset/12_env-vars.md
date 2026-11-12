@@ -12,20 +12,25 @@ tags: [scitex-dataset-env-vars, scitex-dataset]
 |---|---|---|---|---|
 | `SCITEX_DIR` | Relocates the user-scope state root for every scitex-* package. ``$SCITEX_DIR/dataset/config.yaml`` is the user-scope config and ``$SCITEX_DIR/dataset/runtime/`` holds snapshots, caches and logs when no project-scope override is in scope. It does NOT decide where the dataset index lives — see ``SCITEX_STORE_DSN``. | `~/.scitex` | path | ``_config.py`` |
 | `SCITEX_STORE_DSN` | Which store holds the dataset index. An explicit value wins outright over the per-host PostgreSQL default and must start ``postgres://`` or ``postgresql://``; anything else is refused rather than downgraded, because a store that silently became private would accept every write and reach nobody. Read by ``scitex_dev.store.host_store`` — the single resolver — never by this package. | this host's PostgreSQL | DSN | ``scitex_dev.store._host``, via ``database.get_store`` |
-| `SCITEX_DATASET_CONFIG` | Explicit override for the config file path (CLI flag still wins). | unset | path | ``_config.py:find_config_path`` |
-| `_SCITEX_DATASET_COMPLETE` | Click's tab-completion sentinel; set transiently by ``scitex-dataset print-tab-completion`` to render the bash/zsh/fish hook script. Not user-facing. | unset | bool (presence) | ``_cli/__init__.py`` |
+| `SCITEX_DATASET_CONFIG` | Config path override read by the Python resolver; an explicit `cli_path` argument takes precedence. Catalog CLI commands do not load this config. | unset | path | ``_config.py:find_config_path`` |
+| `_SCITEX_DATASET_COMPLETE` | Click's tab-completion sentinel; set transiently by ``scitex-dataset print-shell-completion`` to render the bash/zsh/fish hook script. Not user-facing. | unset | bool (presence) | ``_cli/__init__.py`` |
 | `HF_TOKEN` | HuggingFace Hub token (direct value). Highest priority for gated repos. | unset | string | ``general/huggingface.py:_resolve_token`` |
 | `HF_TOKEN_PATH` | Path to a file containing the HuggingFace token. Read when ``HF_TOKEN`` is unset. Falls back to ``~/.bash.d/secrets/access_tokens/huggingface.txt`` if neither is set. | unset | path | ``general/huggingface.py:_resolve_token`` |
-| `HF_HOME` | HuggingFace's own cache directory. ``hf fetch --hf-home <path>`` overrides it transiently for one snapshot download. | unset (HF default) | path | ``general/huggingface.py:fetch_dataset`` |
+| `HF_HOME` | HuggingFace's own cache directory. ``general huggingface fetch --hf-home <path>`` overrides it transiently for one snapshot download. | unset (HF default) | path | ``general/huggingface.py:fetch_dataset`` |
 
 ## Configuration precedence
 
-The CLI honors the SciTeX local-state-directories chain (highest first):
+The Python helper `_config.find_config_path(cli_path=...)` checks (highest first):
 
-1. ``--config <path>`` CLI flag
+1. An explicit `cli_path` Python argument
 2. ``$SCITEX_DATASET_CONFIG`` env var (this file)
 3. ``<project>/.scitex/dataset/config.yaml`` (project scope)
 4. ``$SCITEX_DIR/dataset/config.yaml`` — default ``~/.scitex/dataset/config.yaml`` (user scope)
+
+The root CLI does not register `--config`, despite its help text, and catalog
+commands do not call `load_config`. This is an unresolved integration gap.
+See [the CLI reference](04_cli-reference.md#configuration-precedence) for
+current behavior and use command-specific flags.
 
 Project scope wins over user scope. ``SCITEX_DIR`` relocates the user
 scope atomically without touching the project scope. See
