@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.8.3] - 2026-11-09
+## [0.8.3] - 2026-11-12
+
+- Share bounded skill-page lookup across CLI and MCP. Refuse parent paths,
+  absolute paths and symlinks outside the bundled skill directory, while
+  preserving named-page and `SKILL` reads.
+- Correct CLI and configuration guidance and refresh the shipped reference
+  pages. Explicitly describe the root CLI's unsupported `--config` option
+  and the catalog's configuration limits rather than claiming support.
+- Add opt-in, bounded generated-evaluator timeout diagnostics. Preserve the
+  existing three-second subprocess deadline and test assertions; these
+  diagnostics do not establish the cause of earlier runner-load failures.
 
 - Include public documentation fonts, icons and source-link copies through
   explicit Hatch artifact patterns in wheel and source archives. Nested Git
