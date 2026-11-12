@@ -354,13 +354,11 @@ scitex-dataset<span class="w"> </span>db<span class="w"> </span>show-stats
 </section>
 <section id="configuration">
 <h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
-<p>Project scope wins over user scope, per the SciTeX local-state layout:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>--config &lt;path&gt;
-$SCITEX_DATASET_CONFIG
-&lt;project&gt;/.scitex/dataset/config.yaml
-$SCITEX_DIR/dataset/config.yaml   (default ~/.scitex/dataset/config.yaml)
-</pre></div>
-</div>
+<p>The Python config resolver supports explicit paths, environment overrides,
+project scope and user scope. The CLI’s advertised <code class="docutils literal notranslate"><span class="pre">--config</span></code> option is
+not currently registered, and catalog commands do not load these settings.
+Use command-specific flags; see <a class="reference internal" href="cli_reference.html"><span class="doc">CLI Reference</span></a> for the resolver’s
+precedence and this unresolved integration gap.</p>
 <p>Runtime artifacts (snapshots, caches, logs) live under
 <code class="docutils literal notranslate"><span class="pre">&lt;scope-root&gt;/runtime/</span></code>. The dataset index does not — it lives in the
 shared SciTeX store, so every host reads one catalogue instead of each

@@ -75,14 +75,11 @@ See :doc:`cli_reference` for the full subtree, or run
 Configuration
 -------------
 
-Project scope wins over user scope, per the SciTeX local-state layout:
-
-::
-
-    --config <path>
-    $SCITEX_DATASET_CONFIG
-    <project>/.scitex/dataset/config.yaml
-    $SCITEX_DIR/dataset/config.yaml   (default ~/.scitex/dataset/config.yaml)
+The Python config resolver supports explicit paths, environment overrides,
+project scope and user scope. The CLI's advertised ``--config`` option is
+not currently registered, and catalog commands do not load these settings.
+Use command-specific flags; see :doc:`cli_reference` for the resolver's
+precedence and this unresolved integration gap.
 
 Runtime artifacts (snapshots, caches, logs) live under
 ``<scope-root>/runtime/``. The dataset index does not — it lives in the
