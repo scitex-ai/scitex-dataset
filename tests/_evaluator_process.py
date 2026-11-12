@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import deque
 import json
 import os
 from pathlib import Path
@@ -17,15 +18,16 @@ _IMPORT_TIMING = re.compile(
 
 
 def _import_timings(stderr):
-    rows = []
+    rows = deque(maxlen=12)
     for line in stderr.splitlines():
         match = _IMPORT_TIMING.fullmatch(line)
         if match is None:
             continue
         module = match[3].split(".", 1)[0]
-        module = module if module in sys.stdlib_module_names or module == "coverage" else "external"
+        known = getattr(sys, "stdlib_module_names", ())
+        module = module if module in known or module == "coverage" else "external"
         rows.append({"self_us": int(match[1]), "cumulative_us": int(match[2]), "module": module})
-    return rows[-12:]
+    return list(rows)
 
 
 def run_evaluator(argv, *, trace=None):
