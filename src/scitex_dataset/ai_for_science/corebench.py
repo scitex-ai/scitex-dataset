@@ -41,19 +41,20 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 from collections import Counter
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Iterable
 
 from ._base import BenchmarkPaths, resolve_paths
 from ._corebench_download import (
-    SOURCE_URL,
     _ORACLE_TEST_RELPATH,
     _ORACLE_TRAIN_RELPATH,
+    SOURCE_URL,
     bootstrap_oracle,
     download,
 )
+from ._corebench_inventory import _classify_capsule_files
+from ._identifiers import publication_identifiers
 from ._manifest import write_manifest
 from ._sources import register_capsule_sources
 from ._standardize import (
@@ -79,23 +80,6 @@ DEFAULT_MODE = "numeric"
 # can't web-search the paper for answer hints. ``capsule_id`` stays
 # visible (opaque 7-digit handle the agent needs as a lookup key).
 PAPER_IDENTITY_FIELDS = ("capsule_title", "capsule_doi")
-
-# File-extension buckets for inventory file-counting.
-_PY_EXTS = (".py",)
-_R_EXTS = (".r", ".rmd")
-_IPYNB_EXTS = (".ipynb",)
-_DATA_EXTS = (
-    ".csv",
-    ".tsv",
-    ".npy",
-    ".h5",
-    ".parquet",
-    ".rds",
-    ".rdata",
-    ".mat",
-    ".json",
-    ".xlsx",
-)
 
 # Oracle source layout on disk — bootstrapped into raw_dir by
 # ``download(...)`` (see :mod:`._corebench_download`). The relpaths
@@ -147,7 +131,9 @@ def _split_record(rec: dict) -> tuple[list[dict], list[dict]]:
             raise ValueError(f"corebench: reference run {run_index} must be an object")
         for question, value in result_dict.items():
             if not isinstance(question, str) or not question:
-                raise ValueError(f"corebench: reference run {run_index} has an invalid question key")
+                raise ValueError(
+                    f"corebench: reference run {run_index} has an invalid question key"
+                )
             references.setdefault(question, []).append((run_index, value))
     if not references:
         raise ValueError("corebench: reference runs contain no questions")
@@ -230,28 +216,43 @@ def standardize(
     answers: list[dict] = []
     counts: list[int] = []
     source_manifests: list[dict] = []
+    identifiers: dict[str, list[str]] = {}
     for split, src in (("train", train), ("test", test)):
         source_body = src.read_bytes()
         records = json.loads(source_body)
         if not isinstance(records, list):
             raise ValueError(f"corebench: {split} source must contain a record list")
-        source_manifests.append({
-            "split": split, "path": src.relative_to(raw_dir).as_posix(),
-            "sha256": hashlib.sha256(source_body).hexdigest(), "bytes": len(source_body),
-        })
+        source_manifests.append(
+            {
+                "split": split,
+                "path": src.relative_to(raw_dir).as_posix(),
+                "sha256": hashlib.sha256(source_body).hexdigest(),
+                "bytes": len(source_body),
+            }
+        )
         before = len(tasks)
         for rec in records:
             rec_tasks, rec_answers = _split_record(rec)
             tasks.extend(rec_tasks)
             answers.extend(rec_answers)
+            # Paper DOI/title: exact identifiers redacted from the capsule input.
+            identifiers.setdefault(rec["capsule_id"], []).extend(
+                publication_identifiers(
+                    rec.get("capsule_doi"), rec.get("capsule_title")
+                )
+            )
         counts.append(len(tasks) - before)
     if len({task["task_id"] for task in tasks}) != len(tasks):
-        raise ValueError("corebench: duplicate assigned question identity across records")
+        raise ValueError(
+            "corebench: duplicate assigned question identity across records"
+        )
 
     # All samples remain available to the existing private leak guard.
     reference_values: dict[str, list[object]] = {}
     for answer in answers:
-        reference_values.setdefault(answer["task_id"], []).append(answer["answer"]["value"])
+        reference_values.setdefault(answer["task_id"], []).append(
+            answer["answer"]["value"]
+        )
     fs = write_for_solver_per_capsule(
         for_solver_dir=for_solver_dir,
         tasks=tasks,
@@ -259,9 +260,12 @@ def standardize(
         only=only,
         force=force,
         reference_values=reference_values,
+        identifiers=identifiers,
         source_identity={
             "schema": REFERENCE_SCHEMA,
-            "adapter_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "adapter_source_sha256": hashlib.sha256(
+                Path(__file__).read_bytes()
+            ).hexdigest(),
             "oracle_manifests": source_manifests,
         },
     )
@@ -278,9 +282,13 @@ def standardize(
         "n_tasks": len(tasks),
         "n_reference_samples": len(answers),
         "reference_schema": REFERENCE_SCHEMA,
-        "n_questions_with_missing_reference_runs": len({
-            a["task_id"] for a in answers if a["meta"]["missing_reference_run_indexes"]
-        }),
+        "n_questions_with_missing_reference_runs": len(
+            {
+                a["task_id"]
+                for a in answers
+                if a["meta"]["missing_reference_run_indexes"]
+            }
+        ),
         "n_train": counts[0],
         "n_test": counts[1],
         "default_mode": DEFAULT_MODE,
@@ -291,34 +299,6 @@ def standardize(
 # Inventory — also pure-Python (no network). Walks any extracted
 # capsule trees that happen to be present and writes ``inventory.json``.
 # ---------------------------------------------------------------------------
-
-
-def _classify_capsule_files(capsule_dir: Path) -> Optional[dict]:
-    """Walk a downloaded capsule directory and count files by extension."""
-    if not capsule_dir.exists():
-        return None
-    n_py = n_r = n_ipynb = n_data = 0
-    has_dockerfile = False
-    for _root, _dirs, files in os.walk(capsule_dir):
-        for f in files:
-            fl = f.lower()
-            if fl.endswith(_PY_EXTS):
-                n_py += 1
-            elif fl.endswith(_R_EXTS):
-                n_r += 1
-            elif fl.endswith(_IPYNB_EXTS):
-                n_ipynb += 1
-            elif fl in ("dockerfile",) or fl.startswith("dockerfile"):
-                has_dockerfile = True
-            elif fl.endswith(_DATA_EXTS):
-                n_data += 1
-    return {
-        "n_python_files": n_py,
-        "n_r_files": n_r,
-        "n_notebooks": n_ipynb,
-        "has_dockerfile": has_dockerfile,
-        "n_data_files": n_data,
-    }
 
 
 def _build_tasks(

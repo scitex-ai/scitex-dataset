@@ -1,0 +1,12 @@
+metadata_version: 1
+name: 'Invented Fixture Method: Graph Classification by Link Ranking'
+description: |-
+  Reference implementation of the method described in
+  "Invented Fixture Method: Graph Classification by Link Ranking"
+  (doi:10.5555/fixture.2024.0042). Run "main.py".
+tags:
+- classification
+authors:
+- name: Example Author
+  affiliations:
+  - name: Example University
