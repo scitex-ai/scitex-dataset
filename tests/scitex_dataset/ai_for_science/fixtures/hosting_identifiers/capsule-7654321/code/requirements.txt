@@ -1,0 +1,4 @@
+networkx==2.1
+pandas==0.23.1
+scikit-learn==0.19.2
+link-ranking @ git+https://github.com/example-lab/link-ranking.git@v1.0.3
