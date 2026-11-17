@@ -13,6 +13,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import stat
 from pathlib import Path
 
@@ -24,12 +25,16 @@ from ._capsule_layout import (
 )
 from ._identifiers import IDENTIFIER_POLICY, native_identifiers
 from ._leak_strip import InvalidReferenceSourceError, _answer_targets
+from ._neutral_paths import PATH_POLICY
 from ._value_match import VALUE_MATCH_POLICY
 
 # v2: identity also binds the hosting-identifier redaction policy.
 # v3: identity also binds the precision-aware answer-value matching policy, so
 #     a cache redacted by the older full-precision-only matcher refuses reuse.
-_MATERIALIZATION_CONTRACT = "per-capsule-source-identity-v3"
+# v4: identity also binds the neutral-path policy + adapter path patterns, and
+#     the identifier policy now covers notebook structure (#111): caches whose
+#     path names may still carry source identifiers refuse reuse.
+_MATERIALIZATION_CONTRACT = "per-capsule-source-identity-v4"
 
 
 class StaleMaterializationError(ValueError):
@@ -115,6 +120,7 @@ def _qualify_materializations(
     answer_values,
     reference_values,
     identifiers=None,
+    path_patterns=None,
 ):
     """Preflight ALL existing caches before mapper/purge/extraction effects.
 
@@ -122,6 +128,16 @@ def _qualify_materializations(
     caller identity belongs to this operator-private root ledger, not the
     solver task/schema. Actual upstream revision qualification is separate.
     """
+    if path_patterns is not None and (
+        not isinstance(path_patterns, list)
+        or not all(isinstance(p, str) and p for p in path_patterns)
+    ):
+        raise InvalidReferenceSourceError("path_patterns must be a list of regexes")
+    for pattern in path_patterns or []:
+        try:
+            re.compile(pattern)
+        except re.error as exc:
+            raise InvalidReferenceSourceError("invalid path pattern") from exc
     ledger_path = for_solver_dir / _IDENTITY_FILENAME
     old = {"contract": _MATERIALIZATION_CONTRACT, "materializations": {}}
     existing = []
@@ -216,6 +232,8 @@ def _qualify_materializations(
                 {
                     "policy": IDENTIFIER_POLICY,
                     "exact": _capsule_identifiers(row["native_id"], identifiers),
+                    "path_policy": PATH_POLICY,
+                    "path_patterns": sorted(path_patterns or []),
                 }
             ),
         }

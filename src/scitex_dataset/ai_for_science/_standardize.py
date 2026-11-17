@@ -105,6 +105,11 @@ from ._materialization_identity import (  # noqa: F401 - re-exported
     _qualify_materializations,
     _sha256_file,
 )
+from ._neutral_paths import (  # noqa: F401 - re-exported
+    IdentifierPathLeakError,
+    assert_no_identifier_paths,
+    neutralize_identifier_paths,
+)
 
 # The uniform submission contract: an array of objects, each carrying the
 # ``task_id`` it answers plus the agent's ``answer`` (any JSON value).
@@ -262,6 +267,8 @@ def write_for_solver_per_capsule(
     reference_values: dict[str, list[object]] | None = None,
     source_identity: object = None,
     identifiers: dict[str, list[str]] | None = None,
+    path_patterns: list[str] | None = None,
+    eval_dir: Path | None = None,
 ) -> dict:
     """Write the per-capsule, friendly-id'd ``for_solver/`` view + mapper.
 
@@ -302,6 +309,15 @@ def write_for_solver_per_capsule(
     Optional ``source_identity`` is retained only in the operator root ledger;
     callers must qualify its actual upstream revision separately.
 
+    Path names are neutralised too (#111): every ``input/`` path component
+    carrying an identifier (any UUID, the capsule's exact identifiers, their
+    long digit cores, the adapter's ``path_patterns`` regexes) is renamed to
+    ``folder_NN`` / ``notebook_NN.ipynb`` / ``file_NN.<ext>`` with references
+    in text files and symlinks rewritten, and the path guard then refuses any
+    surviving identifier in a capsule path. The old→new mapping is written to
+    ``eval_dir/path_renames.json`` (operator side, never under for_solver) and
+    returned as ``path_renames``.
+
     ``raw_dir`` is the operator-private snapshot root; each capsule's
     archive is resolved as ``raw_dir / <data-relative-to-for_solver>``.
     """
@@ -332,6 +348,7 @@ def write_for_solver_per_capsule(
         answer_values,
         reference_values,
         identifiers,
+        path_patterns,
     )
     for_solver_dir.mkdir(parents=True, exist_ok=True)
     purged_legacy = _purge_legacy_root_artifacts(for_solver_dir)
@@ -345,6 +362,8 @@ def write_for_solver_per_capsule(
     masked_identifiers: list[str] = []
     identifier_classes: dict[str, int] = {}
     identifier_unscanned: list[str] = []
+    path_renames: dict[str, dict] = {}
+    patterns = list(path_patterns or [])
     for row in selected:
         native = row["native_id"]
         capsule_dir = for_solver_dir / row["dir"]
@@ -377,6 +396,13 @@ def write_for_solver_per_capsule(
         # notebook CODE as scaffold, removes the computed answers. No-op for
         # capsules without notebooks.
         cleared_notebooks.extend(_strip_notebook_outputs(input_dir))
+        # Neutralise identifier-bearing PATH NAMES before any content masking,
+        # so references are rewritten to the new names while the old names are
+        # still literally present (content masking would otherwise turn them
+        # into ``[redacted-identifier]`` and break the reference).
+        exact = _capsule_identifiers(native, identifiers)
+        renames = neutralize_identifier_paths(input_dir, exact, patterns)
+        path_renames[row["dir"]] = {"native_id": native, "renames": renames}
         # Redact any distinctive answer value baked into a KEPT file (e.g. an
         # extensionless code/evaluation dump) the structural strips can't catch,
         # then fail loud if anything still survives (the assert is the backstop).
@@ -389,7 +415,6 @@ def write_for_solver_per_capsule(
         # Neutralise pointers to the PUBLISHED results (capsule pages, published
         # images, digests, DOIs, hosted result files) for EVERY capsule, then
         # fail loud if any survives — see :mod:`._identifiers` / ADR 0001.
-        exact = _capsule_identifiers(native, identifiers)
         id_report = mask_hosting_identifiers(input_dir, exact)
         assert_no_hosting_identifiers(input_dir, exact, capsule=native)
         masked_identifiers.extend(id_report["redacted"])
@@ -434,7 +459,13 @@ def write_for_solver_per_capsule(
             ),
             encoding="utf-8",
         )
+        # Path-name backstop over the WHOLE capsule dir (input/ + our files).
+        assert_no_identifier_paths(capsule_dir, exact, patterns, capsule=native)
         materialized.append(str(capsule_dir))
+
+    renames_path = None
+    if eval_dir is not None:
+        renames_path = _write_path_renames(Path(eval_dir), path_renames)
 
     # Publish mapper only after preflight and successful selected writes.
     with index_path.open("w", encoding="utf-8", newline="\n") as fh:
@@ -475,10 +506,38 @@ def write_for_solver_per_capsule(
         "masked_identifiers": masked_identifiers,
         "identifier_classes": identifier_classes,
         "identifier_unscanned": identifier_unscanned,
+        "path_renames": path_renames,
+        "path_renames_file": renames_path,
         "purged_legacy": purged_legacy,
         "only": only,
         "identity_ledger": str(ledger_path),
     }
+
+
+_PATH_RENAMES_FILENAME = "path_renames.json"
+
+
+def _write_path_renames(eval_dir: Path, path_renames: dict[str, dict]) -> str:
+    """Merge this run's old→new path mapping into ``eval/path_renames.json``.
+
+    Operator-side traceability for :func:`neutralize_identifier_paths`: the
+    OLD names carry source identifiers, so they never live under
+    ``for_solver/``. Entries of capsules not materialized in this run (cached
+    or outside ``only``) are kept.
+    """
+    eval_dir.mkdir(parents=True, exist_ok=True)
+    path = eval_dir / _PATH_RENAMES_FILENAME
+    merged: dict = {}
+    if path.is_file() and not path.is_symlink():
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(loaded, dict):
+            merged = loaded
+    merged.update(path_renames)
+    path.write_text(
+        json.dumps(merged, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    return str(path)
 
 
 def write_eval(

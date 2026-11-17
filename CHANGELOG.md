@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-17
+
+- Source identifiers no longer survive in `for_solver` path names (#111).
+  Before, an archive whose folder or notebook names embedded the capsule UUID
+  or task id (every BixBench archive) showed that id to the solver. Prepare
+  now renames such directories and files to `folder_NN/`,
+  `notebook_NN.ipynb` or `file_NN.<ext>` for every adapter. It rewrites
+  references in text files, notebook cells and symlink targets, so code still
+  runs, and writes the old→new mapping to `eval/path_renames.json`. A path
+  that still carries an identifier raises `IdentifierPathLeakError`.
+  Notebook metadata, cell metadata and outputs are scanned per decoded
+  string. The materialization contract is now
+  `per-capsule-source-identity-v4`, so prepare older outputs again.
+
 ## [0.10.0] - 2026-11-17
 
 - Answer-value redaction now also catches rounded renderings of a reference
