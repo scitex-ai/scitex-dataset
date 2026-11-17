@@ -147,6 +147,7 @@ def standardize(
         only=only,
         force=force,
         source_identity=source_identity,
+        eval_dir=eval_dir,
     )
     ev = write_eval(
         eval_dir=eval_dir,
@@ -251,7 +252,9 @@ def prepare(
         paths = resolve_paths(BENCHMARK, dataset_root=dataset_root)
 
     acquisition_raw_dir = paths.raw_dir
-    snapshot_dir = paths.raw_dir / "variants" / "full" if download_full else paths.raw_dir
+    snapshot_dir = (
+        paths.raw_dir / "variants" / "full" if download_full else paths.raw_dir
+    )
     if download_full:
         variant_root = paths.root / "variants" / "full"
         paths = BenchmarkPaths(
@@ -277,7 +280,11 @@ def prepare(
         eval_dir=paths.eval_dir,
         only=only,
         force=force,
-        source_identity={"repo_id": HF_REPO_ID_FULL if download_full else HF_REPO_ID_PREVIEW, "variant": "full" if download_full else "preview", "requested_revision": revision},
+        source_identity={
+            "repo_id": HF_REPO_ID_FULL if download_full else HF_REPO_ID_PREVIEW,
+            "variant": "full" if download_full else "preview",
+            "requested_revision": revision,
+        },
     )
 
     manifest_path = write_manifest(

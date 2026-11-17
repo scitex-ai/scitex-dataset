@@ -29,6 +29,18 @@ are reported as `identifier_unscanned`. Author names and abstracts remain and
 CORE task IDs still embed the native capsule id, so a solver that must not
 look up published results also needs a network-isolated sandbox.
 
+Path names are neutralised too (#111). Any directory or file name in a
+capsule that embeds a UUID, the native id or its 6+ digit core, a hosting
+identifier, or an adapter id pattern (BixBench `bix-<n>`) is renamed to
+`folder_NN/`, `notebook_NN.ipynb` or `file_NN.<ext>`, keeping extensions.
+References in text files, notebook cells and symlink targets are rewritten, so
+scripts, imports and README links still resolve. The old→new mapping goes to
+`eval/path_renames.json`, never under `for_solver/`. A surviving identifier in
+any path component raises `IdentifierPathLeakError`. Notebooks are also
+scanned per decoded string (notebook and cell metadata, sources, outputs), so
+JSON escapes cannot hide an identifier. Contract
+`per-capsule-source-identity-v4` refuses older outputs.
+
 Reference-value redaction is precision-aware (`_value_match`,
 `precision-aware-values-v1`). Each numeric token in a text file is compared
 with every non-integer reference, its x100 and x0.01 forms, sign ignored,

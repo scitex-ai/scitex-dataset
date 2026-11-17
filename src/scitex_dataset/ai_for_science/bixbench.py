@@ -64,6 +64,11 @@ ORACLE_MANIFEST_NAME = "BixBench.jsonl"
 # short free-text values, scored by normalized string equality.
 DEFAULT_MODE = "string"
 
+# Benchmark-native task/capsule id forms (``bix-<n>``, ``bix-<n>-q<m>``) that
+# must not survive in for_solver PATH NAMES (#111); capsule UUIDs are caught by
+# the shared UUID matcher.
+PATH_ID_PATTERNS = (r"(?<![A-Za-z0-9])bix-\d+(?!\d)",)
+
 
 # ---------------------------------------------------------------------------
 # Standardize — pure-Python, network-free.
@@ -180,6 +185,8 @@ def standardize(
         force=force,
         reference_values=reference_values,
         source_identity=source_identity,
+        path_patterns=list(PATH_ID_PATTERNS),
+        eval_dir=eval_dir,
     )
     ev = write_eval(
         eval_dir=eval_dir,

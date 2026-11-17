@@ -225,3 +225,67 @@ corpora.
   code. This is the same trade-off already accepted for redaction, and `raw/`
   keeps the original.
 
+## Addendum (2026-11-17) — identifiers in path names (#111)
+
+### Context
+
+Content redaction rewrites file contents only. An upstream archive can also
+carry a source identifier in its file and directory NAMES: in at least one
+adapter's layout (BixBench) every archive has a top-level folder and notebook
+filenames that embed the native capsule UUID or task id. A solver sees those
+in any directory listing, and neither the value matcher nor the hosting
+matcher looked at paths.
+
+### Decision
+
+The shared writer neutralises path names for every adapter
+(`_neutral_paths.neutralize_identifier_paths`), after the structural strips
+and BEFORE any content masking, so references are rewritten while the old
+names are still literally present:
+
+- **What counts as identifying.** A path component (directory name or file
+  name) that contains any UUID, any hit of the content matchers
+  (`find_identifiers`: hosting URLs, DOIs, exact identifiers), an exact
+  identifier delimited by any non-alphanumeric character (so `_` and `.` act
+  as separators), a 6+ digit core of an exact identifier (`capsule-7654321`
+  gives `7654321`), or an adapter-supplied id pattern (BixBench passes
+  `bix-<n>`).
+- **Rename rule.** Each distinct identifying stem gets one neutral stem:
+  `notebook_NN` if any entry with that stem is a notebook, else `folder_NN`
+  for a directory, else `file_NN`. Numbers are assigned per kind over the
+  sorted stems and skip names that already exist. Up to two short
+  alphanumeric extensions are kept (`.ipynb`, `.csv`, `.tar.gz`).
+- **Reference rewrite.** In every text file (same sniffing as the
+  hosting pass, modes preserved) and every symlink target, each old stem is
+  replaced by its neutral stem: longest first, case-sensitive, delimited by
+  non-alphanumerics. Relative paths in code and notebook cells, Python imports
+  of a renamed module, and README links therefore still resolve.
+- **Traceability.** The old→new mapping is written to
+  `eval/path_renames.json`, keyed by friendly capsule dir. It is never written
+  under `for_solver/`, because the old names carry the identifiers.
+- **Guard.** `assert_no_identifier_paths` scans every path component of the
+  materialized `capsule-NNN/` with the same matchers and raises
+  `IdentifierPathLeakError` on a survivor.
+- **Notebook structure.** Notebooks are also scanned and redacted
+  structurally: every decoded string (keys and values) of notebook-level
+  metadata, cell metadata, sources, outputs and attachments. A JSON escape
+  such as `10.5555\/x` can no longer hide an identifier from the raw-text
+  scan. Outputs are still cleared by the answer pass.
+- **Versioning.** `IDENTIFIER_POLICY` is `hosting-identifiers-v2`, the path
+  policy `neutral-paths-v1` and the adapter path patterns are bound into each
+  capsule's identity, and the contract is `per-capsule-source-identity-v4`.
+  Outputs prepared under v3 are refused; prepare them again into a fresh
+  directory.
+
+### Limits
+
+- A path built at run time from fragments (for example
+  `f"{uuid}.csv"` with the UUID held in a variable) is not rewritten, because
+  the full old name never appears literally. The content pass still redacts
+  the identifier itself.
+- An identifier stem that also occurs in prose is rewritten to the neutral
+  name instead of a `[redacted-*]` marker. It is still neutral.
+- Regression coverage: `tests/scitex_dataset/ai_for_science/test__neutral_paths.py`
+  over synthetic archives built in the test (no benchmark data). The tests
+  run the renamed script, module import and notebook cells to prove the
+  references still resolve.
