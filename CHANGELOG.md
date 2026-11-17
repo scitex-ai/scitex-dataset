@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Answer-value redaction now also catches rounded renderings of a reference
+  value (#107). A stored `0.873214` is also found as `87.32%`, `0.873`,
+  `8.73e-01`, `0,873` or `.873`. Each token is compared within its own
+  written precision, including x100 and x0.01 forms. The match must agree on
+  at least 3 significant digits, or on 2 next to an answer word such as
+  `AUC =`. Common numbers, well-known constants and integer references never
+  match. Redaction and the `AnswerLeakError` guard use the same matcher. On a
+  seeded synthetic corpus, all 1747 renderings with 3 or more digits were
+  found, and 15 of 48084 unrelated tokens (0.03%) were redacted. The
+  materialization contract is now `per-capsule-source-identity-v3`, so
+  prepare older outputs again.
+- CORE-Bench downloads are verified before they count as fetched (#104). The
+  checks are `Content-Length`, an atomic `.part` rename, a full `.tar.gz` read
+  and an optional published sha256. Failed checks are retried 3 times. A
+  failed capsule leaves no file and no ledger entry. `prepare` raises
+  `IncompleteDownloadError`, and CLI `download` exits 1. Unrecorded existing
+  files are checked as archives before they are skipped.
+- Fix `scitex-dataset ai-for-science corebench prepare`, which failed on every
+  call with `unexpected keyword argument 'download_full'` (#106). The CLI now
+  passes only the options that the adapter's `prepare` accepts.
+
 ## [0.9.0] - 2026-11-17
 
 - Redact hosting identifiers from every extracted `for_solver` capsule:

@@ -18,6 +18,13 @@ import re
 from pathlib import Path
 
 from ._capsule_layout import _rmtree
+from ._value_match import (
+    VALUE_MATCH_POLICY,
+    NumericTarget,
+    leak_spans,
+    numeric_string_target,
+    numeric_target,
+)
 
 
 class AnswerLeakError(RuntimeError):
@@ -134,9 +141,6 @@ def _strip_leak_files(input_dir: Path) -> list[str]:
 # Marker written in place of a leaked answer value when redacting a KEPT file.
 _VALUE_REDACTION = "[redacted]"
 
-# A numeric token: requires a decimal point so bare integers are never matched.
-_NUM_TOKEN_RE = re.compile(r"[0-9]+\.[0-9]+(?:[eE][-+]?[0-9]+)?")
-
 
 def _is_value_scan_target(path: Path) -> bool:
     """A regular (non-symlink) file with a :data:`_SCAN_EXTS` extension, or an
@@ -161,18 +165,20 @@ def _is_value_scan_target(path: Path) -> bool:
 
 def _answer_targets(
     values: list[object],
-) -> tuple[list[tuple[float, int]], list[str]]:
-    """Split answers into (numeric round-targets, string targets) for leak matching.
+) -> tuple[list[NumericTarget], list[str]]:
+    """Split answers into (numeric targets, string targets) for leak matching.
 
-    Numeric: ``(value, decimals)`` for non-integer floats whose canonical form
-    has >=4 decimals. A text numeric token is a leak if it ROUNDS to the value
-    at that precision — this catches a capsule that stores the answer at FULL
-    precision (e.g. ``0.9996090937724982`` for the stated answer ``0.9996``) and
-    its x100 percentage rendering. String: distinctive answers (>=8 chars),
-    substring-matched. Integers / short / round numbers are skipped so a
-    coincidental ``1000`` never triggers a false redaction or build failure.
+    Numeric: every finite NON-integer number, plus every string that is itself
+    a number (``"0.8732"``, ``"87.32%"``), as a :class:`NumericTarget` carrying
+    its written precision. Matching is precision-aware and governed by the
+    minimum-information rule of :mod:`._value_match` (rendered ``87.32%`` /
+    ``0.873`` / ``8.73e-01`` forms of ``0.873214`` match; coincidental 1-2
+    digit agreements and common numbers do not). Integers stay out of scope:
+    a coincidental ``1000`` never triggers a redaction or build failure.
+    String: distinctive answers (>=8 chars), substring-matched.
+    Non-finite or unrepresentable numbers refuse (:class:`InvalidReferenceSourceError`).
     """
-    nums: list[tuple[float, int]] = []
+    nums: list[NumericTarget] = []
     strs: list[str] = []
     for v in values:
         if isinstance(v, bool) or v is None:
@@ -188,49 +194,65 @@ def _answer_targets(
                 raise InvalidReferenceSourceError(
                     "masking numeric reference must be finite"
                 )
-            if f == int(f):  # integers are too generic to match safely
-                continue
-            dec = len(format(f, "f").rstrip("0").split(".")[-1])
-            if dec >= 4:
-                nums.append((f, dec))
+            target = numeric_target(f)
+            if target is not None:
+                nums.append(target)
         else:
             s = str(v).strip()
+            target = numeric_string_target(s)
+            if target is not None:
+                nums.append(target)
             if len(s) >= 8:
                 strs.append(s)
     return nums, strs
 
 
-def _token_is_leak(token: str, nums: list[tuple[float, int]]) -> bool:
-    """True if numeric ``token`` rounds to any answer (direct or x100 percentage)."""
-    try:
-        x = float(token)
-    except ValueError:  # pragma: no cover - regex guarantees float-parseable
-        return False
-    for val, dec in nums:
-        band = 0.5 * 10 ** (-dec)
-        if abs(x - val) <= band or abs(x - val * 100.0) <= band * 100.0:
-            return True
-    return False
+def _leak_spans(
+    text: str, nums: list[NumericTarget], strs: list[str]
+) -> list[tuple[int, int]]:
+    """Sorted, merged spans of every answer occurrence — the ONE matcher.
+
+    Distinctive strings (substring) plus precision-aware numeric tokens
+    (:func:`._value_match.leak_spans`). Used by redaction AND the guard.
+    """
+    spans = leak_spans(text, nums)
+    for s in strs:
+        start = text.find(s)
+        while start != -1:
+            spans.append((start, start + len(s)))
+            start = text.find(s, start + 1)
+    merged: list[tuple[int, int]] = []
+    for start, end in sorted(spans):
+        if merged and start <= merged[-1][1]:
+            merged[-1] = (merged[-1][0], max(end, merged[-1][1]))
+        else:
+            merged.append((start, end))
+    return merged
 
 
 def _redact_text(
-    text: str, nums: list[tuple[float, int]], strs: list[str]
+    text: str, nums: list[NumericTarget], strs: list[str]
 ) -> tuple[str, bool]:
-    """Return (text with every leak occurrence replaced by the marker, changed?)."""
+    """Return (text with every leak occurrence replaced by the marker, changed?).
+
+    Repeats to a fixpoint: removing a long string answer can pull an
+    answer-like keyword into a later token's context window, and the guard
+    re-scans the REDACTED text with the same matcher.
+    """
     changed = False
-    for s in strs:
-        if s in text:
-            text = text.replace(s, _VALUE_REDACTION)
-            changed = True
-    if nums:
-
-        def _sub(m: "re.Match[str]") -> str:
-            return _VALUE_REDACTION if _token_is_leak(m.group(0), nums) else m.group(0)
-
-        new = _NUM_TOKEN_RE.sub(_sub, text)
-        if new != text:
-            changed = True
-        text = new
+    for _ in range(8):
+        spans = _leak_spans(text, nums, strs)
+        if not spans:
+            break
+        parts: list[str] = []
+        cursor = 0
+        for start, end in spans:
+            parts.append(text[cursor:start])
+            parts.append(_VALUE_REDACTION)
+            cursor = end
+        parts.append(text[cursor:])
+        text = "".join(parts)
+        changed = True
     return text, changed
 
 
@@ -239,8 +261,9 @@ def _assert_no_value_leak(
 ) -> None:
     """Refuse detected answer matches in supported readable text files.
 
-    The scan uses :data:`_SCAN_EXTS` (plus extensionless text files), a 5 MB limit and existing round-to-answer
-    numeric/distinctive-string matching. Oversized, unsupported and unreadable
+    The scan uses :data:`_SCAN_EXTS` (plus extensionless text files), a 5 MB
+    limit and :func:`_leak_spans` — the SAME precision-aware numeric /
+    distinctive-string matcher the redaction uses. Oversized, unsupported and unreadable
     files are outside this guard's coverage. A match raises
     :class:`AnswerLeakError`; absence of a match is not proof that the entire
     capsule is free of answer leaks.
@@ -259,17 +282,14 @@ def _assert_no_value_leak(
                 data = p.read_text(errors="ignore")
             except OSError:  # pragma: no cover - read race
                 continue
-            for s in strs:
-                if s in data:
-                    raise AnswerLeakError(
-                        f"capsule {capsule}: answer {s!r} still present in {p}"
-                    )
-            for m in _NUM_TOKEN_RE.finditer(data):
-                if _token_is_leak(m.group(0), nums):
-                    raise AnswerLeakError(
-                        f"capsule {capsule}: answer value ~{m.group(0)} still "
-                        f"present in {p} (rounds to a stated answer)"
-                    )
+            spans = _leak_spans(data, nums, strs)
+            if spans:
+                # The offset, not the value: error text must not carry answers.
+                raise AnswerLeakError(
+                    f"capsule {capsule}: {len(spans)} answer rendering(s) still "
+                    f"present in {p} (first at char {spans[0][0]}); refused by "
+                    f"the precision-aware matcher ({VALUE_MATCH_POLICY})"
+                )
 
 
 def _mask_value_leaks(input_dir: Path, values: list[object]) -> list[str]:
@@ -278,7 +298,7 @@ def _mask_value_leaks(input_dir: Path, values: list[object]) -> list[str]:
     Companion to :func:`_strip_leak_dirs` / :func:`_strip_leak_files` for the
     stragglers they cannot catch — a value baked into a KEPT file (e.g. an
     extensionless ``code/evaluation`` dump or a result hardcoded in a ``.py``).
-    Uses :func:`_redact_text` (the SAME round-to-answer matching as the guard),
+    Uses :func:`_redact_text` (the SAME :func:`_leak_spans` matcher as the guard),
     replacing each whole matching numeric token / distinctive string with
     :data:`_VALUE_REDACTION` and leaving the rest of the file as scaffold.
     NOTE: redaction can break a file's syntax when the value sat in code — that

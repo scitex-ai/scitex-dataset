@@ -47,10 +47,11 @@ covers every per-capsule cohort):
 4. **Fail-loud backstop** (`_assert_no_value_leak`) — re-scan after the above;
    if any high-precision value still appears, raise `AnswerLeakError`.
 
-"High-precision" = numeric values with ≥4 significant decimals (e.g.
-`0.931818`, `1.469021`) plus their percentage rendering, or ≥8-char strings.
-Integers and short/round numbers are **skipped**, so a coincidental `1000`
-never triggers a false redaction or build failure.
+"High-precision" originally meant numeric values with ≥4 significant decimals
+(e.g. `0.931818`, `1.469021`) plus their percentage rendering, or ≥8-char
+strings. That matching is superseded by the precision-aware matcher of the
+2026-11-17 addendum (#107) below. Integers are still **skipped**, so a
+coincidental `1000` never triggers a false redaction or build failure.
 
 ## Why redact in place (not remove the whole file)
 
@@ -138,3 +139,89 @@ policy refuse reuse.
   materializer's `identifier_unscanned`.
 - Regression coverage: `tests/scitex_dataset/ai_for_science/test__identifiers.py`
   over real fixture files in `fixtures/hosting_identifiers/`.
+
+## Addendum (2026-11-17) — precision-aware value matching (#107)
+
+### Context
+
+The value matcher compared text tokens only at the reference's stored
+precision. A token matched only if it rounded to the reference at the
+reference's decimal count. The same value written to fewer digits slipped past
+both the redaction and the fail-loud guard. For a stored `0.873214`, these
+forms were missed: `87.32%`, `0.87`, `8.73e-01`, `87.3 %`, `0,873` and a
+rounded table cell.
+
+### Decision
+
+There is one matcher, `_value_match.leak_spans`, behind `_mask_value_leaks`
+and `_assert_no_value_leak`. Anything the guard refuses is therefore what the
+redaction removes. Redaction repeats until no match remains, and the guard
+reruns the same matcher on the redacted text.
+
+- **Tokens.** A token is `\d+([.,]\d+)?` or `.\d+`, with an optional `e±N`
+  exponent. It cannot follow a letter, digit or dot, and it cannot be
+  followed by a digit or `.digit`. As a result, hex digests, identifiers and
+  version strings such as `2.11.0` are never tokens. A comma token is read as
+  a decimal comma first. If that does not match, each half is matched as an
+  integer, which handles CSV cell pairs and thousands separators.
+- **Precision-aware comparison.** Each token is parsed with the precision it
+  is written at. Its tolerance is half a unit in its last written digit, so
+  `87.32` has a tolerance of 0.005 and `8.73e-01` has 0.0005. The token is
+  compared with |reference| × {1, 100, 0.01}, ignoring sign. The tolerance
+  used is the larger of the token's tolerance and the reference's own scaled
+  tolerance. The reference's tolerance applies when the token is more precise
+  than the stated value, as with a raw run output.
+- **Numeric strings.** A string reference that is itself a number, such as
+  `"87.32%"`, is also used as a numeric reference, with the precision it is
+  written at.
+- **Minimum-information rule (explicit).** Let *agreement* be the smaller of
+  the token's and the reference's significant digits.
+  1. An agreement of 3 or more significant digits (`MIN_SIG_DIGITS`) always
+     counts.
+  2. An agreement of exactly 2 (`CONTEXT_SIG_DIGITS`) counts only if an
+     answer word appears on the same line within 40 characters before the
+     token. Answer words include accuracy, AUC, F1, score, loss, error,
+     p-value, mean, median, ratio, percent and result.
+  3. One significant digit never counts.
+  4. Common numbers never match. These are tokens whose significant digits
+     are 1, 2, 5, 15, 25, 75, 125, 375, 625 or 875 at any power of ten,
+     written with no more than `max(2, len)` significant digits. Examples are
+     0.5, 1.0, 100, 0.25 and 0.125. Values within the token's precision of a
+     known constant also never match: pi, e, √2, √3, ln 2, ln 10, 1.96, 1.645,
+     2.576, 0.6745 and φ.
+  5. Integer references remain out of scope. Integer *tokens* can still
+     match a non-integer reference: `873` matches `873.214` because it has 3
+     significant digits and a tolerance of 0.5.
+- **Identity.** `VALUE_MATCH_POLICY = "precision-aware-values-v1"` is part of
+  every capsule's materialization identity, and the contract is now
+  `per-capsule-source-identity-v3`. Caches redacted by the older matcher
+  refuse reuse.
+- **Error text.** `AnswerLeakError` gives the file and the character offset,
+  never the matched value.
+
+### Measured on synthetic corpora (no capsule data)
+
+`tests/scitex_dataset/ai_for_science/test__value_match.py` builds two seeded
+corpora.
+
+- **Leak corpus.** It has 200 random references (fractions, magnitudes and
+  values from 1e-6 to 1e-3), each written in 3 to 11 forms: repr, 3 and 4
+  significant digits, 2 and 3 decimals in scientific notation, negative,
+  table cell, decimal comma, two kinds of percentage, and no leading zero.
+  The matcher redacted all **1747 of 1747** renderings, so recall was 100%.
+- **No-answers corpus.** It has 200 documents, each with 1 to 3 random
+  references and 250 lines of independent numbers. These include counts,
+  fractions, percentages, magnitudes, scientific values, common constants,
+  version strings and hex identifiers. The matcher redacted **15 of 48084**
+  numeric tokens, a false-positive rate of 0.031%. The test bounds this rate
+  below 0.5%.
+
+### Limits
+
+- The rule trades recall for precision only on 2-digit renderings without
+  context, such as a bare `0.87` for `0.873214`, and on renderings that
+  coincide with a common constant (for example `2.58`, near 2.576).
+- A false positive redacts an unrelated number, which can break syntax in
+  code. This is the same trade-off already accepted for redaction, and `raw/`
+  keeps the original.
+
