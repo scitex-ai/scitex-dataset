@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-11-17
+
 - BixBench answers are now graded against the upstream `ideal` reference
   (#115). Before, the scorer took the first non-null of `value`, `answer`,
   `ideal`; upstream `answer` is a boolean hypothesis flag, so every BixBench
