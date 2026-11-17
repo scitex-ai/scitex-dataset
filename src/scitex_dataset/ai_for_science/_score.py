@@ -49,6 +49,9 @@ import math
 from pathlib import Path
 from typing import Any
 
+from ._oracle import OracleIntegrityError, _load_oracle  # noqa: F401 (re-exported)
+from ._reference import expected_value as _expected_value
+from ._reference import parse_interval, reference_fields, reference_issue
 from ._sigfig import is_close_sigfig
 from ._validate import WARN_KINDS, validate_submission
 
@@ -171,84 +174,12 @@ def score_set(expected: Any, reported: Any) -> bool:
 # ---------------------------------------------------------------------------
 
 
-def _expected_value(payload: Any) -> Any:
-    """Pull the comparable value out of an answers.jsonl ``answer`` payload.
-
-    Handles the three per-benchmark shapes: corebench ``{"value": v}``,
-    bixbench ``{"answer": a, "ideal": i}`` (prefers ``answer``), and any
-    other dict / scalar (returned as-is). Rubric payloads
-    (``{"rubric": ...}``) fall through to the raw dict and are handled
-    by :func:`_is_rubric`.
-    """
-    if isinstance(payload, dict):
-        for key in ("value", "answer", "ideal"):
-            if key in payload and payload[key] is not None:
-                return payload[key]
-        return payload
-    return payload
-
-
 def _is_rubric(payload: Any, benchmark: str) -> bool:
     """True iff the oracle payload is a rubric (mechanically ungradeable)."""
     if isinstance(payload, dict) and "rubric" in payload:
         if "value" not in payload and "answer" not in payload:
             return True
     return benchmark == "biomysterybench"
-
-
-class OracleIntegrityError(ValueError):
-    """Strict oracle parsing refused; diagnostics contain no reference values."""
-
-    def __init__(self, diagnostics: list[dict]):
-        self.diagnostics = diagnostics
-        super().__init__("invalid oracle records; inspect line/kind diagnostics")
-
-
-def _load_oracle(
-    answers: Path | str, *, diagnostics: list[dict] | None = None, strict: bool = False
-) -> dict[str, list[Any]]:
-    """Load ``answers.jsonl`` into ``{full_task_id: [answer_payload, ...]}``.
-
-    ``answers`` may be the ``answers.jsonl`` file itself or a directory
-    holding it (the eval dir). Records are grouped by FULL ``task_id``
-    preserving first-seen order, so a task_id repeated across N oracle
-    lines yields N reference values for the numeric prediction interval.
-    Legacy tolerant parsing remains the default. Qualification callers may
-    request ``strict=True``; otherwise discarded-record diagnostics can be
-    collected without copying private answer values. A required ``answer``
-    field must be present; present null remains an explicit reference value.
-    """
-    p = Path(answers)
-    if p.is_dir():
-        p = p / "answers.jsonl"
-    grouped: dict[str, list[Any]] = {}
-    issues: list[dict] = []
-    with p.open(encoding="utf-8") as fh:
-        for line_number, line in enumerate(fh, 1):
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                obj = json.loads(line)
-            except json.JSONDecodeError:
-                issues.append({"line": line_number, "kind": "unparseable_record"})
-                continue
-            if not isinstance(obj, dict):
-                issues.append({"line": line_number, "kind": "record_not_object"})
-                continue
-            tid = obj.get("task_id")
-            if not isinstance(tid, str) or not tid.strip():
-                issues.append({"line": line_number, "kind": "invalid_task_id"})
-                continue
-            if "answer" not in obj:
-                issues.append({"line": line_number, "kind": "missing_answer_field"})
-                continue
-            grouped.setdefault(tid, []).append(obj["answer"])
-    if diagnostics is not None:
-        diagnostics.extend(issues)
-    if strict and issues:
-        raise OracleIntegrityError(issues)
-    return grouped
 
 
 def _load_submission(
@@ -362,7 +293,9 @@ def score_submission(
         answers = resolve_paths(benchmark, dataset_root=dataset_root).eval_dir
 
     oracle_diagnostics: list[dict] = []
-    oracle = _load_oracle(answers, diagnostics=oracle_diagnostics, strict=strict_oracle)
+    field = reference_fields().get(benchmark)
+    oracle = _load_oracle(answers, diagnostics=oracle_diagnostics, strict=strict_oracle,
+                          reference_field=field)
     if expected_task_ids is not None:
         if (not isinstance(expected_task_ids, list)
                 or any(not isinstance(tid, str) or not tid.strip() for tid in expected_task_ids)
@@ -388,7 +321,7 @@ def score_submission(
         rec: dict = {
             "task_id": task_id,
             "submitted": None,
-            "expected": _expected_value(first),
+            "expected": _expected_value(first, field),
         }
         if oracle_diagnostics:
             rec["oracle_diagnostics"] = oracle_diagnostics
@@ -418,6 +351,16 @@ def score_submission(
             results.append(rec)
             continue
 
+        # A null / blank adapter reference is an evaluator error, never graded
+        # (a null among numeric reruns keeps its numeric diagnostic below).
+        empty = [reference_issue(p, field) == "empty_reference" for p in payloads]
+        if all(empty) or any(e and isinstance(p[field], str) for e, p in zip(empty, payloads)):
+            rec["verdict"] = "invalid_reference"
+            rec["reference_error_kind"] = "empty_reference"
+            rec["n_references"] = len(payloads)
+            results.append(rec)
+            continue
+
         # Rubric family: mechanically ungradeable -> needs_rubric (+hint).
         if _is_rubric(first, benchmark):
             rec["verdict"] = "needs_rubric"
@@ -436,16 +379,30 @@ def score_submission(
             continue
 
         # Eval-family dispatch on the oracle expected type.
-        values = [_expected_value(p) for p in payloads]
+        values = [_expected_value(p, field) for p in payloads]
         sample = values[0]
         rec["expected"] = sample
-        if isinstance(sample, list):
+        interval = parse_interval(sample) if len(values) == 1 else None
+        if interval is not None:
+            # ``(lo,hi)`` range reference: inclusive interval membership.
+            rep = _to_float(submitted)
+            if rep is None:
+                rec["verdict"] = "malformed"
+                rec["malformed_kind"] = "invalid_numeric_answer"
+            else:
+                ok = interval[0] <= rep <= interval[1]
+                rec["verdict"] = "correct" if ok else "wrong"
+        elif isinstance(sample, list):
             ok = score_set(sample, submitted)
             rec["verdict"] = "correct" if ok else "wrong"
         elif isinstance(sample, bool):
             ok = score_string(sample, submitted)
             rec["verdict"] = "correct" if ok else "wrong"
-        elif isinstance(sample, (int, float)):
+        elif isinstance(sample, (int, float)) or (
+            isinstance(sample, str) and _to_float(sample) is not None
+        ):
+            # Numeric references, including numeric TEXT (BixBench ``ideal``
+            # is a string field): pooled PI / sig-fig policy.
             nums = [_to_float(v) for v in values]
             if any(v is None for v in nums):
                 rec["verdict"] = "invalid_reference"

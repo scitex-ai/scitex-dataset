@@ -72,6 +72,8 @@ COHORT_NAME = "CORE-Bench"
 # Legacy export retained for callers; reference positions never select a tier.
 DIFFICULTY_TIERS = ("hard", "medium", "easy")
 REFERENCE_SCHEMA = "corebench-question-references-v1"
+# Key of the eval ``answer`` payload holding the reference (``{"value": v}``).
+REFERENCE_FIELD = "value"
 
 # Default scorer mode baked into eval/evaluate.py — CORE-Bench answers
 # are numeric report values, scored within relative tolerance.
@@ -156,7 +158,7 @@ def _split_record(rec: dict) -> tuple[list[dict], list[dict]]:
             answers.append(
                 {
                     "task_id": task_id,
-                    "answer": {"value": value},
+                    "answer": {REFERENCE_FIELD: value},
                     "meta": {
                         "schema": REFERENCE_SCHEMA,
                         "capsule_id": cid,
@@ -274,7 +276,7 @@ def standardize(
     ev = write_eval(
         eval_dir=eval_dir,
         answers=answers,
-        evaluate_py_source=render_evaluate_py(DEFAULT_MODE),
+        evaluate_py_source=render_evaluate_py(DEFAULT_MODE, REFERENCE_FIELD),
     )
     sr = register_capsule_sources(tasks=tasks, raw_dir=raw_dir, eval_dir=eval_dir)
     return {
@@ -485,6 +487,7 @@ __all__ = [
     "IncompleteDownloadError",
     "DIFFICULTY_TIERS",
     "REFERENCE_SCHEMA",
+    "REFERENCE_FIELD",
     "DEFAULT_MODE",
     "PAPER_IDENTITY_FIELDS",
     "build_inventory",

@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-11-17
+
+- BixBench answers are now graded against the upstream `ideal` reference
+  (#115). Before, the scorer took the first non-null of `value`, `answer`,
+  `ideal`; upstream `answer` is a boolean hypothesis flag, so every BixBench
+  task scored wrong. Each adapter now declares `REFERENCE_FIELD` (CORE-Bench
+  `value`, BixBench `ideal`, BioMysteryBench `rubric`), and both
+  `score_submission` and the generated `eval/evaluate.py` read only that key.
+  A payload without that key raises an error (scorer `OracleIntegrityError`
+  with kind `missing_reference_field`; `evaluate.py` exits with an error)
+  instead of scoring as wrong. A null or blank reference gives the verdict
+  `invalid_reference` with kind `empty_reference`, and prepare refuses
+  upstream BixBench / BioMysteryBench records with no reference. A
+  `(lo,hi)` reference is scored as an inclusive interval, and numeric text
+  by the numeric policy. `score_submission` fixes existing prepared
+  BixBench outputs as they are. The `eval/evaluate.py` copied into an
+  existing `eval/` directory is still the old one, so prepare again to
+  replace it.
+
 ## [0.11.0] - 2026-11-17
 
 - Source identifiers no longer survive in `for_solver` path names (#111).
