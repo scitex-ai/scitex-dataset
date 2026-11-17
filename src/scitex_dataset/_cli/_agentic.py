@@ -53,6 +53,23 @@ def _emit_result(as_json: bool, result: dict, headline: str) -> None:
         click.echo(f"  n_tasks: {result['n_tasks']}")
 
 
+def _accepted_kwargs(func, **kwargs) -> dict:
+    """Keep only the keyword arguments ``func`` accepts.
+
+    The verb tree is shared, but per-benchmark ``prepare`` signatures differ:
+    corebench's is strict (no ``**kwargs``, so a typo'd selector fails loud)
+    and has no preview/full split — its default IS the full oracle-driven
+    set. Forwarding ``download_full`` unconditionally made every
+    ``corebench prepare`` CLI call die with ``TypeError`` (#106).
+    """
+    import inspect
+
+    params = inspect.signature(func).parameters
+    if any(p.kind is inspect.Parameter.VAR_KEYWORD for p in params.values()):
+        return kwargs
+    return {k: v for k, v in kwargs.items() if k in params}
+
+
 def _common_paths_options(f):
     """Attach the standard --dataset-root / --json options to a click cmd."""
     f = click.option(
@@ -130,6 +147,11 @@ def _make_download_command(source: str, module) -> click.Command:
             raise SystemExit(1)
         result["paths"] = paths.as_dict()
         _emit_result(as_json, result, f"Downloaded {source}.")
+        if result.get("n_failed"):
+            # Fail loud (#104): unverified capsules are never reported fetched.
+            for failure in result.get("failures", []):
+                click.echo(f"Error: {failure}", err=True)
+            raise SystemExit(1)
 
     _download_cmd.help = (
         f"Fetch the upstream {source} snapshot into raw/ as-is.\n\n"
@@ -211,7 +233,9 @@ def _make_prepare_command(source: str, module) -> click.Command:
         "--full",
         "download_full",
         is_flag=True,
-        help="Pull the full gated set instead of the small preview.",
+        help="Pull the full gated set instead of the small preview (where "
+        "the benchmark distinguishes them; corebench always prepares its "
+        "full oracle-driven set).",
     )
     @click.option(
         "--verify-integrity",
@@ -235,15 +259,17 @@ def _make_prepare_command(source: str, module) -> click.Command:
         force,
     ):
         """Placeholder docstring (overwritten below with the per-source example)."""
+        kwargs = _accepted_kwargs(
+            module.prepare,
+            dataset_root=dataset_root,
+            version=version,
+            skip_download=skip_download,
+            download_full=download_full,
+            verify_integrity=verify_integrity,
+            force=force,
+        )
         try:
-            result = module.prepare(
-                dataset_root=dataset_root,
-                version=version,
-                skip_download=skip_download,
-                download_full=download_full,
-                verify_integrity=verify_integrity,
-                force=force,
-            )
+            result = module.prepare(**kwargs)
         except Exception as exc:
             click.echo(f"Error: {exc}", err=True)
             raise SystemExit(1)

@@ -24,9 +24,12 @@ from ._capsule_layout import (
 )
 from ._identifiers import IDENTIFIER_POLICY, native_identifiers
 from ._leak_strip import InvalidReferenceSourceError, _answer_targets
+from ._value_match import VALUE_MATCH_POLICY
 
 # v2: identity also binds the hosting-identifier redaction policy.
-_MATERIALIZATION_CONTRACT = "per-capsule-source-identity-v2"
+# v3: identity also binds the precision-aware answer-value matching policy, so
+#     a cache redacted by the older full-precision-only matcher refuses reuse.
+_MATERIALIZATION_CONTRACT = "per-capsule-source-identity-v3"
 
 
 class StaleMaterializationError(ValueError):
@@ -208,6 +211,7 @@ def _qualify_materializations(
             "archive_sha256": _sha256_file(archive_path),
             "source_identity_sha256": _json_identity(source_identity),
             "masking_values_sha256": masking_identity,
+            "value_policy": VALUE_MATCH_POLICY,
             "identifier_policy_sha256": _json_identity(
                 {
                     "policy": IDENTIFIER_POLICY,

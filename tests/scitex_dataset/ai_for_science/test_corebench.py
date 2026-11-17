@@ -162,14 +162,19 @@ def unknown_selector_prepare(staged_raw_dir):
     return {'_observed_exception': _observed_exception, 'paths': paths, 'staged_raw_dir': staged_raw_dir}
 
 class _HttpRecorder:
-    """Records fetch calls and writes deterministic bytes to each dest."""
+    """Records fetch calls and writes a complete synthetic tarball to each dest.
+
+    The download verifies archive integrity (#104), so the stub must deliver
+    a real, readable ``.tar.gz`` — never placeholder bytes.
+    """
 
     def __init__(self):
         self.calls = []
 
     def __call__(self, url, dest):
         self.calls.append((url, str(dest)))
-        Path(dest).write_bytes(b"capsule-content")
+        cid = url.rsplit("/", 1)[-1][: -len(".tar.gz")]
+        _write_capsule_targz(Path(dest), cid)
 
 
 # ---------------------------------------------------------------------------

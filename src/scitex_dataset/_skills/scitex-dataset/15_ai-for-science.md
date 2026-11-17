@@ -29,13 +29,37 @@ are reported as `identifier_unscanned`. Author names and abstracts remain and
 CORE task IDs still embed the native capsule id, so a solver that must not
 look up published results also needs a network-isolated sandbox.
 
+Reference-value redaction is precision-aware (`_value_match`,
+`precision-aware-values-v1`). Each numeric token in a text file is compared
+with every non-integer reference, its x100 and x0.01 forms, sign ignored,
+within the token's own rounding tolerance. Stored `0.873214` therefore also
+matches `87.32%`, `87.3 %`, `0.873`, `8.73e-01`, `0,873`, `.873`, `-0.873` and
+table or CSV cells. Minimum-information rule: the agreement needs at least 3
+significant digits. With 2 it needs an answer word (accuracy, AUC, score,
+p-value, mean, ...) before the token on the same line, so `AUC = 0.87`
+matches but a bare `0.87` does not. One digit, common numbers such as 0.5, 1.0
+and 0.125, constants such as pi and 1.96, and integer references never match.
+Redaction and the `AnswerLeakError` guard share this matcher. Caches made by
+the older matcher are refused (contract `per-capsule-source-identity-v3`).
+
+CORE downloads count a capsule as fetched only after verification. The body
+length must equal `Content-Length`; the file is written as `.part` and then
+renamed. The `.tar.gz` must read to the end, and any published sha256 passed
+as `expected_sha256={id: hex}` must match. A failed check is retried 3 times.
+After that the capsule is counted in `n_failed` and leaves no file. `prepare`
+raises `IncompleteDownloadError`, and CLI `download` exits 1. Existing files
+that are not in `.checksums.json` (hand-staged or partial) are checked as
+archives before they are skipped.
+
 Prepare fresh outputs when upgrading the assignment contract or changing
 source bytes. CORE `prepare(capsule_ids=[...])` selects native capsules for
 acquisition; `only=...` selects materialization and leaves the catalog mapper
 complete. These scopes differ. For HuggingFace adapters, `revision` selects
 the requested revision; the returned descriptor is not a resolved immutable
 commit. BioMysteryBench full uses separate raw and output paths from preview;
-consume the paths returned by `prepare(download_full=True)`.
+consume the paths returned by `prepare(download_full=True)`. The CLI passes
+`--full` only to adapters that accept it. CORE has no preview split, so
+`corebench prepare --full` prepares the default full set.
 
 CORE assigns one task per exact question key, using
 `corebench/<native-id>__question_<full-sha256>`. Private oracle rows repeat
