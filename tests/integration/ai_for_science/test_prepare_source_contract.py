@@ -21,7 +21,7 @@ def local_snapshot(calls):
         raw = Path(kwargs['local_dir'])
         raw.mkdir(parents=True, exist_ok=True)
         if kwargs['repo_id'] == bixbench.HF_REPO_ID:
-            records = [{'question_id': f'{key}-q1', 'question': 'Report the synthetic result', 'data_folder': f'{key}.zip', 'answer': 'synthetic-eval-only'} for key in ['a', 'b']]
+            records = [{'question_id': f'{key}-q1', 'question': 'Report the synthetic result', 'data_folder': f'{key}.zip', 'answer': True, 'ideal': 'synthetic-eval-only'} for key in ['a', 'b']]
             (raw / bixbench.ORACLE_MANIFEST_NAME).write_text(''.join(json.dumps(row) + '\n' for row in records))
             archives = [raw / f'{key}.zip' for key in ['a', 'b']]
         else:

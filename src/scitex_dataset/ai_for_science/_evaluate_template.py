@@ -8,7 +8,8 @@ from __future__ import annotations
 
 # ---------------------------------------------------------------------------
 # evaluate.py — a single shared, stdlib-only, answer-free CLI scorer.
-# ``{default_mode}`` is substituted per benchmark at write time.
+# ``{default_mode}`` and ``{reference_field}`` are substituted per benchmark
+# at write time.
 # ---------------------------------------------------------------------------
 
 EVALUATE_PY = '''#!/usr/bin/env python3
@@ -33,8 +34,14 @@ Modes:
 - ``numeric`` — parse both to float, correct within relative tol 1e-3.
 - ``string``  — case- and whitespace-normalized equality after legacy
   non-null string coercion; missing/null submissions are graded failures.
+  A ``(lo,hi)`` range reference is graded as inclusive interval membership
+  and a numeric-text reference with a numeric answer by the 1e-3 tolerance.
 - ``rubric``  — not auto-scorable: each task is marked
   ``"requires_rubric_grading"`` and excluded from ``n_scored`` / ``score``.
+
+``REFERENCE_FIELD`` (when set) names the ONLY payload key graded; a record
+missing it aborts with an error rather than being graded against another
+key, and a null / blank reference is reported as ``invalid_reference``.
 
 This is distinct from the package API's pooled-reference PI / sig-fig
 policy. Repeated references are retained and count as ONE question, but
@@ -47,9 +54,11 @@ is gradeable. An entirely ungradeable assignment has ``score: null``.
 import argparse
 import json
 import math
+import re
 import sys
 
 DEFAULT_MODE = "{default_mode}"
+REFERENCE_FIELD = {reference_field!r}
 _REL_TOL = 1e-3
 
 
@@ -95,6 +104,14 @@ def _coerce_answer_value(answer_rec):
     null; a dict without any recognized keys remains the raw value.
     """
     ans = answer_rec.get("answer")
+    if isinstance(ans, dict) and REFERENCE_FIELD is not None:
+        if REFERENCE_FIELD not in ans:
+            raise ValueError("reference record %r: field %r is missing"
+                             % (answer_rec.get("task_id"), REFERENCE_FIELD))
+        value = ans[REFERENCE_FIELD]
+        if isinstance(value, str) and not value.strip():
+            return None  # blank reference: reported as invalid_reference
+        return value
     if isinstance(ans, dict):
         for key in ("value", "answer", "ideal", "rubric"):
             if key in ans and ans[key] is not None:
@@ -125,11 +142,32 @@ def _score_numeric(submitted, expected):
     return abs(s - e) <= _REL_TOL * abs(e)
 
 
+_NUM = r"[-+]?(?:\\d+\\.?\\d*|\\.\\d+)(?:[eE][-+]?\\d+)?"
+_INTERVAL_RE = re.compile(r"^\\s*[\\(\\[]\\s*(" + _NUM + r")\\s*,\\s*(" + _NUM + r")\\s*[\\)\\]]\\s*$")
+
+
+def _interval(value):
+    m = _INTERVAL_RE.match(value) if isinstance(value, str) else None
+    if m is None:
+        return None
+    lo, hi = float(m.group(1)), float(m.group(2))
+    if not (math.isfinite(lo) and math.isfinite(hi)):
+        return None
+    return (min(lo, hi), max(lo, hi))
+
+
 def _norm_string(value):
     return " ".join(str(value).strip().lower().split())
 
 
 def _score_string(submitted, expected):
+    interval = _interval(expected)
+    if interval is not None:
+        s = _finite_float(submitted)
+        return s is not None and interval[0] <= s <= interval[1]
+    if _finite_float(expected) is not None and _finite_float(submitted) is not None:
+        # Numeric TEXT reference (e.g. BixBench ``ideal``): scalar tolerance.
+        return _score_numeric(submitted, expected)
     return _norm_string(submitted) == _norm_string(expected)
 
 
@@ -222,9 +260,13 @@ if __name__ == "__main__":
 '''
 
 
-def render_evaluate_py(default_mode: str) -> str:
-    """Return :data:`EVALUATE_PY` with ``{default_mode}`` substituted."""
-    return EVALUATE_PY.format(default_mode=default_mode)
+def render_evaluate_py(default_mode: str, reference_field: str | None = None) -> str:
+    """Return :data:`EVALUATE_PY` with the mode and reference key substituted.
+
+    ``reference_field`` is the adapter's ``REFERENCE_FIELD`` (the only payload
+    key graded); ``None`` keeps the legacy first-non-null key search.
+    """
+    return EVALUATE_PY.format(default_mode=default_mode, reference_field=reference_field)
 
 
 __all__ = ["EVALUATE_PY", "render_evaluate_py"]

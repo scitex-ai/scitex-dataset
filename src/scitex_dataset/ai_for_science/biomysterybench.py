@@ -60,6 +60,9 @@ SOURCE_URL = f"https://huggingface.co/datasets/{HF_REPO_ID_PREVIEW}"
 # Column carrying the rubric answer; moved to eval/, never in for_solver.
 ORACLE_FIELD = "answer_rubric"
 
+# Key of the eval ``answer`` payload holding the reference (``{"rubric": r}``).
+REFERENCE_FIELD = "rubric"
+
 # Answer-bearing upstream files — kept in raw_dir, NEVER symlinked into
 # the agent-visible for_solver view.
 ORACLE_FILENAMES = ("problems.csv", "problems.parquet", "README.md")
@@ -133,10 +136,17 @@ def standardize(
                     "data": f"./data/{rid}.zip" if zip_path.exists() else None,
                 }
             )
+            rubric = row.get(ORACLE_FIELD)
+            if not isinstance(rubric, str) or not rubric.strip():
+                # Refuse loudly instead of writing an ungradeable reference.
+                raise ValueError(
+                    f"biomysterybench: {src.name} row {rid!r}: reference column "
+                    f"{ORACLE_FIELD!r} is missing or empty"
+                )
             answers.append(
                 {
                     "task_id": task_id,
-                    "answer": {"rubric": row.get(ORACLE_FIELD)},
+                    "answer": {REFERENCE_FIELD: rubric},
                 }
             )
 
@@ -152,7 +162,7 @@ def standardize(
     ev = write_eval(
         eval_dir=eval_dir,
         answers=answers,
-        evaluate_py_source=render_evaluate_py(DEFAULT_MODE),
+        evaluate_py_source=render_evaluate_py(DEFAULT_MODE, REFERENCE_FIELD),
     )
     sr = register_capsule_sources(tasks=tasks, raw_dir=raw_dir, eval_dir=eval_dir)
     return {
@@ -312,6 +322,7 @@ __all__ = [
     "SOURCE_URL",
     "DEFAULT_MODE",
     "ORACLE_FIELD",
+    "REFERENCE_FIELD",
     "ORACLE_FILENAMES",
     "download",
     "standardize",
