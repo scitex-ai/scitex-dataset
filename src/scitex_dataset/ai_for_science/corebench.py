@@ -262,6 +262,7 @@ def standardize(
         force=force,
         reference_values=reference_values,
         identifiers=identifiers,
+        eval_dir=eval_dir,
         source_identity={
             "schema": REFERENCE_SCHEMA,
             "adapter_source_sha256": hashlib.sha256(

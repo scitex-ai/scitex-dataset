@@ -43,13 +43,17 @@ and package-index URLs (``github.com``, ``pypi.org``), documentation links.
 
 Bound: only text files (no NUL byte in the first 8 KiB) up to
 :data:`TEXT_SIZE_LIMIT` are rewritten/scanned; symlinks are never followed.
-Larger files are reported as ``unscanned``. Author names and the abstract
+Larger files are reported as ``unscanned``. Notebooks (``.ipynb``) are
+additionally scanned/redacted per DECODED string (notebook and cell metadata,
+sources, outputs, attachments), so a JSON escape cannot hide an identifier.
+Identifiers in path NAMES are handled by :mod:`._neutral_paths`. Author names and the abstract
 are not removed (licences/attribution); a solver that must not consult the
 web needs a network-isolated sandbox — redaction is defence in depth.
 """
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import stat
@@ -59,7 +63,11 @@ from urllib.parse import urlsplit
 
 # Bump when any rule below changes: materialization identity includes it, so
 # a cache built under an older (leakier) policy refuses reuse.
-IDENTIFIER_POLICY = "hosting-identifiers-v1"
+# v2: notebooks are also scanned/redacted STRUCTURALLY (every decoded string of
+#     notebook- and cell-level metadata, sources, outputs and attachments, so a
+#     JSON escape cannot hide an identifier), and path names are neutralised
+#     (:mod:`._neutral_paths`, #111).
+IDENTIFIER_POLICY = "hosting-identifiers-v2"
 
 LOCAL_ENV_IMAGE = "capsule-environment:local"
 REDACTED_URL = "[redacted-url]"
@@ -328,6 +336,67 @@ def _rewrite(path: Path, data: bytes) -> None:
         path.chmod(mode)
 
 
+_NOTEBOOK_EXT = ".ipynb"
+
+
+def _load_notebook(text: str):
+    try:
+        nb = json.loads(text)
+    except ValueError:
+        return None
+    return nb if isinstance(nb, dict) else None
+
+
+def _json_strings(node):
+    """Yield every decoded string (keys AND values) of a parsed JSON node."""
+    if isinstance(node, str):
+        yield node
+    elif isinstance(node, dict):
+        for key, value in node.items():
+            yield key
+            yield from _json_strings(value)
+    elif isinstance(node, list):
+        for value in node:
+            yield from _json_strings(value)
+
+
+def _redact_json(node, exact, classes: set):
+    if isinstance(node, str):
+        new, found = redact_text(node, exact)
+        classes.update(found)
+        return new
+    if isinstance(node, dict):
+        return {
+            _redact_json(k, exact, classes): _redact_json(v, exact, classes)
+            for k, v in node.items()
+        }
+    if isinstance(node, list):
+        return [_redact_json(v, exact, classes) for v in node]
+    return node
+
+
+def _notebook_identifiers(text: str, exact) -> list[tuple[str, str]]:
+    """Identifiers in a notebook's DECODED strings: notebook-level metadata,
+    cell metadata, sources, outputs and attachments (escapes cannot hide)."""
+    nb = _load_notebook(text)
+    if nb is None:
+        return []
+    hits: list[tuple[str, str]] = []
+    for value in _json_strings(nb):
+        hits.extend(find_identifiers(value, exact))
+    return hits
+
+
+def _redact_notebook(text: str, exact) -> tuple[str, list[str]]:
+    """Structurally redact a notebook whose decoded strings still carry ids."""
+    if not _notebook_identifiers(text, exact):
+        return text, []
+    nb = _load_notebook(text)
+    classes: set = set()
+    nb = _redact_json(nb, exact, classes)
+    return json.dumps(nb, ensure_ascii=False, indent=1) + "\n", sorted(classes)
+
+
 def mask_hosting_identifiers(input_dir: Path, exact: Iterable[str] = ()) -> dict:
     """Redact hosting identifiers in every text file under ``input_dir``.
 
@@ -343,6 +412,9 @@ def mask_hosting_identifiers(input_dir: Path, exact: Iterable[str] = ()) -> dict
             unscanned.append(str(path))
             continue
         new, classes = redact_text(_decode(data), exact)
+        if path.suffix.lower() == _NOTEBOOK_EXT:
+            new, nb_classes = _redact_notebook(new, exact)
+            classes = sorted(set(classes) | set(nb_classes))
         if not classes:
             continue
         _rewrite(path, new.encode("utf-8", errors="surrogateescape"))
@@ -360,7 +432,10 @@ def assert_no_hosting_identifiers(
     for path, data in _iter_text_files(input_dir):
         if data is None:
             continue
-        hits = find_identifiers(_decode(data), exact)
+        text = _decode(data)
+        hits = find_identifiers(text, exact)
+        if not hits and path.suffix.lower() == _NOTEBOOK_EXT:
+            hits = _notebook_identifiers(text, exact)
         if hits:
             name, value = hits[0]
             raise HostingIdentifierLeakError(
