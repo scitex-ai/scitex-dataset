@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-17
+
 - Redact hosting identifiers from every extracted `for_solver` capsule:
   published environment images (rewritten to `capsule-environment:local`),
   Dockerfile digest headers, capsule-hosting/archive/publisher URLs, remote
