@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -ex
+
+# Exported from capsule-7654321; see https://codeocean.com/capsule/7654321
+python -u main.py --data ../data/wine.txt --out ../results "$@"
