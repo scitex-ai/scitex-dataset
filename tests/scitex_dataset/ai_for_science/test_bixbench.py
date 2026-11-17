@@ -86,7 +86,7 @@ def _sample_record():
         "data_folder": "CapsuleFolder-abc.zip",
         "canary": "CANARY-SENTINEL",
         # Oracle fields that must stay out of the for_solver view:
-        "answer": "ASXL1",
+        "answer": True,  # upstream: boolean hypothesis flag, not the answer
         "ideal": "gene X",
     }
 
@@ -133,7 +133,7 @@ def _multi_question_records():
             "short_id": "bix-1",
             "question_id": "bix-1-q1",
             "data_folder": "CapsuleFolder-shared.zip",
-            "answer": "0.0002",
+            "answer": True,
             "ideal": "0.0002",
         },
         {
@@ -142,7 +142,7 @@ def _multi_question_records():
             "short_id": "bix-1",
             "question_id": "bix-1-q2",
             "data_folder": "CapsuleFolder-shared.zip",
-            "answer": "1.9E-05",
+            "answer": False,
             "ideal": "1.9E-05",
         },
     ]
@@ -230,7 +230,7 @@ class TestStandardize:
         assert all(set(t) == {"task_id", "benchmark", "prompt", "data"} for t in tasks)
 
     def test_tasks_carry_no_answer_text(self, staged_raw_dir):
-        # Arrange — the oracle answer "ASXL1" must not leak into tasks.
+        # Arrange — the reference (``ideal`` "gene X") must not leak into tasks.
         root = staged_raw_dir.parent
         bixbench.standardize(
             raw_dir=staged_raw_dir,
@@ -240,7 +240,7 @@ class TestStandardize:
         # Act
         raw_text = (root / "for_solver" / "capsule-001" / "task.jsonl").read_text()
         # Assert
-        assert "ASXL1" not in raw_text
+        assert "gene X" not in raw_text
 
     def test_task_id_prefixes_benchmark(self, staged_raw_dir):
         # Arrange
@@ -449,14 +449,14 @@ class TestMultiQuestionCapsule:
 
 class TestEvaluatePyRoundTrip:
     def test_correct_string_submission_scores_one(self, staged_raw_dir):
-        # Arrange — string mode: submit the exact oracle answer.
+        # Arrange — string mode: submit the reference (upstream ``ideal``).
         root = staged_raw_dir.parent
         bixbench.standardize(
             raw_dir=staged_raw_dir,
             for_solver_dir=root / "for_solver",
             eval_dir=root / "eval",
         )
-        sub = [{"task_id": "bixbench/sh1-q1", "answer": "ASXL1"}]
+        sub = [{"task_id": "bixbench/sh1-q1", "answer": "gene X"}]
         (root / "good.json").write_text(json.dumps(sub))
         # Act
         out = subprocess.run(

@@ -60,6 +60,12 @@ SOURCE_URL = f"https://huggingface.co/datasets/{HF_REPO_ID}"
 # into the agent-visible for_solver view.
 ORACLE_MANIFEST_NAME = "BixBench.jsonl"
 
+# Upstream schema (``futurehouse/BixBench``): ``ideal`` (string) is the
+# reference answer; ``answer`` is a BOOLEAN hypothesis flag, NOT the answer.
+# The eval payload keeps both, and the scorer grades against this key only
+# (#115). ``ideal`` holds free text, numeric text, or an ``(lo,hi)`` range.
+REFERENCE_FIELD = "ideal"
+
 # Default scorer mode baked into eval/evaluate.py — BixBench answers are
 # short free-text values, scored by normalized string equality.
 DEFAULT_MODE = "string"
@@ -144,11 +150,19 @@ def standardize(
     answers: list[dict] = []
     reference_values: dict[str, list[object]] = {}
     with src.open("r", encoding="utf-8") as fin:
-        for line in fin:
+        for line_number, line in enumerate(fin, 1):
             line = line.strip()
             if not line:
                 continue
             rec = json.loads(line)
+            reference = rec.get(REFERENCE_FIELD)
+            if not isinstance(reference, str) or not reference.strip():
+                # Refuse loudly: a record without a gradeable reference must
+                # not become a task that silently scores as wrong (#115).
+                raise ValueError(
+                    f"bixbench: {src.name} line {line_number}: reference field "
+                    f"{REFERENCE_FIELD!r} is missing, empty or not a string"
+                )
             # ``question_id`` is UNIQUE per question (``<short_id>-qN``);
             # ``short_id`` is CAPSULE-scoped and shared by every question in
             # a capsule, so keying on it collapses distinct questions (205
@@ -169,7 +183,7 @@ def standardize(
                     "task_id": task_id,
                     "answer": {
                         "answer": rec.get("answer"),
-                        "ideal": rec.get("ideal"),
+                        REFERENCE_FIELD: reference,
                     },
                 }
             )
@@ -191,7 +205,7 @@ def standardize(
     ev = write_eval(
         eval_dir=eval_dir,
         answers=answers,
-        evaluate_py_source=render_evaluate_py(DEFAULT_MODE),
+        evaluate_py_source=render_evaluate_py(DEFAULT_MODE, REFERENCE_FIELD),
     )
     sr = register_capsule_sources(tasks=tasks, raw_dir=raw_dir, eval_dir=eval_dir)
     return {
@@ -324,6 +338,7 @@ __all__ = [
     "SOURCE_URL",
     "DEFAULT_MODE",
     "ORACLE_MANIFEST_NAME",
+    "REFERENCE_FIELD",
     "download",
     "standardize",
     "prepare",
