@@ -30,9 +30,12 @@ never copied into ``for_solver/`` (leak guard lives in the standardizer).
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
+import tarfile
 import urllib.request
+import zlib
 from pathlib import Path
 from typing import Iterable
 
@@ -77,18 +80,96 @@ def _capsule_url(base_url: str, capsule_id: str) -> str:
     return f"{base_url}/capsules/{capsule_id}.tar.gz"
 
 
-def _http_download(url: str, dest: Path) -> None:
-    """Fetch ``url`` to ``dest`` via stdlib urllib (binary-safe).
+class IncompleteDownloadError(RuntimeError):
+    """A fetched file is truncated, corrupt or fails its published checksum.
 
-    Streams in 1 MiB chunks so multi-MB tarballs (and the binary .gpg)
-    don't peak memory. Caller is responsible for ``dest.parent.mkdir``.
+    Raised instead of recording the file as fetched; the partial bytes are
+    removed so a re-run never mistakes them for a complete download.
     """
-    with urllib.request.urlopen(url) as resp, dest.open("wb") as fh:
-        while True:
-            chunk = resp.read(1024 * 1024)
-            if not chunk:
-                break
-            fh.write(chunk)
+
+
+# Attempts per capsule before it is reported as failed (transient truncation).
+_FETCH_ATTEMPTS = 3
+
+
+def _http_download(url: str, dest: Path) -> None:
+    """Fetch ``url`` to ``dest`` via stdlib urllib, verified and atomic.
+
+    Streams in 1 MiB chunks to ``<dest>.part``; when the server declares a
+    ``Content-Length`` the byte count written must equal it (urllib does NOT
+    raise on a connection closed early — it just returns EOF), else
+    :class:`IncompleteDownloadError`. Only a complete body is renamed onto
+    ``dest`` (``os.replace``), so ``dest`` never holds a partial file and any
+    leftover ``.part`` is removed on failure. Caller is responsible for
+    ``dest.parent.mkdir``.
+    """
+    dest = Path(dest)
+    part = dest.with_name(dest.name + ".part")
+    try:
+        with urllib.request.urlopen(url) as resp, part.open("wb") as fh:
+            declared = resp.headers.get("Content-Length")
+            written = 0
+            while True:
+                chunk = resp.read(1024 * 1024)
+                if not chunk:
+                    break
+                fh.write(chunk)
+                written += len(chunk)
+        if declared is not None and written != int(declared):
+            raise IncompleteDownloadError(
+                f"{url}: truncated body ({written} of {declared} bytes)"
+            )
+        os.replace(part, dest)
+    finally:
+        if part.exists():
+            part.unlink()
+
+
+def _verify_targz(path: Path) -> None:
+    """Read a ``.tar.gz`` end to end: tar headers, member bodies, gzip CRC.
+
+    A truncated or corrupt archive raises :class:`IncompleteDownloadError`.
+    Streaming mode (``r|gz``) reads every byte once, so the gzip trailer's
+    CRC-32 + length check runs as well; nothing is extracted.
+    """
+    try:
+        with tarfile.open(path, mode="r|gz") as tf:
+            for member in tf:
+                body = tf.extractfile(member) if member.isfile() else None
+                if body is not None:
+                    while body.read(1024 * 1024):
+                        pass
+    except (tarfile.TarError, OSError, EOFError, zlib.error) as exc:
+        raise IncompleteDownloadError(
+            f"{path.name}: archive integrity check failed ({exc})"
+        ) from exc
+
+
+def _fetch_capsule(url: str, out: Path, expected_sha256: str | None) -> str:
+    """Fetch + verify one capsule tarball, retrying; return its sha256.
+
+    Each attempt: :func:`_http_download` (Content-Length checked, atomic),
+    :func:`_verify_targz`, then the published sha256 when one is supplied.
+    A failed attempt removes ``out``; after :data:`_FETCH_ATTEMPTS` the last
+    error propagates (the caller counts it as failed, never as fetched).
+    """
+    last: Exception | None = None
+    for _ in range(_FETCH_ATTEMPTS):
+        try:
+            _http_download(url, out)
+            _verify_targz(out)
+            digest = sha256_file(out)
+            if expected_sha256 is not None and digest != expected_sha256.lower():
+                raise IncompleteDownloadError(
+                    f"{out.name}: sha256 {digest} != published {expected_sha256}"
+                )
+            return digest
+        except Exception as exc:  # noqa: BLE001 - retried, then re-raised
+            last = exc
+            if out.exists():
+                out.unlink()
+    assert last is not None
+    raise last
 
 
 def _nonempty(path: Path) -> bool:
@@ -239,9 +320,10 @@ def download(
     base_url: str = SOURCE_URL,
     verify_integrity: bool = False,
     force: bool = False,
+    expected_sha256: dict[str, str] | None = None,
     **_,
 ) -> dict:
-    """Pull capsule tarballs into ``raw_dir/capsules/``; skip what's present.
+    """Pull capsule tarballs into ``raw_dir/capsules/``; skip what's complete.
 
     If ``capsule_ids`` is None the oracle manifests are bootstrapped first
     (fetched + gpg-decrypted via :func:`bootstrap_oracle`, ``force`` passed
@@ -250,14 +332,26 @@ def download(
     ``capsule_ids`` IS given explicitly the oracle URLs are never touched
     (the capsule-only path stays oracle-free).
 
-    Skip policy (idempotent re-runs never re-download by default):
+    Completeness (#104) — a capsule counts as fetched ONLY after it passed
+    every check: the body length equals the declared ``Content-Length``
+    (written to ``.part`` and renamed atomically), the ``.tar.gz`` reads end
+    to end (tar headers, member bodies, gzip CRC), and, when the caller
+    supplies a published digest in ``expected_sha256`` ({capsule_id: hex}),
+    the sha256 matches. A failed check is retried (:data:`_FETCH_ATTEMPTS`
+    total), then the capsule is counted in ``n_failed`` with no file left
+    behind. The ``raw_dir/.checksums.json`` ledger records ONLY verified
+    capsules and is saved after each one.
 
-    - **default** — any capsule already on disk (non-empty) is skipped
-      with NO hashing (``n_have``). Cheapest; what you want for re-runs.
+    Skip policy (idempotent re-runs never re-download a complete capsule):
+
+    - **default** — a capsule present AND recorded in the ledger is skipped
+      with NO hashing (``n_have``). A present but UNRECORDED file (staged by
+      hand, or a partial left by an older release) is archive-checked first:
+      complete → recorded + ``n_have``; truncated/corrupt → re-fetched
+      (``n_remismatch``).
     - ``verify_integrity=True`` — an existing capsule is sha256-checked
-      against ``raw_dir/.checksums.json``; a match is a verified skip
-      (``n_skipped_verified``), a miss/drift is re-fetched
-      (``n_remismatch``). Reads each existing file once — opt-in.
+      against the ledger; a match is a verified skip (``n_skipped_verified``),
+      a miss/drift is re-fetched (``n_remismatch``).
     - ``force=True`` — re-fetch everything regardless (and re-bootstrap the
       oracle manifests).
 
@@ -267,6 +361,7 @@ def download(
     raw_dir = Path(raw_dir)
     capsules_dir = raw_dir / _CAPSULES_SUBDIR
     capsules_dir.mkdir(parents=True, exist_ok=True)
+    expected = expected_sha256 or {}
 
     oracle = None
     if capsule_ids is None:
@@ -280,26 +375,33 @@ def download(
         out = capsules_dir / f"{cid}.tar.gz"
         rel = out.relative_to(raw_dir).as_posix()
         if out.exists() and out.stat().st_size > 0 and not force:
-            if not verify_integrity:
-                # Default: present → skip, no hashing.
+            recorded = checksums.get(rel)
+            if not verify_integrity and recorded is not None:
+                # Default: verified on fetch, recorded → skip, no hashing.
                 n_have += 1
                 continue
-            recorded = checksums.get(rel)
-            if recorded is not None and recorded == sha256_file(out):
-                n_skipped_verified += 1
+            if verify_integrity and recorded is not None:
+                if recorded == sha256_file(out):
+                    n_skipped_verified += 1
+                    continue
+            elif not verify_integrity and _is_complete_archive(out):
+                checksums[rel] = sha256_file(out)
+                _save_checksums(raw_dir, checksums)
+                n_have += 1
                 continue
-            # Present but unrecorded or drifted: re-fetch below.
+            # Unrecorded + incomplete, or drifted under verify: re-fetch below.
             n_remismatch += 1
+        checksums.pop(rel, None)
         url = _capsule_url(base_url, cid)
         try:
-            _http_download(url, out)
-            checksums[rel] = sha256_file(out)
+            checksums[rel] = _fetch_capsule(url, out, expected.get(cid))
             n_get += 1
         except Exception as exc:
             if out.exists():
                 out.unlink()
             n_fail += 1
             fails.append(f"{url}: {exc!r}")
+        _save_checksums(raw_dir, checksums)
 
     _save_checksums(raw_dir, checksums)
     result = {
@@ -317,8 +419,17 @@ def download(
     return result
 
 
+def _is_complete_archive(path: Path) -> bool:
+    try:
+        _verify_targz(path)
+    except IncompleteDownloadError:
+        return False
+    return True
+
+
 __all__ = [
     "SOURCE_URL",
+    "IncompleteDownloadError",
     "bootstrap_oracle",
     "download",
 ]

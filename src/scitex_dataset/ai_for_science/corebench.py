@@ -50,6 +50,7 @@ from ._corebench_download import (
     _ORACLE_TEST_RELPATH,
     _ORACLE_TRAIN_RELPATH,
     SOURCE_URL,
+    IncompleteDownloadError,
     bootstrap_oracle,
     download,
 )
@@ -442,6 +443,12 @@ def prepare(
             force=force,
             capsule_ids=capsule_ids,
         )
+        if out["download"]["n_failed"]:
+            # Fail loud (#104): never standardize over a missing/partial set.
+            raise IncompleteDownloadError(
+                f"corebench: {out['download']['n_failed']} capsule(s) failed "
+                f"verified download: {out['download']['failures']}"
+            )
     out["standardize"] = standardize(
         raw_dir=paths.raw_dir,
         for_solver_dir=paths.for_solver_dir,
@@ -474,6 +481,7 @@ __all__ = [
     "COHORT_ID",
     "COHORT_NAME",
     "SOURCE_URL",
+    "IncompleteDownloadError",
     "DIFFICULTY_TIERS",
     "REFERENCE_SCHEMA",
     "DEFAULT_MODE",

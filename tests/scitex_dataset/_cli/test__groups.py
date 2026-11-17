@@ -1,13 +1,26 @@
 #!/usr/bin/env python3
 """CLI smoke tests for the ai-for-science domain (no network)."""
 
+import io
 import json
+import tarfile
 import zipfile
 
 import pytest
 from click.testing import CliRunner
 
 from scitex_dataset._cli import main
+
+
+def _complete_targz() -> bytes:
+    """A real, readable synthetic tarball — downloads verify integrity (#104)."""
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w:gz") as tf:
+        data = b"print('hi')\n"
+        info = tarfile.TarInfo("code/main.py")
+        info.size = len(data)
+        tf.addfile(info, io.BytesIO(data))
+    return buf.getvalue()
 
 
 @pytest.fixture
@@ -394,7 +407,7 @@ class TestDownloadCli:
         from pathlib import Path
 
         def _fake_fetch(url, dest):
-            Path(dest).write_bytes(b"capsule-bytes")
+            Path(dest).write_bytes(_complete_targz())
 
         args = [
             "ai-for-science",
@@ -417,7 +430,7 @@ class TestDownloadCli:
         from pathlib import Path
 
         def _fake_fetch(url, dest):
-            Path(dest).write_bytes(b"capsule-bytes")
+            Path(dest).write_bytes(_complete_targz())
 
         args = [
             "ai-for-science",
