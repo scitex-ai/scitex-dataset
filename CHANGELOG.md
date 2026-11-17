@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-17
+
 - Answer-value redaction now also catches rounded renderings of a reference
   value (#107). A stored `0.873214` is also found as `87.32%`, `0.873`,
   `8.73e-01`, `0,873` or `.873`. Each token is compared within its own
