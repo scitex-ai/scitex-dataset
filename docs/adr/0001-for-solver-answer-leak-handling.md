@@ -73,10 +73,68 @@ trade-offs:
 
 - corebench/bixbench/biomysterybench all route through the shared writer, so
   the structural strips + notebook-output scrub apply to every cohort. The
-  value-redaction + backstop need the cohort to pass `answer_values`: **corebench
-  is wired; bixbench/biomysterybench are a follow-up.**
+  value-redaction + backstop need the cohort to pass reference values:
+  **corebench and bixbench are wired** (bixbench passes `ideal` and `answer`,
+  plus the float form of numeric strings, since 2026-11-17).
+  **biomysterybench** answers are free-text rubrics, which this exact-value
+  policy does not cover; it relies on the structural strips.
 - All strips/redactions touch only `for_solver/`; `raw/` is untouched → fully
   reversible and auditable. The materializer returns `stripped_leaks`,
   `stripped_files`, `masked_values`, `cleared_notebooks` for logging.
 - Regression coverage in `tests/scitex_dataset/ai_for_science/test__standardize.py`
   (`TestRunningLogLeakStrip`, `TestValueLeakGuard`).
+- The value scan also covers EXTENSIONLESS text files (`Dockerfile`, `code/run`,
+  `code/evaluation`) and never follows symlinks (2026-11-17). Before this, the
+  extension allow-list silently skipped the extensionless dump cited above.
+
+## Addendum (2026-11-17) — hosting identifiers
+
+### Context
+
+After answer masking, prepared CORE-Bench capsules still shipped the
+publisher's reproduction notes (`REPRODUCING.md`) naming the capsule's
+published image (`registry.codeocean.com/published/<uuid>:vN`), links to the
+hosting platform, the Dockerfile's environment digest header, and, in other
+capsules, paper/publisher links, DOIs and remote result figures. A solver with
+network access can follow any of these to the published results, defeating
+value masking. Survey (8 raw CORE-Bench capsules): every capsule had the
+published-image reference and hosting links; 6/8 a `# hash:sha256:` header;
+one had a publisher URL and four remote result images in its README.
+
+### Decision
+
+A second, always-on pass in the shared writer
+(`_identifiers.mask_hosting_identifiers`, then
+`assert_no_hosting_identifiers`) rewrites every extracted text file
+(sniffed: no NUL byte, any extension, symlinks never followed, read-only
+members restored to their mode):
+
+| Class | Rule | Replacement |
+|---|---|---|
+| Published environment image | `registry.codeocean.com/published/<uuid>[:tag][@sha256:…]` | `capsule-environment:local` (README says how to build it from `input/environment/Dockerfile`) |
+| Environment digest | `# hash:sha256:<hex>` line removed; other bare `sha256:<hex>` | `[redacted-digest]` |
+| Hosting / publication URL | any URL (scheme optional) on `HOSTING_HOSTS` (capsule hosts, DOI resolvers, archives, preprint servers, publishers) | `[redacted-url]` |
+| Result-file link | remote image in Markdown/HTML; URL with a `results/output/figures/plots` segment | `[redacted-url]` |
+| DOI | bare `10.NNNN/…` | `[redacted-doi]` |
+| Exact identifier | native capsule id (+ UUID core), oracle paper DOI (versioned + unversioned) and title, case-insensitive, whitespace-tolerant | `[redacted-identifier]` |
+
+Kept on purpose: base-image `FROM` lines and `image@sha256:` pins (generic,
+needed to rebuild), dependency lists and versions, run commands/scripts,
+code-repository and package-index URLs, tool documentation links, contact
+emails. The policy version (`IDENTIFIER_POLICY`) and the exact identifiers are
+bound into the materialization identity (contract
+`per-capsule-source-identity-v2`), so caches built under the old, leakier
+policy refuse reuse.
+
+### Limits
+
+- Over-redaction is accepted: a cited third-party DOI or paper link is also
+  neutralised; it is never an input needed to rerun the capsule.
+- Not removed: author names, affiliations and abstracts (licences and
+  attribution) and generic-host links to the authors' own pages. CORE task IDs
+  (ADR 0002) still embed the native capsule id. Redaction is therefore defence
+  in depth; strict masking also requires a network-isolated solver.
+- Text files over 64 MiB are not rewritten; they are listed in the
+  materializer's `identifier_unscanned`.
+- Regression coverage: `tests/scitex_dataset/ai_for_science/test__identifiers.py`
+  over real fixture files in `fixtures/hosting_identifiers/`.

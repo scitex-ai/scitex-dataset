@@ -14,6 +14,21 @@ index and operator materialization ledger are not a selected assignment.
 Preparation applies existing masking rules; it does not prove that a real
 capsule is free of answer leaks. Qualify the selected input before experiments.
 
+Masking has two layers (ADR 0001). Answer masking strips author output/log
+dirs and files, clears notebook outputs, and redacts reference values (CORE
+and BixBench pass their oracle values). Hosting-identifier redaction then
+rewrites every extracted text file: published environment images become the
+local tag `capsule-environment:local` (build it from
+`input/environment/Dockerfile`), Dockerfile `# hash:sha256:` headers and bare
+digests, capsule-hosting/archive/publisher URLs, remote result images and
+`results/`-path links, DOIs, the native capsule id and the oracle's paper
+title/DOI are replaced by `[redacted-*]` markers. Dependency lists, package
+versions, base-image `FROM` lines, run commands and code-repository URLs stay.
+A surviving identifier raises `HostingIdentifierLeakError`; files over 64 MiB
+are reported as `identifier_unscanned`. Author names and abstracts remain and
+CORE task IDs still embed the native capsule id, so a solver that must not
+look up published results also needs a network-isolated sandbox.
+
 Prepare fresh outputs when upgrading the assignment contract or changing
 source bytes. CORE `prepare(capsule_ids=[...])` selects native capsules for
 acquisition; `only=...` selects materialization and leaves the catalog mapper

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-17
+
+- Redact hosting identifiers from every extracted `for_solver` capsule:
+  published environment images (rewritten to `capsule-environment:local`),
+  Dockerfile digest headers, capsule-hosting/archive/publisher URLs, remote
+  result images and result-path links, DOIs, the native capsule id and the
+  oracle paper DOI/title. Fail with `HostingIdentifierLeakError` if any
+  survives. Dependency lists, versions, base images and run commands stay.
+  The materialization contract is now `per-capsule-source-identity-v2`;
+  prepare older outputs afresh.
+- BixBench now passes its oracle values (`ideal`, `answer`) to the answer-value
+  redaction and guard, as CORE-Bench already did.
+- The answer-value scan also covers extensionless text files and never follows
+  symlinks.
+- Split `_standardize.py` into focused modules (scorer template, capsule
+  layout, leak strips, materialization identity); names stay importable from
+  `_standardize`.
+
 ## [0.8.3] - 2026-11-12
 
 - Share bounded skill-page lookup across CLI and MCP. Refuse parent paths,

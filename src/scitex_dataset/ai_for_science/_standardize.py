@@ -38,28 +38,73 @@ own mappers, then call :func:`write_for_solver` and :func:`write_eval`.
 The single shared :data:`EVALUATE_PY` template implements a uniform
 scorer; each benchmark bakes its default ``--mode`` into the rendered
 copy via the ``{default_mode}`` placeholder.
+
+This module is the facade + writers. Focused helpers live in
+:mod:`._evaluate_template` (scorer template), :mod:`._capsule_layout`
+(friendly ids, mapper, archive extraction, README), :mod:`._leak_strip`
+(answer-leak strips/redaction), :mod:`._identifiers` (hosting-identifier
+redaction) and :mod:`._materialization_identity` (cache identity ledger);
+their names are re-exported here for existing callers.
 """
 
 from __future__ import annotations
 
-import hashlib
 import json
-import math
 import os
-import re
 import stat
-import tarfile
-import zipfile
 from pathlib import Path
 
-
-class AnswerLeakError(RuntimeError):
-    """Raised when the supported text scan still detects an answer match.
-
-    This guard is bounded by its extensions, size limit and matching rules;
-    it does not qualify arbitrary input files. See :func:`_assert_no_value_leak`.
-    """
-
+from ._capsule_layout import (  # noqa: F401 - re-exported
+    _ARCHIVE_SUFFIXES,
+    _CAPSULE_DIR_PREFIX,
+    _EXAMPLE_FILENAME,
+    _IDENTITY_FILENAME,
+    _INDEX_FILENAME,
+    _INPUT_SUBDIR,
+    _OPERATOR_ROOT_FILES,
+    _README_FILENAME,
+    _SCHEMA_FILENAME,
+    _TASK_FILENAME,
+    _extract_archive,
+    _flatten_single_top_dir,
+    _native_capsule_id,
+    _purge_legacy_root_artifacts,
+    _render_capsule_readme,
+    _resolve_only,
+    _rmtree,
+    build_capsule_index,
+    friendly_capsule_id,
+)
+from ._evaluate_template import EVALUATE_PY, render_evaluate_py  # noqa: F401
+from ._identifiers import (  # noqa: F401 - re-exported
+    HostingIdentifierLeakError,
+    assert_no_hosting_identifiers,
+    mask_hosting_identifiers,
+)
+from ._leak_strip import (  # noqa: F401 - re-exported
+    _SCAN_EXTS,
+    _VALUE_REDACTION,
+    LEAK_DIRS,
+    AnswerLeakError,
+    InvalidReferenceSourceError,
+    _answer_targets,
+    _assert_no_value_leak,
+    _mask_value_leaks,
+    _redact_text,
+    _strip_leak_dirs,
+    _strip_leak_files,
+    _strip_notebook_outputs,
+)
+from ._materialization_identity import (  # noqa: F401 - re-exported
+    _MATERIALIZATION_CONTRACT,
+    StaleMaterializationError,
+    _capsule_identifiers,
+    _capsule_reference_values,
+    _json_identity,
+    _materialized_identity,
+    _qualify_materializations,
+    _sha256_file,
+)
 
 # The uniform submission contract: an array of objects, each carrying the
 # ``task_id`` it answers plus the agent's ``answer`` (any JSON value).
@@ -106,235 +151,18 @@ def submission_schema_for_tasks(tasks: list[dict]) -> dict:
         if answer_type == "json":
             continue
         json_type = {"list": "array", "object": "object"}.get(answer_type, answer_type)
-        conditions.append({
-            "if": {"properties": {"task_id": {"const": task["task_id"]}},
-                   "required": ["task_id"]},
-            "then": {"properties": {"answer": {"type": [json_type, "null"]}}},
-        })
+        conditions.append(
+            {
+                "if": {
+                    "properties": {"task_id": {"const": task["task_id"]}},
+                    "required": ["task_id"],
+                },
+                "then": {"properties": {"answer": {"type": [json_type, "null"]}}},
+            }
+        )
     if conditions:
         schema["items"]["allOf"] = conditions
     return schema
-
-
-# ---------------------------------------------------------------------------
-# evaluate.py — a single shared, stdlib-only, answer-free CLI scorer.
-# ``{default_mode}`` is substituted per benchmark at write time.
-# ---------------------------------------------------------------------------
-
-EVALUATE_PY = '''#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""Uniform answer-free scorer for an ai-for-science benchmark.
-
-Usage::
-
-    python evaluate.py --submission S.json --answers answers.jsonl \\
-        [--mode numeric|string|rubric]
-
-Loads the agent submission (the uniform ``[{{task_id, answer}}, ...]``
-array) and the operator ``answers.jsonl``, joins them by ``task_id``,
-scores each task by the selected ``--mode``, and prints a JSON summary::
-
-    {{"n", "n_scored", "n_correct", "score", "per_task": [...]}}
-
-The scoring logic is answer-free: the answers come from the ``--answers``
-file argument, never from this source. Stdlib-only so it runs anywhere.
-
-Modes:
-- ``numeric`` — parse both to float, correct within relative tol 1e-3.
-- ``string``  — case- and whitespace-normalized equality after legacy
-  non-null string coercion; missing/null submissions are graded failures.
-- ``rubric``  — not auto-scorable: each task is marked
-  ``"requires_rubric_grading"`` and excluded from ``n_scored`` / ``score``.
-
-This is distinct from the package API's pooled-reference PI / sig-fig
-policy. Repeated references are retained and count as ONE question, but
-scalar comparison refuses them as ``needs_reference_policy`` until an
-explicit aggregation policy is selected. No first/last/mean is assumed.
-Malformed/missing solver answers remain scored failures when the reference
-is gradeable. An entirely ungradeable assignment has ``score: null``.
-"""
-
-import argparse
-import json
-import math
-import sys
-
-DEFAULT_MODE = "{default_mode}"
-_REL_TOL = 1e-3
-
-
-def _load_submission(path):
-    with open(path, "r", encoding="utf-8") as fh:
-        data = json.load(fh)
-    if not isinstance(data, list):
-        raise ValueError("submission must be an array")
-    by_id = {{}}
-    for row in data:
-        if (not isinstance(row, dict) or not isinstance(row.get("task_id"), str)
-                or not row["task_id"].strip() or "answer" not in row):
-            raise ValueError("invalid submission record")
-        if row["task_id"] in by_id:
-            raise ValueError("duplicate submission task_id")
-        by_id[row["task_id"]] = row.get("answer")
-    return by_id
-
-
-def _load_answers(path):
-    by_id = {{}}
-    with open(path, "r", encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            rec = json.loads(line)
-            if (not isinstance(rec, dict) or not isinstance(rec.get("task_id"), str)
-                    or not rec["task_id"].strip()):
-                raise ValueError("invalid reference record")
-            if "answer" not in rec:
-                raise ValueError("reference record missing answer field")
-            by_id.setdefault(rec["task_id"], []).append(rec)
-    return by_id
-
-
-def _coerce_answer_value(answer_rec):
-    """Pull the comparable scalar out of an answers.jsonl ``answer`` field.
-
-    The operator answer payload is a small dict (e.g. ``{{"value": ...}}``,
-    ``{{"answer": ..., "ideal": ...}}``, ``{{"rubric": ...}}``). We prefer
-    the first non-null recognized key. An all-null recognized wrapper yields
-    null; a dict without any recognized keys remains the raw value.
-    """
-    ans = answer_rec.get("answer")
-    if isinstance(ans, dict):
-        for key in ("value", "answer", "ideal", "rubric"):
-            if key in ans and ans[key] is not None:
-                return ans[key]
-        if any(key in ans for key in ("value", "answer", "ideal", "rubric")):
-            return None
-        return ans
-    return ans
-
-
-def _finite_float(value):
-    if isinstance(value, bool):
-        return None
-    try:
-        result = float(value)
-    except (TypeError, ValueError, OverflowError):
-        return None
-    return result if math.isfinite(result) else None
-
-
-def _score_numeric(submitted, expected):
-    s = _finite_float(submitted)
-    e = _finite_float(expected)
-    if s is None or e is None:
-        return False
-    if e == 0:
-        return abs(s) <= _REL_TOL
-    return abs(s - e) <= _REL_TOL * abs(e)
-
-
-def _norm_string(value):
-    return " ".join(str(value).strip().lower().split())
-
-
-def _score_string(submitted, expected):
-    return _norm_string(submitted) == _norm_string(expected)
-
-
-def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--submission", required=True)
-    parser.add_argument("--answers", required=True)
-    parser.add_argument(
-        "--mode",
-        choices=("numeric", "string", "rubric"),
-        default=DEFAULT_MODE,
-    )
-    args = parser.parse_args(argv)
-
-    submitted = _load_submission(args.submission)
-    answers = _load_answers(args.answers)
-
-    per_task = []
-    n_scored = 0
-    n_correct = 0
-    for task_id, reference_records in sorted(answers.items()):
-        sub = submitted.get(task_id)
-        n_references = len(reference_records)
-        if args.mode == "rubric":
-            per_task.append(
-                {{
-                    "task_id": task_id,
-                    "status": "requires_rubric_grading",
-                    "submitted": sub,
-                    "n_references": n_references,
-                }}
-            )
-            continue
-        if n_references != 1:
-            per_task.append({{"task_id": task_id,
-                             "status": "needs_reference_policy",
-                             "n_references": n_references, "submitted": sub}})
-            continue
-        answer_rec = reference_records[0]
-        expected = _coerce_answer_value(answer_rec)
-        if args.mode == "numeric":
-            if _finite_float(expected) is None:
-                per_task.append({{"task_id": task_id, "status": "invalid_reference",
-                                 "n_references": n_references}})
-                continue
-            if _finite_float(sub) is None:
-                n_scored += 1
-                status = "malformed" if task_id in submitted else "no_submission"
-                per_task.append({{"task_id": task_id, "status": status,
-                                 "correct": False, "n_references": n_references,
-                                 "submitted": sub}})
-                continue
-            correct = _score_numeric(sub, expected)
-        else:
-            if expected is None:
-                per_task.append({{"task_id": task_id, "status": "invalid_reference",
-                                 "n_references": n_references}})
-                continue
-            if task_id not in submitted or sub is None:
-                n_scored += 1
-                status = "malformed" if task_id in submitted else "no_submission"
-                per_task.append({{"task_id": task_id, "status": status,
-                                 "correct": False, "n_references": n_references,
-                                 "submitted": sub}})
-                continue
-            correct = _score_string(sub, expected)
-        n_scored += 1
-        if correct:
-            n_correct += 1
-        per_task.append(
-            {{"task_id": task_id, "correct": bool(correct), "submitted": sub,
-              "n_references": n_references}}
-        )
-
-    summary = {{
-        "n": len(answers),
-        "n_scored": n_scored,
-        "n_correct": n_correct,
-        "n_ungradeable": len(answers) - n_scored,
-        "policy": "scalar-1e-3/string-whitespace-v1; multisample-unsupported",
-        "score": (n_correct / n_scored) if n_scored else None,
-        "per_task": per_task,
-    }}
-    print(json.dumps(summary, indent=2, sort_keys=True))
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())
-'''
-
-
-def render_evaluate_py(default_mode: str) -> str:
-    """Return :data:`EVALUATE_PY` with ``{default_mode}`` substituted."""
-    return EVALUATE_PY.format(default_mode=default_mode)
 
 
 # ---------------------------------------------------------------------------
@@ -422,657 +250,6 @@ def write_for_solver(
 # agent binds (EXACTLY one capsule-NNN/ dir, never the whole tree).
 # ---------------------------------------------------------------------------
 
-# Archive suffixes recognised for extraction, longest first so the
-# compound ``.tar.gz`` wins over a bare ``.gz`` when stripping the id.
-_ARCHIVE_SUFFIXES = (".tar.gz", ".tgz", ".tar", ".zip")
-
-# Files copied/written into every per-capsule dir.
-_TASK_FILENAME = "task.jsonl"
-_INPUT_SUBDIR = "input"
-_INDEX_FILENAME = "index.jsonl"
-_README_FILENAME = "README.md"
-_SCHEMA_FILENAME = "submission.schema.json"
-_EXAMPLE_FILENAME = "submission.example.json"
-
-# Top-level subdirectories inside an extracted capsule that ship the
-# authors' ORIGINAL outputs — i.e. the answer the task asks the agent to
-# reproduce (e.g. CoreBench's ``results/classification/log_evaluate.txt``
-# holds the eval-loss). They are stripped from the agent-visible
-# ``input/`` after extraction so the answer is never reachable; the
-# canonical answers live only in the operator-side ``eval/answers.jsonl``
-# (never mounted). Listed as a constant so the leak surface is auditable
-# and extensible per benchmark. Author run outputs / running logs must
-# NEVER ship in for_solver for ANY capsule or cohort, and they are stripped
-# at ANY depth (often nested under code/, e.g. code/dump/, code/log/).
-LEAK_DIRS = ("results", "result", "output", "outputs", "log", "logs", "dump", "dumps")
-
-# Loose running-log FILES that live OUTSIDE LEAK_DIRS (e.g. a stray
-# ``data/feature_..._log.csv``) — removed by :func:`_strip_leak_files`. A file
-# matches when it ends ``.log`` OR its stem has a DELIMITED ``log`` segment
-# (``(^|[_.-])log([_.-]|$)`` — so ``catalog`` / ``dialog`` / ``logger`` are
-# NOT matched) AND its extension is a text/data artifact (so code/config like
-# ``log_utils.py`` or ``logging.yaml`` is kept).
-_LEAK_FILE_RE = re.compile(r"(^|[_.-])log([_.-]|$)", re.IGNORECASE)
-_LEAK_FILE_EXTS = {".log", ".txt", ".out", ".csv", ".tsv", ".dat"}
-
-# Text extensions scanned by the value-verify guard (:func:`_assert_no_value_leak`).
-_SCAN_EXTS = {
-    ".txt",
-    ".md",
-    ".csv",
-    ".tsv",
-    ".json",
-    ".yaml",
-    ".yml",
-    ".log",
-    ".out",
-    ".tex",
-    ".html",
-    ".rst",
-    ".py",
-    ".r",
-    ".ipynb",
-    ".dat",
-    ".cfg",
-    ".ini",
-}
-
-# Per-capsule friendly-id directory prefix (``capsule-NNN``). The
-# Solver capsules are separate from operator-root mapper, identity ledger and
-# optional inventory. Legacy roots refuse BEFORE any purge: they are retained
-# for historical evidence and must not be rebound into a solver capsule.
-_CAPSULE_DIR_PREFIX = "capsule-"
-_IDENTITY_FILENAME = ".materialization-identity.json"
-_OPERATOR_ROOT_FILES = {_INDEX_FILENAME, _IDENTITY_FILENAME, "inventory.json"}
-_MATERIALIZATION_CONTRACT = "per-capsule-source-identity-v1"
-
-
-class StaleMaterializationError(ValueError):
-    """Cached identity is unknown or changed; use a fresh output directory."""
-
-
-class InvalidReferenceSourceError(ValueError):
-    """A supplied masking reference cannot be qualified; no outputs changed."""
-
-
-def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as fh:
-        for chunk in iter(lambda: fh.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-def _json_identity(value: object) -> str:
-    return hashlib.sha256(json.dumps(
-        value, sort_keys=True, ensure_ascii=False, allow_nan=False
-    ).encode("utf-8")).hexdigest()
-
-
-def _materialized_identity(capsule_dir: Path) -> str:
-    """Hash actual cached names/bytes/modes; never follow a symlink target."""
-    entries = []
-    for parent, directories, files in os.walk(capsule_dir, followlinks=False):
-        for name in sorted(directories + files):
-            path = Path(parent) / name
-            mode = path.lstat().st_mode
-            row = {"path": path.relative_to(capsule_dir).as_posix(),
-                   "executable": mode & 0o111}
-            if stat.S_ISLNK(mode):
-                row.update(kind="symlink", target=os.readlink(path))
-            elif stat.S_ISREG(mode):
-                row.update(kind="file", sha256=_sha256_file(path))
-            elif stat.S_ISDIR(mode):
-                row.update(kind="directory")
-            else:
-                raise StaleMaterializationError("unsupported cached filesystem entry")
-            entries.append(row)
-    return _json_identity(sorted(entries, key=lambda row: row["path"]))
-
-
-def _capsule_reference_values(rows, answer_values, reference_values):
-    if ((answer_values is not None and not isinstance(answer_values, dict))
-            or (reference_values is not None and not isinstance(reference_values, dict))):
-        raise InvalidReferenceSourceError("reference mappings must be objects")
-    values = [answer_values[row["task_id"]] for row in rows
-              if answer_values and row["task_id"] in answer_values]
-    for row in rows:
-        samples = (reference_values or {}).get(row["task_id"], [])
-        if not isinstance(samples, list):
-            raise InvalidReferenceSourceError("reference_values requires lists of samples")
-        values.extend(samples)
-    return values
-
-
-def _qualify_materializations(for_solver_dir, index, selected, by_native, raw_dir,
-                             source_identity, answer_values, reference_values):
-    """Preflight ALL existing caches before mapper/purge/extraction effects.
-
-    Only selected or already-materialized archives are read. The optional
-    caller identity belongs to this operator-private root ledger, not the
-    solver task/schema. Actual upstream revision qualification is separate.
-    """
-    ledger_path = for_solver_dir / _IDENTITY_FILENAME
-    old = {"contract": _MATERIALIZATION_CONTRACT, "materializations": {}}
-    existing = []
-    if for_solver_dir.exists():
-        if not for_solver_dir.is_dir() or for_solver_dir.is_symlink():
-            raise StaleMaterializationError("output root must be a real directory")
-        for entry in for_solver_dir.iterdir():
-            if (entry.name in _OPERATOR_ROOT_FILES and entry.is_file()
-                    and not entry.is_symlink()):
-                continue
-            if (entry.is_dir() and not entry.is_symlink()
-                    and entry.name.startswith(_CAPSULE_DIR_PREFIX)
-                    and entry.name[len(_CAPSULE_DIR_PREFIX):].isdigit()):
-                existing.append(entry.name)
-            else:
-                raise StaleMaterializationError("legacy root artifacts retained; use a fresh directory")
-        if any(for_solver_dir.iterdir()):
-            if not ledger_path.is_file() or ledger_path.is_symlink():
-                raise StaleMaterializationError("legacy cache has no qualified identity; retained unchanged")
-            try:
-                old = json.loads(ledger_path.read_text(encoding="utf-8"))
-            except (ValueError, OSError) as exc:
-                raise StaleMaterializationError("invalid cache identity ledger") from exc
-            if (not isinstance(old, dict)
-                    or old.get("contract") != _MATERIALIZATION_CONTRACT
-                    or not isinstance(old.get("materializations"), dict)):
-                raise StaleMaterializationError("cache contract changed; retained unchanged")
-            cached_index = for_solver_dir / _INDEX_FILENAME
-            if (not cached_index.is_file()
-                    or old.get("index_sha256") != _sha256_file(cached_index)):
-                raise StaleMaterializationError("cached mapper changed; retained unchanged")
-    current = {row["dir"]: row for row in index}
-    needed = set(existing) | {row["dir"] for row in selected}
-    identities = {}
-    for name in sorted(needed):
-        row = current.get(name)
-        if row is None:
-            raise StaleMaterializationError("existing capsule is absent from new mapping")
-        tasks = by_native[row["native_id"]]
-        values = _capsule_reference_values(tasks, answer_values, reference_values)
-        # Exercise the UNCHANGED target policy before extraction or mutation.
-        # Invalid numeric source values refuse rather than being dropped.
-        _answer_targets(values)
-        try:
-            masking_identity = _json_identity(values)
-        except (TypeError, ValueError) as exc:
-            raise InvalidReferenceSourceError("masking references must be valid JSON") from exc
-        archive_paths = {task["data"] for task in tasks}
-        if len(archive_paths) != 1:
-            raise ValueError("a native capsule must have exactly one archive identity")
-        # Check mapping before touching the archive for a new/different native.
-        previous = old.get("materializations", {}).get(name)
-        if name in existing and (not isinstance(previous, dict)
-                                 or previous.get("native_id") != row["native_id"]):
-            raise StaleMaterializationError("friendly/native mapping changed; retained unchanged")
-        archive_path = (raw_dir / next(iter(archive_paths))).resolve()
-        identity = {"native_id": row["native_id"], "tasks_sha256": _json_identity(tasks),
-                    "archive_sha256": _sha256_file(archive_path),
-                    "source_identity_sha256": _json_identity(source_identity),
-                    "masking_values_sha256": masking_identity}
-        if name in existing:
-            if any(previous.get(key) != value for key, value in identity.items()):
-                raise StaleMaterializationError("task/archive/source identity changed; retained unchanged")
-            if previous.get("materialized_sha256") != _materialized_identity(for_solver_dir / name):
-                raise StaleMaterializationError("cached materialization changed; retained unchanged")
-        identities[name] = identity
-    return old, identities
-
-
-def friendly_capsule_id(index: int) -> str:
-    """Return the deterministic friendly dir name for a 0-based position.
-
-    Friendly ids are ``capsule-NNN`` zero-padded to 3 digits and 1-based
-    (``index=0`` → ``capsule-001``), assigned over the native capsule ids
-    sorted ascending PER BENCHMARK.
-    """
-    return f"capsule-{index + 1:03d}"
-
-
-def _native_capsule_id(data: str | None) -> str | None:
-    """Derive the native capsule id from a task's ``data`` archive path.
-
-    ``data`` points at the capsule's archive, e.g.
-    ``"./capsules/capsule-0201225.tar.gz"`` →  ``"capsule-0201225"``.
-    The leading directory and any recognised archive suffix are stripped.
-    Returns ``None`` when ``data`` is falsy (task has no bound archive).
-    """
-    if not data:
-        return None
-    name = Path(data).name
-    for suffix in _ARCHIVE_SUFFIXES:
-        if name.endswith(suffix):
-            return name[: -len(suffix)]
-    return name
-
-
-def build_capsule_index(tasks: list[dict]) -> list[dict]:
-    """Group ``tasks`` by native capsule and assign friendly ids.
-
-    Tasks are grouped by the native capsule id derived from each row's
-    ``data`` archive path; the distinct native ids are sorted ascending
-    and given ``capsule-NNN`` friendly ids in that order. Returns one
-    mapper row per capsule, in friendly-id order::
-
-        {"friendly_id", "native_id", "benchmark", "task_ids", "dir"}
-
-    This is computed from the FULL task list (independent of any ``only``
-    filter) so the mapper is always complete. Tasks whose ``data`` yields
-    no capsule id are skipped (they have nothing to materialize).
-    """
-    grouped: dict[str, list[dict]] = {}
-    for task in tasks:
-        native = _native_capsule_id(task.get("data"))
-        if native is None:
-            continue
-        grouped.setdefault(native, []).append(task)
-
-    index: list[dict] = []
-    for position, native in enumerate(sorted(grouped)):
-        friendly = friendly_capsule_id(position)
-        rows = grouped[native]
-        index.append(
-            {
-                "friendly_id": friendly,
-                "native_id": native,
-                "benchmark": rows[0].get("benchmark"),
-                "task_ids": [r["task_id"] for r in rows],
-                "dir": friendly,
-            }
-        )
-    return index
-
-
-def _resolve_only(only: str, index: list[dict]) -> dict:
-    """Resolve an ``--only`` selector (friendly OR native id) to its row.
-
-    Raises ``KeyError`` if it matches neither a ``friendly_id`` nor a
-    ``native_id`` in the mapper.
-    """
-    for row in index:
-        if only in (row["friendly_id"], row["native_id"]):
-            return row
-    raise KeyError(
-        f"--only {only!r} matched no capsule (neither a friendly_id "
-        f"capsule-NNN nor a native capsule id) in the {len(index)}-capsule index."
-    )
-
-
-def _extract_archive(archive_path: Path, dest_dir: Path) -> None:
-    """Extract ``archive_path`` into ``dest_dir`` (stdlib, by extension).
-
-    ``.tar.gz`` / ``.tgz`` / ``.tar`` go through :mod:`tarfile`; ``.zip``
-    through :mod:`zipfile`. ``dest_dir`` is created fresh by the caller.
-    Raises ``FileNotFoundError`` if the archive is missing (fail loud:
-    a selected capsule with no archive on disk is an operator error),
-    and ``ValueError`` for an unrecognised suffix.
-    """
-    if not archive_path.is_file():
-        raise FileNotFoundError(
-            f"capsule archive not found (or is a dangling symlink): {archive_path}"
-        )
-    name = archive_path.name
-    if name.endswith((".tar.gz", ".tgz", ".tar")):
-        with tarfile.open(archive_path, "r:*") as tf:
-            tf.extractall(dest_dir)
-    elif name.endswith(".zip"):
-        with zipfile.ZipFile(archive_path) as zf:
-            zf.extractall(dest_dir)
-    else:
-        raise ValueError(
-            f"unrecognised archive suffix for {archive_path} "
-            f"(expected one of {_ARCHIVE_SUFFIXES})."
-        )
-
-
-def _flatten_single_top_dir(input_dir: Path) -> None:
-    """De-nest ``input_dir`` when the archive wrapped everything in one dir.
-
-    Many capsule tarballs (e.g. CoreBench) contain a SINGLE top-level
-    directory named after the capsule (``capsule-0220918/``), so a naive
-    extract yields ``input/capsule-0220918/code…`` instead of
-    ``input/code…`` — and the task's ``data: "./input"`` pointer then
-    misses by one level. If ``input_dir`` holds EXACTLY one entry and it
-    is a directory, this lifts that directory's children up into
-    ``input_dir`` and removes the now-empty wrapper. The general case is
-    handled conservatively: a multi-entry archive (or a lone top-level
-    FILE) is left untouched.
-    """
-    entries = list(input_dir.iterdir())
-    if len(entries) != 1 or not entries[0].is_dir():
-        return
-    wrapper = entries[0]
-    # Two-phase to dodge a name collision with the wrapper itself: stage
-    # to a sibling temp dir, then move children up and drop the wrapper.
-    staging = input_dir.parent / f"_flatten_{input_dir.name}"
-    if staging.exists():
-        _rmtree(staging)
-    wrapper.rename(staging)
-    for child in staging.iterdir():
-        child.rename(input_dir / child.name)
-    staging.rmdir()
-
-
-def _strip_leak_dirs(input_dir: Path) -> list[str]:
-    """Remove answer-bearing dirs (:data:`LEAK_DIRS`) from ``input_dir`` at ANY depth.
-
-    Walks the whole ``input/`` tree and recursively deletes every directory
-    whose name matches :data:`LEAK_DIRS` (case-insensitive). Author run
-    outputs / running logs are frequently nested under ``code/`` (e.g.
-    ``input/code/dump/``, ``input/code/log/``), not just at the top level, so
-    a top-level-only strip would miss them. Symlinked dirs are skipped (not
-    followed). Returns the removed paths as strings (for the caller's report /
-    tests).
-    """
-    removed: list[str] = []
-    leak_names = {name.lower() for name in LEAK_DIRS}
-    for root, dirs, _ in os.walk(input_dir, topdown=True):
-        kept: list[str] = []
-        for d in dirs:
-            p = Path(root) / d
-            if d.lower() in leak_names and not p.is_symlink():
-                _rmtree(p)
-                removed.append(str(p))
-            else:
-                kept.append(d)
-        dirs[:] = kept  # don't descend into dirs we just removed
-    return removed
-
-
-def _strip_leak_files(input_dir: Path) -> list[str]:
-    """Remove loose running-log FILES from ``input_dir`` at any depth.
-
-    Catches author run-logs that live OUTSIDE the :data:`LEAK_DIRS` dirs
-    (e.g. ``data/feature_and_set_selection_log.csv``) which the dir strip
-    alone misses. A file is removed when it ends ``.log`` OR (its stem has a
-    delimited ``log`` segment via :data:`_LEAK_FILE_RE` AND its extension is a
-    text/data artifact in :data:`_LEAK_FILE_EXTS`, so code/config like
-    ``log_utils.py`` is kept). Returns the removed paths as strings.
-    """
-    removed: list[str] = []
-    for root, _, files in os.walk(input_dir):
-        for f in files:
-            stem, ext = os.path.splitext(f)
-            ext = ext.lower()
-            is_log = ext == ".log" or (
-                ext in _LEAK_FILE_EXTS and _LEAK_FILE_RE.search(stem) is not None
-            )
-            if not is_log:
-                continue
-            p = Path(root) / f
-            try:
-                p.unlink()
-                removed.append(str(p))
-            except OSError:  # pragma: no cover - unlink race
-                pass
-    return removed
-
-
-# Marker written in place of a leaked answer value when redacting a KEPT file.
-_VALUE_REDACTION = "[redacted]"
-
-# A numeric token: requires a decimal point so bare integers are never matched.
-_NUM_TOKEN_RE = re.compile(r"[0-9]+\.[0-9]+(?:[eE][-+]?[0-9]+)?")
-
-
-def _answer_targets(
-    values: list[object],
-) -> tuple[list[tuple[float, int]], list[str]]:
-    """Split answers into (numeric round-targets, string targets) for leak matching.
-
-    Numeric: ``(value, decimals)`` for non-integer floats whose canonical form
-    has >=4 decimals. A text numeric token is a leak if it ROUNDS to the value
-    at that precision — this catches a capsule that stores the answer at FULL
-    precision (e.g. ``0.9996090937724982`` for the stated answer ``0.9996``) and
-    its x100 percentage rendering. String: distinctive answers (>=8 chars),
-    substring-matched. Integers / short / round numbers are skipped so a
-    coincidental ``1000`` never triggers a false redaction or build failure.
-    """
-    nums: list[tuple[float, int]] = []
-    strs: list[str] = []
-    for v in values:
-        if isinstance(v, bool) or v is None:
-            continue
-        if isinstance(v, (int, float)):
-            try:
-                f = float(v)
-            except OverflowError as exc:
-                raise InvalidReferenceSourceError("masking numeric reference is unrepresentable") from exc
-            if not math.isfinite(f):
-                raise InvalidReferenceSourceError("masking numeric reference must be finite")
-            if f == int(f):  # integers are too generic to match safely
-                continue
-            dec = len(format(f, "f").rstrip("0").split(".")[-1])
-            if dec >= 4:
-                nums.append((f, dec))
-        else:
-            s = str(v).strip()
-            if len(s) >= 8:
-                strs.append(s)
-    return nums, strs
-
-
-def _token_is_leak(token: str, nums: list[tuple[float, int]]) -> bool:
-    """True if numeric ``token`` rounds to any answer (direct or x100 percentage)."""
-    try:
-        x = float(token)
-    except ValueError:  # pragma: no cover - regex guarantees float-parseable
-        return False
-    for val, dec in nums:
-        band = 0.5 * 10 ** (-dec)
-        if abs(x - val) <= band or abs(x - val * 100.0) <= band * 100.0:
-            return True
-    return False
-
-
-def _redact_text(
-    text: str, nums: list[tuple[float, int]], strs: list[str]
-) -> tuple[str, bool]:
-    """Return (text with every leak occurrence replaced by the marker, changed?)."""
-    changed = False
-    for s in strs:
-        if s in text:
-            text = text.replace(s, _VALUE_REDACTION)
-            changed = True
-    if nums:
-
-        def _sub(m: "re.Match[str]") -> str:
-            return _VALUE_REDACTION if _token_is_leak(m.group(0), nums) else m.group(0)
-
-        new = _NUM_TOKEN_RE.sub(_sub, text)
-        if new != text:
-            changed = True
-        text = new
-    return text, changed
-
-
-def _assert_no_value_leak(
-    input_dir: Path, values: list[object], *, capsule: str
-) -> None:
-    """Refuse detected answer matches in supported readable text files.
-
-    The scan uses :data:`_SCAN_EXTS`, a 5 MB limit and existing round-to-answer
-    numeric/distinctive-string matching. Oversized, unsupported and unreadable
-    files are outside this guard's coverage. A match raises
-    :class:`AnswerLeakError`; absence of a match is not proof that the entire
-    capsule is free of answer leaks.
-    """
-    nums, strs = _answer_targets(values)
-    if not nums and not strs:
-        return
-    for root, _, files in os.walk(input_dir):
-        for f in files:
-            if os.path.splitext(f)[1].lower() not in _SCAN_EXTS:
-                continue
-            p = Path(root) / f
-            try:
-                if p.stat().st_size > 5_000_000:
-                    continue
-                data = p.read_text(errors="ignore")
-            except OSError:  # pragma: no cover - read race
-                continue
-            for s in strs:
-                if s in data:
-                    raise AnswerLeakError(
-                        f"capsule {capsule}: answer {s!r} still present in {p}"
-                    )
-            for m in _NUM_TOKEN_RE.finditer(data):
-                if _token_is_leak(m.group(0), nums):
-                    raise AnswerLeakError(
-                        f"capsule {capsule}: answer value ~{m.group(0)} still "
-                        f"present in {p} (rounds to a stated answer)"
-                    )
-
-
-def _mask_value_leaks(input_dir: Path, values: list[object]) -> list[str]:
-    """Redact answer-value occurrences in shipped text files, in place.
-
-    Companion to :func:`_strip_leak_dirs` / :func:`_strip_leak_files` for the
-    stragglers they cannot catch — a value baked into a KEPT file (e.g. an
-    extensionless ``code/evaluation`` dump or a result hardcoded in a ``.py``).
-    Uses :func:`_redact_text` (the SAME round-to-answer matching as the guard),
-    replacing each whole matching numeric token / distinctive string with
-    :data:`_VALUE_REDACTION` and leaving the rest of the file as scaffold.
-    NOTE: redaction can break a file's syntax when the value sat in code — that
-    is acceptable (leak removal is the priority; the operator's ``raw/`` keeps
-    the pristine original). Returns the redacted file paths.
-    """
-    nums, strs = _answer_targets(values)
-    if not nums and not strs:
-        return []
-    masked: list[str] = []
-    for root, _, files in os.walk(input_dir):
-        for f in files:
-            if os.path.splitext(f)[1].lower() not in _SCAN_EXTS:
-                continue
-            p = Path(root) / f
-            try:
-                if p.stat().st_size > 5_000_000:
-                    continue
-                text = p.read_text(errors="ignore")
-            except OSError:  # pragma: no cover - read race
-                continue
-            new, changed = _redact_text(text, nums, strs)
-            if changed:
-                p.write_text(new, encoding="utf-8")
-                masked.append(str(p))
-    return masked
-
-
-def _strip_notebook_outputs(input_dir: Path) -> list[str]:
-    """Clear executed-output cells from every ``*.ipynb`` under ``input_dir``.
-
-    A capsule may ship an EXECUTED notebook (e.g. BixBench's
-    ``CapsuleNotebook-*/..._executed.ipynb``) whose code-cell OUTPUTS are the
-    very results the task asks the agent to reproduce — an answer leak that
-    the whole-dir :func:`_strip_leak_dirs` pass does not catch. This walks
-    every notebook under the agent-visible ``input/`` and clears each cell's
-    ``outputs`` + ``execution_count`` (nbstripout-style), keeping the notebook
-    CODE as a scaffold while removing the computed answers. A no-op for
-    capsules without notebooks (CoreBench, BioMysteryBench). The canonical
-    answers live only in operator-side ``eval/answers.jsonl`` (never mounted).
-    Returns the cleared notebook paths as strings.
-    """
-    cleared: list[str] = []
-    for nb_path in sorted(input_dir.rglob("*.ipynb")):
-        if not nb_path.is_file():
-            continue
-        try:
-            nb = json.loads(nb_path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        changed = False
-        for cell in nb.get("cells", []):
-            if cell.get("outputs"):
-                cell["outputs"] = []
-                changed = True
-            if cell.get("execution_count") is not None:
-                cell["execution_count"] = None
-                changed = True
-        if changed:
-            nb_path.write_text(
-                json.dumps(nb, ensure_ascii=False, indent=1) + "\n",
-                encoding="utf-8",
-            )
-            cleared.append(str(nb_path))
-    return cleared
-
-
-def _purge_legacy_root_artifacts(for_solver_dir: Path) -> list[str]:
-    """Keep capsule directories and operator-root administrative files.
-
-    The writer first refuses legacy artifacts without changing them. This
-    internal cleanup is reached ONLY after identity qualification. Every other
-    root entry re-exposes capsules/tasks beyond the single capsule an agent
-    binds, so it is removed regardless of name:
-
-    - the old flat layout's global ``tasks.jsonl`` / ``submission.*``;
-    - benchmark-specific problem-data symlinks the old
-      :func:`write_for_solver` created at the root (CoreBench ``capsules``,
-      BixBench ``CapsuleFolder-*.zip``, BioMysteryBench ``data``).
-
-    A ``capsule-NNN`` REAL directory, mapper, private identity ledger and
-    optional operator inventory are preserved. Returns the removed
-    paths as strings.
-    """
-    if not for_solver_dir.is_dir():
-        return []
-    removed: list[str] = []
-    for entry in sorted(for_solver_dir.iterdir()):
-        if entry.name in _OPERATOR_ROOT_FILES:
-            continue
-        is_capsule_dir = (
-            entry.is_dir()
-            and not entry.is_symlink()
-            and entry.name.startswith(_CAPSULE_DIR_PREFIX)
-            and entry.name[len(_CAPSULE_DIR_PREFIX) :].isdigit()
-        )
-        if is_capsule_dir:
-            continue
-        if entry.is_symlink() or entry.is_file():
-            entry.unlink()
-        else:
-            _rmtree(entry)
-        removed.append(str(entry))
-    return removed
-
-
-def _render_capsule_readme(
-    *, friendly_id: str, benchmark: str | None, task_ids: list[str]
-) -> str:
-    """Return plain-language submission instructions for one capsule.
-
-    Names the capsule by its FRIENDLY id, lists the exact ``task_id``(s)
-    to answer, states the uniform JSON-array submission contract, and
-    points at ``submission.example.json`` + the extracted ``input/`` dir.
-    """
-    bench = benchmark or "this benchmark"
-    id_lines = "\n".join(f"- `{tid}`" for tid in task_ids)
-    return f"""# {friendly_id}
-
-This directory is one self-contained {bench} task capsule. Everything
-you need is inside it; no other capsule is referenced.
-
-## What to do
-
-1. The problem's code and data are EXTRACTED under `{_INPUT_SUBDIR}/`.
-   Read `{_INPUT_SUBDIR}/` and work the task described in `{_TASK_FILENAME}`.
-2. Answer the following task id(s):
-
-{id_lines}
-
-## How to submit
-
-Write a single JSON file: an ARRAY of objects, one per task id above,
-each shaped `{{"task_id": "<id>", "answer": <your answer>}}` — exactly
-the contract in `{_SCHEMA_FILENAME}`. A ready-to-edit template with the
-real task id(s) filled in is in `{_EXAMPLE_FILENAME}`; replace each
-`"<your answer here>"` with your answer and keep the `task_id` values
-unchanged.
-"""
-
 
 def write_for_solver_per_capsule(
     *,
@@ -1084,6 +261,7 @@ def write_for_solver_per_capsule(
     answer_values: dict[str, object] | None = None,
     reference_values: dict[str, list[object]] | None = None,
     source_identity: object = None,
+    identifiers: dict[str, list[str]] | None = None,
 ) -> dict:
     """Write the per-capsule, friendly-id'd ``for_solver/`` view + mapper.
 
@@ -1145,8 +323,15 @@ def write_for_solver_per_capsule(
     # Validate public declarations/identity before mapper, purge or extraction.
     submission_schema_for_tasks(tasks)
     ledger, identities = _qualify_materializations(
-        for_solver_dir, index, selected, by_native, raw_dir, source_identity,
-        answer_values, reference_values
+        for_solver_dir,
+        index,
+        selected,
+        by_native,
+        raw_dir,
+        source_identity,
+        answer_values,
+        reference_values,
+        identifiers,
     )
     for_solver_dir.mkdir(parents=True, exist_ok=True)
     purged_legacy = _purge_legacy_root_artifacts(for_solver_dir)
@@ -1157,6 +342,9 @@ def write_for_solver_per_capsule(
     stripped_files: list[str] = []
     masked_values: list[str] = []
     cleared_notebooks: list[str] = []
+    masked_identifiers: list[str] = []
+    identifier_classes: dict[str, int] = {}
+    identifier_unscanned: list[str] = []
     for row in selected:
         native = row["native_id"]
         capsule_dir = for_solver_dir / row["dir"]
@@ -1193,9 +381,21 @@ def write_for_solver_per_capsule(
         # extensionless code/evaluation dump) the structural strips can't catch,
         # then fail loud if anything still survives (the assert is the backstop).
         if answer_values or reference_values:
-            cap_values = _capsule_reference_values(rows, answer_values, reference_values)
+            cap_values = _capsule_reference_values(
+                rows, answer_values, reference_values
+            )
             masked_values.extend(_mask_value_leaks(input_dir, cap_values))
             _assert_no_value_leak(input_dir, cap_values, capsule=native)
+        # Neutralise pointers to the PUBLISHED results (capsule pages, published
+        # images, digests, DOIs, hosted result files) for EVERY capsule, then
+        # fail loud if any survives — see :mod:`._identifiers` / ADR 0001.
+        exact = _capsule_identifiers(native, identifiers)
+        id_report = mask_hosting_identifiers(input_dir, exact)
+        assert_no_hosting_identifiers(input_dir, exact, capsule=native)
+        masked_identifiers.extend(id_report["redacted"])
+        identifier_unscanned.extend(id_report["unscanned"])
+        for name, n in id_report["classes"].items():
+            identifier_classes[name] = identifier_classes.get(name, 0) + n
 
         # task.jsonl — this capsule's rows only, data rewritten to ./input.
         capsule_tasks = [{**task, "data": f"./{_INPUT_SUBDIR}"} for task in rows]
@@ -1230,6 +430,7 @@ def write_for_solver_per_capsule(
                 friendly_id=row["friendly_id"],
                 benchmark=row["benchmark"],
                 task_ids=row["task_ids"],
+                has_environment=(input_dir / "environment" / "Dockerfile").is_file(),
             ),
             encoding="utf-8",
         )
@@ -1242,15 +443,23 @@ def write_for_solver_per_capsule(
     records = dict(ledger.get("materializations", {}))
     for row in selected:
         name = row["dir"]
-        records[name] = {**identities[name],
-                         "materialized_sha256": _materialized_identity(for_solver_dir / name)}
-    ledger = {"contract": _MATERIALIZATION_CONTRACT, "source_identity": source_identity,
-              "index_sha256": _sha256_file(index_path), "materializations": records}
+        records[name] = {
+            **identities[name],
+            "materialized_sha256": _materialized_identity(for_solver_dir / name),
+        }
+    ledger = {
+        "contract": _MATERIALIZATION_CONTRACT,
+        "source_identity": source_identity,
+        "index_sha256": _sha256_file(index_path),
+        "materializations": records,
+    }
     ledger_path = for_solver_dir / _IDENTITY_FILENAME
     descriptor = os.open(ledger_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(descriptor, "w", encoding="utf-8") as fh:
         os.fchmod(fh.fileno(), 0o600)
-        json.dump(ledger, fh, indent=2, sort_keys=True, ensure_ascii=False, allow_nan=False)
+        json.dump(
+            ledger, fh, indent=2, sort_keys=True, ensure_ascii=False, allow_nan=False
+        )
 
     return {
         "index": str(index_path),
@@ -1263,17 +472,13 @@ def write_for_solver_per_capsule(
         "stripped_files": stripped_files,
         "masked_values": masked_values,
         "cleared_notebooks": cleared_notebooks,
+        "masked_identifiers": masked_identifiers,
+        "identifier_classes": identifier_classes,
+        "identifier_unscanned": identifier_unscanned,
         "purged_legacy": purged_legacy,
         "only": only,
         "identity_ledger": str(ledger_path),
     }
-
-
-def _rmtree(path: Path) -> None:
-    """Recursively remove a directory tree (stdlib ``shutil`` lazy import)."""
-    import shutil
-
-    shutil.rmtree(path)
 
 
 def write_eval(
@@ -1307,11 +512,6 @@ def write_eval(
         "n_answers": len(answers),
         "evaluate": str(evaluate_path),
     }
-
-
-# Silence the unused-import linter if ``os`` is ever dropped above; kept
-# imported for parity with the sibling modules' header conventions.
-_ = os
 
 
 __all__ = [

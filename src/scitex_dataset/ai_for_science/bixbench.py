@@ -36,6 +36,7 @@ anywhere.
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 from ._base import BenchmarkPaths, resolve_paths
@@ -67,6 +68,31 @@ DEFAULT_MODE = "string"
 # ---------------------------------------------------------------------------
 # Standardize — pure-Python, network-free.
 # ---------------------------------------------------------------------------
+
+
+def _masking_values(rec: dict) -> list[object]:
+    """Reference values the shared answer-leak guard masks in ``input/``.
+
+    Both oracle fields (``ideal`` and ``answer``) are passed as-is; a string
+    that parses as a finite number is ALSO passed as that number so the
+    guard's round-to-answer numeric matching applies (``"0.000213"`` also
+    matches ``2.13e-04``-style renderings). Booleans, short strings and
+    integers are skipped by the shared target policy, not here.
+    """
+    values: list[object] = []
+    for key in ("ideal", "answer"):
+        value = rec.get(key)
+        if value is None:
+            continue
+        values.append(value)
+        if isinstance(value, str):
+            try:
+                number = float(value.strip())
+            except ValueError:
+                continue
+            if math.isfinite(number):
+                values.append(number)
+    return values
 
 
 def standardize(
@@ -111,6 +137,7 @@ def standardize(
 
     tasks: list[dict] = []
     answers: list[dict] = []
+    reference_values: dict[str, list[object]] = {}
     with src.open("r", encoding="utf-8") as fin:
         for line in fin:
             line = line.strip()
@@ -141,13 +168,17 @@ def standardize(
                     },
                 }
             )
+            reference_values[task_id] = _masking_values(rec)
 
+    # The oracle values are masked in (and guarded out of) every extracted
+    # input/, exactly as CORE-Bench passes its reference values (ADR 0001).
     fs = write_for_solver_per_capsule(
         for_solver_dir=for_solver_dir,
         tasks=tasks,
         raw_dir=raw_dir,
         only=only,
         force=force,
+        reference_values=reference_values,
         source_identity=source_identity,
     )
     ev = write_eval(
