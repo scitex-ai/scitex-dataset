@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-17
+
 - Source identifiers no longer survive in `for_solver` path names (#111).
   Before, an archive whose folder or notebook names embedded the capsule UUID
   or task id (every BixBench archive) showed that id to the solver. Prepare
