@@ -59,6 +59,39 @@ from scitex_dataset import (
 For ``snapshot_download``-style fetch by repo_id, use
 ``scitex_dataset.general.huggingface.fetch_dataset``.
 
+### Fetch a known file with provenance (matches `dataset_fetch_file` / `dataset_fetch_reference` / `dataset_list_references`)
+
+| Symbol | Purpose |
+|---|---|
+| `fetch_file(url, sha256, dest_dir, filename=None, *, timeout=60.0, replace=False, license=None, citation=None)` | Download one file, verify its sha256, keep it in `dest_dir`, return a `FetchRecord` |
+| `fetch_reference(name, dest_dir, *, timeout=60.0, replace=False)` | Same, for a registered reference file (e.g. `"mnist"`), with its license + citation |
+| `list_references()` | Registered reference files (`id`, `url`, `sha256`, `size_bytes`, `license`, `citation`, …) |
+| `FetchRecord` | Frozen dataclass: `url`, `sha256`, `size_bytes`, `path`, `retrieved_at` (ISO UTC), `cached`, `license`, `citation`; `.to_dict()` |
+| `FetchError` | Raised on a sha256 mismatch or truncated body |
+
+Contract — no fallback, no silent skip:
+
+- A file already in `dest_dir` with the expected sha256 is reused
+  (`cached=True`, nothing downloaded).
+- A file already there with a **different** sha256 raises `FetchError` and is
+  left untouched, unless `replace=True`.
+- A new download streams to a hidden `.part` file in `dest_dir`; it is renamed
+  into place only if the byte count matches `Content-Length` and the sha256
+  matches. Otherwise the partial file is deleted and `FetchError` is raised.
+
+```python
+from scitex_dataset import fetch_reference
+
+rec = fetch_reference("mnist", "./data")
+rec.path        # .../data/mnist.npz (x_train, y_train, x_test, y_test)
+rec.sha256      # 731c5ac6...b673d1, verified
+rec.to_dict()   # JSON-ready provenance (license, citation, retrieved_at, ...)
+```
+
+The registry lives in `scitex_dataset.general.reference.REFERENCES` (one
+dict per file). `download_dataset("reference", "mnist", dest)` routes there
+too.
+
 ### Database (matches `dataset_db_*` MCP tools)
 
 | Symbol | Purpose |
@@ -81,7 +114,7 @@ everything.
 | Submodule | Sources |
 |---|---|
 | `scitex_dataset.neuroscience` | OpenNeuro, DANDI, PhysioNet |
-| `scitex_dataset.general` | Zenodo, Figshare, OpenML, HuggingFace |
+| `scitex_dataset.general` | Zenodo, Figshare, OpenML, HuggingFace, reference files |
 | `scitex_dataset.biology` | GEO |
 | `scitex_dataset.pharmacology` | MoleculeNet, ChEMBL |
 | `scitex_dataset.medical` | ClinicalTrials.gov |

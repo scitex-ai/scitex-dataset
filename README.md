@@ -46,6 +46,7 @@
 | general | **Figshare** | Research data sharing platform | Any research data |
 | general | **OpenML** | Machine-learning datasets | Tabular ML benchmarks |
 | general | **HuggingFace Hub** | ML datasets / models (on-demand) | Any |
+| general | **Reference files** | Well-known files pinned by sha256 (MNIST, ...) with license + citation | Single files (npz, ...) |
 | biology | **GEO** | Gene Expression Omnibus (NCBI) | Transcriptomics, microarray |
 | pharmacology | **MoleculeNet** | Molecular ML benchmark suite | SMILES, properties |
 | pharmacology | **ChEMBL** | Bioactivity database (EBI) | IC50/Ki/EC50 assays |
@@ -182,7 +183,15 @@ db_build()
 db_search("Alzheimer EEG")
 
 # 5) Inspect the supported sources.
-list_sources()["count"]   # 11
+list_sources()["count"]
+
+# 6) Fetch a known file with provenance: sha256-verified, cached, and
+#    returned as a record (url, sha256, size_bytes, path, retrieved_at,
+#    cached, license, citation). A checksum mismatch raises FetchError.
+from scitex_dataset import fetch_file, fetch_reference
+rec = fetch_reference("mnist", "./data")      # Keras mnist.npz
+rec.to_dict()
+fetch_file(url, sha256, "./data")             # any file you can pin
 ```
 
 > **[Full API reference](https://scitex-dataset.readthedocs.io/en/latest/api/scitex_dataset.html)**
@@ -206,6 +215,10 @@ scitex-dataset general zenodo fetch -q "neuroscience" -n 20
 # HuggingFace (general/huggingface noun-group has 4 verbs)
 scitex-dataset general huggingface fetch Anthropic/BioMysteryBench-full
 scitex-dataset general huggingface search "biology" -n 20 --json
+
+# Reference files (sha256-verified, cached, provenance printed)
+scitex-dataset general reference list
+scitex-dataset general reference fetch mnist --dest ./data --json
 
 # Local database
 scitex-dataset db build                     # index all catalog sources
@@ -234,11 +247,12 @@ AI agents can discover and query neuroscience datasets autonomously.
 | `dataset_filter_results` | Filter / rank fetched datasets in memory |
 | `dataset_<src>_fetch` | One per catalog source (10 total) |
 | `dataset_huggingface_fetch` / `_search` / `_info` / `_download_file` | HuggingFace family |
+| `dataset_fetch_file` / `dataset_fetch_reference` / `dataset_list_references` | sha256-verified file fetch with provenance |
 | `dataset_db_build` / `_search` / `_show_stats` | Full-text dataset index |
 | `dataset_skills_list` / `_get` | Bundled skill pages |
 
-<sub><b>Table 2.</b> 21 MCP tools across catalog fetchers, HuggingFace,
-the dataset index, and skill introspection. Every MCP tool has a matching
+<sub><b>Table 2.</b> MCP tools across catalog fetchers, HuggingFace,
+verified file fetch, the dataset index, and skill introspection. Every MCP tool has a matching
 public Python alias (e.g. ``scitex_dataset.openneuro_fetch``).</sub>
 
 ```bash

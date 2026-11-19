@@ -33,6 +33,7 @@ from .._sources import (
     ALL_SOURCES,
     DOMAIN_OF,
     DOMAINS,
+    REFERENCE_SOURCES,
     SOURCE_INFO,
 )
 from ._db import db as db_group
@@ -70,6 +71,7 @@ def _repositories_block() -> str:
     lines.append("Run any of:")
     lines.append("  scitex-dataset <domain> <dataset> fetch [OPTIONS]")
     lines.append("  scitex-dataset general huggingface (search|info|download-file)")
+    lines.append("  scitex-dataset general reference (list|fetch <name> --dest DIR)")
     lines.append("  scitex-dataset db (build|search|show-stats|clear)")
     return "\n".join(lines)
 
@@ -173,7 +175,8 @@ for _src in ALL_SOURCES:
     # prior bare `<src>` or `fetch-<src>` legacy form to redirect from.
     # Adding the redirects would also be misleading: their pipeline is
     # `download | prepare | mask`, not `fetch`.
-    if _src in AGENTIC_BENCH_SOURCES:
+    # Reference files are new too (``general reference list|fetch``).
+    if _src in AGENTIC_BENCH_SOURCES or _src in REFERENCE_SOURCES:
         continue
     domain = DOMAIN_OF[_src]
     target = f"{domain} {_src} fetch"
@@ -224,9 +227,9 @@ if __name__ == "__main__":
 # audit §4 — inject version into root --help
 try:
     from importlib.metadata import version as _v
+
     main.help = (
-        f"scitex-dataset (v{_v('scitex-dataset')}) — "
-        + (main.help or "").lstrip()
+        f"scitex-dataset (v{_v('scitex-dataset')}) — " + (main.help or "").lstrip()
     )
 except Exception:
     pass

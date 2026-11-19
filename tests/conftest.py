@@ -18,9 +18,12 @@ already populated ``COVERAGE_FILE`` to a per-test tmp dir by the time
 
 from __future__ import annotations
 
+import hashlib
 import os
 import sys
 import sysconfig
+import threading
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 import pytest
@@ -248,6 +251,67 @@ def cli_runner():
     from click.testing import CliRunner
 
     return CliRunner()
+
+
+# ---------------------------------------------------------------------------
+# Loopback HTTP server for checksum-verified downloads (fetch_file /
+# fetch_reference). A REAL http.server on 127.0.0.1 in a thread — no mocks,
+# no network beyond loopback.
+# ---------------------------------------------------------------------------
+
+LOOPBACK_PAYLOAD = b"scitex-dataset loopback payload\n" * 4_096
+
+
+class _LoopbackHandler(BaseHTTPRequestHandler):
+    """``/payload.bin`` → full body; ``/truncated.bin`` → half the body but a
+    Content-Length promising all of it; anything else → 404. Counts hits."""
+
+    hits: dict = {}
+
+    def log_message(self, *args):  # keep pytest output clean
+        pass
+
+    def do_GET(self):  # noqa: N802 - http.server API
+        name = self.path.rsplit("/", 1)[-1]
+        self.hits[name] = self.hits.get(name, 0) + 1
+        if name == "payload.bin":
+            body, declared = LOOPBACK_PAYLOAD, len(LOOPBACK_PAYLOAD)
+        elif name == "truncated.bin":
+            body = LOOPBACK_PAYLOAD[: len(LOOPBACK_PAYLOAD) // 2]
+            declared = len(LOOPBACK_PAYLOAD)
+        else:
+            self.send_error(404)
+            return
+        self.send_response(200)
+        self.send_header("Content-Type", "application/octet-stream")
+        self.send_header("Content-Length", str(declared))
+        self.send_header("Connection", "close")
+        self.end_headers()
+        self.wfile.write(body)
+        self.wfile.flush()
+        self.close_connection = True
+
+
+@pytest.fixture
+def loopback_server():
+    """Yield ``(base_url, hits)`` for a thread-served loopback HTTP server."""
+    _LoopbackHandler.hits = {}
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), _LoopbackHandler)
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    try:
+        host, port = httpd.server_address[:2]
+        yield f"http://{host}:{port}", _LoopbackHandler.hits
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+        thread.join(timeout=5)
+
+
+@pytest.fixture
+def loopback_payload_sha256():
+    """sha256 of the body served at ``/payload.bin``."""
+    return hashlib.sha256(LOOPBACK_PAYLOAD).hexdigest()
 
 
 # EOF

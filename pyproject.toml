@@ -142,6 +142,7 @@ pythonpath = ["src"]
 markers = [
     "smoke: fast CLI happy-path tests (<60s, runs on every PR)",
     "e2e: end-to-end workflows (slow, gated by RUN_E2E=1)",
+    "network: hits the real internet (gated by SCITEX_DATASET_RUN_NETWORK=1)",
 ]
 
 [tool.ruff]
