@@ -4,7 +4,7 @@
 
 """Single source-of-truth for the source registry.
 
-Three lists exist on purpose, by CLI shape:
+Four lists exist on purpose, by CLI shape:
 
 - ``CATALOG_SOURCES`` — sources whose modules expose the standard
   ``fetch_all_datasets() / format_dataset()`` contract and can be
@@ -18,8 +18,13 @@ Three lists exist on purpose, by CLI shape:
   dataset). Categorically distinct from
   the raw catalog/ondemand sources; they emit a provenance
   ``MANIFEST.yaml`` so consumers can pin a specific snapshot.
+- ``REFERENCE_SOURCES`` — the registry of well-known reference files
+  (MNIST, ...), each pinned by URL + sha256 with license/citation.
+  Verbs: ``list``, ``fetch`` (checksum-verified, cached, returns a
+  provenance record). See ``general/reference.py``.
 
-``ALL_SOURCES = CATALOG_SOURCES + ONDEMAND_SOURCES + AGENTIC_BENCH_SOURCES``
+``ALL_SOURCES = CATALOG_SOURCES + ONDEMAND_SOURCES + AGENTIC_BENCH_SOURCES +
+REFERENCE_SOURCES``
 is the union used by CLI choice lists and ``dataset_list_sources``.
 """
 
@@ -54,7 +59,14 @@ AGENTIC_BENCH_SOURCES = [
     "biomysterybench",
 ]
 
-ALL_SOURCES = CATALOG_SOURCES + ONDEMAND_SOURCES + AGENTIC_BENCH_SOURCES
+# Well-known reference files pinned by URL + sha256 (``general/reference.py``).
+REFERENCE_SOURCES = [
+    "reference",
+]
+
+ALL_SOURCES = (
+    CATALOG_SOURCES + ONDEMAND_SOURCES + AGENTIC_BENCH_SOURCES + REFERENCE_SOURCES
+)
 
 # Catalog metadata used by `dataset_list_sources` MCP tool.
 SOURCE_INFO = {
@@ -154,6 +166,14 @@ SOURCE_INFO = {
         "domain": "general",
         "kind": "ondemand",
     },
+    "reference": {
+        "name": "Reference files",
+        "description": "Well-known reference files (MNIST, ...) pinned by sha256, fetched with license + citation provenance",
+        "url": "https://github.com/scitex-ai/scitex-dataset",
+        "format": "Single files (npz, ...)",
+        "domain": "general",
+        "kind": "reference",
+    },
     "corebench": {
         "name": "CORE-Bench",
         "description": "Agentic AI-for-science benchmark: 90 reproducibility-judging capsules from CodeOcean papers (Princeton)",
@@ -204,6 +224,7 @@ __all__ = [
     "CATALOG_SOURCES",
     "ONDEMAND_SOURCES",
     "AGENTIC_BENCH_SOURCES",
+    "REFERENCE_SOURCES",
     "ALL_SOURCES",
     "SOURCE_INFO",
     "DOMAIN_OF",

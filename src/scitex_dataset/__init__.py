@@ -75,6 +75,8 @@ from ._api import (  # noqa: F401
     corebench_standardize,
     dandi_fetch,
     download_dataset,
+    fetch_file,
+    fetch_reference,
     figshare_fetch,
     geo_fetch,
     gin_download,
@@ -85,12 +87,17 @@ from ._api import (  # noqa: F401
     huggingface_fetch,
     huggingface_info,
     huggingface_search,
+    list_references,
     moleculenet_fetch,
     openml_fetch,
     openneuro_fetch,
     physionet_fetch,
     zenodo_fetch,
 )
+
+# Provenance record + error type returned/raised by ``fetch_file`` /
+# ``fetch_reference`` (importable from the root; not MCP tools).
+from ._fetch_file import FetchError, FetchRecord  # noqa: F401
 
 # DB-level aliases for MCP parity (`dataset_db_*` tools).
 from .database import build as db_build  # noqa: F401
@@ -177,6 +184,13 @@ __all__ = [
     "corebench_standardize",
     "bixbench_standardize",
     "biomysterybench_standardize",
+    # Checksum-verified single-file fetch with a provenance record, and
+    # the registry of well-known reference files (MCP parity with
+    # ``dataset_fetch_file`` / ``dataset_fetch_reference`` /
+    # ``dataset_list_references``)
+    "fetch_file",
+    "fetch_reference",
+    "list_references",
 ]
 
 # EOF

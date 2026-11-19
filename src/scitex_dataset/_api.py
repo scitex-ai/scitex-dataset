@@ -15,6 +15,8 @@ no logic of their own.
 
 from __future__ import annotations
 
+from ._fetch_file import fetch_file
+
 # Agentic AI-for-science benchmark cohorts. Each ``standardize`` is the
 # read-only pure-Python verb (safe over MCP); ``download`` /
 # ``prepare`` are CLI-only on purpose (multi-GB pulls belong on SLURM
@@ -33,6 +35,7 @@ from .general.huggingface import format_dataset as hf_format
 from .general.huggingface import search_hub as huggingface_search
 from .general.openml import fetch_all_datasets as openml_fetch
 from .general.openml import format_dataset as openml_format
+from .general.reference import fetch_reference, list_references
 from .general.zenodo import fetch_all_datasets as zenodo_fetch
 from .general.zenodo import format_dataset as zenodo_format
 from .medical.clinicaltrials import fetch_all_datasets as clinicaltrials_fetch
@@ -87,6 +90,10 @@ __all__ = [
     "corebench_standardize",
     "bixbench_standardize",
     "biomysterybench_standardize",
+    # Checksum-verified single-file fetch + reference-file registry
+    "fetch_file",
+    "fetch_reference",
+    "list_references",
 ]
 
 
@@ -139,6 +146,10 @@ def download_dataset(
         return gin_download(repo_id=id, local_dir=dest, **kwargs)
     if src in ("huggingface", "hf"):
         return huggingface_fetch(repo_id=id, local_dir=dest, **kwargs)
+    if src == "reference":
+        if dest is None:
+            raise ValueError("download_dataset: source 'reference' requires dest")
+        return fetch_reference(id, dest, **kwargs)
 
     from ._sources import ALL_SOURCES
 

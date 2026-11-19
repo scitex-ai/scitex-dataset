@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- `fetch_file(url, sha256, dest_dir, filename=None, *, timeout, replace,
+  license, citation)` downloads one known file, verifies its sha256, keeps it
+  in `dest_dir` and returns a `FetchRecord` (`url`, `sha256`, `size_bytes`,
+  `path`, `retrieved_at` ISO UTC, `cached`, `license`, `citation`;
+  `.to_dict()`). A verified existing copy is reused (`cached=True`). An
+  existing file with a different hash raises `FetchError` and is left as is
+  unless `replace=True`. A download is written to a `.part` file and renamed
+  into place only when its length and sha256 match; otherwise the partial
+  file is removed and `FetchError` is raised. Stdlib `urllib`, no new
+  dependency.
+- Reference-file registry (`scitex_dataset.general.reference`):
+  `fetch_reference(name, dest_dir)` and `list_references()`. First entry
+  `mnist`: the Keras-hosted `mnist.npz` (x_train (60000, 28, 28) uint8,
+  y_train, x_test (10000, 28, 28), y_test), sha256
+  `731c5ac602752760c8e48fbffcf8c3b850d9dc2a2aedcf2cc48468fc17b673d1`,
+  11,490,434 bytes (verified by download), CC BY-SA 3.0, citing LeCun et al.
+  (1998) doi:10.1109/5.726791. `download_dataset("reference", name, dest)`
+  routes there.
+- CLI `general reference list [--json]` and
+  `general reference fetch NAME --dest DIR [--replace] [--json]`; MCP tools
+  `fetch_file`, `fetch_reference`, `list_references`. `list_sources()` now
+  includes the `reference` source (kind `reference`).
+
 ## [0.12.0] - 2026-11-19
 
 - Guarded solver projects: `build_solver_project` / `prepare_solver_project`
