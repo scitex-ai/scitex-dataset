@@ -53,8 +53,10 @@ HuggingFace has a separate `fetch REPO_ID` command with `--local-dir`,
 copy in `DIR` is reused, and the provenance record (url, sha256, size, path,
 retrieved_at, cached, license, citation) is printed. A checksum mismatch or an
 existing file with the wrong hash exits 1.
-The three `ai-for-science` benchmarks expose `download`, `prepare`,
-`standardize`, `validate` and `score`, rather than catalog `fetch`.
+The three `ai-for-science` benchmarks expose `screen` (declarative eligibility
+screening, see [16_eligibility-screening.md](16_eligibility-screening.md)),
+`download`, `prepare`, `standardize`, `build-solver-project`, `validate` and
+`score`, rather than catalog `fetch`.
 
 ## Global flags
 

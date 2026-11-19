@@ -61,6 +61,8 @@ See [03_python-api.md](03_python-api.md) for the package's Python interfaces.
 ### Workflows
 - [15_ai-for-science.md](15_ai-for-science.md) — preparation, public validation,
   reference identity and scoring boundaries for agentic benchmarks
+- [16_eligibility-screening.md](16_eligibility-screening.md) — declarative
+  eligibility criteria → ordered, audited unit selection (`screen`)
 - [10_cli-reference.md](10_cli-reference.md) — historical CLI notes
 - [11_mcp-tools.md](11_mcp-tools.md) — MCP tools for AI agents
 - [13_quick-start.md](13_quick-start.md) — historical quick-start

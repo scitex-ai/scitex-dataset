@@ -30,6 +30,7 @@ import json
 
 import click
 
+from ._agentic_screen import make_screen_command
 from ._agentic_solver_project import make_solver_project_command
 
 
@@ -441,12 +442,14 @@ def _make_score_command(source: str, module) -> click.Command:
 def _agentic_bench_commands(source: str) -> list[click.Command]:
     """Build the agentic verb-tree click commands for one benchmark.
 
-    Returns ``[download, prepare, standardize, solver-project, validate,
-    score]`` — the preparation pipeline, the guarded solver-project
-    assembly, and the host-side submission validator and scorer.
+    Returns ``[screen, download, prepare, standardize, solver-project,
+    validate, score]`` — eligibility screening, the preparation pipeline,
+    the guarded solver-project assembly, and the host-side submission
+    validator and scorer.
     """
     module = _agentic_bench_module(source)
     return [
+        make_screen_command(source, module, _common_paths_options),
         _make_download_command(source, module),
         _make_prepare_command(source, module),
         _make_standardize_command(source, module),

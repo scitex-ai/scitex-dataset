@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-19
+
+- Eligibility screening (`screen_eligibility`, CLI `ai-for-science <bench>
+  screen --config criteria.yaml [--fetch] [--out result.json]`). Which units
+  qualify for an experiment is now a declarative config
+  (`scitex-dataset/eligibility-config-v1`): rules over named facts with
+  `equals` / `in` / `not_in` / `min` / `max` / `any_of` / `none_of` /
+  `subset_of`, combined by `all` / `any`, plus an `order` (sort keys and an
+  optional seeded tie-break) and a `target`. Adapters for CORE-Bench, BixBench
+  and BioMysteryBench only supply facts. Metadata facts are split, declared
+  language, question and figure-question counts and archive bytes; only
+  question text and keys are read, never reference values. Archive facts are
+  code/kernel/magic/toolchain languages, deep-learning frameworks, GPU need in
+  the environment or code, and the entry's kinds, steps, notebook code cells
+  and local imports. One dataset-blind analysis derives them for every
+  benchmark. Every unit gets a verdict (`selected`, `excluded`,
+  `not_screened` or `eligible_not_needed`), the first failing rule with the
+  fact values, every failing rule and its facts with evidence lines. The
+  result is deterministic and records the config hash and the sha256 of the
+  manifests screened. A needed archive that is not staged raises
+  `ArchiveUnavailableError` unless `fetch` is set; then it is downloaded
+  through the benchmark's own verified selective download.
+
 ## [0.13.0] - 2026-11-19
 
 - `fetch_file(url, sha256, dest_dir, filename=None, *, timeout, replace,
