@@ -247,6 +247,15 @@ def _decrypt_gpg(src_gpg: Path, dest: Path, passphrase: str) -> None:
         )
 
 
+def oracle_staged(raw_dir: Path) -> bool:
+    """Both oracle manifests standardize reads (train + decrypted test) are non-empty."""
+    raw_dir = Path(raw_dir)
+    return all(
+        _nonempty(raw_dir.joinpath(*rel))
+        for rel in (_ORACLE_TRAIN_RELPATH, _ORACLE_TEST_RELPATH)
+    )
+
+
 def bootstrap_oracle(raw_dir: Path, *, force: bool = False) -> dict:
     """Fetch + stage the CORE-Bench oracle manifests into ``raw_dir``.
 

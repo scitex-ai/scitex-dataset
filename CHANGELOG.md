@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `--capsule-ids`) fetch the answer manifest plus only the selected archives
   (native, `capsule-NNN` or `bix-<n>` ids) instead of the ~16 GB snapshot.
 - CLI `prepare` accepts `--only` (materialize one capsule) and `--capsule-ids`.
+- CORE-Bench `prepare(capsule_ids=...)` is self-contained: after the verified
+  capsule download it bootstraps the oracle manifests standardize needs when
+  they are not already staged (`download` alone still never touches them).
 
 ## [0.11.1] - 2026-11-17
 
