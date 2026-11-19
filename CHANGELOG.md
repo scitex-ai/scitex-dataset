@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-11-19
+
 - Guarded solver projects: `build_solver_project` / `prepare_solver_project`
   (CLI `ai-for-science <bench> build-solver-project <capsule> <out> --mapping`)
   turn one prepared capsule into a neutral agent project (`input/` +
