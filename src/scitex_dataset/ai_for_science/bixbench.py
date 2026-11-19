@@ -222,17 +222,68 @@ def standardize(
 # ---------------------------------------------------------------------------
 
 
+def _archives_for(manifest: Path, selectors: list[str]) -> list[str]:
+    """Archive file names (``data_folder``) of the selected capsules.
+
+    A selector is a native capsule id (``CapsuleFolder-<uuid>``), a friendly
+    ``capsule-NNN`` id (assigned over the FULL manifest, exactly as
+    ``standardize`` assigns it) or a capsule ``short_id`` (``bix-<n>``).
+    Unknown selectors refuse loudly.
+    """
+    from ._capsule_layout import _native_capsule_id, build_capsule_index
+
+    recs = [
+        json.loads(x)
+        for x in manifest.read_text(encoding="utf-8").splitlines()
+        if x.strip()
+    ]
+    tasks = [
+        {"task_id": f"bixbench/{r['question_id']}", "benchmark": BENCHMARK,
+         "data": f"./{r['data_folder']}" if r.get("data_folder") else None}
+        for r in recs
+    ]  # fmt: skip
+    index = build_capsule_index(tasks)
+    by_short = {
+        r["short_id"]: r["data_folder"]
+        for r in recs
+        if r.get("data_folder") and r.get("short_id")
+    }
+    folder_of = {
+        _native_capsule_id(f"./{r['data_folder']}"): r["data_folder"]
+        for r in recs
+        if r.get("data_folder")
+    }
+    found: list[str] = []
+    for sel in selectors:
+        if sel in by_short:
+            found.append(by_short[sel])
+            continue
+        row = next(
+            (r for r in index if sel in (r["friendly_id"], r["native_id"])), None
+        )
+        if row is None:
+            raise KeyError(
+                f"bixbench: capsule selector {sel!r} matches no capsule in {manifest.name}"
+            )
+        found.append(folder_of[row["native_id"]])
+    return sorted(set(found))
+
+
 def download(
     *,
     raw_dir: Path,
     hf_token: str | None = None,
     max_workers: int = 4,
     revision: str | None = None,
+    capsule_ids: list[str] | None = None,
     **_,
 ) -> dict:
     """Pull the BixBench HF snapshot into ``raw_dir`` exactly as-is.
 
     HEAVY: ~16 GB across ~67 files; SLURM-only on shared compute.
+    ``capsule_ids`` restricts acquisition to the answer manifest plus the
+    archives of those capsules (native, friendly ``capsule-NNN`` or
+    ``bix-<n>`` ids), so a few capsules need no full snapshot.
     ``huggingface_hub`` is an optional extra (``scitex-dataset[mcp]``
     doesn't include it) — install ``scitex-dataset[huggingface]`` or
     ``scitex-dataset[all]`` first. No file is relocated — the
@@ -252,7 +303,7 @@ def download(
     # re-runs only re-pull files whose upstream content changed — no
     # extra integrity bookkeeping needed on our side (unlike corebench's
     # plain-HTTP capsule pull). We record the resolved snapshot set below.
-    resolved = snapshot_download(
+    common = dict(
         repo_id=HF_REPO_ID,
         repo_type=HF_REPO_TYPE,
         local_dir=str(raw_dir),
@@ -260,11 +311,24 @@ def download(
         token=hf_token,
         **({"revision": revision} if revision is not None else {}),
     )
+    archives = None
+    if capsule_ids:
+        snapshot_download(allow_patterns=[ORACLE_MANIFEST_NAME], **common)
+        archives = _archives_for(raw_dir / ORACLE_MANIFEST_NAME, list(capsule_ids))
+        resolved = snapshot_download(allow_patterns=archives, **common)
+        missing = [a for a in archives if not (raw_dir / a).is_file()]
+        if missing:
+            raise FileNotFoundError(
+                f"bixbench: selected archives not fetched: {missing}"
+            )
+    else:
+        resolved = snapshot_download(**common)
     return {
         "raw_dir": str(raw_dir),
         "snapshots_pulled": [HF_REPO_ID],
         "resolved": str(resolved),
         "requested_revision": revision,
+        "archives": archives,
     }
 
 
@@ -284,13 +348,15 @@ def prepare(
     hf_token: str | None = None,
     max_workers: int = 4,
     revision: str | None = None,
+    capsule_ids: list[str] | None = None,
     **_,
 ) -> dict:
     """Run the full BixBench preparation pipeline.
 
     Set ``skip_download=True`` to skip the HF snapshot pull (useful if
     the upstream manifest has already been hand-staged under ``raw_dir``).
-    ``only`` selects materialization, not acquisition of the HF snapshot.
+    ``only`` selects materialization; ``capsule_ids`` restricts acquisition
+    to the manifest plus those capsules' archives (see :func:`download`).
     ``revision`` is forwarded to HF; use an immutable commit for a pinned
     source. The returned requested revision is not a resolved-commit receipt.
     """
@@ -304,6 +370,7 @@ def prepare(
             hf_token=hf_token,
             max_workers=max_workers,
             revision=revision,
+            capsule_ids=capsule_ids,
         )
     out["standardize"] = standardize(
         raw_dir=paths.raw_dir,

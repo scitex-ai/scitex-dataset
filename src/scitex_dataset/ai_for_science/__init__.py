@@ -57,6 +57,13 @@ from . import biomysterybench, bixbench, corebench
 from ._base import DOMAIN, BenchmarkPaths, resolve_paths
 from ._manifest import MANIFEST_FILENAME, ManifestEntry, write_manifest
 from ._score import score_submission
+from ._solver_project import (
+    SolverProjectLeakError,
+    assert_solver_project_clean,
+    build_solver_project,
+    prepare_solver_project,
+    submission_from_answers,
+)
 from ._standardize import (
     UNIFORM_SUBMISSION_SCHEMA,
     write_eval,
@@ -84,6 +91,12 @@ __all__ = [
     # Submission validation + scoring
     "validate_submission",
     "score_submission",
+    # Guarded solver projects (one capsule -> neutral agent project)
+    "SolverProjectLeakError",
+    "assert_solver_project_clean",
+    "build_solver_project",
+    "prepare_solver_project",
+    "submission_from_answers",
 ]
 
 # EOF

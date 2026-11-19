@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Guarded solver projects: `build_solver_project` / `prepare_solver_project`
+  (CLI `ai-for-science <bench> build-solver-project <capsule> <out> --mapping`)
+  turn one prepared capsule into a neutral agent project (`input/` +
+  `questions.json`), with the `q<n> -> task_id` map written outside it, and
+  `submission_from_answers` maps the agent's `{"q1": ...}` back to the uniform
+  submission. `assert_solver_project_clean` refuses — and the builder removes —
+  a project holding an operator/oracle file name, a byte copy of any `eval/`
+  file, a symlink out of the project, a task/capsule identifier (text or path,
+  incl. the adapter's `PATH_ID_PATTERNS`) or an answer value of its own tasks.
+  Moved here from the paper harness so every harness gets one contract.
+- BixBench `download(capsule_ids=...)` / `prepare(capsule_ids=...)` (CLI
+  `--capsule-ids`) fetch the answer manifest plus only the selected archives
+  (native, `capsule-NNN` or `bix-<n>` ids) instead of the ~16 GB snapshot.
+- CLI `prepare` accepts `--only` (materialize one capsule) and `--capsule-ids`.
+
 ## [0.11.1] - 2026-11-17
 
 - BixBench answers are now graded against the upstream `ideal` reference
