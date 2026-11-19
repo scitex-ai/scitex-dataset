@@ -58,7 +58,13 @@ _R_ENV = re.compile(
 )
 _KERNEL_LANG = {"ir": "r", "r": "r", "python": "python", "python3": "python",
                 "python2": "python", "julia": "julia"}  # fmt: skip
-_MAGIC_LANG = {"r": "r", "julia": "julia", "matlab": "matlab", "octave": "octave", "rpy2": "r"}
+_MAGIC_LANG = {
+    "r": "r",
+    "julia": "julia",
+    "matlab": "matlab",
+    "octave": "octave",
+    "rpy2": "r",
+}
 # ``%%R`` / ``%R`` magics and ``%load_ext rpy2.ipython`` on any line of a cell.
 _MAGIC_LINE = re.compile(r"^\s*%%?(?:load_ext\s+)?([A-Za-z]\w*)", re.M)
 _SETUP_MODULES = {"pip", "ensurepip", "venv", "virtualenv", "conda"}
@@ -145,7 +151,7 @@ def _local_modules(names: Iterable[str]) -> set[str]:
 
 
 def _framework_of_package(token: str) -> str | None:
-    name = re.split(r"[=<>~!;\[@ ]", token.strip().strip("'\"").lower(), 1)[0]
+    name = re.split(r"[=<>~!;\[@ ]", token.strip().strip("'\"").lower(), maxsplit=1)[0]
     name = name.replace("_", "-")
     for prefix, framework in _FRAMEWORK_PREFIXES:
         if (
