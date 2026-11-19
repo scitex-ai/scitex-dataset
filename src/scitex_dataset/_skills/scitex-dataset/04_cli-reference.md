@@ -47,8 +47,10 @@ The 11 catalog sources expose `fetch` with `-n / --max-datasets`,
 
 HuggingFace has a separate `fetch REPO_ID` command with `--local-dir`,
 `--repo-type` and `--max-workers`, plus `search`, `info` and `download-file`.
-The three `ai-for-science` benchmarks expose `download`, `prepare`,
-`standardize`, `validate` and `score`, rather than catalog `fetch`.
+The three `ai-for-science` benchmarks expose `screen` (declarative eligibility
+screening, see [16_eligibility-screening.md](16_eligibility-screening.md)),
+`download`, `prepare`, `standardize`, `build-solver-project`, `validate` and
+`score`, rather than catalog `fetch`.
 
 ## Global flags
 
