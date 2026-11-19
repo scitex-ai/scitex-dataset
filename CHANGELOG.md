@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-11-19
+
 - `fetch_file(url, sha256, dest_dir, filename=None, *, timeout, replace,
   license, citation)` downloads one known file, verifies its sha256, keeps it
   in `dest_dir` and returns a `FetchRecord` (`url`, `sha256`, `size_bytes`,
