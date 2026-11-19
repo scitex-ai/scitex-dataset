@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_dataset API Reference &mdash; scitex-dataset v0.12.0</title>
+  <title>scitex_dataset API Reference &mdash; scitex-dataset v0.13.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=61ccb1f1"></script>
+      <script src="../_static/documentation_options.js?v=1019fba8"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -142,6 +142,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.corebench_standardize"><code class="docutils literal notranslate"><span class="pre">corebench_standardize()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.bixbench_standardize"><code class="docutils literal notranslate"><span class="pre">bixbench_standardize()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.biomysterybench_standardize"><code class="docutils literal notranslate"><span class="pre">biomysterybench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.fetch_file"><code class="docutils literal notranslate"><span class="pre">fetch_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.fetch_reference"><code class="docutils literal notranslate"><span class="pre">fetch_reference()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.list_references"><code class="docutils literal notranslate"><span class="pre">list_references()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
@@ -216,6 +219,14 @@
 <li class="toctree-l4"><a class="reference internal" href="#scitex_dataset.general.huggingface._resolve_token"><code class="docutils literal notranslate"><span class="pre">_resolve_token()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_dataset.general.huggingface._runtime_dir"><code class="docutils literal notranslate"><span class="pre">_runtime_dir()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_dataset.general.huggingface._user_root"><code class="docutils literal notranslate"><span class="pre">_user_root()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-scitex_dataset.general.reference">Reference files (sha256-verified fetch)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_dataset.general.reference.fetch_reference"><code class="docutils literal notranslate"><span class="pre">fetch_reference()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_dataset.general.reference.list_references"><code class="docutils literal notranslate"><span class="pre">list_references()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_dataset._fetch_file.FetchError"><code class="docutils literal notranslate"><span class="pre">FetchError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_dataset._fetch_file.FetchRecord"><code class="docutils literal notranslate"><span class="pre">FetchRecord</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_dataset._fetch_file.fetch_file"><code class="docutils literal notranslate"><span class="pre">fetch_file()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -899,6 +910,85 @@ in full. <code class="docutils literal notranslate"><span class="pre">force</spa
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_dataset.fetch_file">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">fetch_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sha256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">license</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">citation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.fetch_file" title="Link to this definition"></a></dt>
+<dd><p>Download one file, verify its sha256, cache it, return its provenance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – Source URL (<code class="docutils literal notranslate"><span class="pre">http</span></code>/<code class="docutils literal notranslate"><span class="pre">https</span></code>; <code class="docutils literal notranslate"><span class="pre">file</span></code> also works for local mirrors).</p></li>
+<li><p><strong>sha256</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – Expected sha256 hex digest (64 hex chars, case-insensitive). Required:
+an unverified download is not a provenance record.</p></li>
+<li><p><strong>dest_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> or </em><em>Path</em>) – Directory to keep the file in. Created if missing.</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – Local file name. Defaults to the last path segment of <code class="docutils literal notranslate"><span class="pre">url</span></code>.</p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>) – Socket timeout in seconds for the HTTP request.</p></li>
+<li><p><strong>replace</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>) – If an existing file has the wrong sha256, replace it with a fresh
+download instead of raising. Default False.</p></li>
+<li><p><strong>license</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – Metadata copied into the returned record.</p></li>
+<li><p><strong>citation</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – Metadata copied into the returned record.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">url</span></code>, <code class="docutils literal notranslate"><span class="pre">sha256</span></code>, <code class="docutils literal notranslate"><span class="pre">size_bytes</span></code>, <code class="docutils literal notranslate"><span class="pre">path</span></code>, <code class="docutils literal notranslate"><span class="pre">retrieved_at</span></code> (ISO
+UTC), <code class="docutils literal notranslate"><span class="pre">cached</span></code>, <code class="docutils literal notranslate"><span class="pre">license</span></code>, <code class="docutils literal notranslate"><span class="pre">citation</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#scitex_dataset._fetch_file.FetchRecord" title="scitex_dataset._fetch_file.FetchRecord">FetchRecord</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – Malformed <code class="docutils literal notranslate"><span class="pre">sha256</span></code> or underivable <code class="docutils literal notranslate"><span class="pre">filename</span></code>.</p></li>
+<li><p><a class="reference internal" href="#scitex_dataset._fetch_file.FetchError" title="scitex_dataset._fetch_file.FetchError"><strong>FetchError</strong></a> – Checksum mismatch (download or existing file without <code class="docutils literal notranslate"><span class="pre">replace</span></code>),
+    or a body shorter than its declared <code class="docutils literal notranslate"><span class="pre">Content-Length</span></code>.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/urllib.error.html#urllib.error.URLError" title="(in Python v3.15)"><strong>urllib.error.URLError</strong></a> – Network / HTTP failure (propagated unchanged).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_dataset.fetch_reference">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">fetch_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest_dir</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.fetch_reference" title="Link to this definition"></a></dt>
+<dd><p>Fetch a registered reference file into <code class="docutils literal notranslate"><span class="pre">dest_dir</span></code> with provenance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – Registry id (case-insensitive), e.g. <code class="docutils literal notranslate"><span class="pre">&quot;mnist&quot;</span></code>. See
+<a class="reference internal" href="#scitex_dataset.list_references" title="scitex_dataset.list_references"><code class="xref py py-func docutils literal notranslate"><span class="pre">list_references()</span></code></a>.</p></li>
+<li><p><strong>dest_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> or </em><em>Path</em>) – Directory to keep the file in (created if missing). A verified copy
+already there is reused (<code class="docutils literal notranslate"><span class="pre">cached=True</span></code>).</p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>) – HTTP socket timeout in seconds.</p></li>
+<li><p><strong>replace</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>) – Replace an existing file whose sha256 does not match. Default False
+(raise instead).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Including the entry’s <code class="docutils literal notranslate"><span class="pre">license</span></code> and <code class="docutils literal notranslate"><span class="pre">citation</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#scitex_dataset._fetch_file.FetchRecord" title="scitex_dataset._fetch_file.FetchRecord">FetchRecord</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#KeyError" title="(in Python v3.15)"><strong>KeyError</strong></a> – Unknown <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p></li>
+<li><p><strong>scitex_dataset.FetchError</strong> – Checksum mismatch / truncated download (see <a class="reference internal" href="#scitex_dataset.fetch_file" title="scitex_dataset.fetch_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">fetch_file()</span></code></a>).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_dataset.list_references">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">list_references</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.list_references" title="Link to this definition"></a></dt>
+<dd><p>Return every registered reference file as <code class="docutils literal notranslate"><span class="pre">{&quot;id&quot;:</span> <span class="pre">...,</span> <span class="pre">**entry}</span></code> dicts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1843,6 +1933,206 @@ scope atomically.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-scitex_dataset.general.reference">
+<span id="reference-files-sha256-verified-fetch"></span><h3>Reference files (sha256-verified fetch)<a class="headerlink" href="#module-scitex_dataset.general.reference" title="Link to this heading"></a></h3>
+<p>Registry of well-known reference files, fetched with provenance.</p>
+<p>Each entry pins ONE file by URL + sha256 and carries its license and
+citation, so <a class="reference internal" href="#scitex_dataset.general.reference.fetch_reference" title="scitex_dataset.general.reference.fetch_reference"><code class="xref py py-func docutils literal notranslate"><span class="pre">fetch_reference()</span></code></a> returns a complete
+<a class="reference internal" href="#scitex_dataset._fetch_file.FetchRecord" title="scitex_dataset._fetch_file.FetchRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">FetchRecord</span></code></a> (where it came from, what
+it is, how to cite it) — not just a path.</p>
+<p>Add a dataset by adding one dict to <code class="xref py py-data docutils literal notranslate"><span class="pre">REFERENCES</span></code>. Verify the sha256
+by downloading the file once before committing it; never copy a digest
+unchecked.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scitex_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_reference</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rec</span> <span class="o">=</span> <span class="n">fetch_reference</span><span class="p">(</span><span class="s2">"mnist"</span><span class="p">,</span> <span class="s2">"./data"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rec</span><span class="o">.</span><span class="n">sha256</span><span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">cached</span><span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">license</span>
+</pre></div>
+</div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_dataset.general.reference.fetch_reference">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.general.reference.</span></span><span class="sig-name descname"><span class="pre">fetch_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest_dir</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_dataset/general/reference.html#fetch_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_dataset.general.reference.fetch_reference" title="Link to this definition"></a></dt>
+<dd><p>Fetch a registered reference file into <code class="docutils literal notranslate"><span class="pre">dest_dir</span></code> with provenance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – Registry id (case-insensitive), e.g. <code class="docutils literal notranslate"><span class="pre">&quot;mnist&quot;</span></code>. See
+<a class="reference internal" href="#scitex_dataset.general.reference.list_references" title="scitex_dataset.general.reference.list_references"><code class="xref py py-func docutils literal notranslate"><span class="pre">list_references()</span></code></a>.</p></li>
+<li><p><strong>dest_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> or </em><em>Path</em>) – Directory to keep the file in (created if missing). A verified copy
+already there is reused (<code class="docutils literal notranslate"><span class="pre">cached=True</span></code>).</p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>) – HTTP socket timeout in seconds.</p></li>
+<li><p><strong>replace</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>) – Replace an existing file whose sha256 does not match. Default False
+(raise instead).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Including the entry’s <code class="docutils literal notranslate"><span class="pre">license</span></code> and <code class="docutils literal notranslate"><span class="pre">citation</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#scitex_dataset._fetch_file.FetchRecord" title="scitex_dataset._fetch_file.FetchRecord">FetchRecord</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#KeyError" title="(in Python v3.15)"><strong>KeyError</strong></a> – Unknown <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p></li>
+<li><p><strong>scitex_dataset.FetchError</strong> – Checksum mismatch / truncated download (see <code class="xref py py-func docutils literal notranslate"><span class="pre">fetch_file()</span></code>).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_dataset.general.reference.list_references">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.general.reference.</span></span><span class="sig-name descname"><span class="pre">list_references</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_dataset/general/reference.html#list_references"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_dataset.general.reference.list_references" title="Link to this definition"></a></dt>
+<dd><p>Return every registered reference file as <code class="docutils literal notranslate"><span class="pre">{&quot;id&quot;:</span> <span class="pre">...,</span> <span class="pre">**entry}</span></code> dicts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p id="module-scitex_dataset._fetch_file">Checksum-verified, cached single-file download with a provenance record.</p>
+<p><a class="reference internal" href="#scitex_dataset._fetch_file.fetch_file" title="scitex_dataset._fetch_file.fetch_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">fetch_file()</span></code></a> is the generic primitive behind
+<a class="reference internal" href="#scitex_dataset.fetch_reference" title="scitex_dataset.fetch_reference"><code class="xref py py-func docutils literal notranslate"><span class="pre">scitex_dataset.fetch_reference()</span></code></a>: download one known file, verify its
+sha256, keep it in <code class="docutils literal notranslate"><span class="pre">dest_dir</span></code> and say where it came from.</p>
+<p>Contract (no fallback, no silent skip):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dest_dir/filename</span></code> already present with the expected sha256 → nothing is
+downloaded; the record has <code class="docutils literal notranslate"><span class="pre">cached=True</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dest_dir/filename</span></code> present with a DIFFERENT sha256 → <a class="reference internal" href="#scitex_dataset._fetch_file.FetchError" title="scitex_dataset._fetch_file.FetchError"><code class="xref py py-class docutils literal notranslate"><span class="pre">FetchError</span></code></a>,
+unless <code class="docutils literal notranslate"><span class="pre">replace=True</span></code> (a user’s file is never overwritten implicitly).</p></li>
+<li><p>Otherwise the body is streamed to a <code class="docutils literal notranslate"><span class="pre">.part</span></code> file inside <code class="docutils literal notranslate"><span class="pre">dest_dir</span></code>; the
+byte count must match a declared <code class="docutils literal notranslate"><span class="pre">Content-Length</span></code> and the sha256 must
+match. Only then is it renamed into place (<code class="docutils literal notranslate"><span class="pre">os.replace</span></code>, atomic on one
+filesystem). On any failure the partial file is removed and
+<a class="reference internal" href="#scitex_dataset._fetch_file.FetchError" title="scitex_dataset._fetch_file.FetchError"><code class="xref py py-class docutils literal notranslate"><span class="pre">FetchError</span></code></a> (or the underlying network error) is raised.</p></li>
+</ul>
+<p>Stdlib only (<code class="docutils literal notranslate"><span class="pre">urllib</span></code>), like the CORE-Bench capsule downloader.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="scitex_dataset._fetch_file.FetchError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scitex_dataset._fetch_file.</span></span><span class="sig-name descname"><span class="pre">FetchError</span></span><a class="reference internal" href="../_modules/scitex_dataset/_fetch_file.html#FetchError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_dataset._fetch_file.FetchError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeError</span></code></a></p>
+<p>A file could not be fetched with the expected content.</p>
+<p>Raised on a checksum mismatch (downloaded or pre-existing file) and on a
+truncated body. The partial download is always removed first.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="scitex_dataset._fetch_file.FetchRecord">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scitex_dataset._fetch_file.</span></span><span class="sig-name descname"><span class="pre">FetchRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sha256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retrieved_at</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cached</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">license</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">citation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_dataset/_fetch_file.html#FetchRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_dataset._fetch_file.FetchRecord" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Provenance of one fetched file.</p>
+<p>Fields (all plain JSON types, see <a class="reference internal" href="#scitex_dataset._fetch_file.FetchRecord.to_dict" title="scitex_dataset._fetch_file.FetchRecord.to_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_dict()</span></code></a>):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">url</span></code> — where the bytes came from (or would have, if cached).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sha256</span></code> — verified lowercase hex digest of the file at <code class="docutils literal notranslate"><span class="pre">path</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">size_bytes</span></code> — file size in bytes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">path</span></code> — absolute local path of the verified file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">retrieved_at</span></code> — ISO-8601 UTC timestamp of this call (download or
+cache check).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cached</span></code> — True when the file was already present and verified;
+nothing was downloaded.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">license</span></code> / <code class="docutils literal notranslate"><span class="pre">citation</span></code> — content license and preferred citation,
+when known (else None).</p></li>
+</ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_dataset._fetch_file.FetchRecord.url">
+<span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></em><a class="headerlink" href="#scitex_dataset._fetch_file.FetchRecord.url" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_dataset._fetch_file.FetchRecord.sha256">
+<span class="sig-name descname"><span class="pre">sha256</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></em><a class="headerlink" href="#scitex_dataset._fetch_file.FetchRecord.sha256" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_dataset._fetch_file.FetchRecord.size_bytes">
+<span class="sig-name descname"><span class="pre">size_bytes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></em><a class="headerlink" href="#scitex_dataset._fetch_file.FetchRecord.size_bytes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_dataset._fetch_file.FetchRecord.path">
+<span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></em><a class="headerlink" href="#scitex_dataset._fetch_file.FetchRecord.path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_dataset._fetch_file.FetchRecord.retrieved_at">
+<span class="sig-name descname"><span class="pre">retrieved_at</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></em><a class="headerlink" href="#scitex_dataset._fetch_file.FetchRecord.retrieved_at" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_dataset._fetch_file.FetchRecord.cached">
+<span class="sig-name descname"><span class="pre">cached</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#scitex_dataset._fetch_file.FetchRecord.cached" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_dataset._fetch_file.FetchRecord.license">
+<span class="sig-name descname"><span class="pre">license</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a><span class="pre">[</span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#scitex_dataset._fetch_file.FetchRecord.license" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_dataset._fetch_file.FetchRecord.citation">
+<span class="sig-name descname"><span class="pre">citation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a><span class="pre">[</span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#scitex_dataset._fetch_file.FetchRecord.citation" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_dataset._fetch_file.FetchRecord.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_dataset/_fetch_file.html#FetchRecord.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_dataset._fetch_file.FetchRecord.to_dict" title="Link to this definition"></a></dt>
+<dd><p>Return the record as a plain JSON-serialisable dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_dataset._fetch_file.FetchRecord.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sha256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retrieved_at</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cached</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">license</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">citation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset._fetch_file.FetchRecord.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_dataset._fetch_file.fetch_file">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset._fetch_file.</span></span><span class="sig-name descname"><span class="pre">fetch_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sha256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">license</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">citation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_dataset/_fetch_file.html#fetch_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_dataset._fetch_file.fetch_file" title="Link to this definition"></a></dt>
+<dd><p>Download one file, verify its sha256, cache it, return its provenance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – Source URL (<code class="docutils literal notranslate"><span class="pre">http</span></code>/<code class="docutils literal notranslate"><span class="pre">https</span></code>; <code class="docutils literal notranslate"><span class="pre">file</span></code> also works for local mirrors).</p></li>
+<li><p><strong>sha256</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – Expected sha256 hex digest (64 hex chars, case-insensitive). Required:
+an unverified download is not a provenance record.</p></li>
+<li><p><strong>dest_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> or </em><em>Path</em>) – Directory to keep the file in. Created if missing.</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – Local file name. Defaults to the last path segment of <code class="docutils literal notranslate"><span class="pre">url</span></code>.</p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>) – Socket timeout in seconds for the HTTP request.</p></li>
+<li><p><strong>replace</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>) – If an existing file has the wrong sha256, replace it with a fresh
+download instead of raising. Default False.</p></li>
+<li><p><strong>license</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – Metadata copied into the returned record.</p></li>
+<li><p><strong>citation</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – Metadata copied into the returned record.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">url</span></code>, <code class="docutils literal notranslate"><span class="pre">sha256</span></code>, <code class="docutils literal notranslate"><span class="pre">size_bytes</span></code>, <code class="docutils literal notranslate"><span class="pre">path</span></code>, <code class="docutils literal notranslate"><span class="pre">retrieved_at</span></code> (ISO
+UTC), <code class="docutils literal notranslate"><span class="pre">cached</span></code>, <code class="docutils literal notranslate"><span class="pre">license</span></code>, <code class="docutils literal notranslate"><span class="pre">citation</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#scitex_dataset._fetch_file.FetchRecord" title="scitex_dataset._fetch_file.FetchRecord">FetchRecord</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – Malformed <code class="docutils literal notranslate"><span class="pre">sha256</span></code> or underivable <code class="docutils literal notranslate"><span class="pre">filename</span></code>.</p></li>
+<li><p><a class="reference internal" href="#scitex_dataset._fetch_file.FetchError" title="scitex_dataset._fetch_file.FetchError"><strong>FetchError</strong></a> – Checksum mismatch (download or existing file without <code class="docutils literal notranslate"><span class="pre">replace</span></code>),
+    or a body shorter than its declared <code class="docutils literal notranslate"><span class="pre">Content-Length</span></code>.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/urllib.error.html#urllib.error.URLError" title="(in Python v3.15)"><strong>urllib.error.URLError</strong></a> – Network / HTTP failure (propagated unchanged).</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

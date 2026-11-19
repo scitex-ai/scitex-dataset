@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_dataset._cli &mdash; scitex-dataset v0.12.0</title>
+  <title>scitex_dataset._cli &mdash; scitex-dataset v0.13.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -13,7 +13,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=61ccb1f1"></script>
+      <script src="../../_static/documentation_options.js?v=1019fba8"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -140,6 +140,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.corebench_standardize"><code class="docutils literal notranslate"><span class="pre">corebench_standardize()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.bixbench_standardize"><code class="docutils literal notranslate"><span class="pre">bixbench_standardize()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.biomysterybench_standardize"><code class="docutils literal notranslate"><span class="pre">biomysterybench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.fetch_file"><code class="docutils literal notranslate"><span class="pre">fetch_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.fetch_reference"><code class="docutils literal notranslate"><span class="pre">fetch_reference()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.list_references"><code class="docutils literal notranslate"><span class="pre">list_references()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
@@ -214,6 +217,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.huggingface._resolve_token"><code class="docutils literal notranslate"><span class="pre">_resolve_token()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.huggingface._runtime_dir"><code class="docutils literal notranslate"><span class="pre">_runtime_dir()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.huggingface._user_root"><code class="docutils literal notranslate"><span class="pre">_user_root()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.general.reference">Reference files (sha256-verified fetch)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.reference.fetch_reference"><code class="docutils literal notranslate"><span class="pre">fetch_reference()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.reference.list_references"><code class="docutils literal notranslate"><span class="pre">list_references()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset._fetch_file.FetchError"><code class="docutils literal notranslate"><span class="pre">FetchError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord"><code class="docutils literal notranslate"><span class="pre">FetchRecord</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset._fetch_file.fetch_file"><code class="docutils literal notranslate"><span class="pre">fetch_file()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -320,6 +331,7 @@
     <span class="n">ALL_SOURCES</span><span class="p">,</span>
     <span class="n">DOMAIN_OF</span><span class="p">,</span>
     <span class="n">DOMAINS</span><span class="p">,</span>
+    <span class="n">REFERENCE_SOURCES</span><span class="p">,</span>
     <span class="n">SOURCE_INFO</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._db</span><span class="w"> </span><span class="kn">import</span> <span class="n">db</span> <span class="k">as</span> <span class="n">db_group</span>
@@ -359,6 +371,7 @@
     <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"Run any of:"</span><span class="p">)</span>
     <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"  scitex-dataset &lt;domain&gt; &lt;dataset&gt; fetch [OPTIONS]"</span><span class="p">)</span>
     <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"  scitex-dataset general huggingface (search|info|download-file)"</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"  scitex-dataset general reference (list|fetch &lt;name&gt; --dest DIR)"</span><span class="p">)</span>
     <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"  scitex-dataset db (build|search|show-stats|clear)"</span><span class="p">)</span>
     <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
 
@@ -463,7 +476,8 @@
     <span class="c1"># prior bare `&lt;src&gt;` or `fetch-&lt;src&gt;` legacy form to redirect from.</span>
     <span class="c1"># Adding the redirects would also be misleading: their pipeline is</span>
     <span class="c1"># `download | prepare | mask`, not `fetch`.</span>
-    <span class="k">if</span> <span class="n">_src</span> <span class="ow">in</span> <span class="n">AGENTIC_BENCH_SOURCES</span><span class="p">:</span>
+    <span class="c1"># Reference files are new too (``general reference list|fetch``).</span>
+    <span class="k">if</span> <span class="n">_src</span> <span class="ow">in</span> <span class="n">AGENTIC_BENCH_SOURCES</span> <span class="ow">or</span> <span class="n">_src</span> <span class="ow">in</span> <span class="n">REFERENCE_SOURCES</span><span class="p">:</span>
         <span class="k">continue</span>
     <span class="n">domain</span> <span class="o">=</span> <span class="n">DOMAIN_OF</span><span class="p">[</span><span class="n">_src</span><span class="p">]</span>
     <span class="n">target</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">_src</span><span class="si">}</span><span class="s2"> fetch"</span>
@@ -514,9 +528,9 @@
 <span class="c1"># audit §4 — inject version into root --help</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">_v</span>
+
     <span class="n">main</span><span class="o">.</span><span class="n">help</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"scitex-dataset (v</span><span class="si">{</span><span class="n">_v</span><span class="p">(</span><span class="s1">'scitex-dataset'</span><span class="p">)</span><span class="si">}</span><span class="s2">) — "</span>
-        <span class="o">+</span> <span class="p">(</span><span class="n">main</span><span class="o">.</span><span class="n">help</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+        <span class="sa">f</span><span class="s2">"scitex-dataset (v</span><span class="si">{</span><span class="n">_v</span><span class="p">(</span><span class="s1">'scitex-dataset'</span><span class="p">)</span><span class="si">}</span><span class="s2">) — "</span> <span class="o">+</span> <span class="p">(</span><span class="n">main</span><span class="o">.</span><span class="n">help</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
     <span class="p">)</span>
 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
     <span class="k">pass</span>
