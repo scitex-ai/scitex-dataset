@@ -30,14 +30,14 @@ import json
 
 import click
 
+from ._agentic_solver_project import make_solver_project_command
+
 
 def _agentic_bench_module(source: str):
     """Return the ``scitex_dataset.ai_for_science.<source>`` module."""
     import importlib
 
-    return importlib.import_module(
-        f"..ai_for_science.{source}", package=__package__
-    )
+    return importlib.import_module(f"..ai_for_science.{source}", package=__package__)
 
 
 def _emit_result(as_json: bool, result: dict, headline: str) -> None:
@@ -105,10 +105,11 @@ def _make_download_command(source: str, module) -> click.Command:
     @click.option(
         "--capsule-ids",
         default=None,
-        help="corebench only: comma-separated NATIVE capsule ids (e.g. "
-        "capsule-0201225,capsule-0238624) to fetch just those tarballs "
-        "from the CDN — the oracle URLs are never touched. Overrides the "
-        "oracle-driven full run.",
+        help="Comma-separated capsule ids to fetch just those capsules. "
+        "corebench: NATIVE ids (e.g. capsule-0201225) from the CDN — the "
+        "oracle URLs are never touched; overrides the oracle-driven full "
+        "run. bixbench: native, capsule-NNN or bix-<n> ids — the manifest "
+        "plus those archives instead of the ~16 GB snapshot.",
     )
     @click.option(
         "--verify-integrity",
@@ -249,6 +250,18 @@ def _make_prepare_command(source: str, module) -> click.Command:
         "identity-qualified capsules. Source/content changes require fresh "
         "output destinations.",
     )
+    @click.option(
+        "--only",
+        default=None,
+        help="Materialize ONLY this capsule's for_solver/ dir (friendly "
+        "capsule-NNN or native id); the index is always written in full.",
+    )
+    @click.option(
+        "--capsule-ids",
+        default=None,
+        help="Comma-separated capsule ids: acquire only these capsules "
+        "(corebench: native ids; bixbench: native, capsule-NNN or bix-<n>).",
+    )
     def _prepare_cmd(
         dataset_root,
         as_json,
@@ -257,8 +270,15 @@ def _make_prepare_command(source: str, module) -> click.Command:
         download_full,
         verify_integrity,
         force,
+        only,
+        capsule_ids,
     ):
         """Placeholder docstring (overwritten below with the per-source example)."""
+        ids = (
+            [c.strip() for c in capsule_ids.split(",") if c.strip()]
+            if capsule_ids
+            else None
+        )
         kwargs = _accepted_kwargs(
             module.prepare,
             dataset_root=dataset_root,
@@ -267,6 +287,8 @@ def _make_prepare_command(source: str, module) -> click.Command:
             download_full=download_full,
             verify_integrity=verify_integrity,
             force=force,
+            only=only,
+            capsule_ids=ids,
         )
         try:
             result = module.prepare(**kwargs)
@@ -326,13 +348,15 @@ def _make_validate_command(source: str, module) -> click.Command:
             err["kind"] == "missing_assignment" for err in contract["errors"]
         ):
             result = validate_submission(module.BENCHMARK, submission)
-            result["errors"].append({
-                "path": "$assignment",
-                "kind": "shape_only",
-                "message": "No public assignment metadata: only JSON shape/ID "
-                "syntax checked; selected membership and declared answer types "
-                "were not checked. Supply --tasks task.jsonl.",
-            })
+            result["errors"].append(
+                {
+                    "path": "$assignment",
+                    "kind": "shape_only",
+                    "message": "No public assignment metadata: only JSON shape/ID "
+                    "syntax checked; selected membership and declared answer types "
+                    "were not checked. Supply --tasks task.jsonl.",
+                }
+            )
             scope = "shape-only"
         else:
             result = {"ok": False, "errors": contract["errors"]}
@@ -417,15 +441,18 @@ def _make_score_command(source: str, module) -> click.Command:
 def _agentic_bench_commands(source: str) -> list[click.Command]:
     """Build the agentic verb-tree click commands for one benchmark.
 
-    Returns ``[download, prepare, standardize, validate, score]`` — the
-    preparation pipeline plus the host-side submission validator and
-    scorer.
+    Returns ``[download, prepare, standardize, solver-project, validate,
+    score]`` — the preparation pipeline, the guarded solver-project
+    assembly, and the host-side submission validator and scorer.
     """
     module = _agentic_bench_module(source)
     return [
         _make_download_command(source, module),
         _make_prepare_command(source, module),
         _make_standardize_command(source, module),
+        make_solver_project_command(
+            source, module, _common_paths_options, _emit_result
+        ),
         _make_validate_command(source, module),
         _make_score_command(source, module),
     ]
