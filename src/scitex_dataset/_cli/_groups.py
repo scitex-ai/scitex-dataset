@@ -26,11 +26,13 @@ import click
 from .._sources import (
     AGENTIC_BENCH_SOURCES,
     DOMAINS,
+    REFERENCE_SOURCES,
     SOURCE_INFO,
     sources_in_domain,
 )
 from ._agentic import _agentic_bench_commands
 from ._factory import make_fetch_command
+from ._reference_verbs import reference_commands
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
@@ -73,6 +75,10 @@ def _make_dataset_group(source: str) -> click.Group:
         _grp.add_command(_hf_search_command())
         _grp.add_command(_hf_info_command())
         _grp.add_command(_hf_download_file_command())
+    elif source in REFERENCE_SOURCES:
+        # Pinned reference files: list | fetch <name> (sha256-verified).
+        for cmd in reference_commands():
+            _grp.add_command(cmd)
     elif source in AGENTIC_BENCH_SOURCES:
         # Agentic benchmarks use download | prepare | standardize, not fetch.
         for cmd in _agentic_bench_commands(source):

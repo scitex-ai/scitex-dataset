@@ -24,6 +24,10 @@ OpenML, MoleculeNet, GEO, ChEMBL and ClinicalTrials.gov. HuggingFace Hub
 supports on-demand access by repository ID. The `ai-for-science` domain
 provides preparation, validation and scoring for CORE-Bench, BixBench and
 BioMysteryBench; see [15_ai-for-science.md](15_ai-for-science.md).
+`fetch_file` / `fetch_reference("mnist", dest)` download a known file,
+verify its sha256, cache it and return a provenance record (url, sha256,
+size, path, retrieved_at, cached, license, citation); see
+[03_python-api.md](03_python-api.md).
 
 ## Installation & import (two equivalent paths)
 
@@ -70,6 +74,7 @@ See [03_python-api.md](03_python-api.md) for the package's Python interfaces.
 scitex-dataset --help
 scitex-dataset neuroscience openneuro fetch -n 50
 scitex-dataset general zenodo fetch -q "EEG epilepsy" -n 20
+scitex-dataset general reference fetch mnist --dest ./data
 ```
 
 Commands follow `<domain> <source> <action>`. OpenNeuro's `fetch` enumerates
@@ -97,6 +102,9 @@ catalog records; it does not take a dataset ID as a positional argument.
 | `dataset_hf_search` | Search HuggingFace Hub |
 | `dataset_hf_info` | Get HF dataset/model metadata |
 | `dataset_hf_download_file` | Download one file from an HF repo |
+| `dataset_fetch_file` | Download one file by URL, verify sha256, cache, return provenance record |
+| `dataset_fetch_reference` | Fetch a registered reference file (e.g. `mnist`) with license + citation |
+| `dataset_list_references` | List registered reference files |
 | `dataset_db_build` | Build/refresh the full-text dataset index |
 | `dataset_db_search` | Search the dataset index |
 | `dataset_db_stats` | Dataset-index statistics |

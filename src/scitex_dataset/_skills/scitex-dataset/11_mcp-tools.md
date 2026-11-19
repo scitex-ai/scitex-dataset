@@ -26,6 +26,9 @@ tags: [scitex-dataset-mcp-tools, scitex-dataset]
 | `dataset_hf_search` | Search HuggingFace Hub |
 | `dataset_hf_info` | Get HF dataset/model metadata |
 | `dataset_hf_download_file` | Download one file from an HF repo |
+| `dataset_fetch_file` | Download one file by URL, verify sha256, cache, return provenance record |
+| `dataset_fetch_reference` | Fetch a registered reference file (e.g. `mnist`) with license + citation |
+| `dataset_list_references` | List registered reference files |
 | `dataset_db_build` | Build the full-text dataset index |
 | `dataset_db_search` | Search the dataset index |
 | `dataset_db_stats` | Dataset-index statistics |

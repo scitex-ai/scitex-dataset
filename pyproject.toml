@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-dataset"
-version = "0.13.0"
+version = "0.14.0"
 description = "Multi-domain scientific dataset fetcher — neuroscience, biology, pharmacology, medical (OpenNeuro, DANDI, PhysioNet, GEO, ChEMBL, ClinicalTrials.gov)"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -142,6 +142,7 @@ pythonpath = ["src"]
 markers = [
     "smoke: fast CLI happy-path tests (<60s, runs on every PR)",
     "e2e: end-to-end workflows (slow, gated by RUN_E2E=1)",
+    "network: hits the real internet (gated by SCITEX_DATASET_RUN_NETWORK=1)",
 ]
 
 [tool.ruff]

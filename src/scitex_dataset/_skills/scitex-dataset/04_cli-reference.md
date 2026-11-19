@@ -28,6 +28,7 @@ general:
   - figshare        research data sharing
   - openml          ML datasets
   - huggingface     ML datasets/models (on-demand)
+  - reference       well-known reference files (MNIST, ...) pinned by sha256
 biology:
   - geo             Gene Expression Omnibus
 pharmacology:
@@ -47,6 +48,11 @@ The 11 catalog sources expose `fetch` with `-n / --max-datasets`,
 
 HuggingFace has a separate `fetch REPO_ID` command with `--local-dir`,
 `--repo-type` and `--max-workers`, plus `search`, `info` and `download-file`.
+`general reference` has `list [--json]` and `fetch NAME --dest DIR
+[--replace] [--timeout S] [--json]`: the file is sha256-verified, a verified
+copy in `DIR` is reused, and the provenance record (url, sha256, size, path,
+retrieved_at, cached, license, citation) is printed. A checksum mismatch or an
+existing file with the wrong hash exits 1.
 The three `ai-for-science` benchmarks expose `screen` (declarative eligibility
 screening, see [16_eligibility-screening.md](16_eligibility-screening.md)),
 `download`, `prepare`, `standardize`, `build-solver-project`, `validate` and
@@ -89,6 +95,8 @@ scitex-dataset neuroscience openneuro fetch -n 50
 scitex-dataset general huggingface fetch Anthropic/BioMysteryBench-full
 scitex-dataset general huggingface search "biology" -n 20
 scitex-dataset pharmacology chembl fetch
+scitex-dataset general reference list
+scitex-dataset general reference fetch mnist --dest ./data --json
 scitex-dataset db build
 scitex-dataset db search "Alzheimer"
 scitex-dataset db show-stats
