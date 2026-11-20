@@ -1,0 +1,18 @@
+{
+  "schema": "scitex-file-manifest/v1",
+  "files": [
+    {
+      "url": "https://physionet.org/files/eegmmidb/1.0.0/S001/S001R03.edf",
+      "sha256": "3427c8d01bff1380bc9ab9f27a35ece2af5dfadf3e291bbc05eb66e4dadbfe2e",
+      "size_bytes": 2596896,
+      "path": "raw/eegmmidb/S001/S001R03.edf",
+      "retrieved_at": "2026-11-20T00:21:09+00:00",
+      "cached": true,
+      "license": "ODC-By-1.0",
+      "citation": "https://physionet.org/content/eegmmidb/1.0.0/",
+      "relative": "S001/S001R03.edf",
+      "subject": "1",
+      "checksum_basis": "publisher SHA256SUMS"
+    }
+  ]
+}

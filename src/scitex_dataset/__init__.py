@@ -97,6 +97,11 @@ from ._api import (  # noqa: F401
 
 # Provenance record + error type returned/raised by ``fetch_file`` /
 # ``fetch_reference`` (importable from the root; not MCP tools).
+from ._file_manifest import (
+    create_file_manifest,
+    replay_file_manifest,
+    validate_file_manifest,
+)
 from ._fetch_file import FetchError, FetchRecord  # noqa: F401
 
 # DB-level aliases for MCP parity (`dataset_db_*` tools).
@@ -189,6 +194,9 @@ __all__ = [
     # ``dataset_fetch_file`` / ``dataset_fetch_reference`` /
     # ``dataset_list_references``)
     "fetch_file",
+    "create_file_manifest",
+    "validate_file_manifest",
+    "replay_file_manifest",
     "fetch_reference",
     "list_references",
 ]
