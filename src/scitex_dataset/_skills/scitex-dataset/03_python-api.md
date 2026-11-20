@@ -150,3 +150,10 @@ db_search("Alzheimer EEG")
 - [14_data-sources.md](14_data-sources.md) — per-source endpoint details
 - [11_mcp-tools.md](11_mcp-tools.md) — MCP equivalents (1:1 with the aliases above)
 - [04_cli-reference.md](04_cli-reference.md) — CLI grammar
+
+## Portable known-file manifests
+
+`create_file_manifest(records, root)` exports relative destination paths.
+`validate_file_manifest(manifest)` checks the complete schema and destination list.
+`replay_file_manifest(manifest, dest_root, offline=False)` verifies/materializes the pins.
+See [portable manifests](17_portable-file-manifests.md).

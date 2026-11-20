@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Export/replay portable checksum-and-size-pinned file manifests across data roots, with offline verification and preserved provenance.
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
