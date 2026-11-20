@@ -84,6 +84,18 @@ HuggingFace Hub
    :undoc-members:
    :show-inheritance:
 
+Reference files (sha256-verified fetch)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: scitex_dataset.general.reference
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: scitex_dataset._fetch_file
+   :members:
+   :show-inheritance:
+
 Biology Sources
 ---------------
 

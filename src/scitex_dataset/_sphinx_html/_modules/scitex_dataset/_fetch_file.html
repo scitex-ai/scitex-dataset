@@ -1,0 +1,561 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>scitex_dataset._fetch_file &mdash; scitex-dataset v0.14.0</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=9e420a66"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            scitex-dataset
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#basic-installation">Basic Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#development-installation">Development Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#optional-dependencies">Optional Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#verification">Verification</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#python-api">Python API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#cli">CLI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cli_reference.html">CLI Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cli_reference.html#configuration-precedence">Configuration precedence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli_reference.html#legacy-aliases-hidden-exit-code-2">Legacy aliases (hidden, exit code 2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli_reference.html#live-command-tree">Live command tree</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../cli_reference.html#scitex-dataset">scitex-dataset</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cli_reference.html#scitex-dataset-ai-for-science">ai-for-science</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli_reference.html#scitex-dataset-biology">biology</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli_reference.html#scitex-dataset-completion">completion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli_reference.html#scitex-dataset-db">db</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli_reference.html#scitex-dataset-docs">docs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli_reference.html#scitex-dataset-general">general</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli_reference.html#scitex-dataset-install-shell-completion">install-shell-completion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli_reference.html#scitex-dataset-list-python-apis">list-python-apis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli_reference.html#scitex-dataset-mcp">mcp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli_reference.html#scitex-dataset-medical">medical</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli_reference.html#scitex-dataset-neuroscience">neuroscience</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli_reference.html#scitex-dataset-pharmacology">pharmacology</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli_reference.html#scitex-dataset-print-shell-completion">print-shell-completion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli_reference.html#scitex-dataset-skills">skills</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources.html">Data Sources</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../sources.html#catalog-sources">Catalog sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../sources.html#openneuro-bids-neuroimaging">OpenNeuro — BIDS neuroimaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../sources.html#dandi-archive-nwb-neurophysiology">DANDI Archive — NWB neurophysiology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../sources.html#physionet-physiological-waveforms">PhysioNet — physiological waveforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../sources.html#zenodo-general-scientific-data-cern">Zenodo — general scientific data (CERN)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../sources.html#figshare-research-data-sharing">Figshare — research data sharing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../sources.html#openml-ml-datasets-and-benchmarks">OpenML — ML datasets and benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../sources.html#moleculenet-molecular-ml-benchmarks">MoleculeNet — molecular ML benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../sources.html#geo-gene-expression-omnibus-ncbi">GEO — Gene Expression Omnibus (NCBI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../sources.html#chembl-bioactivity-ebi">ChEMBL — bioactivity (EBI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../sources.html#clinicaltrials-gov-interventional-observational-studies">ClinicalTrials.gov — interventional / observational studies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../sources.html#on-demand-source">On-demand source</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../sources.html#huggingface-hub">HuggingFace Hub</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../sources.html#local-database">Local Database</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/scitex_dataset.html">scitex_dataset API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.db_build"><code class="docutils literal notranslate"><span class="pre">db_build()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.db_search"><code class="docutils literal notranslate"><span class="pre">db_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.db_show_stats"><code class="docutils literal notranslate"><span class="pre">db_show_stats()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.filter_results"><code class="docutils literal notranslate"><span class="pre">filter_results()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.list_sources"><code class="docutils literal notranslate"><span class="pre">list_sources()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.openneuro_fetch"><code class="docutils literal notranslate"><span class="pre">openneuro_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.dandi_fetch"><code class="docutils literal notranslate"><span class="pre">dandi_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.physionet_fetch"><code class="docutils literal notranslate"><span class="pre">physionet_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.gin_fetch"><code class="docutils literal notranslate"><span class="pre">gin_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.gin_search"><code class="docutils literal notranslate"><span class="pre">gin_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.gin_info"><code class="docutils literal notranslate"><span class="pre">gin_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.gin_download"><code class="docutils literal notranslate"><span class="pre">gin_download()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.zenodo_fetch"><code class="docutils literal notranslate"><span class="pre">zenodo_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.figshare_fetch"><code class="docutils literal notranslate"><span class="pre">figshare_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.openml_fetch"><code class="docutils literal notranslate"><span class="pre">openml_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.moleculenet_fetch"><code class="docutils literal notranslate"><span class="pre">moleculenet_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.geo_fetch"><code class="docutils literal notranslate"><span class="pre">geo_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.chembl_fetch"><code class="docutils literal notranslate"><span class="pre">chembl_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.clinicaltrials_fetch"><code class="docutils literal notranslate"><span class="pre">clinicaltrials_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.huggingface_fetch"><code class="docutils literal notranslate"><span class="pre">huggingface_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.huggingface_search"><code class="docutils literal notranslate"><span class="pre">huggingface_search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.huggingface_info"><code class="docutils literal notranslate"><span class="pre">huggingface_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.huggingface_download_file"><code class="docutils literal notranslate"><span class="pre">huggingface_download_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.download_dataset"><code class="docutils literal notranslate"><span class="pre">download_dataset()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.corebench_standardize"><code class="docutils literal notranslate"><span class="pre">corebench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.bixbench_standardize"><code class="docutils literal notranslate"><span class="pre">bixbench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.biomysterybench_standardize"><code class="docutils literal notranslate"><span class="pre">biomysterybench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.fetch_file"><code class="docutils literal notranslate"><span class="pre">fetch_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.fetch_reference"><code class="docutils literal notranslate"><span class="pre">fetch_reference()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.list_references"><code class="docutils literal notranslate"><span class="pre">list_references()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.database">Database Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#what-changed-and-why-it-is-not-a-port">WHAT CHANGED, AND WHY IT IS NOT A PORT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#nothing-is-deleted-any-more">NOTHING IS DELETED ANY MORE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.clear"><code class="docutils literal notranslate"><span class="pre">clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.get_store"><code class="docutils literal notranslate"><span class="pre">get_store()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.store_description"><code class="docutils literal notranslate"><span class="pre">store_description()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database._SOURCE_MODULES"><code class="docutils literal notranslate"><span class="pre">_SOURCE_MODULES</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database._as_query"><code class="docutils literal notranslate"><span class="pre">_as_query()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.database._fetchers"><code class="docutils literal notranslate"><span class="pre">_fetchers()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#neuroscience-sources">Neuroscience Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.neuroscience.openneuro">OpenNeuro</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.neuroscience.openneuro._log_dataset"><code class="docutils literal notranslate"><span class="pre">_log_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.neuroscience.dandi">DANDI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.neuroscience.dandi.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.neuroscience.dandi.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.neuroscience.dandi.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.neuroscience.physionet">PhysioNet</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#general-sources">General Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.general.zenodo">Zenodo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.zenodo.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.zenodo.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.zenodo.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.general.figshare">Figshare</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.figshare.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.figshare.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.figshare.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.general.openml">OpenML</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.openml.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.openml.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.openml.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.general.huggingface">HuggingFace Hub</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#local-state-layout">Local-state layout</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.huggingface.fetch_dataset"><code class="docutils literal notranslate"><span class="pre">fetch_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.huggingface.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.huggingface.search_hub"><code class="docutils literal notranslate"><span class="pre">search_hub()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.huggingface.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.huggingface.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.huggingface.dataset_info"><code class="docutils literal notranslate"><span class="pre">dataset_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.huggingface.download_file"><code class="docutils literal notranslate"><span class="pre">download_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.huggingface._resolve_local_dir"><code class="docutils literal notranslate"><span class="pre">_resolve_local_dir()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.huggingface._resolve_token"><code class="docutils literal notranslate"><span class="pre">_resolve_token()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.huggingface._runtime_dir"><code class="docutils literal notranslate"><span class="pre">_runtime_dir()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.huggingface._user_root"><code class="docutils literal notranslate"><span class="pre">_user_root()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.general.reference">Reference files (sha256-verified fetch)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.reference.fetch_reference"><code class="docutils literal notranslate"><span class="pre">fetch_reference()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.general.reference.list_references"><code class="docutils literal notranslate"><span class="pre">list_references()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset._fetch_file.FetchError"><code class="docutils literal notranslate"><span class="pre">FetchError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord"><code class="docutils literal notranslate"><span class="pre">FetchRecord</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset._fetch_file.fetch_file"><code class="docutils literal notranslate"><span class="pre">fetch_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#biology-sources">Biology Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.biology.geo">GEO</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.biology.geo.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.biology.geo.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.biology.geo.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#pharmacology-sources">Pharmacology Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.pharmacology.moleculenet">MoleculeNet</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.pharmacology.moleculenet.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.pharmacology.moleculenet.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.pharmacology.moleculenet.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.pharmacology.chembl">ChEMBL</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.pharmacology.chembl.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.pharmacology.chembl.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.pharmacology.chembl.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#medical-sources">Medical Sources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset.medical.clinicaltrials">ClinicalTrials.gov</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.medical.clinicaltrials.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.medical.clinicaltrials.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset.medical.clinicaltrials.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_dataset.html#module-scitex_dataset._cli">CLI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_dataset.html#scitex_dataset._cli._repositories_block"><code class="docutils literal notranslate"><span class="pre">_repositories_block()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">scitex-dataset</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../scitex_dataset.html">scitex_dataset</a></li>
+      <li class="breadcrumb-item active">scitex_dataset._fetch_file</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for scitex_dataset._fetch_file</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># File: src/scitex_dataset/_fetch_file.py</span>
+
+<span class="sd">"""Checksum-verified, cached single-file download with a provenance record.</span>
+
+<span class="sd">:func:`fetch_file` is the generic primitive behind</span>
+<span class="sd">:func:`scitex_dataset.fetch_reference`: download one known file, verify its</span>
+<span class="sd">sha256, keep it in ``dest_dir`` and say where it came from.</span>
+
+<span class="sd">Contract (no fallback, no silent skip):</span>
+
+<span class="sd">- ``dest_dir/filename`` already present with the expected sha256 → nothing is</span>
+<span class="sd">  downloaded; the record has ``cached=True``.</span>
+<span class="sd">- ``dest_dir/filename`` present with a DIFFERENT sha256 → :class:`FetchError`,</span>
+<span class="sd">  unless ``replace=True`` (a user's file is never overwritten implicitly).</span>
+<span class="sd">- Otherwise the body is streamed to a ``.part`` file inside ``dest_dir``; the</span>
+<span class="sd">  byte count must match a declared ``Content-Length`` and the sha256 must</span>
+<span class="sd">  match. Only then is it renamed into place (``os.replace``, atomic on one</span>
+<span class="sd">  filesystem). On any failure the partial file is removed and</span>
+<span class="sd">  :class:`FetchError` (or the underlying network error) is raised.</span>
+
+<span class="sd">Stdlib only (``urllib``), like the CORE-Bench capsule downloader.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">urllib.parse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="n">_CHUNK</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>
+<span class="n">_SHA256_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^[0-9a-f]</span><span class="si">{64}</span><span class="s2">$"</span><span class="p">)</span>
+<span class="n">_USER_AGENT</span> <span class="o">=</span> <span class="s2">"scitex-dataset (fetch_file)"</span>
+
+
+<div class="viewcode-block" id="FetchError">
+<a class="viewcode-back" href="../../api/scitex_dataset.html#scitex_dataset._fetch_file.FetchError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FetchError</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A file could not be fetched with the expected content.</span>
+
+<span class="sd">    Raised on a checksum mismatch (downloaded or pre-existing file) and on a</span>
+<span class="sd">    truncated body. The partial download is always removed first.</span>
+<span class="sd">    """</span></div>
+
+
+
+<div class="viewcode-block" id="FetchRecord">
+<a class="viewcode-back" href="../../api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FetchRecord</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Provenance of one fetched file.</span>
+
+<span class="sd">    Fields (all plain JSON types, see :meth:`to_dict`):</span>
+
+<span class="sd">    - ``url`` — where the bytes came from (or would have, if cached).</span>
+<span class="sd">    - ``sha256`` — verified lowercase hex digest of the file at ``path``.</span>
+<span class="sd">    - ``size_bytes`` — file size in bytes.</span>
+<span class="sd">    - ``path`` — absolute local path of the verified file.</span>
+<span class="sd">    - ``retrieved_at`` — ISO-8601 UTC timestamp of this call (download or</span>
+<span class="sd">      cache check).</span>
+<span class="sd">    - ``cached`` — True when the file was already present and verified;</span>
+<span class="sd">      nothing was downloaded.</span>
+<span class="sd">    - ``license`` / ``citation`` — content license and preferred citation,</span>
+<span class="sd">      when known (else None).</span>
+<span class="sd">    """</span>
+
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">sha256</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">size_bytes</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">retrieved_at</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">cached</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">license</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">citation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="FetchRecord.to_dict">
+<a class="viewcode-back" href="../../api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord.to_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the record as a plain JSON-serialisable dict."""</span>
+        <span class="k">return</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sha256_of</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">_CHUNK</span><span class="p">),</span> <span class="sa">b</span><span class="s2">""</span><span class="p">):</span>
+            <span class="n">h</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">h</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_now_utc</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">timespec</span><span class="o">=</span><span class="s2">"seconds"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_filename_from_url</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"fetch_file: cannot derive a filename from </span><span class="si">{</span><span class="n">url</span><span class="si">!r}</span><span class="s2">; pass filename="</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">name</span>
+
+
+<div class="viewcode-block" id="fetch_file">
+<a class="viewcode-back" href="../../api/scitex_dataset.html#scitex_dataset._fetch_file.fetch_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fetch_file</span><span class="p">(</span>
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">sha256</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dest_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
+    <span class="n">replace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">license</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">citation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FetchRecord</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Download one file, verify its sha256, cache it, return its provenance.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    url : str</span>
+<span class="sd">        Source URL (``http``/``https``; ``file`` also works for local mirrors).</span>
+<span class="sd">    sha256 : str</span>
+<span class="sd">        Expected sha256 hex digest (64 hex chars, case-insensitive). Required:</span>
+<span class="sd">        an unverified download is not a provenance record.</span>
+<span class="sd">    dest_dir : str or Path</span>
+<span class="sd">        Directory to keep the file in. Created if missing.</span>
+<span class="sd">    filename : str, optional</span>
+<span class="sd">        Local file name. Defaults to the last path segment of ``url``.</span>
+<span class="sd">    timeout : float</span>
+<span class="sd">        Socket timeout in seconds for the HTTP request.</span>
+<span class="sd">    replace : bool</span>
+<span class="sd">        If an existing file has the wrong sha256, replace it with a fresh</span>
+<span class="sd">        download instead of raising. Default False.</span>
+<span class="sd">    license, citation : str, optional</span>
+<span class="sd">        Metadata copied into the returned record.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    FetchRecord</span>
+<span class="sd">        ``url``, ``sha256``, ``size_bytes``, ``path``, ``retrieved_at`` (ISO</span>
+<span class="sd">        UTC), ``cached``, ``license``, ``citation``.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Malformed ``sha256`` or underivable ``filename``.</span>
+<span class="sd">    FetchError</span>
+<span class="sd">        Checksum mismatch (download or existing file without ``replace``),</span>
+<span class="sd">        or a body shorter than its declared ``Content-Length``.</span>
+<span class="sd">    urllib.error.URLError</span>
+<span class="sd">        Network / HTTP failure (propagated unchanged).</span>
+<span class="sd">    """</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="n">sha256</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_SHA256_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">expected</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"fetch_file: sha256 must be 64 hex chars, got </span><span class="si">{</span><span class="n">sha256</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="n">_filename_from_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"."</span><span class="p">,</span> <span class="s2">".."</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"fetch_file: filename must be a bare name, got </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="n">dest_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="n">dest_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">dest</span> <span class="o">=</span> <span class="n">dest_dir</span> <span class="o">/</span> <span class="n">name</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">license</span><span class="o">=</span><span class="n">license</span><span class="p">,</span> <span class="n">citation</span><span class="o">=</span><span class="n">citation</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">_sha256_of</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">actual</span> <span class="o">==</span> <span class="n">expected</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">FetchRecord</span><span class="p">(</span>
+                <span class="n">sha256</span><span class="o">=</span><span class="n">actual</span><span class="p">,</span>
+                <span class="n">size_bytes</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="p">,</span>
+                <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span>
+                <span class="n">retrieved_at</span><span class="o">=</span><span class="n">_now_utc</span><span class="p">(),</span>
+                <span class="n">cached</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">meta</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">replace</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FetchError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"fetch_file: existing </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2"> has sha256 </span><span class="si">{</span><span class="n">actual</span><span class="si">}</span><span class="s2">, expected "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s2">. Refusing to overwrite; remove it or pass "</span>
+                <span class="sa">f</span><span class="s2">"replace=True."</span>
+            <span class="p">)</span>
+
+    <span class="n">part</span> <span class="o">=</span> <span class="n">dest_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">".</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.part"</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">"User-Agent"</span><span class="p">:</span> <span class="n">_USER_AGENT</span><span class="p">})</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">()</span>
+        <span class="n">written</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
+            <span class="n">declared</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Content-Length"</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">part</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">_CHUNK</span><span class="p">),</span> <span class="sa">b</span><span class="s2">""</span><span class="p">):</span>
+                    <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+                    <span class="n">h</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+                    <span class="n">written</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">declared</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">written</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">(</span><span class="n">declared</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">FetchError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"fetch_file: truncated body from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">written</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">declared</span><span class="si">}</span><span class="s2"> bytes)"</span>
+            <span class="p">)</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">actual</span> <span class="o">!=</span> <span class="n">expected</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FetchError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"fetch_file: sha256 mismatch for </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">: got </span><span class="si">{</span><span class="n">actual</span><span class="si">}</span><span class="s2">, "</span>
+                <span class="sa">f</span><span class="s2">"expected </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s2">. Partial download removed."</span>
+            <span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">part</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">part</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">FetchRecord</span><span class="p">(</span>
+        <span class="n">sha256</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span>
+        <span class="n">size_bytes</span><span class="o">=</span><span class="n">written</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span>
+        <span class="n">retrieved_at</span><span class="o">=</span><span class="n">_now_utc</span><span class="p">(),</span>
+        <span class="n">cached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">meta</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"FetchError"</span><span class="p">,</span> <span class="s2">"FetchRecord"</span><span class="p">,</span> <span class="s2">"fetch_file"</span><span class="p">]</span>
+
+<span class="c1"># EOF</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yusuke Watanabe.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

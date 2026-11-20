@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; scitex-dataset v0.11.1</title>
+  <title>Index &mdash; scitex-dataset v0.14.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -13,7 +13,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=57cbeb03"></script>
+      <script src="_static/documentation_options.js?v=9e420a66"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -140,6 +140,9 @@
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.corebench_standardize"><code class="docutils literal notranslate"><span class="pre">corebench_standardize()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.bixbench_standardize"><code class="docutils literal notranslate"><span class="pre">bixbench_standardize()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.biomysterybench_standardize"><code class="docutils literal notranslate"><span class="pre">biomysterybench_standardize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.fetch_file"><code class="docutils literal notranslate"><span class="pre">fetch_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.fetch_reference"><code class="docutils literal notranslate"><span class="pre">fetch_reference()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.list_references"><code class="docutils literal notranslate"><span class="pre">list_references()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
@@ -214,6 +217,14 @@
 <li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface._resolve_token"><code class="docutils literal notranslate"><span class="pre">_resolve_token()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface._runtime_dir"><code class="docutils literal notranslate"><span class="pre">_runtime_dir()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.huggingface._user_root"><code class="docutils literal notranslate"><span class="pre">_user_root()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/scitex_dataset.html#module-scitex_dataset.general.reference">Reference files (sha256-verified fetch)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.reference.fetch_reference"><code class="docutils literal notranslate"><span class="pre">fetch_reference()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset.general.reference.list_references"><code class="docutils literal notranslate"><span class="pre">list_references()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset._fetch_file.FetchError"><code class="docutils literal notranslate"><span class="pre">FetchError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord"><code class="docutils literal notranslate"><span class="pre">FetchRecord</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scitex_dataset.html#scitex_dataset._fetch_file.fetch_file"><code class="docutils literal notranslate"><span class="pre">fetch_file()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -303,6 +314,7 @@
  | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
  | <a href="#Z"><strong>Z</strong></a>
  
@@ -323,9 +335,15 @@
       <ul>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-download-capsule-ids">scitex-dataset-ai-for-science-biomysterybench-download command line option</a>
 </li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-capsule-ids">scitex-dataset-ai-for-science-biomysterybench-prepare command line option</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-download-capsule-ids">scitex-dataset-ai-for-science-bixbench-download command line option</a>
 </li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-capsule-ids">scitex-dataset-ai-for-science-bixbench-prepare command line option</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-download-capsule-ids">scitex-dataset-ai-for-science-corebench-download command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-capsule-ids">scitex-dataset-ai-for-science-corebench-prepare command line option</a>
 </li>
       </ul></li>
       <li>
@@ -343,18 +361,35 @@
 </li>
       </ul></li>
       <li>
+    --config
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-screen-config">scitex-dataset-ai-for-science-biomysterybench-screen command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-screen-config">scitex-dataset-ai-for-science-bixbench-screen command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-screen-config">scitex-dataset-ai-for-science-corebench-screen command line option</a>
+</li>
+      </ul></li>
+      <li>
     --dataset-root
 
       <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-dataset-root">scitex-dataset-ai-for-science-biomysterybench-build-solver-project command line option</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-download-dataset-root">scitex-dataset-ai-for-science-biomysterybench-download command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-dataset-root">scitex-dataset-ai-for-science-biomysterybench-prepare command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-score-dataset-root">scitex-dataset-ai-for-science-biomysterybench-score command line option</a>
 </li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-screen-dataset-root">scitex-dataset-ai-for-science-biomysterybench-screen command line option</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-standardize-dataset-root">scitex-dataset-ai-for-science-biomysterybench-standardize command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-validate-dataset-root">scitex-dataset-ai-for-science-biomysterybench-validate command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-dataset-root">scitex-dataset-ai-for-science-bixbench-build-solver-project command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-download-dataset-root">scitex-dataset-ai-for-science-bixbench-download command line option</a>
 </li>
@@ -362,15 +397,21 @@
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-score-dataset-root">scitex-dataset-ai-for-science-bixbench-score command line option</a>
 </li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-screen-dataset-root">scitex-dataset-ai-for-science-bixbench-screen command line option</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-standardize-dataset-root">scitex-dataset-ai-for-science-bixbench-standardize command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-validate-dataset-root">scitex-dataset-ai-for-science-bixbench-validate command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-dataset-root">scitex-dataset-ai-for-science-corebench-build-solver-project command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-download-dataset-root">scitex-dataset-ai-for-science-corebench-download command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-dataset-root">scitex-dataset-ai-for-science-corebench-prepare command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-score-dataset-root">scitex-dataset-ai-for-science-corebench-score command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-screen-dataset-root">scitex-dataset-ai-for-science-corebench-screen command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-standardize-dataset-root">scitex-dataset-ai-for-science-corebench-standardize command line option</a>
 </li>
@@ -381,6 +422,8 @@
     --dest
 
       <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-reference-fetch-d">scitex-dataset-general-reference-fetch command line option</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-skills-install-d">scitex-dataset-skills-install command line option</a>
 </li>
       </ul></li>
@@ -388,6 +431,12 @@
     --dry-run
 
       <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-dry-run">scitex-dataset-ai-for-science-biomysterybench-build-solver-project command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-dry-run">scitex-dataset-ai-for-science-bixbench-build-solver-project command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-dry-run">scitex-dataset-ai-for-science-corebench-build-solver-project command line option</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-completion-install-dry-run">scitex-dataset-completion-install command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-db-build-dry-run">scitex-dataset-db-build command line option</a>
@@ -399,6 +448,17 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-mcp-start-dry-run">scitex-dataset-mcp-start command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-skills-install-dry-run">scitex-dataset-skills-install command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --fetch
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-screen-fetch">scitex-dataset-ai-for-science-biomysterybench-screen command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-screen-fetch">scitex-dataset-ai-for-science-bixbench-screen command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-screen-fetch">scitex-dataset-ai-for-science-corebench-screen command line option</a>
 </li>
       </ul></li>
       <li>
@@ -481,15 +541,21 @@
       <ul>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-json">scitex-dataset command line option</a>
 </li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-json">scitex-dataset-ai-for-science-biomysterybench-build-solver-project command line option</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-download-json">scitex-dataset-ai-for-science-biomysterybench-download command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-json">scitex-dataset-ai-for-science-biomysterybench-prepare command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-score-json">scitex-dataset-ai-for-science-biomysterybench-score command line option</a>
 </li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-screen-json">scitex-dataset-ai-for-science-biomysterybench-screen command line option</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-standardize-json">scitex-dataset-ai-for-science-biomysterybench-standardize command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-validate-json">scitex-dataset-ai-for-science-biomysterybench-validate command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-json">scitex-dataset-ai-for-science-bixbench-build-solver-project command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-download-json">scitex-dataset-ai-for-science-bixbench-download command line option</a>
 </li>
@@ -497,15 +563,21 @@
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-score-json">scitex-dataset-ai-for-science-bixbench-score command line option</a>
 </li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-screen-json">scitex-dataset-ai-for-science-bixbench-screen command line option</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-standardize-json">scitex-dataset-ai-for-science-bixbench-standardize command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-validate-json">scitex-dataset-ai-for-science-bixbench-validate command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-json">scitex-dataset-ai-for-science-corebench-build-solver-project command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-download-json">scitex-dataset-ai-for-science-corebench-download command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-json">scitex-dataset-ai-for-science-corebench-prepare command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-score-json">scitex-dataset-ai-for-science-corebench-score command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-screen-json">scitex-dataset-ai-for-science-corebench-screen command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-standardize-json">scitex-dataset-ai-for-science-corebench-standardize command line option</a>
 </li>
@@ -524,6 +596,10 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-huggingface-info-json">scitex-dataset-general-huggingface-info command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-huggingface-search-json">scitex-dataset-general-huggingface-search command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-reference-fetch-json">scitex-dataset-general-reference-fetch command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-reference-list-json">scitex-dataset-general-reference-list command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-list-python-apis-json">scitex-dataset-list-python-apis command line option</a>
 </li>
@@ -550,6 +626,17 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-huggingface-download-file-d">scitex-dataset-general-huggingface-download-file command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-huggingface-fetch-d">scitex-dataset-general-huggingface-fetch command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --mapping
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-mapping">scitex-dataset-ai-for-science-biomysterybench-build-solver-project command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-mapping">scitex-dataset-ai-for-science-bixbench-build-solver-project command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-mapping">scitex-dataset-ai-for-science-corebench-build-solver-project command line option</a>
 </li>
       </ul></li>
       <li>
@@ -632,9 +719,15 @@
     --only
 
       <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-only">scitex-dataset-ai-for-science-biomysterybench-prepare command line option</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-standardize-only">scitex-dataset-ai-for-science-biomysterybench-standardize command line option</a>
 </li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-only">scitex-dataset-ai-for-science-bixbench-prepare command line option</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-standardize-only">scitex-dataset-ai-for-science-bixbench-standardize command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-only">scitex-dataset-ai-for-science-corebench-prepare command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-standardize-only">scitex-dataset-ai-for-science-corebench-standardize command line option</a>
 </li>
@@ -644,6 +737,17 @@
 
       <ul>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-db-search-order-by">scitex-dataset-db-search command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --out
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-screen-out">scitex-dataset-ai-for-science-biomysterybench-screen command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-screen-out">scitex-dataset-ai-for-science-bixbench-screen command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-screen-out">scitex-dataset-ai-for-science-corebench-screen command line option</a>
 </li>
       </ul></li>
       <li>
@@ -677,6 +781,8 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-pharmacology-moleculenet-fetch-o">scitex-dataset-pharmacology-moleculenet-fetch command line option</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     --query
 
@@ -684,6 +790,24 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-figshare-fetch-q">scitex-dataset-general-figshare-fetch command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-zenodo-fetch-q">scitex-dataset-general-zenodo-fetch command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --raw-dir
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-screen-raw-dir">scitex-dataset-ai-for-science-biomysterybench-screen command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-screen-raw-dir">scitex-dataset-ai-for-science-bixbench-screen command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-screen-raw-dir">scitex-dataset-ai-for-science-corebench-screen command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --replace
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-reference-fetch-replace">scitex-dataset-general-reference-fetch command line option</a>
 </li>
       </ul></li>
       <li>
@@ -697,8 +821,6 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-huggingface-info-t">scitex-dataset-general-huggingface-info command line option</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     --root-only
 
@@ -780,6 +902,13 @@
 </li>
       </ul></li>
       <li>
+    --timeout
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-reference-fetch-timeout">scitex-dataset-general-reference-fetch command line option</a>
+</li>
+      </ul></li>
+      <li>
     --verbose
 
       <ul>
@@ -848,6 +977,12 @@
     --yes
 
       <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-y">scitex-dataset-ai-for-science-biomysterybench-build-solver-project command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-y">scitex-dataset-ai-for-science-bixbench-build-solver-project command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-y">scitex-dataset-ai-for-science-corebench-build-solver-project command line option</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-completion-install-y">scitex-dataset-completion-install command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-db-build-y">scitex-dataset-db-build command line option</a>
@@ -884,6 +1019,8 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-huggingface-download-file-d">scitex-dataset-general-huggingface-download-file command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-huggingface-fetch-d">scitex-dataset-general-huggingface-fetch command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-reference-fetch-d">scitex-dataset-general-reference-fetch command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-list-python-apis-d">scitex-dataset-list-python-apis command line option</a>
 </li>
@@ -1057,6 +1194,12 @@
     -y
 
       <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-y">scitex-dataset-ai-for-science-biomysterybench-build-solver-project command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-y">scitex-dataset-ai-for-science-bixbench-build-solver-project command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-y">scitex-dataset-ai-for-science-corebench-build-solver-project command line option</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-completion-install-y">scitex-dataset-completion-install command line option</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-db-build-y">scitex-dataset-db-build command line option</a>
@@ -1076,6 +1219,8 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord.__init__">__init__() (scitex_dataset._fetch_file.FetchRecord method)</a>
+</li>
       <li><a href="api/scitex_dataset.html#scitex_dataset.database._as_query">_as_query() (in module scitex_dataset.database)</a>
 </li>
       <li><a href="api/scitex_dataset.html#scitex_dataset.database._fetchers">_fetchers() (in module scitex_dataset.database)</a>
@@ -1116,12 +1261,27 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord.cached">cached (scitex_dataset._fetch_file.FetchRecord attribute)</a>
+</li>
+      <li>
+    CAPSULE
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-arg-CAPSULE">scitex-dataset-ai-for-science-biomysterybench-build-solver-project command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-arg-CAPSULE">scitex-dataset-ai-for-science-bixbench-build-solver-project command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-arg-CAPSULE">scitex-dataset-ai-for-science-corebench-build-solver-project command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/scitex_dataset.html#scitex_dataset.chembl_fetch">chembl_fetch() (in module scitex_dataset)</a>
+</li>
+      <li><a href="api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord.citation">citation (scitex_dataset._fetch_file.FetchRecord attribute)</a>
 </li>
       <li><a href="api/scitex_dataset.html#scitex_dataset.database.clear">clear() (in module scitex_dataset.database)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/scitex_dataset.html#scitex_dataset.clinicaltrials_fetch">clinicaltrials_fetch() (in module scitex_dataset)</a>
 </li>
       <li><a href="api/scitex_dataset.html#scitex_dataset.corebench_standardize">corebench_standardize() (in module scitex_dataset)</a>
@@ -1204,6 +1364,22 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scitex_dataset.html#scitex_dataset.fetch_file">fetch_file() (in module scitex_dataset)</a>
+
+      <ul>
+        <li><a href="api/scitex_dataset.html#scitex_dataset._fetch_file.fetch_file">(in module scitex_dataset._fetch_file)</a>
+</li>
+      </ul></li>
+      <li><a href="api/scitex_dataset.html#scitex_dataset.fetch_reference">fetch_reference() (in module scitex_dataset)</a>
+
+      <ul>
+        <li><a href="api/scitex_dataset.html#scitex_dataset.general.reference.fetch_reference">(in module scitex_dataset.general.reference)</a>
+</li>
+      </ul></li>
+      <li><a href="api/scitex_dataset.html#scitex_dataset._fetch_file.FetchError">FetchError</a>
+</li>
+      <li><a href="api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord">FetchRecord (class in scitex_dataset._fetch_file)</a>
+</li>
       <li><a href="api/scitex_dataset.html#scitex_dataset.figshare_fetch">figshare_fetch() (in module scitex_dataset)</a>
 </li>
       <li>
@@ -1283,6 +1459,16 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord.license">license (scitex_dataset._fetch_file.FetchRecord attribute)</a>
+</li>
+      <li><a href="api/scitex_dataset.html#scitex_dataset.list_references">list_references() (in module scitex_dataset)</a>
+
+      <ul>
+        <li><a href="api/scitex_dataset.html#scitex_dataset.general.reference.list_references">(in module scitex_dataset.general.reference)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/scitex_dataset.html#scitex_dataset.list_sources">list_sources() (in module scitex_dataset)</a>
 </li>
   </ul></td>
@@ -1299,6 +1485,8 @@
 </li>
         <li><a href="api/scitex_dataset.html#module-scitex_dataset._cli">scitex_dataset._cli</a>
 </li>
+        <li><a href="api/scitex_dataset.html#module-scitex_dataset._fetch_file">scitex_dataset._fetch_file</a>
+</li>
         <li><a href="api/scitex_dataset.html#module-scitex_dataset.biology.geo">scitex_dataset.biology.geo</a>
 </li>
         <li><a href="api/scitex_dataset.html#module-scitex_dataset.database">scitex_dataset.database</a>
@@ -1308,6 +1496,8 @@
         <li><a href="api/scitex_dataset.html#module-scitex_dataset.general.huggingface">scitex_dataset.general.huggingface</a>
 </li>
         <li><a href="api/scitex_dataset.html#module-scitex_dataset.general.openml">scitex_dataset.general.openml</a>
+</li>
+        <li><a href="api/scitex_dataset.html#module-scitex_dataset.general.reference">scitex_dataset.general.reference</a>
 </li>
         <li><a href="api/scitex_dataset.html#module-scitex_dataset.general.zenodo">scitex_dataset.general.zenodo</a>
 </li>
@@ -1340,6 +1530,8 @@
     NAME
 
       <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-reference-fetch-arg-NAME">scitex-dataset-general-reference-fetch command line option</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-skills-get-arg-NAME">scitex-dataset-skills-get command line option</a>
 </li>
       </ul></li>
@@ -1351,10 +1543,19 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/scitex_dataset.html#scitex_dataset.openml_fetch">openml_fetch() (in module scitex_dataset)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/scitex_dataset.html#scitex_dataset.openneuro_fetch">openneuro_fetch() (in module scitex_dataset)</a>
 </li>
+      <li>
+    OUT
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-arg-OUT">scitex-dataset-ai-for-science-biomysterybench-build-solver-project command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-arg-OUT">scitex-dataset-ai-for-science-bixbench-build-solver-project command line option</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-arg-OUT">scitex-dataset-ai-for-science-corebench-build-solver-project command line option</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -1370,6 +1571,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord.path">path (scitex_dataset._fetch_file.FetchRecord attribute)</a>
+</li>
       <li><a href="api/scitex_dataset.html#scitex_dataset.physionet_fetch">physionet_fetch() (in module scitex_dataset)</a>
 </li>
   </ul></td>
@@ -1405,6 +1608,10 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord.retrieved_at">retrieved_at (scitex_dataset._fetch_file.FetchRecord attribute)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="S">S</h2>
@@ -1428,6 +1635,27 @@
 </li>
       </ul></li>
       <li>
+    scitex-dataset-ai-for-science-biomysterybench-build-solver-project command line option
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-dataset-root">--dataset-root</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-dry-run">--dry-run</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-json">--json</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-mapping">--mapping</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-y">--yes</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-y">-y</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-arg-CAPSULE">CAPSULE</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-build-solver-project-arg-OUT">OUT</a>
+</li>
+      </ul></li>
+      <li>
     scitex-dataset-ai-for-science-biomysterybench-download command line option
 
       <ul>
@@ -1448,6 +1676,8 @@
     scitex-dataset-ai-for-science-biomysterybench-prepare command line option
 
       <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-capsule-ids">--capsule-ids</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-dataset-root">--dataset-root</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-force">--force</a>
@@ -1455,6 +1685,8 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-full">--full</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-json">--json</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-only">--only</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-prepare-skip-download">--skip-download</a>
 </li>
@@ -1472,6 +1704,23 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-score-json">--json</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-score-submission">--submission</a>
+</li>
+      </ul></li>
+      <li>
+    scitex-dataset-ai-for-science-biomysterybench-screen command line option
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-screen-config">--config</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-screen-dataset-root">--dataset-root</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-screen-fetch">--fetch</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-screen-json">--json</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-screen-out">--out</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-biomysterybench-screen-raw-dir">--raw-dir</a>
 </li>
       </ul></li>
       <li>
@@ -1501,6 +1750,27 @@
 </li>
       </ul></li>
       <li>
+    scitex-dataset-ai-for-science-bixbench-build-solver-project command line option
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-dataset-root">--dataset-root</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-dry-run">--dry-run</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-json">--json</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-mapping">--mapping</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-y">--yes</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-y">-y</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-arg-CAPSULE">CAPSULE</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-build-solver-project-arg-OUT">OUT</a>
+</li>
+      </ul></li>
+      <li>
     scitex-dataset-ai-for-science-bixbench-download command line option
 
       <ul>
@@ -1521,6 +1791,8 @@
     scitex-dataset-ai-for-science-bixbench-prepare command line option
 
       <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-capsule-ids">--capsule-ids</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-dataset-root">--dataset-root</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-force">--force</a>
@@ -1528,6 +1800,8 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-full">--full</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-json">--json</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-only">--only</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-prepare-skip-download">--skip-download</a>
 </li>
@@ -1545,6 +1819,23 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-score-json">--json</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-score-submission">--submission</a>
+</li>
+      </ul></li>
+      <li>
+    scitex-dataset-ai-for-science-bixbench-screen command line option
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-screen-config">--config</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-screen-dataset-root">--dataset-root</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-screen-fetch">--fetch</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-screen-json">--json</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-screen-out">--out</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-bixbench-screen-raw-dir">--raw-dir</a>
 </li>
       </ul></li>
       <li>
@@ -1574,6 +1865,27 @@
 </li>
       </ul></li>
       <li>
+    scitex-dataset-ai-for-science-corebench-build-solver-project command line option
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-dataset-root">--dataset-root</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-dry-run">--dry-run</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-json">--json</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-mapping">--mapping</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-y">--yes</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-y">-y</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-arg-CAPSULE">CAPSULE</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-build-solver-project-arg-OUT">OUT</a>
+</li>
+      </ul></li>
+      <li>
     scitex-dataset-ai-for-science-corebench-download command line option
 
       <ul>
@@ -1594,6 +1906,8 @@
     scitex-dataset-ai-for-science-corebench-prepare command line option
 
       <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-capsule-ids">--capsule-ids</a>
+</li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-dataset-root">--dataset-root</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-force">--force</a>
@@ -1601,6 +1915,8 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-full">--full</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-json">--json</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-only">--only</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-prepare-skip-download">--skip-download</a>
 </li>
@@ -1618,6 +1934,23 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-score-json">--json</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-score-submission">--submission</a>
+</li>
+      </ul></li>
+      <li>
+    scitex-dataset-ai-for-science-corebench-screen command line option
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-screen-config">--config</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-screen-dataset-root">--dataset-root</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-screen-fetch">--fetch</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-screen-json">--json</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-screen-out">--out</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-ai-for-science-corebench-screen-raw-dir">--raw-dir</a>
 </li>
       </ul></li>
       <li>
@@ -1797,6 +2130,8 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-figshare-fetch-v">-v</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     scitex-dataset-general-huggingface-download-file command line option
 
@@ -1839,8 +2174,6 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-huggingface-fetch-arg-REPO_ID">REPO_ID</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     scitex-dataset-general-huggingface-info command line option
 
@@ -1886,6 +2219,30 @@
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-openml-fetch-o">-o</a>
 </li>
         <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-openml-fetch-v">-v</a>
+</li>
+      </ul></li>
+      <li>
+    scitex-dataset-general-reference-fetch command line option
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-reference-fetch-d">--dest</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-reference-fetch-json">--json</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-reference-fetch-replace">--replace</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-reference-fetch-timeout">--timeout</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-reference-fetch-d">-d</a>
+</li>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-reference-fetch-arg-NAME">NAME</a>
+</li>
+      </ul></li>
+      <li>
+    scitex-dataset-general-reference-list command line option
+
+      <ul>
+        <li><a href="cli_reference.html#cmdoption-scitex-dataset-general-reference-list-json">--json</a>
 </li>
       </ul></li>
       <li>
@@ -2171,6 +2528,13 @@
 </li>
       </ul></li>
       <li>
+    scitex_dataset._fetch_file
+
+      <ul>
+        <li><a href="api/scitex_dataset.html#module-scitex_dataset._fetch_file">module</a>
+</li>
+      </ul></li>
+      <li>
     scitex_dataset.biology.geo
 
       <ul>
@@ -2203,6 +2567,13 @@
 
       <ul>
         <li><a href="api/scitex_dataset.html#module-scitex_dataset.general.openml">module</a>
+</li>
+      </ul></li>
+      <li>
+    scitex_dataset.general.reference
+
+      <ul>
+        <li><a href="api/scitex_dataset.html#module-scitex_dataset.general.reference">module</a>
 </li>
       </ul></li>
       <li>
@@ -2271,9 +2642,21 @@
       </ul></li>
       <li><a href="api/scitex_dataset.html#scitex_dataset.general.huggingface.search_hub">search_hub() (in module scitex_dataset.general.huggingface)</a>
 </li>
+      <li><a href="api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord.sha256">sha256 (scitex_dataset._fetch_file.FetchRecord attribute)</a>
+</li>
+      <li><a href="api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord.size_bytes">size_bytes (scitex_dataset._fetch_file.FetchRecord attribute)</a>
+</li>
       <li><a href="api/scitex_dataset.html#scitex_dataset.search.sort_datasets">sort_datasets() (in module scitex_dataset.search)</a>
 </li>
       <li><a href="api/scitex_dataset.html#scitex_dataset.database.store_description">store_description() (in module scitex_dataset.database)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord.to_dict">to_dict() (scitex_dataset._fetch_file.FetchRecord method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2282,6 +2665,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/scitex_dataset.html#scitex_dataset.database.update">update() (in module scitex_dataset.database)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord.url">url (scitex_dataset._fetch_file.FetchRecord attribute)</a>
 </li>
   </ul></td>
 </tr></table>

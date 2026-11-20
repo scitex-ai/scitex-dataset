@@ -16,7 +16,8 @@ Pipeline (raw → {for_solver, eval} contract — see :mod:`._base`):
    ``raw_dir/.checksums.json``. The answer manifests
    (``dataset/core_train.json`` + ``core_test.json``) are operator-side;
    implicit capsule selection bootstraps them. Explicit ``capsule_ids``
-   leaves oracle acquisition to the caller. ``raw_dir`` is never mounted.
+   leave the oracle to the caller in ``download``; ``prepare`` bootstraps
+   it when it is not yet staged. ``raw_dir`` is never mounted.
 2. ``standardize(...)`` — admit source/cache identity, then split the oracle
    into a uniform answer-masked
    per-capsule ``for_solver/`` view (no answers) and operator-side
@@ -53,6 +54,7 @@ from ._corebench_download import (
     IncompleteDownloadError,
     bootstrap_oracle,
     download,
+    oracle_staged,
 )
 from ._corebench_inventory import _classify_capsule_files
 from ._identifiers import publication_identifiers
@@ -433,7 +435,10 @@ def prepare(
     must already be staged. ``verify_integrity`` / ``force`` are passed
     to ``download`` (default: skip any capsule already on disk).
     ``capsule_ids`` restricts acquisition; ``only`` restricts materialization.
-    Explicit IDs require caller-staged oracle manifests for standardization.
+    With explicit IDs the oracle manifests that standardization reads are
+    bootstrapped (fetch + decrypt) only when they are not already staged, so a
+    selective prepare is self-contained; ``download`` itself still never
+    touches the oracle URLs for explicit IDs.
     """
     if paths is None:
         paths = resolve_paths(BENCHMARK, dataset_root=dataset_root)
@@ -452,6 +457,9 @@ def prepare(
                 f"corebench: {out['download']['n_failed']} capsule(s) failed "
                 f"verified download: {out['download']['failures']}"
             )
+        if capsule_ids is not None and not oracle_staged(paths.raw_dir):
+            # Explicit IDs skip the oracle in download(); standardize needs it.
+            out["oracle"] = bootstrap_oracle(paths.raw_dir)
     out["standardize"] = standardize(
         raw_dir=paths.raw_dir,
         for_solver_dir=paths.for_solver_dir,

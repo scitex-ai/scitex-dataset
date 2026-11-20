@@ -34,6 +34,9 @@ pip install -e ".[dev]"
 - `main` — stable releases only. Do not push directly.
 - `develop` — integration branch. PRs target here.
 - Feature branches — create from `develop`, name as `feature/<description>`.
+- Merge feature PRs into `develop`, then promote `develop` into `main` through a PR.
+- Synchronize the promotion merge back into `develop` so it remains at least as advanced as `main`.
+- Delete feature branches after their commits are merged; preserve active worktrees.
 
 ```bash
 git checkout develop

@@ -1,11 +1,83 @@
 # Changelog
 
+## Unreleased
+
+- Export/replay portable checksum-and-size-pinned file manifests across data roots, with offline verification and preserved provenance.
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.14.0] - 2026-11-19
+
+- Eligibility screening (`screen_eligibility`, CLI `ai-for-science <bench>
+  screen --config criteria.yaml [--fetch] [--out result.json]`). Which units
+  qualify for an experiment is now a declarative config
+  (`scitex-dataset/eligibility-config-v1`): rules over named facts with
+  `equals` / `in` / `not_in` / `min` / `max` / `any_of` / `none_of` /
+  `subset_of`, combined by `all` / `any`, plus an `order` (sort keys and an
+  optional seeded tie-break) and a `target`. Adapters for CORE-Bench, BixBench
+  and BioMysteryBench only supply facts. Metadata facts are split, declared
+  language, question and figure-question counts and archive bytes; only
+  question text and keys are read, never reference values. Archive facts are
+  code/kernel/magic/toolchain languages, deep-learning frameworks, GPU need in
+  the environment or code, and the entry's kinds, steps, notebook code cells
+  and local imports. One dataset-blind analysis derives them for every
+  benchmark. Every unit gets a verdict (`selected`, `excluded`,
+  `not_screened` or `eligible_not_needed`), the first failing rule with the
+  fact values, every failing rule and its facts with evidence lines. The
+  result is deterministic and records the config hash and the sha256 of the
+  manifests screened. A needed archive that is not staged raises
+  `ArchiveUnavailableError` unless `fetch` is set; then it is downloaded
+  through the benchmark's own verified selective download.
+
+## [0.13.0] - 2026-11-19
+
+- `fetch_file(url, sha256, dest_dir, filename=None, *, timeout, replace,
+  license, citation)` downloads one known file, verifies its sha256, keeps it
+  in `dest_dir` and returns a `FetchRecord` (`url`, `sha256`, `size_bytes`,
+  `path`, `retrieved_at` ISO UTC, `cached`, `license`, `citation`;
+  `.to_dict()`). A verified existing copy is reused (`cached=True`). An
+  existing file with a different hash raises `FetchError` and is left as is
+  unless `replace=True`. A download is written to a `.part` file and renamed
+  into place only when its length and sha256 match; otherwise the partial
+  file is removed and `FetchError` is raised. Stdlib `urllib`, no new
+  dependency.
+- Reference-file registry (`scitex_dataset.general.reference`):
+  `fetch_reference(name, dest_dir)` and `list_references()`. First entry
+  `mnist`: the Keras-hosted `mnist.npz` (x_train (60000, 28, 28) uint8,
+  y_train, x_test (10000, 28, 28), y_test), sha256
+  `731c5ac602752760c8e48fbffcf8c3b850d9dc2a2aedcf2cc48468fc17b673d1`,
+  11,490,434 bytes (verified by download), CC BY-SA 3.0, citing LeCun et al.
+  (1998) doi:10.1109/5.726791. `download_dataset("reference", name, dest)`
+  routes there.
+- CLI `general reference list [--json]` and
+  `general reference fetch NAME --dest DIR [--replace] [--json]`; MCP tools
+  `fetch_file`, `fetch_reference`, `list_references`. `list_sources()` now
+  includes the `reference` source (kind `reference`).
+
+## [0.12.0] - 2026-11-19
+
+- Guarded solver projects: `build_solver_project` / `prepare_solver_project`
+  (CLI `ai-for-science <bench> build-solver-project <capsule> <out> --mapping`)
+  turn one prepared capsule into a neutral agent project (`input/` +
+  `questions.json`), with the `q<n> -> task_id` map written outside it, and
+  `submission_from_answers` maps the agent's `{"q1": ...}` back to the uniform
+  submission. `assert_solver_project_clean` refuses — and the builder removes —
+  a project holding an operator/oracle file name, a byte copy of any `eval/`
+  file, a symlink out of the project, a task/capsule identifier (text or path,
+  incl. the adapter's `PATH_ID_PATTERNS`) or an answer value of its own tasks.
+  Moved here from the paper harness so every harness gets one contract.
+- BixBench `download(capsule_ids=...)` / `prepare(capsule_ids=...)` (CLI
+  `--capsule-ids`) fetch the answer manifest plus only the selected archives
+  (native, `capsule-NNN` or `bix-<n>` ids) instead of the ~16 GB snapshot.
+- CLI `prepare` accepts `--only` (materialize one capsule) and `--capsule-ids`.
+- CORE-Bench `prepare(capsule_ids=...)` is self-contained: after the verified
+  capsule download it bootstraps the oracle manifests standardize needs when
+  they are not already staged (`download` alone still never touches them).
 
 ## [0.11.1] - 2026-11-17
 
