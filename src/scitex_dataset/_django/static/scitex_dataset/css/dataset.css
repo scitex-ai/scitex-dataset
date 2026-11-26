@@ -1,0 +1,36 @@
+/* SciTeX Dataset app. Colors come from the SDK theme tokens, so light and
+   dark follow the host shell. */
+.dataset-app { padding: 0 16px 24px; max-width: 1200px; }
+.dataset-section { margin: 16px 0; }
+.dataset-title { font-size: 1rem; font-weight: 600; margin: 0 0 8px; }
+.dataset-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.dataset-table th, .dataset-table td {
+  text-align: left; vertical-align: top; padding: 6px 8px;
+  border-bottom: 1px solid var(--stx-border, rgba(127, 127, 127, 0.3));
+}
+.dataset-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dataset-hash {
+  display: inline-block; max-width: 18ch; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom;
+}
+.dataset-hint { color: var(--stx-text-muted, #888); font-size: 0.8125rem; }
+.dataset-badge, .dataset-state {
+  display: inline-block; padding: 0 6px; border-radius: 4px; font-size: 0.75rem;
+  border: 1px solid var(--stx-border, rgba(127, 127, 127, 0.4));
+}
+.dataset-state--changed, .dataset-state--missing, .dataset-state--outside-project {
+  border-color: var(--stx-danger, #c0392b); color: var(--stx-danger, #c0392b);
+}
+.dataset-readers { margin: 0; padding-left: 16px; }
+.dataset-flash { padding: 6px 10px; border-radius: 4px; }
+.dataset-flash--ok { border: 1px solid var(--stx-success, #2e7d32); }
+.dataset-flash--error { border: 1px solid var(--stx-danger, #c0392b); }
+.dataset-forms { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.dataset-forms > .dataset-title { grid-column: 1 / -1; }
+.dataset-fieldset { display: grid; gap: 8px; border: 1px solid var(--stx-border, rgba(127, 127, 127, 0.3)); border-radius: 6px; padding: 12px; }
+.dataset-fieldset label { display: grid; gap: 4px; font-size: 0.875rem; }
+@media (max-width: 640px) {
+  .dataset-table thead { display: none; }
+  .dataset-table tr { display: block; padding: 6px 0; }
+  .dataset-table td { display: block; border: 0; padding: 2px 0; }
+}

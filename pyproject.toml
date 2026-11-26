@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-dataset"
-version = "0.14.0"
+version = "0.15.0"
 description = "Multi-domain scientific dataset fetcher — neuroscience, biology, pharmacology, medical (OpenNeuro, DANDI, PhysioNet, GEO, ChEMBL, ClinicalTrials.gov)"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -55,7 +55,17 @@ mcp = [
 huggingface = [
     "huggingface-hub>=0.20.0",
 ]
+# The Dataset app mounted by a SciTeX host (scitex-hub) at /apps/dataset/.
+# scitex-sdk >=0.3.24 supplies scitex_sdk.host.project_access (the host-owned
+# project authorization the views call) and the app shell templates.
+server = [
+    "django>=4.2",
+    "scitex-sdk[gui]>=0.3.24",
+]
 dev = [
+    "django>=4.2",
+    "scitex-sdk[gui]>=0.3.24",
+    "jsonschema>=4.0",
     "fastmcp>=2.0.0",
     "huggingface-hub>=0.20.0",
     "pre-commit>=3.5.0",
@@ -74,6 +84,7 @@ docs = [
 ]
 all = [
     "scitex-dataset[mcp]",
+    "scitex-dataset[server]",
     "scitex-dataset[huggingface]",
     # PS-221 closure: every public extra is a subset of `all`, so
     # `pip install scitex-dataset[all]` pulls everything public.
@@ -86,6 +97,12 @@ scitex-dataset = "scitex_dataset._cli:main"
 
 [project.entry-points."scitex_dev.gate.checks"]
 scitex-dataset = "scitex_dataset._gate_plugin:provide"
+
+# Hub plugin discovery (thin-hub rule): `pip install scitex-dataset[server]`
+# is the whole install; the host mounts scitex_dataset._django.urls at
+# apps/dataset/ from the manifest (scitex_sdk.app.plugins).
+[project.entry-points."scitex.apps"]
+dataset = "scitex_dataset._django.apps:DatasetAppConfig"
 
 [project.entry-points."scitex_dev.docs"]
 scitex-dataset = "scitex_dataset"

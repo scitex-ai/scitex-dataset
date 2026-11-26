@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://scitex.ai/schemas/scitex-dataset/provenance-readers/1.0.0",
+  "title": "scitex-dataset provenance-readers 1.0.0: return value of readers(project_root, paths)",
+  "description": "Keys are project-relative POSIX paths taken from the request; values list the scripts recorded as reading that path. Paths the provider knows nothing about are absent.",
+  "type": "object",
+  "additionalProperties": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["script"],
+      "properties": {
+        "script": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Project-relative path of the script when it lives in the project, else as recorded."
+        },
+        "run_id": {"type": ["string", "null"]},
+        "started_at": {"type": ["string", "null"], "description": "ISO 8601 timestamp."},
+        "status": {"type": ["string", "null"]}
+      }
+    }
+  }
+}
