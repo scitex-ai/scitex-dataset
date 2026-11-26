@@ -1,0 +1,72 @@
+{% extends "scitex_dataset/_base.html" %}
+{% block dataset_content %}
+<section class="dataset-section" aria-labelledby="dataset-project-title">
+  <h1 id="dataset-project-title" class="dataset-h1">Public datasets used in {{ access.name }}</h1>
+  <p class="dataset-lede">Each dataset is pinned with its version, licence and file checksums in <code>.scitex/dataset/sources.json</code>. Project outputs are not datasets and live in the file browser.</p>
+  {% if listing.manifest_error %}<p class="dataset-flash dataset-flash--error">{{ listing.manifest_error }}</p>{% endif %}
+  {% if budget.reported %}<p class="dataset-hint">Storage: {{ budget.used|default:"?" }} of {{ budget.quota|default:"no quota" }} used{% if budget.remaining %} · {{ budget.remaining }} left{% endif %}{% if budget.spend_level %} · spend {{ budget.spend_level }}{% endif %}</p>{% endif %}
+
+  {% if listing.datasets %}
+  <ul class="dataset-used" data-dataset-used>
+    {% for d in listing.datasets %}
+    <li class="dataset-card dataset-card--used" data-dataset-key="{{ d.key }}">
+      <div class="dataset-card-head">
+        <span class="dataset-repo dataset-repo--{{ d.repository }}">{{ d.repository_name|default:d.repository }}</span>
+        {% if d.recorded %}<span class="dataset-chip dataset-chip--ok">Recorded</span>{% else %}<span class="dataset-chip dataset-chip--warn" title="Its bytes match a pinned public dataset; record it to pin it in the manifest">Found on disk</span>{% endif %}
+        <span class="dataset-chip dataset-state--{{ d.local.state }}" title="Local copy against the pinned checksums">Local: {{ d.local.state }}</span>
+        {% include "scitex_dataset/_cache_badge.html" with cache=d.cache %}
+        {% if d.origin == "migrated:registry.json" %}<span class="dataset-chip" title="Carried over from the 0.15 registry">Migrated</span>{% endif %}
+      </div>
+      <h2 class="dataset-card-title"><a href="{% url 'scitex_dataset:detail' d.key %}?{{ project_query }}">{{ d.title|default:d.key }}</a></h2>
+      <dl class="dataset-facts">
+        <div><dt>Version</dt><dd><code>{{ d.version|default:"not stated" }}</code></dd></div>
+        <div><dt>{% if d.doi %}DOI{% else %}Accession{% endif %}</dt><dd>{% if d.doi %}<a href="https://doi.org/{{ d.doi }}" rel="noopener noreferrer" target="_blank">{{ d.doi }}</a>{% else %}<code>{{ d.accession|default:d.key }}</code>{% endif %}</dd></div>
+        <div><dt>Licence</dt><dd>{{ d.license|default:"not stated" }}</dd></div>
+        <div><dt>Size</dt><dd>{{ d.size|default:"—" }}</dd></div>
+        <div><dt>Folder</dt><dd>{% if d.local_dir %}<code>{{ d.local_dir }}/</code>{% else %}—{% endif %}</dd></div>
+        <div><dt>Fetch</dt><dd>{% with f=d.fetch %}{% if f.state == "fetched" %}fetched{% if f.mode %} ({{ f.mode }}){% endif %}{% elif f.state == "on-disk" %}already on disk{% elif f.state == "running" or f.state == "queued" %}<span data-dataset-job="{{ f.job_id }}">{{ f.job.percent|default:0 }}%</span>{% elif f.state == "failed" %}<span class="dataset-state dataset-state--changed" title="{{ f.error }}">failed</span>{% else %}{{ f.state|default:"not fetched" }}{% endif %}{% endwith %}</dd></div>
+      </dl>
+      <div class="dataset-readers-block">
+        <h3 class="dataset-subtitle">Used by scripts</h3>
+        {% if d.scripts %}
+        <ul class="dataset-readers">{% for r in d.scripts %}<li><code>{{ r.script }}</code> <span class="dataset-hint">{{ r.started_at|default:""|slice:":16" }}{% if r.status %} · {{ r.status }}{% endif %} · via {{ r.provider }}</span></li>{% endfor %}</ul>
+        {% else %}
+        <p class="dataset-hint">No recorded run has read these files yet. Run a script that loads them under <code>@stx.session</code> and its reads are recorded.</p>
+        {% endif %}
+      </div>
+      {% if d.local.files %}
+      <details class="dataset-files-details">
+        <summary>{{ d.local.files|length }} pinned file{{ d.local.files|length|pluralize }}</summary>
+        <table class="dataset-table">
+          <thead><tr><th>File</th><th>Size</th><th>SHA-256</th><th>Local</th></tr></thead>
+          <tbody>{% for f in d.local.files %}<tr><td><code>{{ f.local_path }}</code></td><td class="dataset-num">{{ f.size }}</td><td><code class="dataset-hash" title="{{ f.sha256 }}">{{ f.sha256|slice:":16" }}…</code></td><td><span class="dataset-state dataset-state--{{ f.state }}">{{ f.state }}</span></td></tr>{% endfor %}</tbody>
+        </table>
+      </details>
+      {% endif %}
+      {% if access.can_write and not d.recorded %}
+      <form method="post" action="{% url 'scitex_dataset:use' %}?{{ project_query }}" class="dataset-inline-form">
+        {% csrf_token %}<input type="hidden" name="key" value="{{ d.key }}"><input type="hidden" name="local_dir" value="{{ d.local_dir }}"><input type="hidden" name="_redirect" value="1">
+        <button type="submit" class="stx-button">Record in manifest</button>
+      </form>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="dataset-hint">This project uses no public dataset yet. <a href="{% url 'scitex_dataset:search' %}?{{ project_query }}">Find one</a>.</p>
+  {% endif %}
+</section>
+
+<section class="dataset-section" aria-labelledby="dataset-provenance-title">
+  <h2 id="dataset-provenance-title" class="dataset-title">Provenance providers</h2>
+  {% if listing.provenance.providers %}
+  <ul class="dataset-providers">
+    {% for p in listing.provenance.providers %}
+    <li><strong>{{ p.name }}</strong>: {{ p.status }}{% if p.store_routed %} · reading this project's record store{% endif %}{% if p.error %} — <span class="dataset-hint">{{ p.error }}</span>{% endif %}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="dataset-hint">No provenance provider is installed, so the scripts that read each dataset are not shown.</p>
+  {% endif %}
+</section>
+{% endblock %}

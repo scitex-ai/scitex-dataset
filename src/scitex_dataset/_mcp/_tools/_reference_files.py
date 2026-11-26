@@ -41,9 +41,11 @@ def register_reference_tools(mcp) -> None:
         """Fetch a well-known reference dataset file (e.g. "mnist") pinned by sha256 and return its provenance record including license and citation - use whenever the user asks for MNIST or another registered reference dataset with provenance. Drop-in replacement for keras.datasets.mnist.load_data() / torchvision.datasets.MNIST downloads."""
         from ...general.reference import fetch_reference as _fetch_reference
 
-        return _fetch_reference(
-            name, dest_dir, timeout=timeout, replace=replace
-        ).to_dict()
+        fetched = _fetch_reference(name, dest_dir, timeout=timeout, replace=replace)
+        if isinstance(fetched, list):
+            # A multi-file entry: one provenance record per file.
+            return {"files": [record.to_dict() for record in fetched]}
+        return fetched.to_dict()
 
     @mcp.tool()
     def list_references() -> List[Dict[str, Any]]:

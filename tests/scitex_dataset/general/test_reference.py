@@ -78,9 +78,60 @@ def test_every_reference_pins_a_lowercase_sha256():
     # Arrange
     pattern = re.compile(r"^[0-9a-f]{64}$")
     # Act
-    bad = [k for k, e in _ref.REFERENCES.items() if not pattern.match(e["sha256"])]
+    bad = [
+        k
+        for k, e in _ref.REFERENCES.items()
+        for f in _ref.reference_files(e)
+        if not pattern.match(f["sha256"])
+    ]
     # Assert
     assert bad == []
+
+
+def test_mnist_idx_entry_pins_the_four_verified_idx_files():
+    # Arrange
+    entry = _ref.REFERENCES["mnist-idx"]
+    # Act
+    pinned = {f["path"]: (f["sha256"][:12], f["size_bytes"]) for f in entry["files"]}
+    # Assert
+    assert pinned == {
+        "train-images-idx3-ubyte.gz": ("440fcabf73cc", 9_912_422),
+        "train-labels-idx1-ubyte.gz": ("3552534a0a55", 28_881),
+        "t10k-images-idx3-ubyte.gz": ("8d422c7b0a1c", 1_648_877),
+        "t10k-labels-idx1-ubyte.gz": ("f7ae60f92e00", 4_542),
+    }
+
+
+def test_multi_file_reference_fetches_one_record_per_file(
+    tmp_path, loopback_server, loopback_payload_sha256
+):
+    # Arrange
+    base, _ = loopback_server
+    item = {
+        "url": f"{base}/payload.bin",
+        "sha256": loopback_payload_sha256,
+        "size_bytes": 1,
+    }
+    entry = {
+        "name": "Two files",
+        "files": [{**item, "path": "a.bin"}, {**item, "path": "b.bin"}],
+        "license": "CC0-1.0",
+        "citation": "T. (2026).",
+    }
+    # Act
+    with _registered("twofiles", entry):
+        records = fetch_reference("twofiles", tmp_path)
+    # Assert
+    assert [Path(r.path).name for r in records] == ["a.bin", "b.bin"]
+
+
+def test_match_reference_needs_every_pinned_file():
+    # Arrange
+    files = _ref.REFERENCES["mnist-idx"]["files"]
+    # Act
+    partial = _ref.match_reference([f["sha256"] for f in files[:3]])
+    # Assert
+    assert "mnist-idx" not in partial
 
 
 def test_every_reference_carries_license_and_citation():

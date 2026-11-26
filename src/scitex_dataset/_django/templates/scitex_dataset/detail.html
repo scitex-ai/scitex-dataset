@@ -1,0 +1,93 @@
+{% extends "scitex_dataset/_base.html" %}
+{% block dataset_content %}
+<article class="dataset-detail" data-dataset-detail="{{ card.key }}">
+  <p class="dataset-crumb"><a href="{% url 'scitex_dataset:search' %}{% if project_query %}?{{ project_query }}{% endif %}">Find open datasets</a> › {{ card.repository_name }}</p>
+  <header class="dataset-detail-head">
+    <h1 class="dataset-h1">{{ card.title }}</h1>
+    <div class="dataset-card-head">
+      <span class="dataset-repo dataset-repo--{{ card.repository }}">{{ card.repository_name }}</span>
+      {% include "scitex_dataset/_cache_badge.html" with cache=card.cache %}
+      {% if used %}<span class="dataset-chip dataset-chip--ok">Used in {{ access.name }}</span>{% endif %}
+    </div>
+  </header>
+
+  <div class="dataset-detail-grid">
+    <section class="dataset-section" aria-labelledby="dataset-meta-title">
+      <h2 id="dataset-meta-title" class="dataset-title">About</h2>
+      {% if card.description %}<p>{{ card.description }}</p>{% endif %}
+      <dl class="dataset-facts dataset-facts--wide">
+        <div><dt>Accession</dt><dd><code>{{ card.accession }}</code></dd></div>
+        <div><dt>DOI</dt><dd>{% if card.doi %}<a href="{{ card.doi_url }}" rel="noopener noreferrer" target="_blank">{{ card.doi }}</a>{% else %}none stated{% endif %}</dd></div>
+        <div><dt>Version</dt><dd><code>{{ card.version|default:"not stated" }}</code></dd></div>
+        <div><dt>Licence</dt><dd>{{ card.license|default:"not stated — check the repository before reuse" }}</dd></div>
+        <div><dt>Size</dt><dd>{{ card.size|default:"not stated" }}</dd></div>
+        <div><dt>Updated</dt><dd>{{ card.updated|default:"—" }}</dd></div>
+        {% if card.modalities %}<div><dt>Modality</dt><dd>{{ card.modalities|join:", " }}</dd></div>{% endif %}
+        {% if card.n_subjects %}<div><dt>Subjects</dt><dd>{{ card.n_subjects }}</dd></div>{% endif %}
+        {% if card.url %}<div><dt>Source</dt><dd><a href="{{ card.url }}" rel="noopener noreferrer" target="_blank">{{ card.url|truncatechars:60 }}</a></dd></div>{% endif %}
+      </dl>
+    </section>
+
+    <section class="dataset-section dataset-use" aria-labelledby="dataset-use-title" data-dataset-use>
+      <h2 id="dataset-use-title" class="dataset-title">Use in this project</h2>
+      {% if not access %}
+      <p class="dataset-hint">Choose a project above to record this dataset in it.</p>
+      {% elif not access.can_write %}
+      <p class="dataset-hint">You can read {{ access.name }}. Recording a dataset needs write access to the project.</p>
+      {% else %}
+        {% if used %}
+        <p>Recorded in <a href="{{ project_url }}">{{ access.name }}</a>{% if used.local_dir %} at <code>{{ used.local_dir }}/</code>{% endif %}; local copy <span class="dataset-state dataset-state--{{ used.local.state }}">{{ used.local.state }}</span>.</p>
+        {% endif %}
+        <form method="post" action="{% url 'scitex_dataset:use' %}?{{ project_query }}" class="dataset-use-form" data-dataset-use-form data-dataset-id="{{ card.id }}" data-project="{{ access.id }}">
+          {% csrf_token %}
+          <input type="hidden" name="key" value="{{ card.key }}">
+          <input type="hidden" name="_redirect" value="1">
+          <label>Project folder <input type="text" name="local_dir" value="{{ local_dir }}" class="stx-input" pattern="data/.+"></label>
+          <div class="dataset-use-actions">
+            <button type="submit" class="stx-button">Record in {{ access.name }}</button>
+            {% if card.fetchable and card.files %}
+            <button type="submit" name="fetch" value="1" class="stx-button stx-button--primary" data-dataset-fetch>Record and fetch{% if card.size %} ({{ card.size }}){% endif %}</button>
+            {% endif %}
+          </div>
+          {% if card.fetchable and card.files %}
+          <p class="dataset-hint">{% if card.cache.state == "cached" %}Already in the shared cache: the project gets hard links, no new download.{% else %}Fetched once into the shared cache, then hard-linked into the project.{% endif %}
+            {% if budget.reported %} Storage: {{ budget.used|default:"?" }} of {{ budget.quota|default:"no quota" }} used{% if budget.remaining %}, {{ budget.remaining }} left{% endif %}{% if budget.spend_level %}; spend {{ budget.spend_level }}{% endif %}.{% else %} This host does not report storage quotas, so fetching is refused; record it and use the snippet.{% endif %}</p>
+          {% else %}
+          <p class="dataset-hint">{{ card.repository_name }} files are not downloadable through scitex-dataset yet; recording pins the version, DOI and licence.</p>
+          {% endif %}
+          <div class="dataset-progress" data-dataset-progress hidden>
+            <div class="dataset-progress-bar"><span data-dataset-progress-fill></span></div>
+            <p class="dataset-hint" data-dataset-progress-text>Queued…</p>
+          </div>
+        </form>
+      {% endif %}
+    </section>
+  </div>
+
+  {% if card.files %}
+  <section class="dataset-section" aria-labelledby="dataset-files-title">
+    <h2 id="dataset-files-title" class="dataset-title">Files</h2>
+    <table class="dataset-table" data-dataset-files>
+      <thead><tr><th>File</th><th>Size</th><th>SHA-256</th></tr></thead>
+      <tbody>
+      {% for f in card.files %}
+        <tr><td><code>{{ f.path }}</code></td><td class="dataset-num">{{ f.size|default:"—" }}</td><td>{% if f.sha256 %}<code class="dataset-hash" title="{{ f.sha256 }}">{{ f.sha256|slice:":16" }}…</code> <button type="button" class="dataset-copy" data-copy="{{ f.sha256 }}" aria-label="Copy SHA-256">Copy</button>{% else %}<span class="dataset-hint">computed at fetch</span>{% endif %}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
+
+  <section class="dataset-section" aria-labelledby="dataset-cite-title">
+    <h2 id="dataset-cite-title" class="dataset-title">How to cite</h2>
+    <blockquote class="dataset-cite" data-dataset-citation>{{ card.citation }}</blockquote>
+    <button type="button" class="dataset-copy" data-copy="{{ card.citation }}">Copy citation</button>
+  </section>
+
+  <section class="dataset-section" aria-labelledby="dataset-code-title">
+    <h2 id="dataset-code-title" class="dataset-title">Use it in a script</h2>
+    <pre class="dataset-code" data-dataset-snippet><code>{{ card.snippet }}</code></pre>
+    <button type="button" class="dataset-copy" data-copy="{{ card.snippet }}">Copy code</button>
+  </section>
+</article>
+{% endblock %}

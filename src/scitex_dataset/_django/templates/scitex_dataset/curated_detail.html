@@ -1,0 +1,67 @@
+{% extends "scitex_dataset/_base.html" %}
+{% block dataset_content %}
+<article class="dataset-detail" data-dataset-curated="{{ c.benchmark }}">
+  <p class="dataset-crumb"><a href="{% url 'scitex_dataset:curated' %}{% if project_query %}?{{ project_query }}{% endif %}">Curated for AI science</a> › {{ c.title }}</p>
+  <header class="dataset-detail-head">
+    <h1 class="dataset-h1">{{ c.title }}</h1>
+    <div class="dataset-card-head">
+      <span class="dataset-repo dataset-repo--curated">Curated</span>
+      <span class="dataset-chip">version {{ c.manifest.version }}</span>
+      {% if c.operator %}<span class="dataset-chip dataset-chip--warn">Operator view</span>{% endif %}
+    </div>
+    <p>{{ c.description }}</p>
+  </header>
+
+  <section class="dataset-section" aria-labelledby="dataset-source-title">
+    <h2 id="dataset-source-title" class="dataset-title">Source dataset</h2>
+    <dl class="dataset-facts dataset-facts--wide">
+      <div><dt>Source</dt><dd><a href="{{ c.source.homepage }}" rel="noopener noreferrer" target="_blank">{{ c.source.name }}</a></dd></div>
+      <div><dt>Snapshot version</dt><dd><code>{{ c.source.version }}</code></dd></div>
+      <div><dt>Format</dt><dd>{{ c.source.format }}</dd></div>
+      <div><dt>Prepared</dt><dd>{{ c.manifest.prepared_at }} by scitex-dataset {{ c.manifest.scitex_dataset_version|default:"(dev)" }}</dd></div>
+    </dl>
+  </section>
+
+  <section class="dataset-section" aria-labelledby="dataset-chain-title">
+    <h2 id="dataset-chain-title" class="dataset-title">Derivation chain</h2>
+    <p class="dataset-hint">The provenance manifest <code>{{ c.manifest.path }}</code> pins the source version, the mask seed and the SHA-256 of every agent-visible file, so a Clew verification rejects any drifted input.</p>
+    <ol class="dataset-chain" data-dataset-chain>
+      {% for n in c.chain %}
+      <li class="dataset-chain-node dataset-chain-node--{{ n.kind }}">
+        <span class="dataset-chain-kind">{{ n.kind }}</span>
+        <strong>{{ n.label }}</strong>
+        {% if n.role %}<code>{{ n.role }}</code>{% endif %}
+        {% if n.detail %}<div class="dataset-hint">{{ n.detail }}</div>{% endif %}
+        {% if n.files is not None %}<div class="dataset-hint">{{ n.files }} file{{ n.files|pluralize }} · {{ n.size }}{% if n.visibility %} · {{ n.visibility }}{% endif %}{% if n.tracked %} · {{ n.tracked }} pinned by SHA-256{% endif %}</div>{% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <section class="dataset-section" aria-labelledby="dataset-mask-title" data-dataset-masking>
+    <h2 id="dataset-mask-title" class="dataset-title">What is masked or held out</h2>
+    <table class="dataset-table">
+      <thead><tr><th>Step</th><th>Policy</th><th>What it does</th></tr></thead>
+      <tbody>{% for p in c.policies %}<tr><td>{{ p.name }}</td><td><code>{{ p.policy }}</code></td><td>{{ p.what }}</td></tr>{% endfor %}</tbody>
+    </table>
+    <p class="dataset-hint">Held out: {{ c.held_out.files }} file{{ c.held_out.files|pluralize }} ({{ c.held_out.size }}) in <code>eval/</code>; upstream snapshot: {{ c.raw.files }} file{{ c.raw.files|pluralize }} ({{ c.raw.size }}) in <code>raw/</code>. Their content is never served by this app.</p>
+    {% if c.operator %}
+    <details class="dataset-files-details" data-dataset-heldout>
+      <summary>Held-out inventory (operators)</summary>
+      <table class="dataset-table"><thead><tr><th>eval/ file</th><th>Size</th></tr></thead>
+        <tbody>{% for f in c.held_out.listing %}<tr><td><code>{{ f.path }}</code></td><td class="dataset-num">{{ f.size }}</td></tr>{% endfor %}</tbody></table>
+    </details>
+    {% endif %}
+  </section>
+
+  <section class="dataset-section" aria-labelledby="dataset-agentview-title">
+    <h2 id="dataset-agentview-title" class="dataset-title">Agent-visible files pinned by the manifest</h2>
+    {% if c.agent_visible.tracked %}
+    <table class="dataset-table">
+      <thead><tr><th>File</th><th>Size</th><th>SHA-256</th></tr></thead>
+      <tbody>{% for f in c.agent_visible.tracked %}<tr><td><code>{{ f.path }}</code></td><td class="dataset-num">{{ f.size }}</td><td><code class="dataset-hash" title="{{ f.sha256 }}">{{ f.sha256|slice:":16" }}…</code></td></tr>{% endfor %}</tbody>
+    </table>
+    {% else %}<p class="dataset-hint">The manifest pins no agent-visible file.</p>{% endif %}
+  </section>
+</article>
+{% endblock %}

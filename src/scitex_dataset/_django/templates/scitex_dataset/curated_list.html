@@ -1,0 +1,21 @@
+{% extends "scitex_dataset/_base.html" %}
+{% block dataset_content %}
+<section class="dataset-section" aria-labelledby="dataset-curated-title">
+  <h1 id="dataset-curated-title" class="dataset-h1">Curated for AI science</h1>
+  <p class="dataset-lede">Benchmarks derived from public datasets for evaluating AI scientists. Each shows its source, the masking steps that produced the agent view, and what is held out. Held-out content is never shown here.</p>
+  {% if curated %}
+  <ul class="dataset-cards">
+    {% for c in curated %}
+    <li class="dataset-card">
+      <div class="dataset-card-head"><span class="dataset-repo dataset-repo--curated">Curated</span><span class="dataset-chip">version {{ c.version }}</span></div>
+      <h2 class="dataset-card-title"><a href="{% url 'scitex_dataset:curated-detail' c.benchmark %}{% if project_query %}?{{ project_query }}{% endif %}">{{ c.title }}</a></h2>
+      <p class="dataset-card-desc">{{ c.description }}</p>
+      <p class="dataset-hint">Prepared {{ c.prepared_at }}</p>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="dataset-hint">No curated benchmark is prepared on this host yet. An operator prepares one with <code>scitex-dataset ai-for-science &lt;benchmark&gt; prepare</code>.</p>
+  {% endif %}
+</section>
+{% endblock %}
