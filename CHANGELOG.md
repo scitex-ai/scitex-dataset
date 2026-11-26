@@ -11,6 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-11-26
+
+- Dataset app for SciTeX hosts (`scitex-dataset[server]`, `scitex.apps`
+  entry point `dataset`, mounted by the Hub at `/apps/dataset/`): a
+  project's datasets — files under `data/` and registered datasets — with
+  size and SHA-256; maintainers upload a file or register a project path or
+  an http(s) URL; registered paths report `unchanged` / `changed` /
+  `missing`. Authorization is the host's (`scitex_sdk.host.project_access`):
+  members read, members with write permission write, everyone else 404.
+- `scitex_dataset.project`: the same logic without a web stack
+  (`list_datasets`, `register_dataset`, `save_upload`); registrations live
+  in `<project>/.scitex/dataset/registry.json`.
+- Provenance hook through a versioned, provider-neutral contract
+  (`scitex-dataset.provenance-readers` 1.0.0, entry-point group
+  `scitex.dataset.provenance`, JSON Schema shipped in the package): which
+  scripts READ each dataset. No provider is imported; a failing or
+  incompatible provider is reported per provider and never breaks a listing.
+
 ## [0.14.0] - 2026-11-19
 
 - Eligibility screening (`screen_eligibility`, CLI `ai-for-science <bench>
