@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_dataset API Reference &mdash; scitex-dataset v0.14.0</title>
+  <title>scitex_dataset API Reference &mdash; scitex-dataset v0.15.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=9e420a66"></script>
+      <script src="../_static/documentation_options.js?v=ef97403f"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -143,6 +143,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.bixbench_standardize"><code class="docutils literal notranslate"><span class="pre">bixbench_standardize()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.biomysterybench_standardize"><code class="docutils literal notranslate"><span class="pre">biomysterybench_standardize()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.fetch_file"><code class="docutils literal notranslate"><span class="pre">fetch_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.create_file_manifest"><code class="docutils literal notranslate"><span class="pre">create_file_manifest()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.validate_file_manifest"><code class="docutils literal notranslate"><span class="pre">validate_file_manifest()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.replay_file_manifest"><code class="docutils literal notranslate"><span class="pre">replay_file_manifest()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.fetch_reference"><code class="docutils literal notranslate"><span class="pre">fetch_reference()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_dataset.list_references"><code class="docutils literal notranslate"><span class="pre">list_references()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-scitex_dataset.search">Search Module</a><ul>
@@ -947,6 +950,47 @@ UTC), <code class="docutils literal notranslate"><span class="pre">cached</span>
     or a body shorter than its declared <code class="docutils literal notranslate"><span class="pre">Content-Length</span></code>.</p></li>
 <li><p><a class="reference external" href="https://docs.python.org/3/library/urllib.error.html#urllib.error.URLError" title="(in Python v3.15)"><strong>urllib.error.URLError</strong></a> – Network / HTTP failure (propagated unchanged).</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_dataset.create_file_manifest">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">create_file_manifest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">records</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.create_file_manifest" title="Link to this definition"></a></dt>
+<dd><p>Export fetch records with paths relative to root, without modifying them.</p>
+<p>Extra JSON metadata (license, citation, checksum_basis, subject IDs, etc.)
+is retained. No data are uploaded, downloaded or indexed in a database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_dataset.validate_file_manifest">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">validate_file_manifest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">manifest</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.validate_file_manifest" title="Link to this definition"></a></dt>
+<dd><p>Validate every entry before replay; preserve caller provenance fields.</p>
+<p>Hashes identify bytes, not publisher authenticity. A checksum_basis field
+is preserved unchanged when supplied. No checksum is learned from a download.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_dataset.replay_file_manifest">
+<span class="sig-prename descclassname"><span class="pre">scitex_dataset.</span></span><span class="sig-name descname"><span class="pre">replay_file_manifest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">manifest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest_root</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">offline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_dataset.replay_file_manifest" title="Link to this definition"></a></dt>
+<dd><p>Materialize pinned files under a new root, returning verified fetch records.</p>
+<p>All paths/entries are preflighted before writes. Existing mismatched files
+are preserved unless replace=True. New/replacement files are size-checked
+in a temporary directory before atomic installation. Offline mode performs
+only local hash/size verification and never repairs or downloads files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]]</span></p>
 </dd>
 </dl>
 </dd></dl>

@@ -1,0 +1,51 @@
+{
+  "name": "dataset_app",
+  "slug": "dataset",
+  "label": "Dataset",
+  "group": "work",
+  "scope": "project",
+  "pip_package": "scitex-dataset",
+  "icon": "fas fa-database",
+  "order": 24,
+  "category": "data",
+  "subtitle": "A project's datasets with size, checksum and which scripts read them",
+  "about": "See the datasets of a project: files under data/ and registered datasets, each with size and SHA-256. Upload a file or register a path or URL already in the project. When a provenance provider is installed, see which scripts read each dataset.",
+  "description": "SciTeX Dataset lists a project's data files and registered datasets with their size and SHA-256 checksum, lets maintainers upload files or register project paths and external URLs, and shows the provenance hook (the scripts recorded as reading each dataset) through a versioned, provider-neutral contract.",
+  "ai_hint": "Dataset app: list a project's datasets (size, SHA-256), upload or register a dataset, and see which scripts read it.",
+  "author": "ywatanabe",
+  "license": "AGPL-3.0",
+  "capabilities": [
+    "List data/ files and registered datasets with size and SHA-256",
+    "Upload a dataset file into data/",
+    "Register a project path or an external URL as a dataset",
+    "Detect when a registered dataset's bytes changed",
+    "Show the scripts that read each dataset (provenance hook)"
+  ],
+  "wip": false,
+  "standalone": false,
+  "frontend_type": "vanilla",
+  "embedded_package": true,
+  "dependencies": {
+    "python": [
+      "scitex-dataset",
+      "scitex-sdk",
+      "django"
+    ]
+  },
+  "mount_policy": {
+    "login_required": true,
+    "touches_files": true,
+    "jail": {
+      "scope": "project",
+      "working_dir_param": "project",
+      "path_params": [
+        "path",
+        "subdir"
+      ]
+    }
+  },
+  "scope_capabilities": {
+    "user": false,
+    "project": true
+  }
+}
