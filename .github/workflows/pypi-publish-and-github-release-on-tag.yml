@@ -32,7 +32,11 @@ on:
 jobs:
   test:
     timeout-minutes: 30
-    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '["self-hosted","Linux","X64","scitex-ci"]') }}
+    # This job runs a postgres service CONTAINER, so it needs a runner with
+    # Docker. CI_RUNS_ON now selects the scitex-org-cpu pool, most of which has
+    # no Docker ("docker: command not found" at job setup, v0.16.0). Docker
+    # runners carry the scitex-docker label.
+    runs-on: ${{ fromJSON(vars.CI_DOCKER_RUNS_ON || '["self-hosted","Linux","X64","scitex-docker"]') }}
     strategy:
       fail-fast: false
       matrix:
