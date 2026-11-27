@@ -184,6 +184,71 @@ def to_yaml(doc: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _parse_scalar(text: str):
+    """Inverse of :func:`_yaml_scalar` for the values it emits."""
+    text = text.strip()
+    if text.startswith('"') and text.endswith('"') and len(text) >= 2:
+        # One left-to-right pass: ``\\"`` must not be read as ``\"``.
+        import re
+
+        return re.sub(r'\\(["\\])', r"\1", text[1:-1])
+    if text == "null":
+        return None
+    if text in ("true", "false"):
+        return text == "true"
+    try:
+        return int(text)
+    except ValueError:
+        pass
+    try:
+        return float(text)
+    except ValueError:
+        return text
+
+
+def read_manifest(path: Path) -> dict:
+    """Read a ``MANIFEST.yaml`` written by :func:`write_manifest`.
+
+    The inverse of :func:`to_yaml` for its fixed, shallow schema (top-level
+    scalars + one ``files`` list of flat mappings), so reading a manifest
+    needs no YAML dependency either. Raises :class:`ValueError` on a line
+    the emitter would never write.
+    """
+    doc: dict = {}
+    files: list = []
+    current = None
+    for number, line in enumerate(
+        Path(path).read_text(encoding="utf-8").splitlines(), 1
+    ):
+        if not line.strip():
+            continue
+        if line.startswith("  - "):
+            key, sep, value = line[4:].partition(":")
+            if not sep:
+                raise ValueError(f"{path}:{number}: malformed list item")
+            current = {key.strip(): _parse_scalar(value)}
+            files.append(current)
+        elif line.startswith("    ") and current is not None:
+            key, sep, value = line.strip().partition(":")
+            if not sep:
+                raise ValueError(f"{path}:{number}: malformed list field")
+            current[key.strip()] = _parse_scalar(value)
+        elif not line.startswith(" "):
+            key, sep, value = line.partition(":")
+            if not sep:
+                raise ValueError(f"{path}:{number}: malformed line")
+            key = key.strip()
+            if key == "files":
+                doc["files"] = files if value.strip() != "[]" else []
+                current = None
+            else:
+                doc[key] = _parse_scalar(value)
+        else:
+            raise ValueError(f"{path}:{number}: unexpected indentation")
+    doc.setdefault("files", files)
+    return doc
+
+
 def write_manifest(
     *,
     manifest_dir: Path,
@@ -240,6 +305,7 @@ __all__ = [
     "ManifestEntry",
     "Manifest",
     "manifest_entries_for",
+    "read_manifest",
     "sha256_file",
     "to_yaml",
     "write_manifest",

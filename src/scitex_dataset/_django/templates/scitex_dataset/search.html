@@ -1,0 +1,92 @@
+{% extends "scitex_dataset/_base.html" %}
+{% block dataset_content %}
+<section class="dataset-section" aria-labelledby="dataset-search-title">
+  <h1 id="dataset-search-title" class="dataset-h1">Find openly available datasets</h1>
+  <p class="dataset-lede">One search across {{ repositories|length }} public repositories. Pick a dataset to see its licence, files and how to cite it, then use it in your project with its version and checksums pinned.</p>
+  <form method="get" action="{% url 'scitex_dataset:search' %}" class="dataset-search" role="search" data-dataset-search>
+    {% if access %}<input type="hidden" name="project" value="{{ access.id }}">{% endif %}
+    <div class="dataset-search-row">
+      <label class="dataset-visually-hidden" for="dataset-q">Search</label>
+      <input id="dataset-q" type="search" name="q" value="{{ params.q }}" placeholder="e.g. eeg motor imagery" class="stx-input dataset-search-input" autofocus>
+      <button type="submit" class="stx-button">Search</button>
+    </div>
+    <div class="dataset-filters">
+      <label>Repository
+        <select name="repository" class="stx-input">
+          <option value="">All repositories</option>
+          {% for r in repositories %}<option value="{{ r.id }}"{% if params.repository == r.id %} selected{% endif %}>{{ r.name }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Domain
+        <select name="domain" class="stx-input">
+          <option value="">All domains</option>
+          {% for d in domains %}<option value="{{ d }}"{% if params.domain == d %} selected{% endif %}>{{ d|capfirst }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Modality
+        <input type="text" name="modality" value="{{ params.modality }}" placeholder="eeg, mri, ecg…" class="stx-input">
+      </label>
+      <label>Size
+        <select name="size" class="stx-input">
+          {% for value, label in size_choices %}<option value="{{ value }}"{% if params.size == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Licence
+        <select name="license" class="stx-input">
+          <option value="">Any licence</option>
+          {% for l in licenses %}<option value="{{ l }}"{% if params.license == l %} selected{% endif %}>{{ l|truncatechars:40 }}</option>{% endfor %}
+          {% if params.license and params.license not in licenses %}<option value="{{ params.license }}" selected>{{ params.license|truncatechars:40 }}</option>{% endif %}
+        </select>
+      </label>
+    </div>
+  </form>
+</section>
+
+{% if found %}
+<section class="dataset-section" aria-labelledby="dataset-results-title">
+  <h2 id="dataset-results-title" class="dataset-title">{{ found.total }} dataset{{ found.total|pluralize }}{% if params.q %} for “{{ params.q }}”{% endif %}</h2>
+  {% if found.error %}<p class="dataset-flash dataset-flash--error">{{ found.error }}</p>{% endif %}
+  {% if found.index.status == "unavailable" %}
+  <p class="dataset-flash dataset-flash--warn" role="status">The repository index is not available on this host, so only pinned reference files are searched. <span class="dataset-hint">{{ found.index.error|truncatechars:160 }}</span></p>
+  {% endif %}
+  {% if found.results %}
+  <ul class="dataset-cards" data-dataset-results>
+    {% for c in found.results %}
+    <li class="dataset-card">
+      <div class="dataset-card-head">
+        <span class="dataset-repo dataset-repo--{{ c.repository }}">{{ c.repository_name }}</span>
+        {% include "scitex_dataset/_cache_badge.html" with cache=c.cache %}
+      </div>
+      <h3 class="dataset-card-title"><a href="{% url 'scitex_dataset:detail' c.key %}{% if project_query %}?{{ project_query }}{% endif %}">{{ c.title }}</a></h3>
+      {% if c.description %}<p class="dataset-card-desc">{{ c.description|truncatechars:220 }}</p>{% endif %}
+      <dl class="dataset-facts">
+        <div><dt>{% if c.doi %}DOI{% else %}Accession{% endif %}</dt><dd>{% if c.doi %}<a href="{{ c.doi_url }}" rel="noopener noreferrer" target="_blank">{{ c.doi }}</a>{% else %}<code>{{ c.accession }}</code>{% endif %}</dd></div>
+        <div><dt>Licence</dt><dd>{{ c.license|default:"not stated" }}</dd></div>
+        <div><dt>Size</dt><dd>{{ c.size|default:"not stated" }}</dd></div>
+        <div><dt>Updated</dt><dd>{{ c.updated|default:"—"|slice:":10" }}</dd></div>
+        {% if c.modalities %}<div><dt>Modality</dt><dd>{{ c.modalities|join:", " }}</dd></div>{% endif %}
+        {% if c.n_subjects %}<div><dt>Subjects</dt><dd>{{ c.n_subjects }}</dd></div>{% endif %}
+      </dl>
+      <p class="dataset-card-cite"><span class="dataset-hint">Cite:</span> {{ c.citation|truncatechars:200 }}</p>
+    </li>
+    {% endfor %}
+  </ul>
+  <nav class="dataset-pager" aria-label="Result pages">
+    {% if page > 1 %}<a href="?{{ prev_query }}" class="stx-button">Previous</a>{% endif %}
+    {% if has_next %}<a href="?{{ next_query }}" class="stx-button">Next</a>{% endif %}
+  </nav>
+  {% else %}
+  <p class="dataset-hint">No public dataset matches. Try fewer words or another repository.</p>
+  {% endif %}
+</section>
+{% else %}
+<section class="dataset-section">
+  <h2 class="dataset-title">Repositories</h2>
+  <ul class="dataset-repos">
+    {% for r in repositories %}
+    <li><a href="?repository={{ r.id }}{% if project_query %}&amp;{{ project_query }}{% endif %}"><strong>{{ r.name }}</strong></a> <span class="dataset-hint">{{ r.domain }} · {{ r.description|truncatechars:90 }}{% if r.fetchable %} · fetchable{% endif %}</span></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

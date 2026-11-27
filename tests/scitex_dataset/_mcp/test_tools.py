@@ -32,11 +32,11 @@ class _MockMCP:
     def __init__(self):
         self.tools = {}
 
-    def tool(self):
-        """Decorator that captures tool functions."""
+    def tool(self, name=None, description=None):
+        """Decorator that captures tool functions (FastMCP's ``tool(name=, description=)``)."""
 
         def decorator(func):
-            self.tools[func.__name__] = func
+            self.tools[name or func.__name__] = func
             return func
 
         return decorator

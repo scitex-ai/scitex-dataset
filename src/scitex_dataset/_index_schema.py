@@ -130,6 +130,36 @@ SCHEMA: Schema = Schema.build(
 )
 
 
+def _size_gb(dataset: Dict[str, Any]) -> float:
+    """GiB, from ``size_gb`` or — for sources that report bytes — ``size_bytes``.
+
+    Zenodo and DANDI state bytes; without this their datasets all sorted and
+    filtered as 0 GiB.
+    """
+    size = dataset.get("size_gb")
+    if isinstance(size, (int, float)) and size > 0:
+        return float(size)
+    size_bytes = dataset.get("size_bytes")
+    if isinstance(size_bytes, (int, float)) and size_bytes > 0:
+        return round(size_bytes / 1024**3, 6)
+    return 0
+
+
+def _clean(value: Any) -> Any:
+    """Drop NUL characters, recursively.
+
+    PostgreSQL text cannot hold U+0000, and one README carrying it used to
+    fail the whole source's batch (OpenNeuro, 2026-11-27).
+    """
+    if isinstance(value, str):
+        return value.replace("\x00", "")
+    if isinstance(value, list):
+        return [_clean(v) for v in value]
+    if isinstance(value, dict):
+        return {k: _clean(v) for k, v in value.items()}
+    return value
+
+
 def row_values(dataset: Dict[str, Any], source: str) -> Dict[str, Any]:
     """One fetched dataset, shaped for :data:`SCHEMA`.
 
@@ -137,6 +167,7 @@ def row_values(dataset: Dict[str, Any], source: str) -> Dict[str, Any]:
     keys are built on them: a dataset with no recorded download count
     should rank at the bottom of "most downloaded", not vanish from it.
     """
+    dataset = _clean(dataset)
     return {
         "id": f"{source}:{dataset.get('id', '')}",
         "source": source,
@@ -144,7 +175,7 @@ def row_values(dataset: Dict[str, Any], source: str) -> Dict[str, Any]:
         "created": dataset.get("created"),
         "modified": dataset.get("modified"),
         "n_subjects": dataset.get("n_subjects", 0),
-        "size_gb": dataset.get("size_gb", 0),
+        "size_gb": _size_gb(dataset),
         "downloads": dataset.get("downloads", 0),
         "views": dataset.get("views", 0),
         "readme": dataset.get("readme"),

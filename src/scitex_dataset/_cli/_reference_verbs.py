@@ -71,22 +71,25 @@ def _fetch_command() -> click.Command:
         from ..general.reference import fetch_reference
 
         try:
-            rec = fetch_reference(name, dest, timeout=timeout, replace=replace)
+            fetched = fetch_reference(name, dest, timeout=timeout, replace=replace)
         except Exception as e:
             click.echo(f"Error: {e}", err=True)
             raise SystemExit(1)
+        records = fetched if isinstance(fetched, list) else [fetched]
         if as_json:
-            click.echo(json.dumps(rec.to_dict(), indent=2))
+            payload = [r.to_dict() for r in records]
+            click.echo(json.dumps(payload if isinstance(fetched, list) else payload[0], indent=2))
             return
-        state = "cached (verified)" if rec.cached else "downloaded (verified)"
-        click.echo(f"{state}: {rec.path}")
-        click.echo(f"  sha256: {rec.sha256}")
-        click.echo(f"  size:   {rec.size_bytes:,} bytes")
-        click.echo(f"  url:    {rec.url}")
-        if rec.license:
-            click.echo(f"  license:  {rec.license}")
-        if rec.citation:
-            click.echo(f"  citation: {rec.citation}")
+        for rec in records:
+            state = "cached (verified)" if rec.cached else "downloaded (verified)"
+            click.echo(f"{state}: {rec.path}")
+            click.echo(f"  sha256: {rec.sha256}")
+            click.echo(f"  size:   {rec.size_bytes:,} bytes")
+            click.echo(f"  url:    {rec.url}")
+        if records[0].license:
+            click.echo(f"  license:  {records[0].license}")
+        if records[0].citation:
+            click.echo(f"  citation: {records[0].citation}")
 
     return _cmd
 

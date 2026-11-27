@@ -309,6 +309,12 @@ def loopback_server():
 
 
 @pytest.fixture
+def loopback_payload():
+    """The exact bytes served at ``/payload.bin``."""
+    return LOOPBACK_PAYLOAD
+
+
+@pytest.fixture
 def loopback_payload_sha256():
     """sha256 of the body served at ``/payload.bin``."""
     return hashlib.sha256(LOOPBACK_PAYLOAD).hexdigest()

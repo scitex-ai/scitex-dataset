@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_dataset.general.reference &mdash; scitex-dataset v0.15.0</title>
+  <title>scitex_dataset.general.reference &mdash; scitex-dataset v0.16.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=ef97403f"></script>
+      <script src="../../../_static/documentation_options.js?v=7de89ed4"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -146,6 +146,15 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.replay_file_manifest"><code class="docutils literal notranslate"><span class="pre">replay_file_manifest()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.fetch_reference"><code class="docutils literal notranslate"><span class="pre">fetch_reference()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.list_references"><code class="docutils literal notranslate"><span class="pre">list_references()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.datasets_list"><code class="docutils literal notranslate"><span class="pre">datasets_list()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.datasets_get"><code class="docutils literal notranslate"><span class="pre">datasets_get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.cache_entries_get"><code class="docutils literal notranslate"><span class="pre">cache_entries_get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.project_datasets_list"><code class="docutils literal notranslate"><span class="pre">project_datasets_list()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.project_datasets_create"><code class="docutils literal notranslate"><span class="pre">project_datasets_create()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.project_datasets_fetch"><code class="docutils literal notranslate"><span class="pre">project_datasets_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.jobs_get"><code class="docutils literal notranslate"><span class="pre">jobs_get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.curated_datasets_list"><code class="docutils literal notranslate"><span class="pre">curated_datasets_list()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.curated_datasets_get"><code class="docutils literal notranslate"><span class="pre">curated_datasets_get()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
@@ -156,9 +165,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#nothing-is-deleted-any-more">NOTHING IS DELETED ANY MORE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.clear"><code class="docutils literal notranslate"><span class="pre">clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.facets"><code class="docutils literal notranslate"><span class="pre">facets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_record"><code class="docutils literal notranslate"><span class="pre">get_record()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_store"><code class="docutils literal notranslate"><span class="pre">get_store()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.search_page"><code class="docutils literal notranslate"><span class="pre">search_page()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.store_description"><code class="docutils literal notranslate"><span class="pre">store_description()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database._SOURCE_MODULES"><code class="docutils literal notranslate"><span class="pre">_SOURCE_MODULES</span></code></a></li>
@@ -184,6 +196,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet._plain_text"><code class="docutils literal notranslate"><span class="pre">_plain_text()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -225,6 +238,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.general.reference">Reference files (sha256-verified fetch)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.reference.fetch_reference"><code class="docutils literal notranslate"><span class="pre">fetch_reference()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.reference.list_references"><code class="docutils literal notranslate"><span class="pre">list_references()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.reference.match_reference"><code class="docutils literal notranslate"><span class="pre">match_reference()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.reference.reference_files"><code class="docutils literal notranslate"><span class="pre">reference_files()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset._fetch_file.FetchError"><code class="docutils literal notranslate"><span class="pre">FetchError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord"><code class="docutils literal notranslate"><span class="pre">FetchRecord</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset._fetch_file.fetch_file"><code class="docutils literal notranslate"><span class="pre">fetch_file()</span></code></a></li>
@@ -305,10 +320,13 @@
 
 <span class="sd">"""Registry of well-known reference files, fetched with provenance.</span>
 
-<span class="sd">Each entry pins ONE file by URL + sha256 and carries its license and</span>
+<span class="sd">Each entry pins its file(s) by URL + sha256 and carries its license and</span>
 <span class="sd">citation, so :func:`fetch_reference` returns a complete</span>
 <span class="sd">:class:`~scitex_dataset._fetch_file.FetchRecord` (where it came from, what</span>
-<span class="sd">it is, how to cite it) — not just a path.</span>
+<span class="sd">it is, how to cite it) — not just a path. A single-file entry gives</span>
+<span class="sd">``url`` / ``filename`` / ``sha256`` / ``size_bytes``; a multi-file entry gives</span>
+<span class="sd">a ``files`` list of the same keys (``path`` for the name) and</span>
+<span class="sd">:func:`fetch_reference` returns one record per file.</span>
 
 <span class="sd">Add a dataset by adding one dict to :data:`REFERENCES`. Verify the sha256</span>
 <span class="sd">by downloading the file once before committing it; never copy a digest</span>
@@ -351,7 +369,86 @@
         <span class="p">),</span>
         <span class="s2">"homepage"</span><span class="p">:</span> <span class="s2">"http://yann.lecun.com/exdb/mnist/"</span><span class="p">,</span>
     <span class="p">},</span>
+    <span class="s2">"mnist-idx"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"MNIST handwritten digits (original IDX files)"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The four gzipped IDX files of the original MNIST release: "</span>
+            <span class="s2">"60,000 training and 10,000 test 28x28 grayscale digit images "</span>
+            <span class="s2">"with their labels, as served by the CVDF mirror."</span>
+        <span class="p">),</span>
+        <span class="c1"># Verified 2026-11-27 by downloading every URL below; sha256 and size</span>
+        <span class="c1"># measured, md5 equal to the officially published digests.</span>
+        <span class="s2">"files"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"train-images-idx3-ubyte.gz"</span><span class="p">,</span>
+                <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://storage.googleapis.com/cvdf-datasets/mnist/train-images-idx3-ubyte.gz"</span><span class="p">,</span>
+                <span class="s2">"sha256"</span><span class="p">:</span> <span class="s2">"440fcabf73cc546fa21475e81ea370265605f56be210a4024d2ca8f203523609"</span><span class="p">,</span>
+                <span class="s2">"size_bytes"</span><span class="p">:</span> <span class="mi">9_912_422</span><span class="p">,</span>
+                <span class="s2">"md5"</span><span class="p">:</span> <span class="s2">"f68b3c2dcbeaaa9fbdd348bbdeb94873"</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"train-labels-idx1-ubyte.gz"</span><span class="p">,</span>
+                <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://storage.googleapis.com/cvdf-datasets/mnist/train-labels-idx1-ubyte.gz"</span><span class="p">,</span>
+                <span class="s2">"sha256"</span><span class="p">:</span> <span class="s2">"3552534a0a558bbed6aed32b30c495cca23d567ec52cac8be1a0730e8010255c"</span><span class="p">,</span>
+                <span class="s2">"size_bytes"</span><span class="p">:</span> <span class="mi">28_881</span><span class="p">,</span>
+                <span class="s2">"md5"</span><span class="p">:</span> <span class="s2">"d53e105ee54ea40749a09fcbcd1e9432"</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"t10k-images-idx3-ubyte.gz"</span><span class="p">,</span>
+                <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://storage.googleapis.com/cvdf-datasets/mnist/t10k-images-idx3-ubyte.gz"</span><span class="p">,</span>
+                <span class="s2">"sha256"</span><span class="p">:</span> <span class="s2">"8d422c7b0a1c1c79245a5bcf07fe86e33eeafee792b84584aec276f5a2dbc4e6"</span><span class="p">,</span>
+                <span class="s2">"size_bytes"</span><span class="p">:</span> <span class="mi">1_648_877</span><span class="p">,</span>
+                <span class="s2">"md5"</span><span class="p">:</span> <span class="s2">"9fb629c4189551a2d022fa330f9573f3"</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"t10k-labels-idx1-ubyte.gz"</span><span class="p">,</span>
+                <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"https://storage.googleapis.com/cvdf-datasets/mnist/t10k-labels-idx1-ubyte.gz"</span><span class="p">,</span>
+                <span class="s2">"sha256"</span><span class="p">:</span> <span class="s2">"f7ae60f92e00ec6debd23a6088c31dbd2371eca3ffa0defaefb259924204aec6"</span><span class="p">,</span>
+                <span class="s2">"size_bytes"</span><span class="p">:</span> <span class="mi">4_542</span><span class="p">,</span>
+                <span class="s2">"md5"</span><span class="p">:</span> <span class="s2">"ec29112dd5afa0611ce80d1b7f02629c"</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+        <span class="s2">"format"</span><span class="p">:</span> <span class="s2">"idx (gzip)"</span><span class="p">,</span>
+        <span class="s2">"license"</span><span class="p">:</span> <span class="s2">"CC BY-SA 3.0 (Yann LeCun and Corinna Cortes)"</span><span class="p">,</span>
+        <span class="s2">"citation"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"LeCun, Y., Bottou, L., Bengio, Y., &amp; Haffner, P. (1998). "</span>
+            <span class="s2">"Gradient-based learning applied to document recognition. "</span>
+            <span class="s2">"Proceedings of the IEEE, 86(11), 2278-2324. "</span>
+            <span class="s2">"doi:10.1109/5.726791"</span>
+        <span class="p">),</span>
+        <span class="s2">"homepage"</span><span class="p">:</span> <span class="s2">"http://yann.lecun.com/exdb/mnist/"</span><span class="p">,</span>
+    <span class="p">},</span>
 <span class="p">}</span>
+
+
+<div class="viewcode-block" id="reference_files">
+<a class="viewcode-back" href="../../../api/scitex_dataset.html#scitex_dataset.general.reference.reference_files">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">reference_files</span><span class="p">(</span><span class="n">entry</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""The pinned files of one entry, as ``{path, url, sha256, size_bytes}``."""</span>
+    <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"files"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"files"</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">"path"</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"filename"</span><span class="p">],</span>
+            <span class="s2">"url"</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"url"</span><span class="p">],</span>
+            <span class="s2">"sha256"</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"sha256"</span><span class="p">],</span>
+            <span class="s2">"size_bytes"</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"size_bytes"</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="match_reference">
+<a class="viewcode-back" href="../../../api/scitex_dataset.html#scitex_dataset.general.reference.match_reference">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">match_reference</span><span class="p">(</span><span class="n">sha256s</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Ids of the entries whose EVERY pinned file is among ``sha256s``."""</span>
+    <span class="n">wanted</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sha256s</span> <span class="k">if</span> <span class="n">s</span><span class="p">}</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">key</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">REFERENCES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="s2">"sha256"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">wanted</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">reference_files</span><span class="p">(</span><span class="n">entry</span><span class="p">))</span>
+    <span class="p">]</span></div>
+
 
 
 <div class="viewcode-block" id="list_references">
@@ -370,7 +467,7 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
     <span class="n">replace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FetchRecord</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">FetchRecord</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">FetchRecord</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">"""Fetch a registered reference file into ``dest_dir`` with provenance.</span>
 
 <span class="sd">    Parameters</span>
@@ -389,8 +486,9 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    FetchRecord</span>
-<span class="sd">        Including the entry's ``license`` and ``citation``.</span>
+<span class="sd">    FetchRecord or list of FetchRecord</span>
+<span class="sd">        Including the entry's ``license`` and ``citation``; a list, one per</span>
+<span class="sd">        file in entry order, for a multi-file entry (``files``).</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -405,20 +503,30 @@
             <span class="sa">f</span><span class="s2">"fetch_reference: unknown reference </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">; known: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">REFERENCES</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="n">entry</span> <span class="o">=</span> <span class="n">REFERENCES</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">fetch_file</span><span class="p">(</span>
-        <span class="n">entry</span><span class="p">[</span><span class="s2">"url"</span><span class="p">],</span>
-        <span class="n">entry</span><span class="p">[</span><span class="s2">"sha256"</span><span class="p">],</span>
-        <span class="n">dest_dir</span><span class="p">,</span>
-        <span class="n">entry</span><span class="p">[</span><span class="s2">"filename"</span><span class="p">],</span>
-        <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
-        <span class="n">replace</span><span class="o">=</span><span class="n">replace</span><span class="p">,</span>
-        <span class="n">license</span><span class="o">=</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"license"</span><span class="p">),</span>
-        <span class="n">citation</span><span class="o">=</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"citation"</span><span class="p">),</span>
-    <span class="p">)</span></div>
+    <span class="n">records</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">fetch_file</span><span class="p">(</span>
+            <span class="n">item</span><span class="p">[</span><span class="s2">"url"</span><span class="p">],</span>
+            <span class="n">item</span><span class="p">[</span><span class="s2">"sha256"</span><span class="p">],</span>
+            <span class="n">dest_dir</span><span class="p">,</span>
+            <span class="n">item</span><span class="p">[</span><span class="s2">"path"</span><span class="p">],</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+            <span class="n">replace</span><span class="o">=</span><span class="n">replace</span><span class="p">,</span>
+            <span class="n">license</span><span class="o">=</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"license"</span><span class="p">),</span>
+            <span class="n">citation</span><span class="o">=</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"citation"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">reference_files</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">records</span> <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"files"</span><span class="p">)</span> <span class="k">else</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"REFERENCES"</span><span class="p">,</span> <span class="s2">"fetch_reference"</span><span class="p">,</span> <span class="s2">"list_references"</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"REFERENCES"</span><span class="p">,</span>
+    <span class="s2">"fetch_reference"</span><span class="p">,</span>
+    <span class="s2">"list_references"</span><span class="p">,</span>
+    <span class="s2">"match_reference"</span><span class="p">,</span>
+    <span class="s2">"reference_files"</span><span class="p">,</span>
+<span class="p">]</span>
 
 <span class="c1"># EOF</span>
 </pre></div>

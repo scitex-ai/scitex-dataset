@@ -8,18 +8,19 @@
   "icon": "fas fa-database",
   "order": 24,
   "category": "data",
-  "subtitle": "A project's datasets with size, checksum and which scripts read them",
-  "about": "See the datasets of a project: files under data/ and registered datasets, each with size and SHA-256. Upload a file or register a path or URL already in the project. When a provenance provider is installed, see which scripts read each dataset.",
-  "description": "SciTeX Dataset lists a project's data files and registered datasets with their size and SHA-256 checksum, lets maintainers upload files or register project paths and external URLs, and shows the provenance hook (the scripts recorded as reading each dataset) through a versioned, provider-neutral contract.",
-  "ai_hint": "Dataset app: list a project's datasets (size, SHA-256), upload or register a dataset, and see which scripts read it.",
+  "subtitle": "Find open datasets and use them in a project with version, checksums and licence pinned",
+  "about": "Search openly available datasets across OpenNeuro, DANDI, PhysioNet, GIN, Zenodo, Figshare, OpenML, HuggingFace, GEO, MoleculeNet, ChEMBL, ClinicalTrials.gov and pinned reference files. See a dataset's licence, size, files and how to cite it, copy a code snippet, and use it in your project: the version, DOI, file checksums and licence are recorded, and the files are fetched through a shared cache so a dataset is downloaded once.",
+  "description": "SciTeX Dataset helps researchers find and use openly available datasets. One search covers every repository scitex-dataset supports; a dataset page shows metadata, files and sizes, licence, citation and a scitex snippet. 'Use in this project' records the dataset in .scitex/dataset/sources.json and can fetch it into project storage as a background job through the shared local cache, admitted by the host's storage quota and spend controls. The project page lists the public datasets in use with cache and verification state and, through a provider-neutral provenance contract, the scripts that read them. Curated AI-for-science datasets show their source, derivation chain and what is masked or held out.",
+  "ai_hint": "Dataset app: search public datasets, see licence/citation/snippet, record a dataset in a project (sources.json) and fetch it via the shared cache, list the project's public datasets and which scripts read them, inspect curated AI-for-science datasets.",
   "author": "ywatanabe",
   "license": "AGPL-3.0",
   "capabilities": [
-    "List data/ files and registered datasets with size and SHA-256",
-    "Upload a dataset file into data/",
-    "Register a project path or an external URL as a dataset",
-    "Detect when a registered dataset's bytes changed",
-    "Show the scripts that read each dataset (provenance hook)"
+    "Search open datasets across 13 repositories with repository, domain, modality, size and licence filters",
+    "Dataset page with files, sizes, licence, citation and a code snippet",
+    "Record a dataset in a project with version, DOI, licence and file checksums",
+    "Fetch into project storage as a background job through the shared cache, within the host's quota",
+    "List the project's public datasets with cache state and the scripts that read them",
+    "Curated AI-for-science datasets: source, derivation chain and masking summary"
   ],
   "wip": false,
   "standalone": false,
@@ -37,15 +38,14 @@
     "touches_files": true,
     "jail": {
       "scope": "project",
-      "working_dir_param": "project",
+      "working_dir_param": "working_dir",
       "path_params": [
-        "path",
-        "subdir"
+        "local_dir"
       ]
     }
   },
   "scope_capabilities": {
-    "user": false,
+    "user": true,
     "project": true
   }
 }

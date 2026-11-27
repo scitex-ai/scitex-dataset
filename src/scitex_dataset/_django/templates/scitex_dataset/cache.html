@@ -1,0 +1,33 @@
+{% extends "scitex_dataset/_base.html" %}
+{% block dataset_content %}
+<section class="dataset-section" aria-labelledby="dataset-cache-title">
+  <h1 id="dataset-cache-title" class="dataset-h1">Shared dataset cache</h1>
+  <p class="dataset-lede">Public datasets fetched once and reused by every project and user on this host. Projects hold hard links, so evicting an entry never breaks a project's copy.</p>
+  <dl class="dataset-facts dataset-facts--wide">
+    <div><dt>Location</dt><dd><code>{{ usage.root }}</code></dd></div>
+    <div><dt>Entries</dt><dd>{{ usage.entries }}</dd></div>
+    <div><dt>Size</dt><dd>{{ usage.size|default:"0 B" }}</dd></div>
+    <div><dt>Eviction</dt><dd>least recently used{% if usage.max %}, down to {{ usage.max }}{% else %}; no limit set (<code>cache.max_bytes</code> in the dataset config){% endif %}</dd></div>
+  </dl>
+  {% if result %}
+  <p class="dataset-flash dataset-flash--ok" role="status">{% if result.dry_run %}Would evict{% else %}Evicted{% endif %} {{ result.evicted|length }} entr{{ result.evicted|length|pluralize:"y,ies" }}; cache now {{ result.size|default:"0 B" }}.</p>
+  {% endif %}
+  <form method="post" class="dataset-inline-form">
+    {% csrf_token %}
+    <button type="submit" name="dry_run" value="1" class="stx-button">Preview eviction</button>
+    <button type="submit" class="stx-button"{% if not usage.max %} disabled title="Set cache.max_bytes first"{% endif %}>Evict to limit</button>
+  </form>
+</section>
+<section class="dataset-section">
+  <table class="dataset-table" data-dataset-cache>
+    <thead><tr><th>Dataset</th><th>Version</th><th>State</th><th>Size</th><th>Last used</th></tr></thead>
+    <tbody>
+    {% for e in entries %}
+      <tr><td><a href="{% url 'scitex_dataset:detail' e.key %}">{{ e.title|default:e.key }}</a></td><td><code>{{ e.version|default:"—" }}</code></td><td>{{ e.state }}{% if e.busy %} · fetching{% endif %}</td><td class="dataset-num">{{ e.size }}</td><td>{{ e.last_used_at|default:"—" }}</td></tr>
+    {% empty %}
+      <tr><td colspan="5" class="dataset-hint">The cache is empty.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}
