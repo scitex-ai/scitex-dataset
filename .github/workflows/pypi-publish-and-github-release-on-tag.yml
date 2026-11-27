@@ -186,7 +186,9 @@ jobs:
 
   publish:
     needs: build
-    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '["self-hosted","Linux","X64","scitex-ci"]') }}
+    # pypa/gh-action-pypi-publish is a Docker action: it needs a Docker runner
+    # too (the v0.16.0 publish failed with "docker: command not found").
+    runs-on: ${{ fromJSON(vars.CI_DOCKER_RUNS_ON || '["self-hosted","Linux","X64","scitex-docker"]') }}
     environment:
       name: pypi
       url: https://pypi.org/p/scitex-dataset
