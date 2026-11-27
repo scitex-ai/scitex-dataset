@@ -79,6 +79,43 @@ if not settings.configured:
     django.setup()
 
 import _dataset_test_host as host  # noqa: E402
+from django.test import Client, override_settings  # noqa: E402
+
+
+class _SettingsOverrides:
+    """``settings.X = v`` applies ``override_settings(X=v)``; restored after."""
+
+    def __init__(self):
+        object.__setattr__(self, "_applied", [])
+
+    def __setattr__(self, name, value):
+        override = override_settings(**{name: value})
+        override.enable()
+        self._applied.append(override)
+
+    def __getattr__(self, name):
+        return getattr(settings, name)
+
+    def restore(self):
+        while self._applied:
+            self._applied.pop().disable()
+
+
+@pytest.fixture()
+def client():
+    """A Django test client (no pytest-django needed)."""
+    return Client()
+
+
+@pytest.fixture(name="settings")
+def settings_fixture():
+    """Per-test settings overrides (no pytest-django needed)."""
+    overrides = _SettingsOverrides()
+    try:
+        yield overrides
+    finally:
+        overrides.restore()
+
 
 @pytest.fixture()
 def hub(tmp_path, settings):
@@ -168,5 +205,8 @@ def api_post(client, path, data, token=None, user=None, key="k-1"):
     if user:
         headers["HTTP_X_TEST_USER"] = user
     return client.post(
-        f"/api/v1/dataset/{path}", json.dumps(data), content_type="application/json", **headers
+        f"/api/v1/dataset/{path}",
+        json.dumps(data),
+        content_type="application/json",
+        **headers,
     )
