@@ -254,6 +254,11 @@ class DatasetCache:
         report = progress or (lambda done, total, message: None)
         with self._locked(entry_dir):
             if self.status(card)["state"] == "cached":
+                entry = self.read_entry(key, version)
+                files_dir = self.files_dir(key, version)
+                for item in entry["files"]:
+                    if sha256_of(files_dir / item["path"]) != item["sha256"]:
+                        raise ValueError(f"Cached dataset checksum mismatch: {item['path']}")
                 self.touch(key, version)
                 report(1, 1, "already in the shared cache")
                 return self.read_entry(key, version)

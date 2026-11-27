@@ -21,7 +21,7 @@ from . import views
 app_name = "scitex_dataset"
 
 urlpatterns = [
-    path("", views.index, name="index"),
+    path("", views.search, name="index"),
     path("search/", views.search, name="search"),
     path("project/", views.project_page, name="project"),
     path("curated/", views.curated_list, name="curated"),

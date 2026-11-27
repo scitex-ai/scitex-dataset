@@ -100,17 +100,6 @@ def card_or_404(key: str) -> dict:
 
 @require_GET
 @guarded_page
-def index(request):
-    """Project selected -> its public datasets; else the search page."""
-    if request.GET.get(PROJECT_PARAM):
-        from ._project import project_page
-
-        return project_page.__wrapped__(request)
-    return search.__wrapped__(request)
-
-
-@require_GET
-@guarded_page
 def search(request):
     """Search public datasets across every supported repository."""
     access = page_access(request)
@@ -189,7 +178,7 @@ def detail(request, key):
             "budget": report,
             "local_dir": (used or {}).get("local_dir") or default_local_dir(card),
             "project_url": (
-                reverse("scitex_dataset:index")
+                reverse("scitex_dataset:project")
                 + "?"
                 + urlencode({PROJECT_PARAM: access.id})
                 if access

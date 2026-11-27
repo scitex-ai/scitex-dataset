@@ -268,7 +268,7 @@ def test_a_replayed_fetch_returns_the_same_job(client, hub, fixture_reference):
 
 def test_non_member_project_page_is_404(client, hub):
     # Arrange
-    url = "/apps/dataset/"
+    url = "/apps/dataset/project/"
     # Act
     response = get(client, url, "stranger", project=P)
     # Assert
@@ -277,7 +277,7 @@ def test_non_member_project_page_is_404(client, hub):
 
 def test_anonymous_project_page_redirects_to_login(client, hub):
     # Arrange
-    url = "/apps/dataset/"
+    url = "/apps/dataset/project/"
     # Act
     response = get(client, url, project=P)
     # Assert
@@ -286,7 +286,7 @@ def test_anonymous_project_page_redirects_to_login(client, hub):
 
 def test_reader_sees_the_project_page(client, hub):
     # Arrange
-    url = "/apps/dataset/"
+    url = "/apps/dataset/project/"
     # Act
     response = get(client, url, "reader", project=P)
     # Assert
@@ -304,7 +304,7 @@ def test_non_member_project_list_api_is_404(client, hub):
 
 def test_project_outputs_are_not_listed(client, hub):
     # Arrange
-    url = "/apps/dataset/"
+    url = "/apps/dataset/project/"
     # Act
     response = get(client, url, "reader", project=P)
     # Assert
@@ -342,7 +342,7 @@ def test_legacy_url_registrations_are_migrated(client, hub):
     (hub / ".scitex" / "dataset").mkdir(parents=True)
     (hub / ".scitex" / "dataset" / "registry.json").write_text(json.dumps(legacy))
     # Act
-    response = get(client, "/apps/dataset/", "reader", project=P)
+    response = get(client, "/apps/dataset/project/", "reader", project=P)
     # Assert
     assert b"Migrated" in response.content
 
