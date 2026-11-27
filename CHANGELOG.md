@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Export/replay portable checksum-and-size-pinned file manifests across data roots, with offline verification and preserved provenance.
+- Configure subprocess coverage declaratively via coverage.py `patch = ["subprocess"]`; `tests/conftest.py` no longer writes `.pth` files into site-packages or overwrites caller-owned coverage environment variables.
 
 All notable changes to this project will be documented in this file.
 
