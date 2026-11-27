@@ -72,7 +72,8 @@ dev = [
     "fastmcp>=2.0.0",
     "huggingface-hub>=0.20.0",
     "pre-commit>=3.5.0",
-    "pytest-cov>=4.0.0",
+    "coverage[toml]>=7.13.0",
+    "pytest-cov>=7.0.0",
     "pytest>=7.0.0",
     "ruff>=0.1.0",
 ]
@@ -180,6 +181,7 @@ ignore = ["E501"]
 
 [tool.coverage.run]
 parallel = true
+patch = ["subprocess"]
 source = ["scitex_dataset"]
 branch = true
 concurrency = ["multiprocessing", "thread"]
