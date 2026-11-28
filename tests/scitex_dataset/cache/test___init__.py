@@ -71,9 +71,11 @@ def test_cache_reuse_detects_same_size_corruption(tmp_path, card):
         first = handle.read(1)[0]
         handle.seek(0)
         handle.write(bytes([first ^ 1]))
-    # Act and assert
-    with pytest.raises(ValueError, match="Cached dataset checksum mismatch"):
+    # Act
+    with pytest.raises(ValueError) as error:
         cache.fetch(card)
+    # Assert
+    assert "Cached dataset checksum mismatch" in str(error.value)
 
 
 def test_fetch_records_every_file_checksum(tmp_path, card):

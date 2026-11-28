@@ -13,7 +13,11 @@ from conftest import api_get, get, post
 
 @pytest.mark.parametrize("context", [{}, {"project": "owner/alpha"}])
 def test_landing_searches_the_public_catalog(client, hub, fixture_reference, context):
-    response = get(client, "/apps/dataset/", "reader", q="payload", **context)
+    # Arrange
+    url = "/apps/dataset/"
+    # Act
+    response = get(client, url, "reader", q="payload", **context)
+    # Assert
     assert b"Fixture payload set" in response.content
 
 
