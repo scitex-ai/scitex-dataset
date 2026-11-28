@@ -26,6 +26,7 @@ for the SciTeX CLI grammar.
 from __future__ import annotations
 
 import click
+from scitex_sdk.app.api_inventory import api_click_group
 
 from .. import __version__
 from .._sources import (
@@ -134,6 +135,15 @@ main.add_command(mcp)
 main.add_command(list_python_apis)
 main.add_command(db_group)
 main.add_command(skills_group)
+# `scitex-dataset api list`: the declared REST operations, the MCP tools and
+# their normalization findings, from the shared scitex-sdk command.
+main.add_command(
+    api_click_group(
+        package="scitex-dataset",
+        import_name="scitex_dataset",
+        mcp_server="scitex_dataset._mcp.server:mcp",
+    )
+)
 register_domain_groups(main)
 
 try:
