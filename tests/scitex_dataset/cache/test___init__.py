@@ -67,15 +67,14 @@ def test_cache_reuse_detects_same_size_corruption(tmp_path, card):
     cache = DatasetCache(tmp_path)
     cache.fetch(card)
     path = cache.files_dir(card["key"], card["version"]) / "payload.bin"
+    # Act
     with path.open("r+b") as handle:
         first = handle.read(1)[0]
         handle.seek(0)
         handle.write(bytes([first ^ 1]))
-    # Act
-    with pytest.raises(ValueError) as error:
-        cache.fetch(card)
     # Assert
-    assert "Cached dataset checksum mismatch" in str(error.value)
+    with pytest.raises(ValueError, match="Cached dataset checksum mismatch"):
+        cache.fetch(card)
 
 
 def test_fetch_records_every_file_checksum(tmp_path, card):

@@ -1,10 +1,9 @@
 ---
 name: scitex-dataset
 description: |
-  Discover open scientific datasets across repositories, inspect source and licence,
-  reuse downloaded data with provenance, and prepare or inspect masked datasets for
-  AI-for-science work. Use for public catalog search, project dataset receipts,
-  shared-cache fetches, and solver-visible versus held-out data.
+  [WHAT] Discover open scientific datasets and track their source, licence, and cached files.
+  [WHEN] Use for public catalog searches, project dataset receipts, and masked AI-for-science inputs.
+  [HOW] Search the catalog, inspect the dataset card, then fetch and verify the versioned files.
 tags: [scitex-dataset]
 allowed-tools: mcp__scitex__dataset_*
 primary_interface: python
