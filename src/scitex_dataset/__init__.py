@@ -104,6 +104,20 @@ from ._file_manifest import (
 )
 from ._fetch_file import FetchError, FetchRecord  # noqa: F401
 
+# The API operations as Python functions, 1:1 with the REST operations at
+# /api/v1/dataset/ and the MCP tools dataset_<resource>_<verb>.
+from ._operations import (  # noqa: F401
+    cache_entries_get,
+    curated_datasets_get,
+    curated_datasets_list,
+    datasets_get,
+    datasets_list,
+    jobs_get,
+    project_datasets_create,
+    project_datasets_fetch,
+    project_datasets_list,
+)
+
 # DB-level aliases for MCP parity (`dataset_db_*` tools).
 from .database import build as db_build  # noqa: F401
 from .database import get_stats as db_show_stats  # noqa: F401
@@ -199,6 +213,16 @@ __all__ = [
     "replay_file_manifest",
     "fetch_reference",
     "list_references",
+    # The v1 API operations (REST /api/v1/dataset/, MCP dataset_*_*)
+    "datasets_list",
+    "datasets_get",
+    "cache_entries_get",
+    "project_datasets_list",
+    "project_datasets_create",
+    "project_datasets_fetch",
+    "jobs_get",
+    "curated_datasets_list",
+    "curated_datasets_get",
 ]
 
 # EOF

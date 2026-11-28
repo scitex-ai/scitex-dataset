@@ -27,6 +27,11 @@ def register_all_tools(mcp) -> None:
     register_reference_tools(mcp)
     register_ai_for_science_tools(mcp)
     register_skills_tools(mcp)
+    # The REST operations as MCP tools (dataset_<resource>_<verb>), generated
+    # from the same declaration the Hub serves at /api/v1/dataset/.
+    from ..._rest import register_mcp
+
+    register_mcp(mcp)
 
 
 __all__ = ["register_all_tools"]

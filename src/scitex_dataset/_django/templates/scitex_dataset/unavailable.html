@@ -1,0 +1,8 @@
+{% extends "scitex_dataset/_base.html" %}
+{% block dataset_content %}
+<section class="dataset-section">
+  <h1 class="dataset-h1">The dataset index is not available</h1>
+  <p>This host cannot read the public-dataset index right now, so the dataset cannot be shown. Pinned reference files still work.</p>
+  <p class="dataset-hint">{{ problem|truncatechars:200 }}</p>
+</section>
+{% endblock %}

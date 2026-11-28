@@ -55,6 +55,7 @@ from scitex_dev.store import (
     eq,
     gte,
     host_store,
+    is_in,
     lte,
     nonempty,
 )
@@ -64,9 +65,12 @@ from ._index_schema import PKG, SCHEMA, VALID_ORDERS, row_values
 __all__ = [
     "build",
     "clear",
+    "facets",
+    "get_record",
     "get_stats",
     "get_store",
     "search",
+    "search_page",
     "store_description",
     "update",
 ]
@@ -76,6 +80,7 @@ __all__ = [
 #: in the other ten.
 _SOURCE_MODULES = {
     "openneuro": "neuroscience.openneuro",
+    "gin": "neuroscience.gin",
     "dandi": "neuroscience.dandi",
     "physionet": "neuroscience.physionet",
     "zenodo": "general.zenodo",
@@ -260,11 +265,23 @@ def _as_query(
     limit: int,
     offset: int,
     order_by: str,
+    sources: Optional[List[str]] = None,
+    license: Optional[str] = None,
+    min_size_gb: Optional[float] = None,
+    max_size_gb: Optional[float] = None,
 ) -> Query:
     """Translate the caller's filters into one store query."""
     criteria = []
     if source:
         criteria.append(eq("source", source))
+    if sources:
+        criteria.append(is_in("source", list(sources)))
+    if license:
+        criteria.append(eq("license", license))
+    if min_size_gb is not None:
+        criteria.append(gte("size_gb", float(min_size_gb)))
+    if max_size_gb is not None:
+        criteria.append(lte("size_gb", float(max_size_gb)))
     if modality:
         # Either the modality LIST holds it, or it IS the primary one.
         # `contains` asks the JSON document, so a dataset whose prose
@@ -305,6 +322,10 @@ def search(
     offset: int = 0,
     order_by: str = "downloads",
     store: "Store | None" = None,
+    sources: Optional[List[str]] = None,
+    license: Optional[str] = None,
+    min_size_gb: Optional[float] = None,
+    max_size_gb: Optional[float] = None,
 ) -> List[Dict[str, Any]]:
     """Search the index.
 
@@ -342,6 +363,12 @@ def search(
         Order by: downloads, views, n_subjects, size_gb, name, created.
     store : Store, optional
         The store to read from. Default: this host's.
+    sources : list of str, optional
+        Keep only these sources (a domain is a set of sources).
+    license : str, optional
+        Exact licence string, as :func:`facets` reports it.
+    min_size_gb, max_size_gb : float, optional
+        Size bounds in GiB.
 
     Returns
     -------
@@ -361,9 +388,68 @@ def search(
             limit,
             offset,
             order_by,
+            sources=sources,
+            license=license,
+            min_size_gb=min_size_gb,
+            max_size_gb=max_size_gb,
         )
     )
     return [row.values["record"] for row in found]
+
+
+def search_page(
+    query: Optional[str] = None,
+    *,
+    sources: Optional[List[str]] = None,
+    modality: Optional[str] = None,
+    license: Optional[str] = None,
+    min_size_gb: Optional[float] = None,
+    max_size_gb: Optional[float] = None,
+    limit: int = 20,
+    offset: int = 0,
+    order_by: str = "downloads",
+    store: "Store | None" = None,
+) -> Dict[str, Any]:
+    """One page of matches WITH the total, as ``(source, record)`` pairs.
+
+    :func:`search` returns records only; a browser also needs to know which
+    source each came from (the record's own ``id`` is not namespaced) and how
+    many matched in all, which ``len()`` of one page cannot say.
+    """
+    target = get_store(store)
+    built = _as_query(
+        query,
+        None,
+        modality,
+        None,
+        None,
+        None,
+        False,
+        limit,
+        offset,
+        order_by,
+        sources=sources,
+        license=license,
+        min_size_gb=min_size_gb,
+        max_size_gb=max_size_gb,
+    )
+    rows = target.search(built)
+    return {
+        "total": target.count(built),
+        "items": [(row.values["source"], row.values["record"]) for row in rows],
+    }
+
+
+def get_record(source: str, dataset_id: str, store: "Store | None" = None):
+    """The indexed record of ``source``/``dataset_id``, or ``None``."""
+    row = get_store(store).get({"id": f"{source}:{dataset_id}"})
+    return None if row is None else row.values["record"]
+
+
+def facets(store: "Store | None" = None) -> Dict[str, Dict[Any, int]]:
+    """Counts per source and per licence, for a browser's filter menus."""
+    target = get_store(store)
+    return {"source": target.tally("source"), "license": target.tally("license")}
 
 
 @supports_return_as

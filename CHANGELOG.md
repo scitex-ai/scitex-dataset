@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Export/replay portable checksum-and-size-pinned file manifests across data roots, with offline verification and preserved provenance.
+- Configure subprocess coverage declaratively via coverage.py `patch = ["subprocess"]`; `tests/conftest.py` no longer writes `.pth` files into site-packages or overwrites caller-owned coverage environment variables.
 
 All notable changes to this project will be documented in this file.
 
@@ -10,6 +11,51 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.16.0] - 2026-11-27
+
+The Dataset app is now about OPEN datasets: find them, cite them, use them in a
+project with version and checksums pinned. Project files are no longer its
+business (they belong to the host's file browser).
+
+- Search and browse public datasets across every repository
+  (`scitex_dataset.catalog`: one card shape — title, repository, DOI or
+  accession, licence, human-readable size, last update, citation, snippet);
+  filters for repository, domain, modality, licence and size. Reference files
+  are searched without the index; an unavailable index is reported, never
+  shown as "no results".
+- `database.search` gains `sources`, `license`, `min_size_gb`/`max_size_gb`;
+  `search_page`, `get_record`, `facets`. Records that state bytes (Zenodo,
+  DANDI) now index their size; NUL characters no longer fail a whole source.
+- Fixed: the PhysioNet fetcher used `/rest/database-list/` (404 since
+  PhysioNet's API move) and indexed nothing; it reads
+  `/api/v1/project/published/` (latest versions, version DOI, size, topics,
+  access policy). GIN is now buildable into the index.
+- New reference `mnist-idx` (the four original IDX files, sha256 and md5
+  verified); multi-file reference entries (`files`); `match_reference`.
+- Project manifest `.scitex/dataset/sources.json` (`scitex_dataset.project`):
+  record a dataset with version, DOI, licence, citation and file checksums;
+  detect pinned public bytes already under `data/`; migrate 0.15
+  `registry.json` URL registrations. Upload and path registration are removed
+  (the old endpoints answer 410).
+- Shared local dataset cache (`scitex_dataset.cache`): fetched once, reused
+  across projects and users, hard-linked into projects; cached / partial /
+  not-cached status; LRU eviction to `cache.max_bytes`; operator page.
+- Background fetch jobs with progress; `fetch_file(progress=)`.
+- Curated AI-for-science datasets (`scitex_dataset.curated`): source and
+  version, derivation chain, masking policies and held-out counts; held-out
+  names for operators only, content never served. `read_manifest`.
+- REST + MCP from ONE declaration (`scitex_dataset._rest`, scitex-sdk
+  operation layer, `scitex.apis` entry point `dataset`): `/api/v1/dataset/…`
+  with derived scopes `dataset:<resource>:<read|write>`, problem+json errors,
+  cursor pagination, idempotency keys; MCP tools `dataset_<resource>_<verb>`;
+  the same operations as Python functions (`datasets_list`, …,
+  `project_datasets_fetch`).
+- Provenance-readers contract 1.1.0: providers may receive the host's
+  `store` routing to the project's record store; results carry `sources`
+  (the public dataset, version, DOI and sha256 of each path).
+- Fetching into a hosted project is admitted by the host storage gate
+  (`scitex_sdk.host.require_storage_write`); requires scitex-sdk >= 0.3.26.
 
 ## [0.15.0] - 2026-11-26
 

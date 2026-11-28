@@ -60,7 +60,7 @@ See [03_python-api.md](03_python-api.md) for the package's Python interfaces.
 
 ### Workflows
 - [17_portable-file-manifests.md](17_portable-file-manifests.md) — export and replay pinned files under another data root
-- [18_project-datasets.md](18_project-datasets.md) — a project's datasets, the Hub Dataset app, provenance-readers contract
+- [18_project-datasets.md](18_project-datasets.md) — find open datasets, use them in a project (sources.json, shared cache), the Dataset app, the /api/v1/dataset REST + MCP operations, provenance-readers 1.1
 - [15_ai-for-science.md](15_ai-for-science.md) — preparation, public validation,
   reference identity and scoring boundaries for agentic benchmarks
 - [16_eligibility-screening.md](16_eligibility-screening.md) — declarative

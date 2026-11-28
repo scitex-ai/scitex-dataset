@@ -1,0 +1,38 @@
+{% extends "scitex_sdk/app/app_shell.html" %}
+{% load scitex_static scitex_project_picker %}
+{% comment %}
+Host chrome comes from scitex_sdk/app/app_shell.html (the Hub maps it to its
+own base page). Server-rendered; the only script is the fetch-progress poller.
+{% endcomment %}
+{% block extra_css %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    {% scitex_project_provider_meta %}
+    <link rel="stylesheet" href="{% app_static 'scitex_sdk/ui/css/app/form-controls.css' %}">
+    <link rel="stylesheet" href="{% app_static 'scitex_sdk/ui/css/app/app-header.css' %}">
+    <link rel="stylesheet" href="{% app_static 'scitex_dataset/css/dataset.css' %}">
+{% endblock %}
+
+{% block scitex_app_content %}
+<div class="dataset-app" data-dataset-app>
+  <div data-stx-app-header data-app-title="SciTeX Dataset" data-app-version="{{ dataset_version }}">
+    {% scitex_project_picker scope="project" current=dataset_project_id %}
+  </div>
+
+  <nav class="dataset-tabs" aria-label="Dataset sections">
+    <a href="{% url 'scitex_dataset:search' %}{% if project_query %}?{{ project_query }}{% endif %}" class="dataset-tab{% if tab == 'search' %} is-active{% endif %}">Find open datasets</a>
+    {% if access %}<a href="{% url 'scitex_dataset:index' %}?{{ project_query }}" class="dataset-tab{% if tab == 'project' %} is-active{% endif %}">Used in {{ access.name }}</a>{% endif %}
+    <a href="{% url 'scitex_dataset:curated' %}{% if project_query %}?{{ project_query }}{% endif %}" class="dataset-tab{% if tab == 'curated' %} is-active{% endif %}">Curated for AI science</a>
+    {% if is_operator %}<a href="{% url 'scitex_dataset:cache' %}" class="dataset-tab{% if tab == 'cache' %} is-active{% endif %}">Shared cache</a>{% endif %}
+  </nav>
+
+  {% if ok %}<p class="dataset-flash dataset-flash--ok" role="status">{{ ok }}</p>{% endif %}
+  {% if error %}<p class="dataset-flash dataset-flash--error" role="alert">{{ error }}</p>{% endif %}
+
+  {% block dataset_content %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="module" src="{% app_static 'scitex_sdk/ui/js/app/app-header.js' %}"></script>
+    <script type="module" src="{% app_static 'scitex_dataset/js/dataset.js' %}"></script>
+{% endblock %}

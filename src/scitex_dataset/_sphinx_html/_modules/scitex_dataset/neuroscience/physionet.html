@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_dataset.neuroscience.physionet &mdash; scitex-dataset v0.15.0</title>
+  <title>scitex_dataset.neuroscience.physionet &mdash; scitex-dataset v0.16.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=ef97403f"></script>
+      <script src="../../../_static/documentation_options.js?v=7de89ed4"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -146,6 +146,15 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.replay_file_manifest"><code class="docutils literal notranslate"><span class="pre">replay_file_manifest()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.fetch_reference"><code class="docutils literal notranslate"><span class="pre">fetch_reference()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.list_references"><code class="docutils literal notranslate"><span class="pre">list_references()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.datasets_list"><code class="docutils literal notranslate"><span class="pre">datasets_list()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.datasets_get"><code class="docutils literal notranslate"><span class="pre">datasets_get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.cache_entries_get"><code class="docutils literal notranslate"><span class="pre">cache_entries_get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.project_datasets_list"><code class="docutils literal notranslate"><span class="pre">project_datasets_list()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.project_datasets_create"><code class="docutils literal notranslate"><span class="pre">project_datasets_create()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.project_datasets_fetch"><code class="docutils literal notranslate"><span class="pre">project_datasets_fetch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.jobs_get"><code class="docutils literal notranslate"><span class="pre">jobs_get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.curated_datasets_list"><code class="docutils literal notranslate"><span class="pre">curated_datasets_list()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.curated_datasets_get"><code class="docutils literal notranslate"><span class="pre">curated_datasets_get()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.search">Search Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.search_datasets"><code class="docutils literal notranslate"><span class="pre">search_datasets()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.search.sort_datasets"><code class="docutils literal notranslate"><span class="pre">sort_datasets()</span></code></a></li>
@@ -156,9 +165,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#nothing-is-deleted-any-more">NOTHING IS DELETED ANY MORE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.clear"><code class="docutils literal notranslate"><span class="pre">clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.facets"><code class="docutils literal notranslate"><span class="pre">facets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_record"><code class="docutils literal notranslate"><span class="pre">get_record()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_stats"><code class="docutils literal notranslate"><span class="pre">get_stats()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.get_store"><code class="docutils literal notranslate"><span class="pre">get_store()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.search_page"><code class="docutils literal notranslate"><span class="pre">search_page()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.store_description"><code class="docutils literal notranslate"><span class="pre">store_description()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.database._SOURCE_MODULES"><code class="docutils literal notranslate"><span class="pre">_SOURCE_MODULES</span></code></a></li>
@@ -184,6 +196,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.fetch_all_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_all_datasets()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.format_dataset"><code class="docutils literal notranslate"><span class="pre">format_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet._plain_text"><code class="docutils literal notranslate"><span class="pre">_plain_text()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -225,6 +238,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/scitex_dataset.html#module-scitex_dataset.general.reference">Reference files (sha256-verified fetch)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.reference.fetch_reference"><code class="docutils literal notranslate"><span class="pre">fetch_reference()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.reference.list_references"><code class="docutils literal notranslate"><span class="pre">list_references()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.reference.match_reference"><code class="docutils literal notranslate"><span class="pre">match_reference()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset.general.reference.reference_files"><code class="docutils literal notranslate"><span class="pre">reference_files()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset._fetch_file.FetchError"><code class="docutils literal notranslate"><span class="pre">FetchError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset._fetch_file.FetchRecord"><code class="docutils literal notranslate"><span class="pre">FetchRecord</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/scitex_dataset.html#scitex_dataset._fetch_file.fetch_file"><code class="docutils literal notranslate"><span class="pre">fetch_file()</span></code></a></li>
@@ -335,18 +350,26 @@
 <span class="p">]</span>
 
 
+<span class="c1">#: The published-projects listing. ``/rest/database-list/`` (the old</span>
+<span class="c1">#: endpoint) answers 404 since PhysioNet's API move; this one returns every</span>
+<span class="c1">#: published project version, unpaginated.</span>
+<span class="n">PUBLISHED_ENDPOINT</span> <span class="o">=</span> <span class="s2">"/api/v1/project/published/"</span>
+
+
 <div class="viewcode-block" id="fetch_datasets">
 <a class="viewcode-back" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet.fetch_datasets">[docs]</a>
 <span class="nd">@supports_return_as</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">fetch_datasets</span><span class="p">(</span><span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Fetch a single page of databases from PhysioNet."""</span>
-    <span class="n">response</span> <span class="o">=</span> <span class="n">_httpx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">PHYSIONET_API</span><span class="si">}</span><span class="s2">/rest/database-list/"</span><span class="p">,</span>
-        <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"page"</span><span class="p">:</span> <span class="n">page</span><span class="p">},</span>
-        <span class="n">timeout</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span>
-    <span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fetch_datasets</span><span class="p">(</span><span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Fetch the published PhysioNet projects (LATEST version of each).</span>
+
+<span class="sd">    The endpoint is not paginated; ``page`` &gt; 1 returns an empty list so the</span>
+<span class="sd">    pagination loop of :func:`fetch_all_datasets` ends after one call.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">page</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">_httpx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">PHYSIONET_API</span><span class="si">}{</span><span class="n">PUBLISHED_ENDPOINT</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
     <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"is_latest_version"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)]</span></div>
 
 
 
@@ -411,23 +434,49 @@
     <span class="n">slug</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"slug"</span><span class="p">,</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"short_name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
     <span class="n">title</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"title"</span><span class="p">,</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"N/A"</span><span class="p">))</span>
 
+    <span class="n">size</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"main_storage_size"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"total_size"</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
+    <span class="n">topics</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"topics"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">t</span><span class="p">]</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"version"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">"id"</span><span class="p">:</span> <span class="n">slug</span><span class="p">,</span>
         <span class="s2">"name"</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
-        <span class="s2">"version"</span><span class="p">:</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"version"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"version"</span><span class="p">:</span> <span class="n">version</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"short_description"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
         <span class="s2">"abstract"</span><span class="p">:</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"abstract"</span><span class="p">,</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"description"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)),</span>
-        <span class="s2">"doi"</span><span class="p">:</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"doi"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"readme"</span><span class="p">:</span> <span class="n">_plain_text</span><span class="p">(</span><span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"abstract"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)),</span>
+        <span class="c1"># The VERSION DOI pins exactly what a project uses; the core DOI</span>
+        <span class="c1"># names the project across versions.</span>
+        <span class="s2">"doi"</span><span class="p">:</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"version_doi"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"core_doi"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"doi"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"core_doi"</span><span class="p">:</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"core_doi"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
         <span class="s2">"license"</span><span class="p">:</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"license"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"license"</span><span class="p">),</span> <span class="nb">dict</span><span class="p">)</span>
         <span class="k">else</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"license"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
         <span class="s2">"n_subjects"</span><span class="p">:</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"subject_count"</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
         <span class="s2">"n_records"</span><span class="p">:</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"record_count"</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="s2">"size_gb"</span><span class="p">:</span> <span class="nb">round</span><span class="p">((</span><span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"total_size"</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span><span class="o">**</span><span class="mi">3</span><span class="p">),</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s2">"size_bytes"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">),</span>
+        <span class="s2">"size_gb"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">size</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span><span class="o">**</span><span class="mi">3</span><span class="p">),</span> <span class="mi">2</span><span class="p">),</span>
         <span class="s2">"publish_date"</span><span class="p">:</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"publish_date"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
-        <span class="s2">"url"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"https://physionet.org/content/</span><span class="si">{</span><span class="n">slug</span><span class="si">}</span><span class="s2">/"</span> <span class="k">if</span> <span class="n">slug</span> <span class="k">else</span> <span class="s2">""</span><span class="p">,</span>
-        <span class="c1"># PhysioNet-specific</span>
-        <span class="s2">"data_access"</span><span class="p">:</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data_access"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"modified"</span><span class="p">:</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"publish_date"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="s2">"modalities"</span><span class="p">:</span> <span class="n">topics</span><span class="p">,</span>
+        <span class="s2">"tasks"</span><span class="p">:</span> <span class="n">topics</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"source_url"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="p">(</span><span class="sa">f</span><span class="s2">"https://physionet.org/content/</span><span class="si">{</span><span class="n">slug</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">/"</span> <span class="k">if</span> <span class="n">slug</span> <span class="k">else</span> <span class="s2">""</span><span class="p">),</span>
+        <span class="c1"># PhysioNet-specific: Open / Restricted / Credentialed access.</span>
+        <span class="s2">"data_access"</span><span class="p">:</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"access_policy"</span><span class="p">,</span> <span class="n">database</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data_access"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)),</span>
     <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="_plain_text">
+<a class="viewcode-back" href="../../../api/scitex_dataset.html#scitex_dataset.neuroscience.physionet._plain_text">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_plain_text</span><span class="p">(</span><span class="n">html</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The abstract without markup, for full-text search."""</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">html</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_html</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+    <span class="k">return</span> <span class="n">_html</span><span class="o">.</span><span class="n">unescape</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"&lt;[^&gt;]+&gt;"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">html</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
 
 
 

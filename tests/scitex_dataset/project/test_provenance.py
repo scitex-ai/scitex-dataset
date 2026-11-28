@@ -155,3 +155,54 @@ def test_the_schema_rejects_a_record_without_a_script():
 
 
 # EOF
+
+
+# --- contract 1.1: store routing and dataset sources --------------------------
+
+ROUTE = {"tenant_id": "t", "dsn": "postgresql://h/db", "project_scope": "s", "owner_role": "o"}
+
+
+class RoutedReaders(StaticReaders):
+    """A 1.1 provider: records the store routing it was handed."""
+
+    name = "routed"
+    contract_version = "1.1.0"
+
+    def readers(self, project_root, paths, *, store=None):
+        self.asked.append(store)
+        return {p: v for p, v in self.table.items() if p in paths}
+
+
+class LegacyReaders(StaticReaders):
+    """A 1.0 provider: its readers() takes no store keyword."""
+
+    name = "legacy"
+    contract_version = "1.0.0"
+
+
+def test_a_1_1_provider_receives_the_store_routing(tmp_path):
+    # Arrange
+    provider = RoutedReaders()
+    # Act
+    readers_of(tmp_path, ["data/a.csv"], providers=[provider], store=ROUTE)
+    # Assert
+    assert provider.asked == [ROUTE]
+
+
+def test_a_1_0_provider_is_called_without_the_routing(tmp_path):
+    # Arrange
+    provider = LegacyReaders()
+    # Act
+    result = readers_of(tmp_path, ["data/a.csv"], providers=[provider], store=ROUTE)
+    # Assert
+    assert (result["providers"][0]["status"], result["providers"][0]["store_routed"]) == ("ok", False)
+
+
+def test_the_result_names_the_public_dataset_of_each_path(tmp_path):
+    # Arrange
+    source = {"key": "reference:x", "repository": "reference", "accession": "x",
+              "version": "v1", "doi": "10.1/x", "sha256": "ab" * 32}
+    # Act
+    result = readers_of(tmp_path, ["data/a.csv"], providers=[], sources={"data/a.csv": source})
+    # Assert
+    assert result["sources"]["data/a.csv"]["doi"] == "10.1/x"

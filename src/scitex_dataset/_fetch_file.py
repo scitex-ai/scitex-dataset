@@ -33,7 +33,7 @@ import urllib.request
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union
 
 _CHUNK = 1024 * 1024
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -111,6 +111,7 @@ def fetch_file(
     replace: bool = False,
     license: Optional[str] = None,
     citation: Optional[str] = None,
+    progress: Optional[Callable[[int, Optional[int]], None]] = None,
 ) -> FetchRecord:
     """Download one file, verify its sha256, cache it, return its provenance.
 
@@ -132,6 +133,10 @@ def fetch_file(
         download instead of raising. Default False.
     license, citation : str, optional
         Metadata copied into the returned record.
+    progress : callable, optional
+        Called as ``progress(bytes_done, bytes_total_or_None)`` after each
+        chunk of a download (not for a cached file). An exception it raises
+        aborts the download; the partial file is removed as on any failure.
 
     Returns
     -------
@@ -187,10 +192,13 @@ def fetch_file(
         with urllib.request.urlopen(request, timeout=timeout) as resp:
             declared = resp.headers.get("Content-Length")
             with part.open("wb") as fh:
+                total = int(declared) if declared is not None else None
                 for chunk in iter(lambda: resp.read(_CHUNK), b""):
                     fh.write(chunk)
                     h.update(chunk)
                     written += len(chunk)
+                    if progress is not None:
+                        progress(written, total)
         if declared is not None and written != int(declared):
             raise FetchError(
                 f"fetch_file: truncated body from {url} ({written} of {declared} bytes)"

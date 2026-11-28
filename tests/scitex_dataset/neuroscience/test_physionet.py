@@ -340,21 +340,24 @@ def test_fetch_all_datasets_respects_max_datasets_cap_of_three():
     assert len(datasets) == 3
 
 
-def test_fetch_all_datasets_paginated_dict_response_combines_two_pages_to_five():
-    # Arrange
+def test_fetch_all_datasets_keeps_only_the_latest_version_of_each_project():
+    # Arrange: the published-projects endpoint lists every version, unpaginated
     from scitex_dataset.neuroscience.physionet import fetch_all_datasets
 
-    page1 = {
-        "results": [{"slug": f"db{i}"} for i in range(1, 4)],
-        "next": "http://next",
-    }
-    page2 = {"results": [{"slug": f"db{i}"} for i in range(4, 6)], "next": None}
-    stub = _StubHttpx([_StubResponse(page1), _StubResponse(page2)])
+    listing = [
+        {"slug": "db1", "version": "1.0.0", "is_latest_version": False},
+        {"slug": "db1", "version": "1.1.0", "is_latest_version": True},
+        {"slug": "db2", "version": "2.0.0", "is_latest_version": True},
+    ]
+    stub = _StubHttpx([_StubResponse(listing)])
     # Act
     with _swap_httpx(stub):
         datasets = fetch_all_datasets()
     # Assert
-    assert len(datasets) == 5
+    assert [(d["slug"], d["version"]) for d in datasets] == [
+        ("db1", "1.1.0"),
+        ("db2", "2.0.0"),
+    ]
 
 
 # EOF

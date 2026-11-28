@@ -10,54 +10,18 @@ collaborators are swapped at the module namespace using real
 save/restore context managers (see ``_swap_httpx_get`` / etc. in the
 per-source test modules).
 
-This module also wires module-import-time subprocess coverage. We use
-``os.environ[...] = ...`` (force-set), NOT ``setdefault`` — pytest-cov has
-already populated ``COVERAGE_FILE`` to a per-test tmp dir by the time
-``conftest.py`` is loaded, so ``setdefault`` would silently no-op.
+Subprocess coverage is configured in pyproject.toml via coverage.py's
+subprocess patch; test collection must not install .pth files or
+overwrite caller-owned coverage environment variables.
 """
 
 from __future__ import annotations
 
 import hashlib
-import os
-import sys
-import sysconfig
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
 
 import pytest
-
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-# Pin coverage's data file at the repo root and point process_startup
-# at our pyproject so child interpreters configure themselves correctly.
-os.environ["COVERAGE_PROCESS_START"] = str(_PROJECT_ROOT / "pyproject.toml")
-os.environ["COVERAGE_FILE"] = str(_PROJECT_ROOT / ".coverage")
-
-
-def _ensure_subprocess_coverage_shim() -> None:
-    """Drop an idempotent ``.pth`` file in site-packages that auto-starts
-    coverage in every child Python interpreter via
-    ``coverage.process_startup()``.
-    """
-    purelib = Path(sysconfig.get_paths()["purelib"])
-    pth = purelib / "_scitex_dataset_subprocess_coverage.pth"
-    shim = (
-        "import os, coverage\n"
-        "if os.environ.get('COVERAGE_PROCESS_START'):\n"
-        "    coverage.process_startup()\n"
-    )
-    try:
-        if not pth.exists() or pth.read_text() != shim:
-            pth.write_text(shim)
-    except OSError:
-        # site-packages may be read-only (e.g. system Python); silently
-        # skip — local dev venvs are writable and that's where this matters.
-        pass
-
-
-_ensure_subprocess_coverage_shim()
 
 
 # Sample OpenNeuro dataset
@@ -306,6 +270,12 @@ def loopback_server():
         httpd.shutdown()
         httpd.server_close()
         thread.join(timeout=5)
+
+
+@pytest.fixture
+def loopback_payload():
+    """The exact bytes served at ``/payload.bin``."""
+    return LOOPBACK_PAYLOAD
 
 
 @pytest.fixture
