@@ -13,10 +13,11 @@ from ._curated import cache_page, curated_detail, curated_list
 from ._project import project_page, use_in_project
 from ._public import (
     detail,
-    index,
     legacy_redirect,
     search,
 )
+
+index = search
 
 __all__ = [
     "cache_page",

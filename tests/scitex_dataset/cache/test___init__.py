@@ -62,6 +62,21 @@ def test_a_cached_dataset_is_not_downloaded_again(tmp_path, card):
     assert card["_hits"]["payload.bin"] == 1
 
 
+def test_cache_reuse_detects_same_size_corruption(tmp_path, card):
+    # Arrange
+    cache = DatasetCache(tmp_path)
+    cache.fetch(card)
+    path = cache.files_dir(card["key"], card["version"]) / "payload.bin"
+    # Act
+    with path.open("r+b") as handle:
+        first = handle.read(1)[0]
+        handle.seek(0)
+        handle.write(bytes([first ^ 1]))
+    # Assert
+    with pytest.raises(ValueError, match="Cached dataset checksum mismatch"):
+        cache.fetch(card)
+
+
 def test_fetch_records_every_file_checksum(tmp_path, card):
     # Arrange
     cache = DatasetCache(tmp_path)

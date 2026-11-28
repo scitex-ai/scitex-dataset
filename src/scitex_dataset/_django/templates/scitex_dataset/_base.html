@@ -20,7 +20,7 @@ own base page). Server-rendered; the only script is the fetch-progress poller.
 
   <nav class="dataset-tabs" aria-label="Dataset sections">
     <a href="{% url 'scitex_dataset:search' %}{% if project_query %}?{{ project_query }}{% endif %}" class="dataset-tab{% if tab == 'search' %} is-active{% endif %}">Find open datasets</a>
-    {% if access %}<a href="{% url 'scitex_dataset:index' %}?{{ project_query }}" class="dataset-tab{% if tab == 'project' %} is-active{% endif %}">Used in {{ access.name }}</a>{% endif %}
+    {% if access %}<a href="{% url 'scitex_dataset:project' %}?{{ project_query }}" class="dataset-tab{% if tab == 'project' %} is-active{% endif %}">Used in {{ access.name }}</a>{% endif %}
     <a href="{% url 'scitex_dataset:curated' %}{% if project_query %}?{{ project_query }}{% endif %}" class="dataset-tab{% if tab == 'curated' %} is-active{% endif %}">Curated for AI science</a>
     {% if is_operator %}<a href="{% url 'scitex_dataset:cache' %}" class="dataset-tab{% if tab == 'cache' %} is-active{% endif %}">Shared cache</a>{% endif %}
   </nav>

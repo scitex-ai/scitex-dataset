@@ -28,8 +28,8 @@ stx.dataset.project_datasets_fetch(".", "reference:mnist-idx", wait=True)  # cac
 
 - A dataset id is `<repository>:<accession>` (`openneuro:ds004362`,
   `reference:mnist-idx`); `/` in an accession is written `~` in a URL.
-- The project manifest `.scitex/dataset/sources.json` pins version, DOI,
-  licence, citation and every file's SHA-256; the 0.15 `registry.json` URL
+- The project manifest `.scitex/dataset/sources.json` records available version, DOI,
+  licence, citation and file checksums; the 0.15 `registry.json` URL
   registrations are migrated into it on the next write.
 - Pinned public bytes already under `data/` are DETECTED (sha256 against the
   reference registry), so a project that downloaded MNIST by hand shows it
@@ -45,6 +45,12 @@ stx.dataset.project_datasets_fetch(".", "reference:mnist-idx", wait=True)  # cac
   `ApiOperation`s, entry point `scitex.apis: dataset`); a host mounts them with
   `scitex_sdk.app.api_serve.api_urlpatterns()` and no dataset code. Scopes are
   derived: `dataset:<resource>:<read|write>`.
+
+Search coverage exceeds download coverage. A catalog record can lack a version,
+licence or upstream digest. For pinned files the downloader checks the expected
+SHA-256. For repository downloads that supply no digest it computes SHA-256 after
+retrieval. To claim replay of a specific upstream revision, verify that the
+adapter selected that revision and that the recorded bytes match.
 
 ## Which scripts read a dataset — provenance-readers 1.1.0
 

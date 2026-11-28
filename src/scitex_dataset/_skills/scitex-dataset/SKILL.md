@@ -1,9 +1,9 @@
 ---
 name: scitex-dataset
 description: |
-  [WHAT] Dataset discovery across 11 catalog sources and HuggingFace, plus preparation and evaluation tools for three agentic-science benchmarks.
-  [WHEN] Use when the user asks to "find an EEG dataset", "list BIDS datasets on topic X", "search DANDI for Neuropixels", "get GEO series for Alzheimer's", "find a ChEMBL target / bioassay".
-  [HOW] `import scitex_dataset` then call `fetch_all_datasets()`.
+  [WHAT] Discover open scientific datasets and track their source, licence, and cached files.
+  [WHEN] Use for public catalog searches, project dataset receipts, and masked AI-for-science inputs.
+  [HOW] Search the catalog, inspect the dataset card, then fetch and verify the versioned files.
 tags: [scitex-dataset]
 allowed-tools: mcp__scitex__dataset_*
 primary_interface: python
@@ -13,7 +13,7 @@ interfaces:
   mcp: 2
   skills: 2
   hook: 0
-  http: 0
+  http: 2
 ---
 
 
