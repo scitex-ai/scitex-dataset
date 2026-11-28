@@ -97,4 +97,26 @@ def test_every_python_api_function_exists_for_an_operation():
     assert missing == []
 
 
+def test_the_dataset_declaration_passes_the_static_api_contract():
+    # Arrange
+    from scitex_sdk.testing.api_contract import check_plugin
+
+    plugin = PLUGIN
+    # Act
+    found = [str(v) for v in check_plugin(plugin)]
+    # Assert
+    assert found == []
+
+
+def test_every_dataset_operation_answers_the_api_contract_envelope():
+    # Arrange
+    from scitex_sdk.testing.api_contract import run_contract_suite
+
+    target = "scitex_dataset._rest:PLUGIN"
+    # Act
+    found = [str(v) for v in run_contract_suite(PLUGIN, target=target)]
+    # Assert
+    assert found == []
+
+
 # EOF
